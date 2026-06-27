@@ -86,6 +86,7 @@ const NAV = [
   { sep: true },
   { id: "history", label: "History", icon: "i-history" },
   { id: "voices", label: "Voice Lab", icon: "i-voices" },
+  { id: "training", label: "Training", icon: "i-wand" },
   { id: "settings", label: "Settings", icon: "i-settings" },
 ];
 // Project-scoped nav uses the open project, else the most-recently-updated one,
@@ -1141,10 +1142,131 @@ async function renderSettings(host) {
   };
 }
 
+/* ---------- Training (LoRA) ---------- */
+let _trainPoll = null;
+async function renderTraining(host) {
+  topbar("Training", "Train custom LoRAs from your own image datasets — no terminal needed");
+  if (_trainPoll) { clearInterval(_trainPoll); _trainPoll = null; }
+  const page = el("div", "page page-wide");
+  host.appendChild(page);
+
+  async function load() {
+    let data;
+    try { data = await api.get("/api/training/datasets"); }
+    catch (e) { page.innerHTML = `<div class="card"><p class="muted">${esc(e.message)}</p></div>`; return; }
+    draw(data);
+  }
+
+  function draw(data) {
+    const st = data.status || {}, run = st.run, dss = data.datasets || [];
+    page.innerHTML = "";
+
+    const head = el("div", "card");
+    head.innerHTML = `
+      <div class="spread"><h2 class="mb0">Train a LoRA</h2>
+        <span class="badge ${st.krea2_ready ? "good" : "warn"}">krea2 ${st.krea2_ready ? "ready" : "weights missing"}</span></div>
+      <p class="desc">Drop 20–200 images into <code>training/&lt;base&gt;/&lt;name&gt;/dataset/</code> (e.g. <code>training/krea2/my-style/dataset/</code>), then hit <b>Train</b>. The result drops into ComfyUI's loras + the Images page. <b>krea2</b> = your flat-cartoon model; SDXL / SD1.5 / FLUX unlock once their trainers are installed.</p>
+      <div class="row"><button class="btn btn-ghost btn-sm" id="trRefresh">${icon("i-refresh")} Rescan datasets</button></div>`;
+    page.appendChild(head);
+    $("#trRefresh", page).onclick = load;
+
+    const colab = el("div", "card"); colab.style.marginTop = "16px";
+    colab.innerHTML = `
+      <div class="spread"><h2 class="mb0">Train on Google Colab</h2><span class="badge gold">A100 · ~30 min · fastest</span></div>
+      <p class="desc">Train on a cloud A100 instead of your 16&nbsp;GB card — much faster, and it pulls the weights itself (no big local download). Runs entirely in your own Colab.</p>
+      <div class="row" style="margin-bottom:12px">
+        <a class="btn btn-primary btn-sm" href="/krea2_lora_colab.ipynb" download>${icon("i-download")} Download Colab notebook</a>
+        <a class="btn btn-ghost btn-sm" href="https://colab.research.google.com" target="_blank" rel="noopener">Open Google Colab (new tab)</a>
+      </div>
+      <ol class="desc" style="line-height:1.75;padding-left:20px;margin:0 0 4px">
+        <li>Download the notebook above, then in Colab: <b>File &rsaquo; Upload notebook</b> &rsaquo; pick it.</li>
+        <li><b>Runtime &rsaquo; Change runtime type &rsaquo; GPU &rsaquo; A100</b> (Colab Pro). L4 / T4 also work — set <code>SMALL_GPU = True</code> in the train cell.</li>
+        <li>Zip your images into one <code>.zip</code>; run the cells top-to-bottom and choose it at the <b>Upload</b> step.</li>
+        <li>Set your <b>trigger word</b> + <b>name</b> in the config cell, then let it run (~30&nbsp;min on A100).</li>
+        <li>The last cell downloads <code>your-lora.safetensors</code> — drop it in <code>ComfyUI\\models\\loras\\</code> and select it on the <b>Images</b> page.</li>
+      </ol>
+      <p class="muted" style="font-size:12px;margin-top:10px">Auto-downloaded by the notebook:
+        <a href="https://huggingface.co/krea/Krea-2-Raw" target="_blank" rel="noopener">Krea-2-Raw</a> ·
+        <a href="https://huggingface.co/Comfy-Org/Qwen3-VL" target="_blank" rel="noopener">Qwen3-VL text encoder</a> ·
+        <a href="https://huggingface.co/Comfy-Org/Qwen-Image_ComfyUI" target="_blank" rel="noopener">Qwen-Image VAE</a> ·
+        <a href="https://github.com/kohya-ss/musubi-tuner/blob/main/docs/krea2.md" target="_blank" rel="noopener">musubi-tuner trainer</a></p>`;
+    page.appendChild(colab);
+
+    const card = el("div", "card"); card.style.marginTop = "16px";
+    card.innerHTML = `<div class="section-title">Datasets <span class="muted" style="font-weight:400">· or train locally</span></div><div id="trList"></div>`;
+    page.appendChild(card);
+    const list = $("#trList", card);
+    if (!dss.length) list.innerHTML = `<div class="empty">${icon("i-image")}<h3>No datasets yet</h3><p>Create <code>training/krea2/&lt;name&gt;/dataset/</code>, add images, then Rescan.</p></div>`;
+    dss.forEach(d => {
+      const trig = d.name.toLowerCase().replace(/[^a-z0-9]/g, "");
+      const row = el("div", "scene-row"); row.style.gridTemplateColumns = "1fr auto";
+      row.innerHTML = `
+        <div class="scene-body">
+          <div class="narr">${esc(d.name)} <span class="badge">${esc(d.base)}</span>${d.trained.length ? `<span class="badge good">trained</span>` : ""}</div>
+          <div class="sub"><span>${d.images} images</span><span>${d.captions} captions</span>${d.trained.length ? `<span>${esc(d.trained.join(", "))}</span>` : ""}${d.trainable ? "" : `<span class="badge warn">trainer not ready</span>`}</div>
+        </div>
+        <div class="scene-meta">
+          <input type="text" class="trTrig" value="${esc(trig)}" placeholder="trigger" title="trigger word" style="width:120px"/>
+          <input type="number" class="trEp" value="12" min="1" max="40" title="epochs" style="width:60px"/>
+          <button class="btn btn-primary btn-sm trGo" ${(!d.trainable || st.active || !d.images) ? "disabled" : ""}>${icon("i-wand")} Train</button>
+        </div>`;
+      $(".trGo", row).onclick = async () => {
+        try {
+          await api.post("/api/training/start", { base: d.base, name: d.name,
+            trigger: $(".trTrig", row).value.trim(), epochs: +$(".trEp", row).value || 12 });
+          toast("Training started"); load();
+        } catch (e) { toast(e.message, "err"); }
+      };
+      list.appendChild(row);
+    });
+
+    if (run) {
+      const p = run.progress || {}, t = el("div", "card"); t.style.marginTop = "16px";
+      t.innerHTML = `
+        <div class="spread"><h2 class="mb0">${esc(run.name)} <span class="badge ${st.active ? "" : (run.status === "done" ? "good" : "warn")}">${run.status}</span></h2>
+          ${st.active ? `<button class="btn btn-danger btn-sm" id="trStop">${icon("i-x")} Stop</button>` : ""}</div>
+        <div class="track" style="margin:12px 0 8px"><div class="fill image" id="trBar" style="width:${p.pct || 0}%"></div></div>
+        <div class="row" id="trMeta" style="gap:6px"></div>
+        <pre id="trLog" style="background:#11100d;color:#d8d2c4;font-family:var(--font-mono);font-size:11.5px;line-height:1.45;padding:12px;border-radius:10px;max-height:340px;overflow:auto;white-space:pre-wrap;margin-top:10px">loading…</pre>`;
+      page.appendChild(t);
+      if (st.active) $("#trStop", t).onclick = async () => { try { await api.post("/api/training/stop", {}); toast("Stopping…"); } catch (e) { toast(e.message, "err"); } };
+      pollLog();
+    }
+  }
+
+  async function pollLog() {
+    if (_trainPoll) clearInterval(_trainPoll);
+    const tick = async () => {
+      const log = $("#trLog", page);
+      if (!log) { clearInterval(_trainPoll); _trainPoll = null; return; }
+      let s, l;
+      try { s = await api.get("/api/training/status"); l = await api.get("/api/training/log"); } catch (e) { return; }
+      const atBottom = log.scrollTop + log.clientHeight >= log.scrollHeight - 30;
+      log.textContent = l.text || "(waiting for output…)";
+      if (atBottom) log.scrollTop = log.scrollHeight;
+      const run = s.run || {}, p = run.progress || {};
+      const bar = $("#trBar", page); if (bar && p.pct != null) bar.style.width = p.pct + "%";
+      const meta = $("#trMeta", page);
+      if (meta) meta.innerHTML = [
+        p.step != null ? `<span class="badge">step ${p.step}/${p.total || "?"}${p.pct != null ? ` · ${p.pct}%` : ""}</span>` : "",
+        p.epoch != null ? `<span class="badge">epoch ${p.epoch}/${p.epoch_total || "?"}</span>` : "",
+        p.loss != null ? `<span class="badge">loss ${p.loss}</span>` : "",
+        p.rate ? `<span class="badge">${esc(p.rate)}</span>` : "",
+        `<span class="badge ${s.active ? "" : (run.status === "done" ? "good" : "warn")}">${run.status || "idle"}</span>`,
+      ].join("");
+      if (!s.active) { clearInterval(_trainPoll); _trainPoll = null; if (run.status === "done") toast("Training complete ✓"); }
+    };
+    await tick();
+    _trainPoll = setInterval(tick, 2500);
+  }
+
+  await load();
+}
+
 const Pages = {
   projects: renderProjects, storyboard: renderStoryboard, voiceover: renderVoiceover,
   images: renderImages, assemble: renderAssemble, preview: renderPreview,
-  history: renderHistory, voices: renderVoiceLab, settings: renderSettings,
+  history: renderHistory, voices: renderVoiceLab, training: renderTraining, settings: renderSettings,
 };
 
 /* ============================================================

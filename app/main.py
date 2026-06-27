@@ -12,7 +12,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from . import (assemble, config, humanize, images, jobs, projects, service,
-               storage, voiceover)
+               storage, training, voiceover)
 from .audio import ffmpeg_ok
 from .engine import engine
 from .image_engine import image_engine
@@ -477,6 +477,48 @@ def assemble_video(pid: str, req: AssembleReq):
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
     return {"job_id": job_id}
+
+
+# --- API: training (LoRA) --------------------------------------------------
+class TrainStartReq(BaseModel):
+    base: str = "krea2"
+    name: str
+    trigger: str = ""
+    type: str = "style"
+    epochs: int = 12
+    dim: int = 32
+    blocks_to_swap: int = 24
+    autocaption: bool = True
+
+
+@app.get("/api/training/datasets")
+def training_datasets():
+    return {"datasets": training.list_datasets(), "status": training.status()}
+
+
+@app.get("/api/training/status")
+def training_status():
+    return training.status()
+
+
+@app.get("/api/training/log")
+def training_log():
+    return training.get_log()
+
+
+@app.post("/api/training/start")
+def training_start(req: TrainStartReq):
+    try:
+        rid = training.start(req.base, req.name, req.trigger, req.epochs,
+                             req.dim, req.blocks_to_swap, req.autocaption)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    return {"id": rid}
+
+
+@app.post("/api/training/stop")
+def training_stop():
+    return {"stopped": training.stop()}
 
 
 # --- file serving ----------------------------------------------------------

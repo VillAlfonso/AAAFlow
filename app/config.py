@@ -21,9 +21,11 @@ PROJECTS_DIR = DATA_DIR / "projects"                       # one folder per impo
 MODELS_DIR = BASE_DIR / "models"                          # HF weight cache (TTS + diffusion)
 DIFFUSION_DIR = MODELS_DIR / "diffusion"                  # imported image checkpoints (.safetensors)
 LORAS_DIR = MODELS_DIR / "loras"                          # imported / downloaded LoRAs
+TRAINING_DIR = BASE_DIR / "training"                      # LoRA datasets: <base>/<name>/dataset
+TRAINING_RUNS_DIR = DATA_DIR / "training_runs"            # per-run training logs
 
 for _d in (DATA_DIR, OUTPUTS_DIR, REFS_DIR, PROJECTS_DIR, MODELS_DIR,
-           DIFFUSION_DIR, LORAS_DIR):
+           DIFFUSION_DIR, LORAS_DIR, TRAINING_DIR, TRAINING_RUNS_DIR):
     _d.mkdir(parents=True, exist_ok=True)
 
 # Keep model weights local to the project and use the fast downloader.

@@ -1,11 +1,63 @@
+# ============ AAAFlow .gitignore ============
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.ipynb_checkpoints/
+
+# --- Virtual environments ---
 .venv/
+venv/
+env/
+trainers/musubi-tuner/.venv/
+
+# --- Model weights (never commit large weights) ---
 models/
+trainers/weights/
+*.safetensors
+*.gguf
+*.ckpt
+*.pt
+*.pth
+
+# --- ComfyUI portable (huge, user-provided) ---
+ComfyUI_windows_portable/
+
+# --- External trainer clone (cloned by setup, not our source) ---
+trainers/musubi-tuner/
+
+# --- Generated data / runtime state ---
 data/outputs/
 data/refs/
+data/ambiance/
+data/training_runs/
 data/*.json
-__pycache__/
-*.pyc
-third_party/Qwen3-TTS/.git/
-.DS_Store
-comfyUI_windows_portable/
+data/projects/*/audio/
+data/projects/*/images/
+data/projects/*/video/
+data/projects/*/*.backup.*.json
+
+# --- LoRA training: keep the READMEs + folder structure, ignore the heavy bits ---
+training/**/dataset/
+training/**/cache/
+training/**/output/
+training/**/dataset.toml
+training/**/*.jpg
+training/**/*.jpeg
+training/**/*.png
+training/**/*.webp
+training/**/*.txt
+
+# --- Legacy / vendored ---
 QwenTTS/
+third_party/Qwen3-TTS/.git/
+
+# --- OS / editor cruft ---
+.DS_Store
+Thumbs.db
+*.log
+*.tmp

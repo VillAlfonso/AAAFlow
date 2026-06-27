@@ -1,0 +1,498 @@
+"""FastAPI application: REST API + static SPA, bound to localhost."""
+from __future__ import annotations
+
+import threading
+import time
+from pathlib import Path
+from typing import List, Optional
+
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
+
+from . import (assemble, config, humanize, images, jobs, projects, service,
+               storage, voiceover)
+from .audio import ffmpeg_ok
+from .engine import engine
+from .image_engine import image_engine
+from .voices import DESIGN_PRESETS, LANGUAGES, SPEAKERS
+
+app = FastAPI(title="AAAFlow Studio", version="2.0.0")
+
+
+@app.middleware("http")
+async def _no_cache(request, call_next):
+    """Local dev app: never let the browser serve stale HTML/CSS/JS."""
+    response = await call_next(request)
+    response.headers["Cache-Control"] = "no-store, max-age=0"
+    return response
+
+
+# --- request models --------------------------------------------------------
+class TTSReq(BaseModel):
+    mode: str = "custom"            # "custom" | "clone"
+    text: str
+    language: Optional[str] = None
+    speaker: Optional[str] = None
+    instruct: Optional[str] = None
+    voice_id: Optional[str] = None
+    preview: bool = False
+    format: Optional[str] = None     # "mp3" | "wav" | "both"
+    loudnorm: Optional[bool] = None
+
+
+class DesignReq(BaseModel):
+    name: Optional[str] = "Designed voice"
+    instruct: str
+    preview_text: Optional[str] = None
+    language: Optional[str] = "English"
+
+
+class PreloadReq(BaseModel):
+    task: str
+
+
+class ChunkReq(BaseModel):
+    mode: str = "custom"            # "custom" | "clone"
+    text: str
+    language: Optional[str] = None
+    speaker: Optional[str] = None
+    voice_id: Optional[str] = None
+    instruct: Optional[str] = None
+
+
+class ExportChunk(BaseModel):
+    file: str
+    paragraph: int = 0
+    text: Optional[str] = ""
+
+
+class ExportReq(BaseModel):
+    chunks: List[ExportChunk]
+    title: Optional[str] = None
+    voice: Optional[str] = None
+    language: Optional[str] = None
+    format: Optional[str] = None
+    loudnorm: Optional[bool] = None
+
+
+class HumanizeReq(BaseModel):
+    source: str                       # a filename in data/outputs
+    params: Optional[dict] = None
+    voice: Optional[str] = None
+    language: Optional[str] = None
+
+
+# --- helpers ---------------------------------------------------------------
+def _voices_payload():
+    return {
+        "builtin": SPEAKERS,
+        "languages": LANGUAGES,
+        "custom": storage.get_custom_voices(),
+        "design_presets": DESIGN_PRESETS,
+    }
+
+
+def _safe_output(name: str) -> Path:
+    if "/" in name or "\\" in name or ".." in name:
+        raise HTTPException(status_code=400, detail="bad filename")
+    path = config.OUTPUTS_DIR / name
+    if not path.exists():
+        raise HTTPException(status_code=404, detail="not found")
+    return path
+
+
+# --- lifecycle -------------------------------------------------------------
+@app.on_event("startup")
+def _startup():
+    jobs.start_worker()
+
+    def _warm():
+        try:
+            engine.ensure_imports()
+        except Exception:
+            pass
+
+    threading.Thread(target=_warm, name="warm-imports", daemon=True).start()
+
+
+# --- API: state ------------------------------------------------------------
+@app.get("/api/bootstrap")
+def bootstrap():
+    return {
+        "status": _status_payload(),
+        "settings": storage.get_settings(),
+        "voices": _voices_payload(),
+        "history": storage.get_history(),
+        "projects": projects.list_projects(),
+        "image_models": _image_models_payload(),
+    }
+
+
+def _image_models_payload():
+    """Built-in SD/FLUX bases + any imported checkpoints/LoRAs."""
+    builtin = [
+        {"id": k, "label": v["label"], "kind": "checkpoint", "builtin": True,
+         "type": v.get("type", "sd"), "gated": v.get("gated", False),
+         "size": v.get("size", ""), "steps": v.get("steps"), "guidance": v.get("guidance"),
+         "width": v.get("width"), "height": v.get("height")}
+        for k, v in config.IMAGE_BASES.items()
+    ]
+    return {
+        "builtin": builtin,
+        "default": config.DEFAULT_IMAGE_MODEL,
+        "imported": storage.get_image_models(),
+    }
+
+
+def _status_payload():
+    st = engine.status()
+    st["ffmpeg"] = ffmpeg_ok()
+    st["image"] = image_engine.status()
+    try:
+        from .comfy_engine import comfy_engine
+        st["comfy"] = comfy_engine.status()
+    except Exception:  # noqa: BLE001
+        st["comfy"] = {"alive": False, "available": False}
+    return st
+
+
+@app.get("/api/status")
+def status():
+    return _status_payload()
+
+
+@app.get("/api/settings")
+def get_settings():
+    return storage.get_settings()
+
+
+@app.put("/api/settings")
+def put_settings(patch: dict):
+    return storage.save_settings(patch or {})
+
+
+@app.get("/api/voices")
+def voices():
+    return _voices_payload()
+
+
+# --- API: synthesis --------------------------------------------------------
+@app.post("/api/tts")
+def tts(req: TTSReq):
+    try:
+        job_id = service.submit_tts(req.model_dump())
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    return {"job_id": job_id}
+
+
+@app.post("/api/design")
+def design(req: DesignReq):
+    try:
+        job_id = service.submit_design(req.model_dump())
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    return {"job_id": job_id}
+
+
+@app.post("/api/chunk")
+def chunk(req: ChunkReq):
+    try:
+        return {"job_id": service.submit_chunk(req.model_dump())}
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
+@app.post("/api/export")
+def export_render(req: ExportReq):
+    try:
+        return {"job_id": service.submit_export(req.model_dump())}
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
+@app.get("/api/humanize/presets")
+def humanize_presets():
+    return {
+        "defaults": humanize.DEFAULTS,
+        "presets": humanize.PRESETS,
+        "ambiance_types": humanize.AMBIANCE_TYPES,
+    }
+
+
+@app.post("/api/humanize")
+def humanize_audio(req: HumanizeReq):
+    try:
+        return {"job_id": service.submit_humanize(req.model_dump())}
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
+@app.post("/api/humanize/ambiance")
+async def upload_ambiance(file: UploadFile = File(...)):
+    suffix = Path(file.filename or "amb.wav").suffix or ".wav"
+    tmp = config.DATA_DIR / "ambiance" / f"upload_{storage.new_id()}{suffix}"
+    tmp.parent.mkdir(parents=True, exist_ok=True)
+    tmp.write_bytes(await file.read())
+    try:
+        name = service.store_ambiance(str(tmp), file.filename or "ambiance")
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(status_code=400, detail=f"Could not process ambiance: {exc}")
+    finally:
+        try:
+            tmp.unlink()
+        except OSError:
+            pass
+    return {"file": name, "name": (file.filename or "Custom")}
+
+
+@app.post("/api/preload")
+def preload(req: PreloadReq):
+    return {"job_id": service.submit_preload(req.task)}
+
+
+@app.get("/api/jobs/{job_id}")
+def job_status(job_id: str):
+    job = jobs.get_job(job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="job not found")
+    return job
+
+
+# --- API: voices (clone / delete) -----------------------------------------
+@app.post("/api/voices/clone")
+async def clone_voice(
+    file: UploadFile = File(...),
+    name: str = Form("My voice"),
+    ref_text: str = Form(""),
+    language: str = Form("Auto"),
+):
+    suffix = Path(file.filename or "sample.wav").suffix or ".wav"
+    tmp = config.REFS_DIR / f"upload_{storage.new_id()}{suffix}"
+    data = await file.read()
+    tmp.write_bytes(data)
+    try:
+        voice = service.register_clone(name, str(tmp), ref_text, language)
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(status_code=400, detail=f"Could not process audio: {exc}")
+    finally:
+        try:
+            tmp.unlink()
+        except OSError:
+            pass
+    return {"voice": voice}
+
+
+@app.delete("/api/voices/{voice_id}")
+def delete_voice(voice_id: str):
+    voice = storage.get_custom_voice(voice_id)
+    if voice:
+        for key in ("ref_audio_path",):
+            p = voice.get(key)
+            if p:
+                try:
+                    Path(p).unlink()
+                except OSError:
+                    pass
+    ok = storage.delete_custom_voice(voice_id)
+    return {"deleted": ok}
+
+
+# --- API: history ----------------------------------------------------------
+@app.get("/api/history")
+def history():
+    return storage.get_history()
+
+
+@app.delete("/api/history/{item_id}")
+def delete_history(item_id: str):
+    return {"deleted": storage.delete_history(item_id)}
+
+
+# --- API: projects ---------------------------------------------------------
+class CreateProjectReq(BaseModel):
+    text: Optional[str] = None       # raw JSON text to parse
+    data: Optional[dict] = None      # ...or an already-parsed storyboard object
+    name: Optional[str] = None
+
+
+@app.get("/api/image_models")
+def image_models():
+    return _image_models_payload()
+
+
+@app.get("/api/projects")
+def get_projects():
+    return {"projects": projects.list_projects()}
+
+
+@app.post("/api/projects")
+def create_project(req: CreateProjectReq):
+    raw = req.data
+    if raw is None and req.text:
+        import json as _json
+        try:
+            raw = _json.loads(req.text)
+        except Exception as exc:  # noqa: BLE001
+            raise HTTPException(status_code=400, detail=f"Invalid JSON: {exc}")
+    if not isinstance(raw, dict):
+        raise HTTPException(status_code=400, detail="Provide a storyboard JSON object.")
+    try:
+        project = projects.create_project(raw, req.name)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    return {"project": project}
+
+
+@app.post("/api/projects/upload")
+async def upload_project(file: UploadFile = File(...), name: str = Form("")):
+    import json as _json
+    data = await file.read()
+    try:
+        raw = _json.loads(data.decode("utf-8"))
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(status_code=400, detail=f"Invalid JSON file: {exc}")
+    try:
+        project = projects.create_project(
+            raw, name.strip() or Path(file.filename or "").stem or None)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    return {"project": project}
+
+
+@app.get("/api/projects/{pid}")
+def get_project(pid: str):
+    project = projects.get_project(pid)
+    if not project:
+        raise HTTPException(status_code=404, detail="project not found")
+    return project
+
+
+@app.delete("/api/projects/{pid}")
+def delete_project(pid: str):
+    return {"deleted": projects.delete_project(pid)}
+
+
+@app.put("/api/projects/{pid}/settings")
+def put_project_settings(pid: str, patch: dict):
+    settings = projects.update_settings(pid, patch or {})
+    if settings is None:
+        raise HTTPException(status_code=404, detail="project not found")
+    return settings
+
+
+@app.patch("/api/projects/{pid}/scenes/{sid}")
+def patch_scene(pid: str, sid: str, patch: dict):
+    scene = projects.update_scene(pid, sid, patch or {})
+    if scene is None:
+        raise HTTPException(status_code=404, detail="project or scene not found")
+    return scene
+
+
+# --- API: voiceover --------------------------------------------------------
+class VoiceoverReq(BaseModel):
+    voice: dict
+    scope: str = "missing"            # "all" | "missing" | "scene"
+    scene_id: Optional[str] = None
+
+
+@app.post("/api/projects/{pid}/voiceover")
+def gen_voiceover(pid: str, req: VoiceoverReq):
+    try:
+        job_id = voiceover.submit_voiceover(pid, req.voice, req.scope, req.scene_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    return {"job_id": job_id}
+
+
+# --- API: images -----------------------------------------------------------
+class ImagesReq(BaseModel):
+    image: dict = {}
+    scope: str = "missing"            # "all" | "missing" | "scene"
+    scene_id: Optional[str] = None
+
+
+@app.post("/api/projects/{pid}/images")
+def gen_images(pid: str, req: ImagesReq):
+    try:
+        job_id = images.submit_images(pid, req.image, req.scope, req.scene_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    return {"job_id": job_id}
+
+
+@app.post("/api/image/download_defaults")
+def image_download_defaults():
+    return {"job_id": images.submit_download_defaults()}
+
+
+@app.post("/api/image_models/import")
+async def import_image_model(
+    file: UploadFile = File(...),
+    kind: str = Form("lora"),          # "lora" | "checkpoint"
+    label: str = Form(""),
+    trigger: str = Form(""),
+    weight: float = Form(1.0),
+):
+    suffix = Path(file.filename or "model.safetensors").suffix or ".safetensors"
+    if suffix.lower() not in (".safetensors", ".gguf", ".ckpt"):
+        raise HTTPException(status_code=400, detail="Use a .safetensors or .gguf file.")
+    dest_dir = config.LORAS_DIR if kind == "lora" else config.DIFFUSION_DIR
+    mid = storage.new_id()
+    dest = dest_dir / f"{mid}{suffix}"
+    dest.write_bytes(await file.read())
+    entry = {
+        "id": mid, "kind": kind,
+        "label": (label.strip() or Path(file.filename or str(dest)).stem),
+        "filename": file.filename or dest.name, "path": str(dest),
+        "trigger": trigger.strip(), "weight": float(weight),
+        "source": "import", "created": time.time(),
+    }
+    storage.add_image_model(entry)
+    return {"model": entry}
+
+
+@app.delete("/api/image_models/{model_id}")
+def delete_image_model(model_id: str):
+    m = storage.get_image_model(model_id)
+    if m and m.get("path"):
+        try:
+            Path(m["path"]).unlink()
+        except OSError:
+            pass
+    return {"deleted": storage.delete_image_model(model_id)}
+
+
+# --- API: assemble ---------------------------------------------------------
+class AssembleReq(BaseModel):
+    opts: dict = {}
+
+
+@app.post("/api/projects/{pid}/assemble")
+def assemble_video(pid: str, req: AssembleReq):
+    try:
+        job_id = assemble.submit_assemble(pid, req.opts)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    return {"job_id": job_id}
+
+
+# --- file serving ----------------------------------------------------------
+@app.get("/download/{name}")
+def download(name: str):
+    path = _safe_output(name)
+    return FileResponse(str(path), filename=name)
+
+
+@app.exception_handler(HTTPException)
+async def _http_exc(request, exc: HTTPException):
+    return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
+
+
+# Generated audio + per-project assets (inline playback), then the SPA.
+# Mounted last so /api wins; /projects + /audio win over the SPA catch-all.
+app.mount("/audio", StaticFiles(directory=str(config.OUTPUTS_DIR)), name="audio")
+app.mount("/projects", StaticFiles(directory=str(config.PROJECTS_DIR)), name="projects")
+app.mount("/", StaticFiles(directory=str(config.WEB_DIR), html=True), name="web")

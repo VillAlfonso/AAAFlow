@@ -1,0 +1,11 @@
+.venv/
+models/
+data/outputs/
+data/refs/
+data/*.json
+__pycache__/
+*.pyc
+third_party/Qwen3-TTS/.git/
+.DS_Store
+comfyUI_windows_portable/
+QwenTTS/

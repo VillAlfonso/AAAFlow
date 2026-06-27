@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Qwen3-TTS Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css?v=8" />
+</head>
+<body>
+
+<!-- icon sprite -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-studio" viewBox="0 0 24 24"><path d="M3 12h2l2-7 3 16 3-13 2 8 1-4h5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="2.5" width="6" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 7v5l3.5 2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10M14 4v6M6 14v6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 5.5v13l11-6.5z" fill="currentColor"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><rect x="6.5" y="5.5" width="3.6" height="13" rx="1.2" fill="currentColor"/><rect x="13.9" y="5.5" width="3.6" height="13" rx="1.2" fill="currentColor"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m0 0 4.5-4.5M12 15l-4.5-4.5M4 19.5h16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 6.5h16M9 6.5V4.5h6v2M6 6.5 7 20h10l1-13.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M4 20h16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z" fill="currentColor"/><path d="M19 15l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z" fill="currentColor" opacity=".7"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 6.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+</svg>
+
+<div class="grain" aria-hidden="true"></div>
+
+<div class="app">
+  <!-- ===== rail ===== -->
+  <aside class="rail">
+    <div class="brand">
+      <div class="brand-mark" id="brandMark">
+        <span></span><span></span><span></span><span></span><span></span>
+      </div>
+      <div class="brand-name">
+        <strong>Qwen3·TTS</strong>
+        <em>Studio</em>
+      </div>
+    </div>
+
+    <nav class="nav" id="nav">
+      <button class="nav-item is-active" data-view="studio"><svg><use href="#i-studio"/></svg><span>Studio</span></button>
+      <button class="nav-item" data-view="voices"><svg><use href="#i-mic"/></svg><span>Voices</span></button>
+      <button class="nav-item" data-view="history"><svg><use href="#i-clock"/></svg><span>History</span></button>
+      <button class="nav-item" data-view="humanize"><svg><use href="#i-spark"/></svg><span>Polish</span></button>
+      <button class="nav-item" data-view="settings"><svg><use href="#i-sliders"/></svg><span>Settings</span></button>
+    </nav>
+
+    <div class="rail-foot">
+      <div class="chip" id="chipDevice" title="Compute device">· · ·</div>
+      <div class="chip" id="chipModel" title="Active model">· · ·</div>
+      <div class="chip chip-warn" id="chipFfmpeg" hidden>ffmpeg missing</div>
+    </div>
+  </aside>
+
+  <!-- ===== stage ===== -->
+  <main class="stage">
+
+    <!-- ============ STUDIO ============ -->
+    <section class="view is-active" data-view="studio">
+      <header class="view-head">
+        <div>
+          <h1>Studio</h1>
+          <p class="sub">Write your script, fine-tune each line's tone, then export one file.</p>
+        </div>
+      </header>
+
+      <!-- global voice controls -->
+      <div class="panel studio-bar">
+        <div class="seg" id="modeSeg">
+          <button class="seg-btn is-active" data-mode="custom">Built-in voice</button>
+          <button class="seg-btn" data-mode="clone">My voices</button>
+        </div>
+        <label class="bar-field">
+          <span>Voice</span>
+          <select id="voiceSelect" class="select"></select>
+        </label>
+        <label class="bar-field">
+          <span>Language</span>
+          <select id="languageSelect" class="select"></select>
+        </label>
+        <div class="bar-hint" id="voiceHint"></div>
+      </div>
+
+      <!-- script input -->
+      <div class="panel editor" id="scriptPanel">
+        <div class="panel-top">
+          <h2>Script</h2>
+          <div class="meta-row" id="scriptMeta"><span>0 words</span><span>0 chars</span><span>~0:00</span></div>
+        </div>
+        <textarea id="scriptInput" class="script" spellcheck="true"
+          placeholder="Write or paste your full narration here, then split it into lines you can tone-edit one by one."></textarea>
+        <div class="editor-actions">
+          <button class="btn primary" id="splitBtn">Split into lines &rarr;</button>
+        </div>
+      </div>
+
+      <!-- chunk editor -->
+      <div id="chunkEditor" hidden>
+        <div class="chunk-head">
+          <h2 class="row-title">Lines <span class="muted2" id="chunkCount"></span></h2>
+          <button class="ghost-btn" id="backToScript">&larr; Back to full script</button>
+        </div>
+        <p class="chunk-help">Each line renders separately so you can give it its own tone — type something like <em>sarcastic</em> or <em>excited, fast</em> on any line and re-render just that one. <b>Render all lines</b> renders everything and <b>saves the finished narration to History</b> automatically. Your lines are kept if you reload.</p>
+
+        <div class="chunk-list" id="chunkList"></div>
+
+        <div class="export-bar">
+          <button class="btn-generate" id="renderAllBtn"><span class="bg-label">Render all lines</span></button>
+          <div class="console-mid">
+            <div class="wave" id="wave">
+              <span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span>
+            </div>
+            <div class="stage-text" id="stageText">Idle &middot; ready</div>
+          </div>
+          <button class="btn primary big" id="exportBtn" title="Re-stitch &amp; save the current lines to History">Save again</button>
+        </div>
+
+        <!-- result -->
+        <div class="result" id="result" hidden>
+          <div class="player">
+            <button class="play-btn" id="playBtn"><svg class="ic-play"><use href="#i-play"/></svg><svg class="ic-pause" hidden><use href="#i-pause"/></svg></button>
+            <div class="player-body">
+              <div class="player-title" id="resultTitle">Export</div>
+              <div class="scrub" id="scrub"><div class="scrub-fill" id="scrubFill"></div></div>
+              <div class="player-meta"><span id="curTime">0:00</span><span id="durTime">0:00</span></div>
+            </div>
+            <div class="dl-group" id="dlGroup"></div>
+          </div>
+        </div>
+      </div>
+
+      <audio id="audio" preload="metadata"></audio>
+      <audio id="auxAudio" preload="none"></audio>
+    </section>
+
+    <!-- ============ VOICES ============ -->
+    <section class="view" data-view="voices">
+      <header class="view-head">
+        <div>
+          <h1>Voices</h1>
+          <p class="sub">Audition the built-in voices, clone your own, or design a new one.</p>
+        </div>
+      </header>
+
+      <div class="create-row">
+        <button class="create-card" id="openClone">
+          <div class="create-ic"><svg><use href="#i-upload"/></svg></div>
+          <div><strong>Clone a voice</strong><small>Upload 10–20s of clean speech</small></div>
+        </button>
+        <button class="create-card" id="openDesign">
+          <div class="create-ic"><svg><use href="#i-spark"/></svg></div>
+          <div><strong>Design a voice</strong><small>Describe a voice in words</small></div>
+        </button>
+      </div>
+
+      <h3 class="row-title" id="myVoicesTitle" hidden>My voices</h3>
+      <div class="voice-grid" id="customVoiceGrid"></div>
+
+      <h3 class="row-title">Built-in voices</h3>
+      <div class="voice-grid" id="builtinVoiceGrid"></div>
+    </section>
+
+    <!-- ============ HISTORY ============ -->
+    <section class="view" data-view="history">
+      <header class="view-head">
+        <div>
+          <h1>History</h1>
+          <p class="sub">Every render is saved here with its downloads.</p>
+        </div>
+      </header>
+      <div class="history-list" id="historyList"></div>
+      <div class="empty" id="historyEmpty" hidden>No renders yet — your generated narration will appear here.</div>
+    </section>
+
+    <!-- ============ POLISH / DE-AI ============ -->
+    <section class="view" data-view="humanize">
+      <header class="view-head">
+        <div>
+          <h1>Polish <span class="title-tag">remove AI fingerprints</span></h1>
+          <p class="sub">Subtle analog imperfections that defeat AI-voice detectors while keeping your narration clean and clear.</p>
+        </div>
+      </header>
+
+      <div class="panel hz-source-panel">
+        <div class="hz-source-row">
+          <label class="bar-field"><span>Source clip</span>
+            <select id="hzSource" class="select"></select>
+          </label>
+          <a class="dl-btn" id="hzBeforeDl" href="#" download><svg><use href="#i-download"/></svg><span>Original</span></a>
+        </div>
+        <audio id="hzBefore" class="hz-audio" controls preload="none"></audio>
+        <div class="empty" id="hzNoSource" hidden>Export a narration in the Studio first — then polish it here.</div>
+      </div>
+
+      <div class="hz-presets">
+        <span class="hz-presets-label">Preset</span>
+        <div class="seg small" id="hzPresetSeg">
+          <button class="seg-btn is-active" data-preset="minimal">Minimal</button>
+          <button class="seg-btn" data-preset="balanced">Balanced</button>
+          <button class="seg-btn" data-preset="heavy">Heavy</button>
+        </div>
+        <span class="hz-presets-hint">Minimal is recommended — Qwen already sounds human.</span>
+      </div>
+
+      <div class="hz-grid" id="hzControls"></div>
+
+      <div class="export-bar">
+        <button class="btn-generate" id="hzProcessBtn"><span class="bg-label">Remove AI fingerprints</span></button>
+        <div class="console-mid">
+          <div class="wave" id="hzWave">
+            <span></span><span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span><span></span>
+          </div>
+          <div class="stage-text" id="hzStage">Idle &middot; pick a source and process</div>
+        </div>
+      </div>
+
+      <div class="result" id="hzResult" hidden>
+        <div class="player hz-after-player">
+          <div class="player-body">
+            <div class="player-title">Polished &middot; AI fingerprints removed</div>
+            <audio id="hzAfter" class="hz-audio" controls preload="none"></audio>
+          </div>
+          <div class="dl-group" id="hzDl"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SETTINGS ============ -->
+    <section class="view" data-view="settings">
+      <header class="view-head">
+        <div>
+          <h1>Settings</h1>
+          <p class="sub">Tune the engine and audio output.</p>
+        </div>
+      </header>
+      <div class="settings-grid" id="settingsGrid"></div>
+    </section>
+  </main>
+</div>
+
+<!-- ===== modal ===== -->
+<div class="modal" id="modal" hidden>
+  <div class="modal-card" id="modalCard"></div>
+</div>
+
+<!-- ===== toast ===== -->
+<div class="toasts" id="toasts"></div>
+
+<script src="/app.js?v=8"></script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+This is an EXAMPLE LoRA folder showing the structure.
+
+To make your own: copy this folder (or make a new one) under training/krea2/ and name it
+for your LoRA, e.g. training/krea2/my-cartoon-style/
+
+Then drop 20-40 images right here in dataset/  (.png or .jpg).
+Optionally add a caption file next to each image with the same name, e.g.:
+    img_01.png
+    img_01.txt   ->  "mycartoonstyle, a fox character standing in a forest"
+
+No captions? Just tell me "auto-caption" and I'll generate them.
+
+When the images are in, tell me the folder name + a trigger word + the type
+(style / character / concept) and I'll train it. The result lands in ../output/.

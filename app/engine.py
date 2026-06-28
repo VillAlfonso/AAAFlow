@@ -177,7 +177,8 @@ class Engine:
         return items
 
     def synth_clone(self, chunks: List[Dict], voice: Dict, language: str,
-                    progress: Optional[ProgressFn] = None) -> Tuple[List[Dict], int]:
+                    progress: Optional[ProgressFn] = None,
+                    instruct: Optional[str] = None) -> Tuple[List[Dict], int]:
         settings = storage.get_settings()
         model = self.get_model("base")
         gk = self._gen_kwargs(settings)
@@ -193,7 +194,8 @@ class Engine:
                 if progress:
                     progress(f"Synthesizing {i + 1}/{n}", i / max(n, 1))
                 wavs, sr = model.generate_voice_clone(
-                    text=ch["text"], language=lang, voice_clone_prompt=prompt, **gk,
+                    text=ch["text"], language=lang, voice_clone_prompt=prompt,
+                    instruct=(instruct or None), **gk,
                 )
                 segs.append({"wav": wavs[0], "paragraph": ch.get("paragraph", 0)})
         if progress:

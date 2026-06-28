@@ -112,6 +112,9 @@ IP_ADAPTER = {
     "repo": "h94/IP-Adapter",
     "subfolder": "sdxl_models",
     "weight_name": "ip-adapter_sdxl_vit-h.safetensors",
+    # the *_vit-h adapter needs the ViT-H encoder (1024-dim) at the repo's top-level
+    # models/image_encoder — NOT sdxl_models/image_encoder (ViT-bigG, 1280-dim).
+    # Pre-loaded from this subfolder (a "../" image_encoder_folder is rejected on Windows).
     "image_encoder_subfolder": "models/image_encoder",
     "default_scale": 0.7,          # overall style strength
     "top_k": 3,                    # how many references to blend per image
@@ -164,19 +167,42 @@ LTX2 = {
     # LTXAVTextEncoderLoader (gemma + this ckpt for the projection/tokenizer) can use it.
     "checkpoint": "ltx-2-19b-dev-fp4.safetensors",             # models/checkpoints (fused)
     "text_encoder": "gemma_3_12B_it_fp4_mixed.safetensors",    # models/text_encoders
+    # Optional: the official 19B recipe applies this distilled LoRA (used when present
+    # in models/loras/). ~7.3 GB. fp8 ckpt is NOT used — 25 GB won't fit 16 GB.
+    "distilled_lora": "ltx-2-19b-distilled-lora-384.safetensors",
+    "lora_strength": 1.0,
     # generation defaults (kept modest to fit 16 GB)
-    "width": 768, "height": 512, "fps": 25,
-    "default_seconds": 3.0,        # clip length when a scene gives none
+    "width": 768, "height": 512,
+    "fps": 12,                     # "on twos" cartoon cadence — hand-drawn feel, not smooth-AI; fewer frames
+    "default_seconds": 1.5,        # short clips: drift never accumulates -> stays on-model
     "max_seconds": 6.0,            # cap (LTX cost scales hard with length)
-    "steps": 16,                   # dev model (no distilled LoRA) -> moderate steps
-    "guidance": 3.0,               # dev model -> real CFG
+    "steps": 20,                   # matches the official 19B LTXVScheduler
+    "guidance": 3.0,               # cfg 3 (official 19B stage-1)
     "sampler": "euler",
     # LTXVScheduler (sigma schedule for the dev model)
     "max_shift": 2.05, "base_shift": 0.95, "terminal": 0.1,
     "image_strength": 1.0,         # 1.0 = first frame locked to the still
     "end_strength": 0.85,          # last-frame guide strength (transform scenes)
-    "negative": ("blurry, out of focus, low quality, jpeg artifacts, distorted, "
-                 "deformed, warping, flickering, morphing artifacts, watermark, text"),
+    # Global style appended to EVERY clip's prompt — anchors LTX to the flat-cartoon
+    # look so it animates the drawing instead of repainting it into melty realism.
+    # Per LTX's own 2D-animation prompting guide: LEAD with the style declaration,
+    # then the action, then explicit negations. style_lead is prepended; style_tail
+    # appended (the "no gradients, no shadows" negation is what holds the flat look).
+    "style_lead": "Flat vector illustration style, 2D motion graphics cartoon.",
+    "style_tail": (
+        "Clean bold black outlines define every shape. Solid color fills, no "
+        "gradients, no shadows, no shading. Flat background, minimalist design, "
+        "hand-drawn 2D cartoon. The art style stays exactly the same, characters "
+        "on-model, crisp consistent linework. No realism, no 3D, no texture."
+    ),
+    "negative": (
+        "realistic, photorealistic, 3d, render, cgi, painterly, oil painting, "
+        "watercolor, textured, grainy, noisy, smeared, melting, melted face, "
+        "distorted face, deformed, mutated, warping, morphing, boiling lines, "
+        "shimmering, wobbling outlines, jitter, flickering, blurry outlines, "
+        "sketchy lines, semi-realistic, uncanny, extra limbs, messy, low quality, "
+        "jpeg artifacts, watermark, text"
+    ),
 }
 # Weights the animate stage needs. url -> ComfyUI/models/<subdir>. Both are usually
 # already present; the in-app download job skips files that match the HF size.
@@ -186,6 +212,28 @@ LTX2_DOWNLOADS = [
     ("text_encoders", "gemma_3_12B_it_fp4_mixed.safetensors",
      "https://huggingface.co/Comfy-Org/ltx-2/resolve/main/split_files/text_encoders/gemma_3_12B_it_fp4_mixed.safetensors"),
 ]
+
+
+# --- Wan 2.2 14B (image->video, via ComfyUI) --------------------------------
+# Best open video model; MoE = two 14B fp8 experts (high/low noise), each with a
+# 4-step lightx2v LoRA so it runs on 16 GB (experts load one at a time, only 4 steps).
+# Recipe from ComfyUI's bundled "Image to Video (Wan 2.2)" blueprint.
+WAN = {
+    "high_noise": "wan2.2_i2v_high_noise_14B_fp8_scaled.safetensors",  # diffusion_models
+    "low_noise": "wan2.2_i2v_low_noise_14B_fp8_scaled.safetensors",
+    "text_encoder": "umt5_xxl_fp8_e4m3fn_scaled.safetensors",          # text_encoders
+    "vae": "wan_2.1_vae.safetensors",                                  # vae
+    "lora_high": "wan2.2_i2v_lightx2v_4steps_lora_v1_high_noise.safetensors",  # loras
+    "lora_low": "wan2.2_i2v_lightx2v_4steps_lora_v1_low_noise.safetensors",
+    "lora_strength": 1.0,
+    "shift": 5.0,                  # ModelSamplingSD3
+    "steps": 4, "boundary": 2,     # 4 steps total; high-noise expert 0->2, low-noise 2->4
+    "cfg": 1.0, "sampler": "euler", "scheduler": "simple",
+    "width": 640, "height": 640, "fps": 16,
+    "default_seconds": 3.0, "max_seconds": 5.0,
+    "negative": ("low quality, blurry, distorted, deformed, bad anatomy, jpeg "
+                 "artifacts, watermark, text, oversaturated, extra limbs, messy"),
+}
 
 
 def comfy_models_dir() -> Path:
@@ -204,6 +252,17 @@ def ltx2_ready() -> bool:
     m = comfy_models_dir()
     return (_big_enough(m / "checkpoints" / LTX2["checkpoint"], 8 * 1024**3)
             and _big_enough(m / "text_encoders" / LTX2["text_encoder"], 1 * 1024**3))
+
+
+def wan_ready() -> bool:
+    """True when the Wan 2.2 14B experts + encoder + VAE + lightx2v LoRAs are present."""
+    m = comfy_models_dir()
+    return (_big_enough(m / "diffusion_models" / WAN["high_noise"], 8 * 1024**3)
+            and _big_enough(m / "diffusion_models" / WAN["low_noise"], 8 * 1024**3)
+            and _big_enough(m / "text_encoders" / WAN["text_encoder"], 1 * 1024**3)
+            and _big_enough(m / "vae" / WAN["vae"], 50 * 1024**2)
+            and _big_enough(m / "loras" / WAN["lora_high"], 50 * 1024**2)
+            and _big_enough(m / "loras" / WAN["lora_low"], 50 * 1024**2))
 
 # --- defaults --------------------------------------------------------------
 DEFAULT_SETTINGS = {
@@ -251,6 +310,14 @@ DEFAULT_SETTINGS = {
         "min_hold_sec": 1.2,         # never show a scene shorter than this
         "lead_in_ms": 120,           # tiny silence before each line
         "tail_ms": 250,              # tiny silence after each line
+    },
+    # --- transcription (Whisper: timed sentence blocks per scene) ----------
+    "transcribe": {
+        "model": "medium",           # faster-whisper size: tiny|base|small|medium|large-v3
+        "device": "auto",            # "auto" (CUDA→CPU) | "cuda" | "cpu"
+        "compute_type": "auto",      # "auto" (fp16 on GPU / int8 on CPU) | float16 | int8 | int8_float16
+        "beam_size": 5,              # higher = a little more accurate, a little slower
+        "write_subtitles": True,     # also emit captions.srt + captions.vtt next to transcript.json
     },
     # --- final video assembly ---------------------------------------------
     "assemble": {

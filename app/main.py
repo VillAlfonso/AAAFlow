@@ -12,7 +12,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from . import (animate, assemble, config, humanize, images, jobs, projects,
-               service, storage, style_refs, training, voiceover)
+               service, storage, style_refs, training, transcribe, voiceover)
 from .audio import ffmpeg_ok
 from .engine import engine
 from .image_engine import image_engine
@@ -161,6 +161,15 @@ def _status_payload():
         st["ltx"] = ltx_engine.status()
     except Exception:  # noqa: BLE001
         st["ltx"] = {"ready": False}
+    try:
+        from .wan_engine import wan_engine
+        st["wan"] = wan_engine.status()
+    except Exception:  # noqa: BLE001
+        st["wan"] = {"ready": False}
+    try:
+        st["transcribe"] = transcribe.status()
+    except Exception:  # noqa: BLE001
+        st["transcribe"] = {"available": False}
     return st
 
 
@@ -413,6 +422,48 @@ def gen_voiceover(pid: str, req: VoiceoverReq):
     return {"job_id": job_id}
 
 
+# --- API: transcription (timed sentence blocks per scene) ------------------
+class TranscribeReq(BaseModel):
+    scope: str = "missing"            # "all" | "missing" | "scene"
+    scene_id: Optional[str] = None
+
+
+@app.post("/api/projects/{pid}/transcribe")
+def gen_transcribe(pid: str, req: TranscribeReq):
+    try:
+        job_id = transcribe.submit_transcribe(pid, req.scope, req.scene_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    return {"job_id": job_id}
+
+
+@app.get("/api/projects/{pid}/transcript")
+def get_transcript(pid: str):
+    if not projects.get_project(pid):
+        raise HTTPException(status_code=404, detail="project not found")
+    doc = transcribe.get_transcript(pid)
+    if doc is None:
+        raise HTTPException(status_code=404, detail="no transcript yet")
+    return doc
+
+
+class FileTranscribeReq(BaseModel):
+    file: str                          # a filename in data/outputs (the generated clip)
+    text: Optional[str] = None         # the script to anchor sentence text to
+    language: Optional[str] = None
+    item_id: Optional[str] = None      # the saved history entry to attach the transcript to
+
+
+@app.post("/api/transcribe")
+def transcribe_file(req: FileTranscribeReq):
+    """Standalone: transcribe one generated clip into timed sentence JSON."""
+    try:
+        return {"job_id": transcribe.submit_file_transcribe(
+            req.file, req.text, req.language, req.item_id)}
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
 # --- API: images -----------------------------------------------------------
 class ImagesReq(BaseModel):
     image: dict = {}
@@ -545,6 +596,18 @@ def ltx_status():
 def ltx_download():
     """Download any missing LTX-2 weights in-app (headless background job)."""
     return {"job_id": animate.submit_ltx_download()}
+
+
+class AutoPromptReq(BaseModel):
+    overwrite: bool = False
+
+
+@app.post("/api/projects/{pid}/animate/autoprompt")
+def animate_autoprompt(pid: str, req: AutoPromptReq):
+    try:
+        return animate.fill_motion_prompts(pid, req.overwrite)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
 
 
 @app.post("/api/projects/{pid}/animate")

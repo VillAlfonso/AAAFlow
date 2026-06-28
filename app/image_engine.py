@@ -229,8 +229,17 @@ class ImageEngine:
         try:
             if progress:
                 progress("Loading IP-Adapter (style RAG)", 0.85)
+            from transformers import CLIPVisionModelWithProjection
+            dtype = self._torch.float16 if self._device() == "cuda" else self._torch.float32
+            enc = CLIPVisionModelWithProjection.from_pretrained(
+                ipc["repo"], subfolder=ipc.get("image_encoder_subfolder", "models/image_encoder"),
+                torch_dtype=dtype)
+            if self._device() == "cuda":
+                enc = enc.to("cuda")
+            pipe.image_encoder = enc
             pipe.load_ip_adapter(
-                ipc["repo"], subfolder=ipc["subfolder"], weight_name=ipc["weight_name"])
+                ipc["repo"], subfolder=ipc["subfolder"], weight_name=ipc["weight_name"],
+                image_encoder_folder=None)       # use the pre-loaded encoder (Windows-safe)
             self._ip_loaded = True
         except Exception as exc:  # noqa: BLE001 - degrade to base SDXL + style prompt
             print(f"[image] IP-Adapter load failed ({exc}); using base SDXL + prompt only")
@@ -324,7 +333,7 @@ class ImageEngine:
                               num_inference_steps=int(steps),
                               guidance_scale=float(guidance), generator=gen)
                 if self._ip_loaded:
-                    kwargs["ip_adapter_image"] = self._prep_refs(ref_images)
+                    kwargs["ip_adapter_image"] = [self._prep_refs(ref_images)]  # one list per adapter
                     scale = ip_scale if ip_scale is not None else config.IP_ADAPTER["default_scale"]
                     # no usable refs -> neutralize the adapter (still must pass an image)
                     pipe.set_ip_adapter_scale(self._ip_scale(scale if ref_images else 0.0))

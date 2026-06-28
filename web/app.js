@@ -87,6 +87,7 @@ const NAV = [
   { sep: true },
   { id: "history", label: "History", icon: "i-history" },
   { id: "voices", label: "Voice Lab", icon: "i-voices" },
+  { id: "transcribe", label: "Script → JSON", icon: "i-clock" },
   { id: "training", label: "Training", icon: "i-wand" },
   { id: "settings", label: "Settings", icon: "i-settings" },
 ];
@@ -490,6 +491,17 @@ async function renderVoiceover(host) {
     <div class="divider"></div>
     <div class="scene-list" id="voScenes"></div>`;
   page.appendChild(gcard);
+
+  const tcard = el("div", "card"); tcard.style.marginTop = "16px";
+  tcard.innerHTML = `
+    <div class="spread"><h2 class="mb0">Transcribe <span class="hint">→ timed sentences</span></h2><div class="row" id="trMeta"></div></div>
+    <p class="desc">Turn the generated voice into a timestamped script: every sentence becomes its own block with an accurate <b>start</b>/<b>end</b>, anchored to your narration so the wording stays exact. Runs locally on your GPU (Whisper). Exports <b>transcript.json</b> + <b>.srt</b> / <b>.vtt</b> subtitles.</p>
+    <p class="muted" style="margin:-6px 0 14px;font-size:13px">First run downloads the Whisper model into <code>./models</code> (medium ≈ 1.5&nbsp;GB) — later runs are fast.</p>
+    <div class="row" id="trActions"></div>
+    <div id="trRun" style="margin-top:16px"></div>
+    <div class="divider"></div>
+    <div id="trOut"></div>`;
+  page.appendChild(tcard);
   host.appendChild(page);
 
   const langSel = $("#voLang", page);
@@ -584,8 +596,68 @@ async function renderVoiceover(host) {
       runEl.innerHTML = "";
       toast(`Voiced ${res.done} scene(s) · ${fmtClock(res.timeline.total_dur)} total`);
       timing(); actions(); drawScenes(); renderNav();
+      if (typeof trActions === "function") trActions();
     } catch (e) { runEl.innerHTML = ""; toast(e.message, "err"); }
   }
+
+  /* ---- transcribe (timed sentence blocks) ---- */
+  const trTS = t => { t = Math.max(0, +t || 0); const m = Math.floor(t / 60); return `${m}:${(t - m * 60).toFixed(2).padStart(5, "0")}`; };
+  function trCounts() {
+    const voiced = state.project.scenes.filter(s => (s.narration || "").trim() && s.status.audio === "ready");
+    return { voiced: voiced.length, missing: voiced.filter(s => (s.status.transcript || "none") !== "ready").length };
+  }
+  function trMeta() {
+    const t = state.status.transcribe || {};
+    $("#trMeta", page).innerHTML =
+      `<span class="badge">Whisper ${esc(t.model || "medium")}</span>` +
+      `<span class="badge ${t.available === false ? "" : "teal"}">${t.available === false ? "not installed" : esc(t.device || "auto")}</span>`;
+  }
+  function trActions() {
+    const a = $("#trActions", page); a.innerHTML = ""; const c = trCounts();
+    const go = el("button", "btn btn-primary", `${icon("i-wand")} Transcribe voiced (${c.missing})`);
+    go.disabled = c.missing === 0; go.onclick = () => runTR("missing");
+    const all = el("button", "btn btn-ghost", `${icon("i-refresh")} Re-transcribe all (${c.voiced})`);
+    all.disabled = c.voiced === 0; all.onclick = () => runTR("all");
+    a.append(go, all);
+    if (c.voiced === 0) a.append(el("span", "muted", `<span style="padding-left:8px">Voice some scenes first.</span>`));
+  }
+  function renderTranscript(doc) {
+    const out = $("#trOut", page); out.innerHTML = "";
+    if (!doc || !doc.sentences || !doc.sentences.length) {
+      out.innerHTML = `<div class="muted" style="padding:6px 2px">No transcript yet — voice the scenes, then transcribe.</div>`; return;
+    }
+    const base = `/projects/${state.project.id}/transcript/`;
+    const dl = el("div", "row"); dl.style.cssText = "margin-bottom:14px;align-items:center";
+    dl.innerHTML = `<span class="muted" style="margin-right:4px">Download</span>
+      <a class="btn btn-ghost btn-sm" href="${base}transcript.json" download>${icon("i-download")} JSON</a>
+      <a class="btn btn-ghost btn-sm" href="${base}captions.srt" download>${icon("i-download")} SRT</a>
+      <a class="btn btn-ghost btn-sm" href="${base}captions.vtt" download>${icon("i-download")} VTT</a>
+      <span class="grow"></span><span class="badge gold">${doc.sentence_count} sentences</span>`;
+    out.appendChild(dl);
+    doc.scenes.forEach(s => {
+      const row = el("div", "scene-row"); row.style.gridTemplateColumns = "54px 1fr";
+      const lines = s.sentences.map(b =>
+        `<div style="display:flex;gap:10px;padding:3px 0;align-items:baseline">
+           <span class="badge mono" style="padding:1px 7px;white-space:nowrap">${trTS(b.start)}&nbsp;→&nbsp;${trTS(b.end)}</span>
+           <span>${esc(b.text)}</span></div>`).join("");
+      row.innerHTML = `<div class="sid">scene<b>${s.id}</b></div><div class="scene-body">${lines}</div>`;
+      out.appendChild(row);
+    });
+  }
+  async function runTR(scope, sceneId) {
+    const runEl = $("#trRun", page);
+    runEl.innerHTML = `<div class="run-panel"><div class="spinner"></div><div style="flex:1"><div class="lab" id="trStage">Starting…</div><div class="progress" style="margin-top:8px"><div class="bar" id="trBar"></div></div></div></div>`;
+    try {
+      const { job_id } = await api.post(`/api/projects/${state.project.id}/transcribe`, { scope, scene_id: sceneId != null ? String(sceneId) : null });
+      const res = await pollJob(job_id, j => { const st = $("#trStage", page); if (st) st.textContent = j.stage; const b = $("#trBar", page); if (b) b.style.width = Math.round((j.progress || 0) * 100) + "%"; });
+      await loadProject(state.project.id);
+      runEl.innerHTML = "";
+      toast(`Transcribed ${res.done} scene(s) · ${res.sentences} sentences`);
+      trActions(); renderTranscript(res.transcript);
+    } catch (e) { runEl.innerHTML = ""; toast(e.message, "err"); }
+  }
+  trMeta(); trActions();
+  api.get(`/api/projects/${p.id}/transcript`).then(renderTranscript).catch(() => renderTranscript(null));
 }
 async function refreshImageModels() {
   try { state.imageModels = await api.get("/api/image_models"); } catch (e) { }
@@ -888,7 +960,9 @@ async function renderAnimate(host) {
      <button class="btn btn-primary" onclick="location.hash='#/p/${p.id}/assemble'">${icon("i-assemble")} Assemble →</button>`);
   const page = el("div", "page page-wide"); page.innerHTML = stepper("animate");
 
-  const cfg = Object.assign({ seconds: 4, fps: 25, width: 768, height: 512, seed: 42, motion_prompt: "" }, p.settings.animate || {});
+  const cfg = Object.assign({ engine: "ltx", seconds: 1.5, fps: 12, width: 768, height: 512, seed: 42, motion_prompt: "" }, p.settings.animate || {});
+  const wan = (state.status && state.status.wan) || { ready: false };
+  const ENGINE_DEFAULTS = { ltx: { fps: 12, width: 768, height: 512, seconds: 1.5 }, wan: { fps: 16, width: 640, height: 640, seconds: 3 } };
 
   // --- model / readiness card ---
   const fileRow = (ok, label) => `<div class="row" style="gap:8px"><span class="badge ${ok ? "good" : ""}">${ok ? "✓" : "—"}</span><span class="${ok ? "" : "muted"}">${esc(label)}</span></div>`;
@@ -910,6 +984,10 @@ async function renderAnimate(host) {
   const scard = el("div", "card"); scard.style.marginTop = "16px";
   scard.innerHTML = `
     <h2>Motion settings</h2>
+    <div class="field"><label>Engine</label><select id="anEngine">
+      <option value="ltx" ${cfg.engine === "ltx" ? "selected" : ""}>LTX-2 19B ${ltx.ready ? "" : "(weights missing)"}</option>
+      <option value="wan" ${cfg.engine === "wan" ? "selected" : ""}>Wan 2.2 14B ${wan.ready ? "" : "(downloading / missing)"}</option>
+    </select><span class="hint">LTX = flat-cartoon (short clips); Wan = best quality, shines on claymation/semi-real</span></div>
     <div class="grid3">
       <div class="field"><label>Clip length (s)</label><input type="number" id="anSec" value="${cfg.seconds}" min="1" max="8" step="0.5"/></div>
       <div class="field"><label>FPS</label><input type="number" id="anFps" value="${cfg.fps}" min="8" max="30"/></div>
@@ -938,6 +1016,12 @@ async function renderAnimate(host) {
   num("#anSec", "seconds"); num("#anFps", "fps"); num("#anSeed", "seed");
   num("#anW", "width"); num("#anH", "height");
   $("#anMP", page).oninput = e => cfg.motion_prompt = e.target.value;
+  $("#anEngine", page).onchange = e => {
+    cfg.engine = e.target.value;
+    Object.assign(cfg, ENGINE_DEFAULTS[cfg.engine] || {});
+    $("#anSec", page).value = cfg.seconds; $("#anFps", page).value = cfg.fps;
+    $("#anW", page).value = cfg.width; $("#anH", page).value = cfg.height;
+  };
 
   // download (headless in-app job)
   $("#ltxDl", page).onclick = async () => {
@@ -960,9 +1044,17 @@ async function renderAnimate(host) {
     const all = el("button", "btn btn-ghost", `${icon("i-refresh")} Animate all stills (${imgReady})`);
     all.disabled = !ltx.ready || imgReady === 0;
     all.onclick = () => runANI("all");
-    a.append(gen, all);
+    const fill = el("button", "btn btn-ghost", `${icon("i-wand")} Auto-fill prompts`);
+    fill.onclick = async () => {
+      try {
+        const r = await api.post(`/api/projects/${p.id}/animate/autoprompt`, { overwrite: false });
+        toast(`Filled ${r.filled}/${r.total} motion prompts`);
+        await loadProject(p.id); render();
+      } catch (e) { toast(e.message, "err"); }
+    };
+    a.append(gen, all, fill);
+    a.append(el("span", "muted", "Tip: click a scene to preview, edit its prompt, and re-animate. For all 162 at once, run animate_all.bat (its own terminal)."));
     if (!ltx.ready) a.append(el("span", "muted", "Download the LTX-2 weights above to enable animation."));
-    else if (motion.length === 0) a.append(el("span", "muted", "No scenes declare motion — use “Animate all stills”, or add motion_prompt/motion_type to the storyboard."));
   }
   function drawGrid() {
     const grid = $("#anGrid", page); grid.innerHTML = "";
@@ -973,11 +1065,14 @@ async function renderAnimate(host) {
       const frame = s.video_file
         ? `<video src="${assetUrl(s.video_file, Date.now())}" muted loop autoplay playsinline></video>`
         : `<img src="${assetUrl(s.image_file, Date.now())}" loading="lazy"/>`;
-      const tag = s.video_file ? `<span class="badge good">clip</span>` : (can ? `<span class="badge teal">${esc((s.motion_type || "motion"))}</span>` : "");
+      const stale = s.status.video === "stale";
+      const tag = s.video_file ? `<span class="badge ${stale ? "" : "good"}">${stale ? "edited" : "clip"}</span>` : (can ? `<span class="badge teal">${esc((s.motion_type || "motion"))}</span>` : "");
       card.innerHTML = `<div class="frame">${frame}</div>
         <div class="cap"><div class="t">scene <b>${s.id}</b> ${tag}</div>
-        <button class="btn-icon" title="Animate this scene" ${ltx.ready ? "" : "disabled"}>${icon("i-wand")}</button></div>`;
-      $(".btn-icon", card).onclick = () => runANI("scene", s.id);
+        <button class="btn-icon" title="Preview / edit / animate">${icon("i-wand")}</button></div>`;
+      const open = () => openAnimScene(s.id);
+      card.querySelector(".frame").onclick = open;
+      $(".btn-icon", card).onclick = open;
       grid.appendChild(card);
     });
   }
@@ -995,6 +1090,66 @@ async function renderAnimate(host) {
       render();
     } catch (e) { runEl.innerHTML = ""; toast(e.message, "err"); }
   }
+}
+
+/* scene animation modal: preview the clip, edit the motion prompt, re-animate */
+function openAnimScene(sid) {
+  const p = state.project; if (!p) return;
+  const s = p.scenes.find(x => String(x.id) === String(sid)); if (!s) return;
+  const ltxReady = !!(state.status && state.status.ltx && state.status.ltx.ready);
+  const a = Object.assign({ seconds: 4, fps: 25, width: 768, height: 512, seed: 42 }, p.settings.animate || {});
+  const preview = s.video_file
+    ? `<video src="${assetUrl(s.video_file, Date.now())}" controls loop autoplay muted playsinline style="width:100%;border-radius:10px;background:#000"></video>`
+    : (s.image_file ? `<img src="${assetUrl(s.image_file, Date.now())}" style="width:100%;border-radius:10px"/>` : `<div class="ph">scene ${s.id}</div>`);
+  const mt = (s.motion_type || "ambient").toLowerCase();
+  const card = openModal(`
+    <div class="modal-head"><h2 class="mb0">Scene ${s.id} · animation</h2><button class="btn-icon" id="asX">${icon("i-x")}</button></div>
+    <div style="margin-bottom:12px">${preview}</div>
+    <p class="muted" style="font-size:12px;margin:-4px 0 10px">Still subject: ${esc((s.image_prompt || "").slice(0, 140))}</p>
+    <div class="field"><label>Motion prompt <span class="hint">(what moves + camera)</span></label>
+      <textarea id="asMP" rows="3" style="width:100%">${esc(s.motion_prompt || "")}</textarea></div>
+    <div class="grid2">
+      <div class="field"><label>Motion type</label><select id="asMT">
+        ${["ambient", "transform", "still"].map(o => `<option value="${o}" ${mt === o ? "selected" : ""}>${o}</option>`).join("")}
+      </select></div>
+      <div class="field"><label>Clip length (s)</label><input type="number" id="asSec" value="${a.seconds}" min="1" max="8" step="0.5"/></div>
+    </div>
+    <div class="field" id="asEndWrap" style="display:${mt === "transform" ? "" : "none"}"><label>End-frame prompt <span class="hint">(transform: krea2 renders this, LTX morphs to it)</span></label>
+      <input type="text" id="asEnd" value="${esc(s.end_image_prompt || "")}" placeholder="e.g. the same scene but the chart has skyrocketed"/></div>
+    <div id="asRun" style="margin:10px 0"></div>
+    <div class="row row-end">
+      <button class="btn btn-ghost" id="asSave">Save prompt</button>
+      <button class="btn btn-primary" id="asGo" ${ltxReady ? "" : "disabled"}>${icon("i-wand")} ${s.video_file ? "Re-animate" : "Animate"}</button>
+    </div>
+    ${ltxReady ? "" : '<p class="muted" style="font-size:12px;margin-top:8px">LTX-2 weights not ready — download them on the Animate page.</p>'}`);
+  $("#asX", card).onclick = closeModal;
+  $("#asMT", card).onchange = e => $("#asEndWrap", card).style.display = e.target.value === "transform" ? "" : "none";
+
+  const collect = () => ({
+    motion_prompt: $("#asMP", card).value.trim(),
+    motion_type: $("#asMT", card).value,
+    end_image_prompt: $("#asEnd", card).value.trim(),
+  });
+  async function save() {
+    await api.patch(`/api/projects/${p.id}/scenes/${s.id}`, collect());
+    await loadProject(p.id);
+  }
+  $("#asSave", card).onclick = async () => {
+    try { await save(); toast(`Scene ${s.id} prompt saved`); render(); } catch (e) { toast(e.message, "err"); }
+  };
+  $("#asGo", card).onclick = async () => {
+    const runEl = $("#asRun", card);
+    runEl.innerHTML = `<div class="run-panel"><div class="spinner"></div><div style="flex:1"><div class="lab" id="asStage">Starting ComfyUI…</div><div class="progress teal" style="margin-top:8px"><div class="bar" id="asBar"></div></div><div class="muted" style="font-size:11px;margin-top:6px">~10 min on a 16 GB GPU — watch it in the ComfyUI window/tab that opens.</div></div></div>`;
+    try {
+      await save();
+      const opts = { ...a, seconds: +$("#asSec", card).value };
+      await api.put(`/api/projects/${p.id}/settings`, { animate: opts });
+      const { job_id } = await api.post(`/api/projects/${p.id}/animate`, { opts, scope: "scene", scene_id: String(s.id) });
+      await pollJob(job_id, j => { const st = $("#asStage", card); if (st) st.textContent = j.stage; const b = $("#asBar", card); if (b) b.style.width = Math.round((j.progress || 0) * 100) + "%"; });
+      await loadProject(p.id); toast(`Scene ${s.id} animated`);
+      closeModal(); render(); openAnimScene(s.id);
+    } catch (e) { runEl.innerHTML = ""; toast(e.message, "err"); }
+  };
 }
 
 async function renderAssemble(host) {
@@ -1453,10 +1608,237 @@ async function renderTraining(host) {
   await load();
 }
 
+/* ============================================================
+   PAGE: SCRIPT → JSON  (paste script · voice it · timestamped JSON)
+   ============================================================ */
+async function renderTranscribe(host) {
+  topbar("Script → JSON", "Paste a script, generate the voice, then copy timestamped sentence JSON.");
+  const v = state.voices || {};
+  const sel = { value: "custom:Ryan", language: "English", instruct: "" };
+  let generatedFile = null;   // wav in data/outputs
+  let currentItemId = null;   // saved history entry id (to attach the transcript to)
+  let lastTranscript = null;
+
+  const page = el("div", "page");
+
+  const card = el("div", "card");
+  card.innerHTML = `
+    <h2>Script</h2>
+    <p class="desc">Paste your narration. The selected voice reads it locally (Qwen3-TTS); then Whisper aligns each sentence to the audio and emits timestamped JSON — your exact wording, accurate times.</p>
+    <div class="grid2" style="margin-bottom:14px">
+      <div class="field"><label>Voice</label><select id="tsVoice"></select></div>
+      <div class="field"><label>Language</label><select id="tsLang"></select></div>
+    </div>
+    <div class="field"><label>Style / emotion <span class="hint">(optional, 1.7B only — plain English works)</span></label><input type="text" id="tsInstruct" placeholder="e.g. suspenseful, like he's telling a spooky campfire story"/></div>
+    <div class="row" id="tsStyles" style="margin:8px 0 14px;gap:6px;flex-wrap:wrap"></div>
+    <div class="field"><label>Script</label><textarea id="tsText" rows="8" placeholder="Paste your script here…"></textarea></div>
+    <div class="row" style="margin-top:14px">
+      <button class="btn btn-primary" id="tsGen">${icon("i-voice")} Generate voice</button>
+      <span class="muted mono" id="tsGenMsg"></span>
+    </div>
+    <div id="tsAudio" style="margin-top:14px"></div>`;
+  page.appendChild(card);
+
+  const tcard = el("div", "card"); tcard.style.marginTop = "16px";
+  tcard.innerHTML = `
+    <div class="spread"><h2 class="mb0">Timestamps</h2><div class="row" id="tsMeta"></div></div>
+    <p class="desc">Each sentence becomes a block with an accurate <b>start</b>/<b>end</b>, anchored to your script. Copy the JSON or download it.</p>
+    <div class="row" id="tsTrActions"></div>
+    <div id="tsRun" style="margin-top:14px"></div>
+    <div id="tsJsonWrap" style="margin-top:14px" hidden>
+      <div class="row" style="align-items:center;margin-bottom:8px">
+        <label class="switch"><input type="checkbox" id="tsWords"/><span class="track"></span> Include per-word times</label>
+        <span class="grow"></span>
+        <button class="btn btn-ghost btn-sm" id="tsCopy">${icon("i-check")} Copy JSON</button>
+        <button class="btn btn-ghost btn-sm" id="tsDownload">${icon("i-download")} Download</button>
+      </div>
+      <textarea id="tsJson" rows="16" readonly spellcheck="false" style="width:100%;white-space:pre;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:12px;line-height:1.5"></textarea>
+    </div>`;
+  page.appendChild(tcard);
+
+  const scard = el("div", "card"); scard.style.marginTop = "16px";
+  scard.innerHTML = `
+    <div class="spread"><h2 class="mb0">Saved voiceovers</h2><button class="btn btn-ghost btn-sm" id="tsReload">${icon("i-refresh")} Refresh</button></div>
+    <p class="desc">Every voice you generate here is saved (also under <a href="#/history">History</a>). Play it back, re-download it, or load one to transcribe.</p>
+    <div class="scene-list" id="tsSaved"></div>`;
+  page.appendChild(scard);
+  host.appendChild(page);
+
+  // --- voice + language selects ---
+  const vsel = $("#tsVoice", page);
+  let opts = "";
+  if ((v.builtin || []).length)
+    opts += `<optgroup label="Built-in speakers">` + v.builtin.map(s => `<option value="custom:${esc(s.id)}">${esc(dispName(s.id))}${s.youtube ? " · YT" : ""} — ${esc(s.desc)}</option>`).join("") + `</optgroup>`;
+  if ((v.custom || []).length)
+    opts += `<optgroup label="Your voices">` + v.custom.map(c => `<option value="clone:${esc(c.id)}">${esc(c.name)} (${esc(c.type)})</option>`).join("") + `</optgroup>`;
+  vsel.innerHTML = opts || `<option value="custom:Ryan">Ryan</option>`;
+  if ([...vsel.options].some(o => o.value === sel.value)) vsel.value = sel.value; else vsel.selectedIndex = 0;
+  sel.value = vsel.value;
+  vsel.onchange = () => sel.value = vsel.value;
+
+  const lsel = $("#tsLang", page);
+  lsel.innerHTML = (v.languages || ["Auto", "English"]).map(l => `<option value="${l}">${l === "Auto" ? "Auto-detect" : l}</option>`).join("");
+  lsel.value = sel.language; lsel.onchange = () => sel.language = lsel.value;
+  $("#tsInstruct", page).oninput = e => sel.instruct = e.target.value;
+
+  // One-click style/emotion presets (Qwen3-TTS 1.7B follows plain-English delivery cues).
+  const STYLE_PRESETS = [
+    ["🔥 Campfire spooky", "Suspenseful and hushed, as if telling a scary story around a campfire at night — slow and tense, building quiet dread, almost a whisper at the scariest parts."],
+    ["🎙️ Calm documentary", "Calm, warm, authoritative documentary narrator with measured, deliberate pacing."],
+    ["⚡ Energetic", "Upbeat, energetic and friendly — fast and lively, with a smile you can hear."],
+    ["🎬 Dramatic trailer", "Deep, dramatic movie-trailer voice — intense, slow and powerful, weight on every word."],
+    ["😢 Somber", "Soft, somber and melancholic — gentle, slow and emotional, almost mournful."],
+  ];
+  const stylesEl = $("#tsStyles", page);
+  STYLE_PRESETS.forEach(([label, text]) => {
+    const b = el("button", "btn btn-sm btn-ghost", label);
+    b.title = text;
+    b.onclick = () => { const inp = $("#tsInstruct", page); inp.value = text; sel.instruct = text; inp.focus(); };
+    stylesEl.appendChild(b);
+  });
+
+  const meta = state.status.transcribe || {};
+  $("#tsMeta", page).innerHTML =
+    `<span class="badge">Whisper ${esc(meta.model || "medium")}</span>` +
+    `<span class="badge ${meta.available === false ? "" : "teal"}">${meta.available === false ? "not installed" : esc(meta.device || "auto")}</span>`;
+
+  function trActions() {
+    const a = $("#tsTrActions", page); a.innerHTML = "";
+    const btn = el("button", "btn btn-primary", `${icon("i-clock")} Transcribe to JSON`);
+    btn.disabled = !generatedFile; btn.onclick = runTranscribe;
+    a.append(btn);
+    if (!generatedFile) a.append(el("span", "muted", `<span style="padding-left:8px">Generate the voice first.</span>`));
+  }
+  trActions();
+
+  // --- generate the voice (reuses the TTS pipeline) ---
+  $("#tsGen", page).onclick = async () => {
+    const text = $("#tsText", page).value.trim();
+    if (!text) { toast("Paste a script first.", "err"); return; }
+    const msg = $("#tsGenMsg", page); const btn = $("#tsGen", page);
+    const [mode, id] = sel.value.split(":");
+    const body = { mode, text, language: sel.language, instruct: sel.instruct || null, format: "wav", loudnorm: false };
+    if (mode === "clone") body.voice_id = id; else body.speaker = id;
+    btn.disabled = true; msg.textContent = "synthesizing…";
+    try {
+      const { job_id } = await api.post("/api/tts", body);
+      const res = await pollJob(job_id, j => { msg.textContent = j.stage + " " + Math.round((j.progress || 0) * 100) + "%"; });
+      const files = (res.item && res.item.files) || {};
+      generatedFile = files.wav || files.mp3 || null;
+      currentItemId = (res.item && res.item.id) || null;
+      if (!generatedFile) throw new Error("No audio was produced.");
+      msg.textContent = "✓ voice ready — review below, then transcribe";
+      $("#tsAudio", page).innerHTML = `<audio controls src="/audio/${generatedFile}" style="width:100%"></audio>`;
+      // a fresh voice invalidates the old JSON
+      lastTranscript = null; $("#tsJsonWrap", page).hidden = true; $("#tsRun", page).innerHTML = "";
+      trActions();
+      loadSaved();
+    } catch (e) { msg.textContent = ""; toast(e.message, "err"); }
+    finally { btn.disabled = false; }
+  };
+
+  function showJson() {
+    if (!lastTranscript) return;
+    const withWords = $("#tsWords", page).checked;
+    const doc = {
+      duration: lastTranscript.duration,
+      language: lastTranscript.language,
+      model: lastTranscript.model,
+      sentences: (lastTranscript.sentences || []).map(b => withWords ? b
+        : { index: b.index, text: b.text, start: b.start, end: b.end, dur: b.dur }),
+    };
+    $("#tsJson", page).value = JSON.stringify(doc, null, 2);
+  }
+
+  async function runTranscribe() {
+    if (!generatedFile) return;
+    const text = $("#tsText", page).value.trim();
+    const runEl = $("#tsRun", page);
+    runEl.innerHTML = `<div class="run-panel"><div class="spinner"></div><div style="flex:1"><div class="lab" id="tsStage">Starting…</div><div class="progress" style="margin-top:8px"><div class="bar" id="tsBar"></div></div></div></div>`;
+    try {
+      const { job_id } = await api.post("/api/transcribe", { file: generatedFile, text, language: sel.language, item_id: currentItemId });
+      const res = await pollJob(job_id, j => { const st = $("#tsStage", page); if (st) st.textContent = j.stage; const b = $("#tsBar", page); if (b) b.style.width = Math.round((j.progress || 0) * 100) + "%"; });
+      lastTranscript = res.transcript;
+      runEl.innerHTML = "";
+      $("#tsJsonWrap", page).hidden = false;
+      showJson();
+      loadSaved();   // reflect the now-saved timestamps in the list
+      toast(`${(lastTranscript.sentences || []).length} sentence(s) timestamped & saved`);
+    } catch (e) { runEl.innerHTML = ""; toast(e.message, "err"); }
+  }
+
+  $("#tsWords", page).onchange = showJson;
+  $("#tsCopy", page).onclick = async () => {
+    const ta = $("#tsJson", page);
+    try { await navigator.clipboard.writeText(ta.value); toast("JSON copied"); }
+    catch (_) { ta.select(); document.execCommand("copy"); toast("JSON copied"); }
+  };
+  $("#tsDownload", page).onclick = () => {
+    const blob = new Blob([$("#tsJson", page).value], { type: "application/json" });
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+    a.download = "transcript.json"; a.click(); URL.revokeObjectURL(a.href);
+  };
+
+  // --- saved voiceovers (persisted server-side; also in History) ---
+  async function loadSaved() {
+    const wrap = $("#tsSaved", page); if (!wrap) return;
+    let items;
+    try { items = await api.get("/api/history"); state.history = items; }
+    catch (_) { items = state.history || []; }
+    const saved = items.filter(it => it.files && (it.files.wav || it.files.mp3) && it.kind !== "transcript" && !it.project);
+    wrap.innerHTML = "";
+    if (!saved.length) { wrap.innerHTML = `<div class="muted" style="padding:8px 2px">No saved voiceovers yet — generate one above.</div>`; return; }
+    saved.forEach(it => {
+      const f = it.files.wav || it.files.mp3;
+      const hasJson = !!it.transcript_file;
+      const row = el("div", "scene-row"); row.style.gridTemplateColumns = "1fr auto";
+      row.innerHTML = `
+        <div class="scene-body">
+          <div class="narr">${esc(it.text_preview || it.voice || "voiceover")}</div>
+          <div class="sub">${it.voice ? `<span>${esc(it.voice)}</span>` : ""}${it.language ? `<span>${esc(it.language)}</span>` : ""}${it.duration ? `<span>${fmtClock(it.duration)}</span>` : ""}<span>${fmtAgo(it.created)}</span>${hasJson ? `<span class="badge good">JSON · ${it.sentence_count || "?"} sent.</span>` : `<span class="badge">no JSON yet</span>`}</div>
+          <audio controls preload="none" src="/audio/${f}" style="height:34px;width:100%;max-width:440px;margin-top:8px"></audio>
+        </div>
+        <div class="scene-meta">
+          <button class="btn btn-sm btn-ghost tsUse" title="${hasJson ? "Load this clip and its saved timestamps" : "Load this clip to transcribe"}">${icon("i-clock")} ${hasJson ? "View JSON" : "Use for JSON"}</button>
+          ${hasJson ? `<a class="btn-icon" href="/download/${it.transcript_file}" download title="Download timestamps JSON">${icon("i-download")}</a>` : ""}
+          <a class="btn-icon" href="/download/${f}" download title="Download audio">${icon("i-voice")}</a>
+          <button class="btn-icon btn-danger tsDel" title="Remove from saved">${icon("i-trash")}</button>
+        </div>`;
+      $(".tsUse", row).onclick = async () => {
+        generatedFile = f; currentItemId = it.id;
+        const t = it.text || it.text_preview || "";
+        if (t) $("#tsText", page).value = t;
+        if (it.language && [...lsel.options].some(o => o.value === it.language)) { lsel.value = it.language; sel.language = it.language; }
+        $("#tsAudio", page).innerHTML = `<audio controls src="/audio/${f}" style="width:100%"></audio>`;
+        $("#tsRun", page).innerHTML = ""; trActions();
+        if (hasJson) {
+          try {
+            lastTranscript = await api.get(`/audio/${it.transcript_file}`);
+            $("#tsJsonWrap", page).hidden = false; showJson();
+            $("#tsGenMsg", page).textContent = "✓ loaded saved voice + timestamps";
+          } catch (_) {
+            lastTranscript = null; $("#tsJsonWrap", page).hidden = true;
+            $("#tsGenMsg", page).textContent = "✓ loaded saved voice — ready to transcribe";
+          }
+        } else {
+          lastTranscript = null; $("#tsJsonWrap", page).hidden = true;
+          $("#tsGenMsg", page).textContent = "✓ loaded saved voice — ready to transcribe";
+        }
+        tcard.scrollIntoView({ behavior: "smooth", block: "center" });
+      };
+      $(".tsDel", row).onclick = async () => { try { await api.del(`/api/history/${it.id}`); toast("Removed"); loadSaved(); } catch (e) { toast(e.message, "err"); } };
+      wrap.appendChild(row);
+    });
+  }
+  $("#tsReload", page).onclick = loadSaved;
+  loadSaved();
+}
+
 const Pages = {
   projects: renderProjects, storyboard: renderStoryboard, voiceover: renderVoiceover,
   images: renderImages, animate: renderAnimate, assemble: renderAssemble, preview: renderPreview,
-  history: renderHistory, voices: renderVoiceLab, training: renderTraining, settings: renderSettings,
+  history: renderHistory, voices: renderVoiceLab, transcribe: renderTranscribe,
+  training: renderTraining, settings: renderSettings,
 };
 
 /* ============================================================

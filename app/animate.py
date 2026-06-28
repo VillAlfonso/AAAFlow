@@ -18,6 +18,7 @@ from typing import Callable, Dict, List, Optional
 from . import config, jobs, projects, scenes, storage
 from .comfy_engine import comfy_engine
 from .ltx_engine import ltx_engine
+from .wan_engine import wan_engine
 
 ProgressFn = Callable[[str, float], None]
 
@@ -50,6 +51,24 @@ def _krea2_end_frame(proj, sc, video, sid, seed, width, height) -> Optional[str]
     rel = f"images/scene_{projects.scene_key(sid)}_end.png"
     img.save(str(projects.project_dir(proj["id"]) / rel))
     return rel
+
+
+def fill_motion_prompts(pid: str, overwrite: bool = False) -> Dict:
+    """Author a motion_prompt + motion_type for every scene from its storyboard
+    fields (fast, text-only). By default only fills scenes that lack one."""
+    proj = projects.get_project(pid)
+    if not proj:
+        raise ValueError("Project not found.")
+    n = 0
+    for s in proj.get("scenes", []):
+        if not overwrite and (s.get("motion_prompt") or "").strip():
+            continue
+        mp, mt = scenes.auto_motion_prompt(s)
+        s["motion_prompt"] = mp
+        s["motion_type"] = s.get("motion_type") or mt
+        n += 1
+    projects.save_project(proj)
+    return {"filled": n, "total": len(proj.get("scenes", []))}
 
 
 def submit_ltx_download() -> str:
@@ -98,30 +117,35 @@ def submit_animate(pid: str, opts: Optional[Dict] = None, scope: str = "motion",
     project = projects.get_project(pid)
     if not project:
         raise ValueError("Project not found.")
-    if not config.ltx2_ready():
-        raise ValueError(
-            "LTX-2 weights are missing. Use “Download LTX-2” on the Animate page "
-            "(opens a terminal) to fetch the checkpoint + distilled LoRA first.")
     opts = dict(opts or {})
+    engine = (opts.get("engine") or "ltx").lower()
+    if engine == "wan":
+        if not config.wan_ready():
+            raise ValueError("Wan 2.2 weights are missing — run download_wan14.bat.")
+    elif not config.ltx2_ready():
+        raise ValueError(
+            "LTX-2 weights are missing. Use “Download LTX-2” on the Animate page first.")
     video = project.get("video", {})
     targets = _targets(project["scenes"], scope, scene_id)
     if not targets:
         raise ValueError("No scenes are ready to animate (need a rendered image "
                          "and, for the motion scope, declared motion).")
 
+    ecfg = config.WAN if engine == "wan" else config.LTX2
     seconds = opts.get("seconds")
-    fps = int(opts.get("fps") or config.LTX2["fps"])
-    width = int(opts.get("width") or config.LTX2["width"])
-    height = int(opts.get("height") or config.LTX2["height"])
+    fps = int(opts.get("fps") or ecfg["fps"])
+    width = int(opts.get("width") or ecfg["width"])
+    height = int(opts.get("height") or ecfg["height"])
     fallback = (opts.get("motion_prompt") or "").strip()
-    base_seed = opts.get("seed", config.LTX2.get("seed", 42))
+    base_seed = opts.get("seed", 42)
     target_ids = [s["id"] for s in targets]
 
     def task(progress: ProgressFn) -> Dict:
         proj = projects.get_project(pid)
         projects.ensure_dirs(pid)
-        progress("Starting ComfyUI / LTX-2", 0.02)
+        progress(f"Starting ComfyUI / {engine.upper()}", 0.02)
         comfy_engine.ensure_running(progress=lambda s, f: progress(s, 0.02 + 0.08 * f))
+        comfy_engine.open_ui()   # surface ComfyUI so the user can watch it animate
 
         n = len(target_ids)
         done = 0
@@ -134,27 +158,31 @@ def submit_animate(pid: str, opts: Optional[Dict] = None, scope: str = "motion",
             lead = 0.1 + 0.85 * done / max(n, 1)
             progress(f"Animating scene {sid} ({done + 1}/{n})", lead)
 
-            end_rel = None
-            if scenes.wants_end_frame(sc):
-                progress(f"Scene {sid}: end frame (krea2)", lead)
-                try:
-                    end_rel = _krea2_end_frame(proj, sc, video, sid, seed, width, height)
-                except Exception as exc:  # noqa: BLE001 - fall back to single-still i2v
-                    end_rel = None
-                    progress(f"Scene {sid}: end frame failed ({exc}); ambient i2v", lead)
-
             still = str(pdir / sc["image_file"])
-            end_path = str(pdir / end_rel) if end_rel else None
-            data = ltx_engine.animate(
-                still, mp, seconds=seconds, fps=fps, width=width, height=height,
-                seed=seed, end_image_path=end_path,
-                progress=lambda s, f, _l=lead: progress(s, _l))
+            cb = lambda s, f, _l=lead: progress(s, _l)
+            if engine == "wan":
+                data = wan_engine.animate(still, mp, seconds=seconds, fps=fps,
+                                          width=width, height=height, seed=seed, progress=cb)
+                end_rel = None
+            else:
+                end_rel = None
+                if scenes.wants_end_frame(sc):
+                    progress(f"Scene {sid}: end frame (krea2)", lead)
+                    try:
+                        end_rel = _krea2_end_frame(proj, sc, video, sid, seed, width, height)
+                    except Exception as exc:  # noqa: BLE001 - fall back to single-still i2v
+                        end_rel = None
+                        progress(f"Scene {sid}: end frame failed ({exc}); ambient i2v", lead)
+                data = ltx_engine.animate(
+                    still, mp, seconds=seconds, fps=fps, width=width, height=height,
+                    seed=seed, end_image_path=(str(pdir / end_rel) if end_rel else None),
+                    progress=cb)
 
             rel = f"video/scene_{projects.scene_key(sid)}.mp4"
             (pdir / rel).write_bytes(data)
             projects.set_scene_video(
                 proj, sid, rel,
-                {"prompt": mp, "seconds": seconds or config.LTX2["default_seconds"],
+                {"engine": engine, "prompt": mp, "seconds": seconds or ecfg["default_seconds"],
                  "fps": fps, "width": width, "height": height, "seed": seed,
                  "end_frame": bool(end_rel)},
                 end_rel=end_rel)
@@ -167,7 +195,7 @@ def submit_animate(pid: str, opts: Optional[Dict] = None, scope: str = "motion",
             "id": storage.new_id(), "created": time.time(), "preview": False,
             "kind": "animate", "project": pid, "project_name": proj["name"],
             "scenes": done,
-            "text_preview": f"Animated {done} scene(s) of “{proj['name']}” (LTX-2)",
+            "text_preview": f"Animated {done} scene(s) of “{proj['name']}” ({engine.upper()})",
         })
         nready = sum(1 for s in proj["scenes"]
                      if s.get("status", {}).get("video") == "ready")

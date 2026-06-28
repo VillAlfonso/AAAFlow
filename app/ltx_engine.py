@@ -58,14 +58,19 @@ class LTXEngine:
     # text encoder is loaded via LTXAVTextEncoderLoader (gemma + the same ckpt for
     # the projection). ModelSamplingLTXV patches the model; LTXVScheduler builds the
     # sigma schedule. No distilled LoRA, so real CFG + a moderate step count.
-    def _loaders(self, wf: Dict, prompt: str, negative: str) -> None:
+    def _loaders(self, wf: Dict, prompt: str, negative: str):
+        """Build the loaders; returns the MODEL ref for the guider. No ModelSamplingLTXV
+        (the fused 19B ckpt bakes its own sampling — the official blueprint omits it)."""
         cfg = config.LTX2
         wf["ckpt"] = {"class_type": "CheckpointLoaderSimple",
                       "inputs": {"ckpt_name": cfg["checkpoint"]}}
-        wf["msm"] = {"class_type": "ModelSamplingLTXV",
-                     "inputs": {"model": ["ckpt", 0],
-                                "max_shift": float(cfg["max_shift"]),
-                                "base_shift": float(cfg["base_shift"])}}
+        model_ref = ["ckpt", 0]
+        lora = cfg.get("distilled_lora")
+        if lora and (config.comfy_models_dir() / "loras" / lora).exists():
+            wf["lora"] = {"class_type": "LoraLoaderModelOnly",
+                          "inputs": {"model": ["ckpt", 0], "lora_name": lora,
+                                     "strength_model": float(cfg.get("lora_strength", 1.0))}}
+            model_ref = ["lora", 0]
         wf["te"] = {"class_type": "LTXAVTextEncoderLoader",
                     "inputs": {"text_encoder": cfg["text_encoder"],
                                "ckpt_name": cfg["checkpoint"], "device": "default"}}
@@ -73,10 +78,11 @@ class LTXEngine:
                      "inputs": {"clip": ["te", 0], "text": prompt}}
         wf["neg"] = {"class_type": "CLIPTextEncode",
                      "inputs": {"clip": ["te", 0], "text": negative}}
+        return model_ref
 
-    def _sampler_tail(self, wf: Dict, *, pos_ref, neg_ref, latent_ref, fps: int,
-                      seed: int) -> None:
-        """Shared tail: sampler -> VAEDecode -> CreateVideo -> SaveVideo.
+    def _sampler_tail(self, wf: Dict, *, model_ref, pos_ref, neg_ref, latent_ref,
+                      fps: int, seed: int) -> None:
+        """Shared tail: sampler -> VAEDecodeTiled -> CreateVideo -> SaveVideo.
 
         ``pos_ref``/``neg_ref`` must already be LTXVConditioning-wrapped (frame_rate set).
         """
@@ -84,7 +90,7 @@ class LTXEngine:
         wf["noise"] = {"class_type": "RandomNoise",
                        "inputs": {"noise_seed": int(seed) & 0xFFFFFFFFFFFFFF}}
         wf["guider"] = {"class_type": "CFGGuider",
-                        "inputs": {"model": ["msm", 0], "positive": pos_ref,
+                        "inputs": {"model": model_ref, "positive": pos_ref,
                                    "negative": neg_ref, "cfg": float(cfg["guidance"])}}
         wf["sampler"] = {"class_type": "KSamplerSelect",
                          "inputs": {"sampler_name": cfg["sampler"]}}
@@ -98,8 +104,10 @@ class LTXEngine:
                         "inputs": {"noise": ["noise", 0], "guider": ["guider", 0],
                                    "sampler": ["sampler", 0], "sigmas": ["sigmas", 0],
                                    "latent_image": latent_ref}}
-        wf["decode"] = {"class_type": "VAEDecode",
-                        "inputs": {"samples": ["sample", 0], "vae": ["ckpt", 2]}}
+        wf["decode"] = {"class_type": "VAEDecodeTiled",
+                        "inputs": {"samples": ["sample", 0], "vae": ["ckpt", 2],
+                                   "tile_size": 512, "overlap": 64,
+                                   "temporal_size": 4096, "temporal_overlap": 8}}
         wf["video"] = {"class_type": "CreateVideo",
                        "inputs": {"images": ["decode", 0], "fps": float(fps)}}
         wf["save"] = {"class_type": "SaveVideo",
@@ -110,7 +118,7 @@ class LTXEngine:
                       length: int, fps: int, seed: int) -> Dict:
         """Single-still image-to-video (ambient / generic motion)."""
         wf: Dict = {}
-        self._loaders(wf, prompt, negative)
+        model_ref = self._loaders(wf, prompt, negative)
         wf["img"] = {"class_type": "LoadImage", "inputs": {"image": "__INPUT__"}}
         wf["i2v"] = {"class_type": "LTXVImgToVideo",
                      "inputs": {"positive": ["pos", 0], "negative": ["neg", 0],
@@ -121,16 +129,53 @@ class LTXEngine:
         wf["cond"] = {"class_type": "LTXVConditioning",
                       "inputs": {"positive": ["i2v", 0], "negative": ["i2v", 1],
                                  "frame_rate": float(fps)}}
-        self._sampler_tail(wf, pos_ref=["cond", 0], neg_ref=["cond", 1],
-                           latent_ref=["i2v", 2], fps=fps, seed=seed)
+        self._sampler_tail(wf, model_ref=model_ref, pos_ref=["cond", 0],
+                           neg_ref=["cond", 1], latent_ref=["i2v", 2], fps=fps, seed=seed)
         return wf
+
+    def _workflow_t2v(self, prompt: str, negative: str, *, width: int, height: int,
+                      length: int, fps: int, seed: int) -> Dict:
+        """Text-to-video from scratch (no reference image)."""
+        wf: Dict = {}
+        model_ref = self._loaders(wf, prompt, negative)
+        wf["empty"] = {"class_type": "EmptyLTXVLatentVideo",
+                       "inputs": {"width": int(width), "height": int(height),
+                                  "length": int(length), "batch_size": 1}}
+        wf["cond"] = {"class_type": "LTXVConditioning",
+                      "inputs": {"positive": ["pos", 0], "negative": ["neg", 0],
+                                 "frame_rate": float(fps)}}
+        self._sampler_tail(wf, model_ref=model_ref, pos_ref=["cond", 0],
+                           neg_ref=["cond", 1], latent_ref=["empty", 0], fps=fps, seed=seed)
+        return wf
+
+    def text2video(self, prompt: str, *, seconds: Optional[float] = None,
+                   negative: Optional[str] = None, width: Optional[int] = None,
+                   height: Optional[int] = None, fps: Optional[int] = None,
+                   seed: int = 0, progress=None) -> bytes:
+        """Generate a clip from text only (no reference image)."""
+        if not config.ltx2_ready():
+            raise RuntimeError("LTX-2 weights are missing.")
+        cfg = config.LTX2
+        width = int(width or cfg["width"]); height = int(height or cfg["height"])
+        fps = int(fps or cfg["fps"])
+        length = _snap_length(seconds or cfg["default_seconds"], fps)
+        negative = negative if negative is not None else cfg["negative"]
+        style = (cfg.get("style") or "").strip()
+        full = f"{prompt}, {style}" if style else prompt
+        comfy_engine.ensure_running(progress=progress)
+        wf = self._workflow_t2v(full, negative, width=width, height=height,
+                                length=length, fps=fps, seed=seed)
+        infos = comfy_engine.run_workflow(
+            wf, want=("images",), client_id=self._cid, timeout=1800,
+            progress=progress, prange=(0.15, 0.95), stage="Generating (LTX-2 t2v)")
+        return comfy_engine.fetch(infos[0])
 
     def _workflow_flf(self, prompt: str, negative: str, *, width: int, height: int,
                       length: int, fps: int, seed: int, end_name: str) -> Dict:
         """First+last-frame video (transform scenes with an end_image)."""
         cfg = config.LTX2
         wf: Dict = {}
-        self._loaders(wf, prompt, negative)
+        model_ref = self._loaders(wf, prompt, negative)
         wf["img"] = {"class_type": "LoadImage", "inputs": {"image": "__INPUT__"}}
         wf["imgEnd"] = {"class_type": "LoadImage", "inputs": {"image": end_name}}
         wf["preStart"] = {"class_type": "LTXVPreprocess",
@@ -153,8 +198,8 @@ class LTXEngine:
                                    "vae": ["ckpt", 2], "latent": ["guideA", 2],
                                    "image": ["preEnd", 0], "frame_idx": -1,
                                    "strength": float(cfg["end_strength"])}}
-        self._sampler_tail(wf, pos_ref=["guideB", 0], neg_ref=["guideB", 1],
-                           latent_ref=["guideB", 2], fps=fps, seed=seed)
+        self._sampler_tail(wf, model_ref=model_ref, pos_ref=["guideB", 0],
+                           neg_ref=["guideB", 1], latent_ref=["guideB", 2], fps=fps, seed=seed)
         return wf
 
     # ---- generation -------------------------------------------------------
@@ -175,14 +220,21 @@ class LTXEngine:
         length = _snap_length(seconds or cfg["default_seconds"], fps)
         negative = negative if negative is not None else cfg["negative"]
 
+        # LTX 2D-animation prompt format: style declaration first, then the
+        # subject/action, then explicit flat-look negations.
+        lead = (cfg.get("style_lead") or "").strip()
+        tail = (cfg.get("style_tail") or "").strip()
+        full_prompt = ". ".join(p.strip().strip(".").strip()
+                                for p in (lead, prompt, tail) if p.strip().strip("."))
+
         comfy_engine.ensure_running(progress=progress)
         in_name = self._upload(image_path)
         if end_image_path:
             end_name = self._upload(end_image_path)
-            wf = self._workflow_flf(prompt, negative, width=width, height=height,
+            wf = self._workflow_flf(full_prompt, negative, width=width, height=height,
                                     length=length, fps=fps, seed=seed, end_name=end_name)
         else:
-            wf = self._workflow_i2v(prompt, negative, width=width, height=height,
+            wf = self._workflow_i2v(full_prompt, negative, width=width, height=height,
                                     length=length, fps=fps, seed=seed)
         wf["img"]["inputs"]["image"] = in_name
 

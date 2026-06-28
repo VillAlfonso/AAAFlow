@@ -59,7 +59,7 @@ def submit_tts(req: Dict) -> str:
             if not voice:
                 raise ValueError("Selected voice was not found.")
             progress("Loading clone model", 0.02)
-            segs, sr = engine.synth_clone(chunks, voice, language, synth)
+            segs, sr = engine.synth_clone(chunks, voice, language, synth, instruct=instruct)
             voice_label = voice.get("name", "Cloned voice")
             meta = {"mode": "clone", "voice_id": voice_id}
         else:
@@ -86,6 +86,7 @@ def submit_tts(req: Dict) -> str:
             "chunks": len(chunks),
             "duration": out["duration"],
             "files": out["files"],
+            "text": text,                 # full script (lets a saved clip be reloaded + re-transcribed)
             "text_preview": text[:160],
             **meta,
         }

@@ -88,7 +88,9 @@ def normalize_scene(raw: Dict, index: int) -> Dict:
     scene["visual_aid"] = raw.get("visual_aid")
     scene["end_image_file"] = None    # end frame (krea2) for start->end animation
     scene["video_file"] = None        # animated clip (LTX-2)
-    scene["status"] = {"audio": "none", "image": "none", "video": "none"}
+    scene["transcript"] = None        # timed sentence blocks (Whisper, anchored to narration)
+    scene["status"] = {"audio": "none", "image": "none", "video": "none",
+                       "transcript": "none"}
     return scene
 
 
@@ -139,6 +141,67 @@ _MOTION_FALLBACK = {
                  "the change happens gradually and clearly",
     "still": "very subtle, almost still, a faint breathing motion only",
 }
+
+
+def _clean(text: str) -> str:
+    """Drop control/mojibake chars and tidy whitespace from storyboard text."""
+    if not text:
+        return ""
+    out = "".join(ch for ch in str(text) if ch == "\n" or 32 <= ord(ch) < 0xFFFD)
+    out = re.sub(r"�", "", out)            # stray replacement chars
+    return re.sub(r"\s+", " ", out).strip()
+
+
+# keyword -> a single, *gentle* ambient motion phrase (kept subtle so LTX doesn't
+# overdrive the effect and melt the drawing)
+_AMBIENT_RULES = [
+    (r"\bfire|flame|campfire|burn|ember|stove\b", "the fire flickers softly"),
+    (r"\bsnow\b", "a few snowflakes drift down slowly"),
+    (r"\brain\b", "light rain falls gently"),
+    (r"\bwind|blow\b", "a slight breeze stirs"),
+    (r"\bbanknote|notes?\b|\bmoney|cash|bill|mark|currency|coin|wage|price\b", "a banknote flutters slightly"),
+    (r"\bchart|graph|curve|bar ?graph|diagram|arrow|number|percent|index|rate\b",
+     "the chart line rises slowly, numbers ticking up"),
+    (r"\bcrowd|queue|line of|people|workers?|protest|riot|march\b", "the crowd stirs with small movements"),
+    (r"\bclock|hour|time\b", "the clock hands tick slowly"),
+    (r"\bwater|river|wave\b", "the water ripples gently"),
+    (r"\btrain|car|wheel|cart\b", "a slight forward drift"),
+]
+
+
+def _camera_for_shot(shot: str) -> str:
+    s = (shot or "").lower()
+    if any(k in s for k in ("wide", "establish", "aerial", "long")):
+        return "slow cinematic push-in"
+    if any(k in s for k in ("insert", "close", "extreme", "macro", "detail")):
+        return "minimal camera movement, a slight slow zoom"
+    if "medium" in s:
+        return "gentle slow push-in"
+    if any(k in s for k in ("pov", "over", "handheld")):
+        return "subtle handheld drift"
+    return "subtle slow camera move"
+
+
+def auto_motion_prompt(scene: Dict) -> Tuple[str, str]:
+    """Author a *minimalist* (motion_prompt, motion_type) for a scene.
+
+    Deliberately tiny motion — a gentle bouncy idle bob + a shot-appropriate slow
+    camera move, and at most one *very* subtle ambient effect. No big character
+    actions: those make LTX over-move and smear small details, which reads as the
+    "AI feel" the user wants to avoid. Returns motion-only text (the still's subject
+    is added by build_motion_prompt; the flat-cartoon style by ltx_engine)."""
+    blob = " ".join(_clean(scene.get(f)) for f in ("image_prompt", "narration", "visual")).lower()
+    effect = ""
+    for pat, phrase in _AMBIENT_RULES:
+        if re.search(pat, blob):
+            effect = phrase
+            break
+    parts = ["the character moves with a gentle, slightly exaggerated cartoon rhythm, "
+             "small bouncy idle motion"]
+    if effect:
+        parts.append(effect)
+    parts.append("the camera holds steady")
+    return ", ".join(parts), "ambient"
 
 
 def is_animatable(scene: Dict) -> bool:

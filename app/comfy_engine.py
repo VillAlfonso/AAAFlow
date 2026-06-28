@@ -67,24 +67,20 @@ class ComfyEngine:
                     f"ComfyUI not found at {config.COMFY_DIR}. Set AAAFLOW_COMFY_URL "
                     "to a running ComfyUI, or place the portable build there.")
             if progress:
-                progress("Starting ComfyUI (headless)…", 0.03)
+                progress("Starting ComfyUI…", 0.03)
             port = urllib.parse.urlparse(self.url).port or 8188
-            # Headless: no console window, no browser auto-launch; logs to a file
-            # so we can debug without a visible terminal.
-            log = open(config.COMFY_LOG, "a", encoding="utf-8", errors="replace")
-            log.write(f"\n===== ComfyUI start {time.strftime('%Y-%m-%d %H:%M:%S')} =====\n")
-            log.flush()
-            kwargs = dict(cwd=str(config.COMFY_DIR), stdout=log, stderr=log,
-                          stdin=subprocess.DEVNULL)
+            # Visible: ComfyUI gets its own console window so you can watch the logs
+            # and progress. The web UI is opened separately (open_ui) when a job runs.
+            kwargs = dict(cwd=str(config.COMFY_DIR), stdin=subprocess.DEVNULL)
             flags = 0
-            if hasattr(subprocess, "CREATE_NO_WINDOW"):        # Windows: suppress console
-                flags |= subprocess.CREATE_NO_WINDOW
+            if hasattr(subprocess, "CREATE_NEW_CONSOLE"):       # Windows: own visible console
+                flags |= subprocess.CREATE_NEW_CONSOLE
             if flags:
                 kwargs["creationflags"] = flags
             self._proc = subprocess.Popen(
                 [str(config.COMFY_PYTHON), "-s", str(config.COMFY_MAIN),
                  "--windows-standalone-build", "--port", str(port),
-                 "--disable-auto-launch"],
+                 "--disable-auto-launch"],   # we control the browser open via open_ui()
                 **kwargs)
             self._started_here = True
             t0 = time.time()
@@ -95,6 +91,20 @@ class ComfyEngine:
                     return
                 time.sleep(2)
             raise RuntimeError("ComfyUI did not become ready in time.")
+
+    def open_ui(self) -> None:
+        """Open the ComfyUI web UI in the default browser so the user can watch
+        the live node execution + preview while a job runs (best-effort)."""
+        try:
+            import webbrowser
+            if not webbrowser.open(self.url):
+                raise RuntimeError("no browser")
+        except Exception:  # noqa: BLE001
+            try:
+                import os
+                os.startfile(self.url)  # Windows fallback
+            except Exception:
+                pass
 
     # ---- workflow ---------------------------------------------------------
     def _workflow(self, mdef: Dict, prompt: str, width: int, height: int,

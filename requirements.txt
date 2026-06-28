@@ -29,6 +29,11 @@ protobuf
 moviepy>=2.1
 imageio-ffmpeg
 
+# transcription — timed, sentence-level subtitles per scene (Whisper).
+# Runs on the GPU (auto-falls back to CPU); weights cache in ./models/whisper.
+# Pulls ctranslate2 + av. No numba, so it's clean on numpy 2.x.
+faster-whisper>=1.1
+
 # Pinned/transitive (listed for clarity):
 # transformers==4.57.3, accelerate, torch==2.11.0+cu128, torchaudio, librosa, soundfile, numpy, pillow
 # Also required on PATH: ffmpeg / ffprobe (e.g. C:\ffmpeg\)

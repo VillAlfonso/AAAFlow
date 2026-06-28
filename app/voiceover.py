@@ -101,7 +101,7 @@ def submit_voiceover(pid: str, voice: Dict, scope: str = "missing",
                 continue
             chunks = chunk_text(text, max_chars)
             if mode == "clone":
-                segs, sr = engine.synth_clone(chunks, cv, language)
+                segs, sr = engine.synth_clone(chunks, cv, language, instruct=instruct)
             else:
                 segs, sr = engine.synth_custom(chunks, speaker, language, instruct)
             stitched = audio.stitch(segs, sr, gap, pgap, trim)

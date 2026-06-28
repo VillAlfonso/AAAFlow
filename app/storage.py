@@ -80,6 +80,21 @@ def delete_history(item_id: str) -> bool:
         return len(kept) != len(items)
 
 
+def update_history(item_id: str, patch: Dict) -> bool:
+    """Merge `patch` into a single saved history entry (e.g. attach a transcript)."""
+    with _lock:
+        items = _read(config.HISTORY_FILE, [])
+        changed = False
+        for it in items:
+            if it.get("id") == item_id:
+                it.update(patch or {})
+                changed = True
+                break
+        if changed:
+            _write(config.HISTORY_FILE, items)
+        return changed
+
+
 # --- custom voices (clones + designed voices) ------------------------------
 def _resolve_ref(voice: Dict) -> Dict:
     """Resolve a voice's ref audio by filename against the current REFS_DIR.

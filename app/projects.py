@@ -162,7 +162,8 @@ def get_scene(project: Dict, sid) -> Optional[Dict]:
 
 
 _EDITABLE = ("narration", "image_prompt", "on_screen_text", "text_anim",
-             "transition", "visual", "audio_cue", "shot", "act")
+             "transition", "visual", "audio_cue", "shot", "act",
+             "motion_prompt", "motion_type", "end_image_prompt")
 
 
 def update_scene(pid: str, sid, patch: Dict) -> Optional[Dict]:
@@ -178,6 +179,11 @@ def update_scene(pid: str, sid, patch: Dict) -> Optional[Dict]:
     # Editing the narration invalidates any rendered audio (and the timeline).
     if "narration" in patch:
         sc["status"]["audio"] = "stale" if sc.get("audio_file") else "none"
+        if sc.get("transcript"):
+            sc["status"]["transcript"] = "stale"
+    # Editing motion invalidates any rendered clip (so the card flags a re-animate).
+    if ("motion_prompt" in patch or "motion_type" in patch) and sc.get("video_file"):
+        sc["status"]["video"] = "stale"
     save_project(p)
     return sc
 
@@ -191,6 +197,9 @@ def set_scene_audio(project: Dict, sid, rel_path: Optional[str], duration: Optio
     sc["audio_dur"] = round(duration, 3) if duration is not None else None
     sc["audio_voice"] = voice_label
     sc["status"]["audio"] = "ready" if rel_path else "none"
+    # New audio invalidates any existing timestamps for this scene.
+    if sc.get("transcript"):
+        sc["status"]["transcript"] = "stale" if rel_path else "none"
 
 
 def set_scene_image(project: Dict, sid, rel_path: Optional[str], seed=None,

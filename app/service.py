@@ -42,6 +42,7 @@ def submit_tts(req: Dict) -> str:
     loudnorm = False if is_preview else bool(
         req.get("loudnorm", settings.get("loudnorm", True)))
     loudnorm_i = float(settings.get("loudnorm_i", -16.0))
+    speed = max(0.5, min(2.0, float(req.get("speed") or 1.0)))   # pacing: <1 slower, >1 faster
 
     speaker = req.get("speaker") or settings.get("default_speaker", "Ryan")
     instruct = (req.get("instruct") or "").strip() or None
@@ -74,7 +75,7 @@ def submit_tts(req: Dict) -> str:
         )
         basename = _basename("preview" if is_preview else "tts")
         out = audio.export(stitched, sr, basename, loudnorm=loudnorm,
-                           loudnorm_i=loudnorm_i, fmt=fmt)
+                           loudnorm_i=loudnorm_i, fmt=fmt, speed=speed)
 
         entry = {
             "id": storage.new_id(),

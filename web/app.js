@@ -1631,6 +1631,13 @@ async function renderTranscribe(host) {
     </div>
     <div class="field"><label>Style / emotion <span class="hint">(optional, 1.7B only — plain English works)</span></label><input type="text" id="tsInstruct" placeholder="e.g. suspenseful, like he's telling a spooky campfire story"/></div>
     <div class="row" id="tsStyles" style="margin:8px 0 14px;gap:6px;flex-wrap:wrap"></div>
+    <div class="field" style="max-width:300px;margin-bottom:14px"><label>Pace <span class="hint">(delivery speed)</span></label><select id="tsPace">
+      <option value="0.8">🐢 Very slow</option>
+      <option value="0.9">Slow &amp; deliberate</option>
+      <option value="1" selected>Natural</option>
+      <option value="1.1">Brisk</option>
+      <option value="1.2">🐇 Fast</option>
+    </select></div>
     <div class="field"><label>Script</label><textarea id="tsText" rows="8" placeholder="Paste your script here…"></textarea></div>
     <div class="row" style="margin-top:14px">
       <button class="btn btn-primary" id="tsGen">${icon("i-voice")} Generate voice</button>
@@ -1717,7 +1724,8 @@ async function renderTranscribe(host) {
     if (!text) { toast("Paste a script first.", "err"); return; }
     const msg = $("#tsGenMsg", page); const btn = $("#tsGen", page);
     const [mode, id] = sel.value.split(":");
-    const body = { mode, text, language: sel.language, instruct: sel.instruct || null, format: "wav", loudnorm: false };
+    const speed = parseFloat($("#tsPace", page).value) || 1;
+    const body = { mode, text, language: sel.language, instruct: sel.instruct || null, format: "wav", loudnorm: false, speed };
     if (mode === "clone") body.voice_id = id; else body.speaker = id;
     btn.disabled = true; msg.textContent = "synthesizing…";
     try {

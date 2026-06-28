@@ -122,11 +122,13 @@ def summarize(p: Dict) -> Dict:
     n = len(scenes)
     audio_done = sum(1 for s in scenes if s.get("status", {}).get("audio") == "ready")
     image_done = sum(1 for s in scenes if s.get("status", {}).get("image") == "ready")
+    video_done = sum(1 for s in scenes if s.get("status", {}).get("video") == "ready")
     video = p.get("video", {})
     return {
         "id": p["id"], "name": p.get("name"),
         "created": p.get("created"), "updated": p.get("updated"),
         "scenes": n, "audio_done": audio_done, "image_done": image_done,
+        "video_done": video_done,
         "renders": len(p.get("renders", [])),
         "title": video.get("title"),
         "target_runtime": video.get("total_runtime") or video.get("target_runtime_minutes"),
@@ -200,6 +202,19 @@ def set_scene_image(project: Dict, sid, rel_path: Optional[str], seed=None,
     sc["image_seed"] = seed
     sc["image_meta"] = meta
     sc["status"]["image"] = "ready" if rel_path else "none"
+
+
+def set_scene_video(project: Dict, sid, rel_path: Optional[str],
+                    meta: Optional[Dict] = None, end_rel: Optional[str] = None) -> None:
+    sc = get_scene(project, sid)
+    if not sc:
+        return
+    sc["video_file"] = rel_path
+    if end_rel is not None:
+        sc["end_image_file"] = end_rel
+    sc["video_meta"] = meta
+    sc["status"].setdefault("video", "none")
+    sc["status"]["video"] = "ready" if rel_path else "none"
 
 
 # --- timeline (audio-led) --------------------------------------------------

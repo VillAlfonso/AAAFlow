@@ -81,6 +81,7 @@ const NAV = [
   { id: "storyboard", label: "Storyboard", icon: "i-storyboard", proj: true },
   { id: "voiceover", label: "Voiceover", icon: "i-voice", proj: true },
   { id: "images", label: "Images", icon: "i-image", proj: true },
+  { id: "animate", label: "Animate", icon: "i-preview", proj: true },
   { id: "assemble", label: "Assemble", icon: "i-assemble", proj: true },
   { id: "preview", label: "Preview", icon: "i-preview", proj: true },
   { sep: true },
@@ -132,7 +133,7 @@ function renderChips() {
   const reg = state.imageModels || {};
   const found = [...(reg.builtin || []), ...(reg.imported || [])].find(m => m.id === modelId);
   const type = found ? (found.type || found.base_type || "sd") : (/flux/i.test(modelId) ? "flux" : "sd");
-  $("#chipFlux").textContent = type === "comfyui" ? "Krea-2 · cartoon" : (type === "flux" ? "FLUX" : "SD 1.5");
+  $("#chipFlux").textContent = modelId === "cartoon-rag" ? "Cartoon · RAG" : (type === "comfyui" ? "Krea-2 · cartoon" : (type === "flux" ? "FLUX" : (type === "sdxl" ? "SDXL" : "SD 1.5")));
   $("#chipFfmpeg").hidden = s.ffmpeg !== false;
 }
 
@@ -177,6 +178,7 @@ const STEPS = [
   { id: "storyboard", label: "Storyboard" },
   { id: "voiceover", label: "Voiceover" },
   { id: "images", label: "Images" },
+  { id: "animate", label: "Animate" },
   { id: "assemble", label: "Assemble" },
   { id: "preview", label: "Preview" },
 ];
@@ -597,7 +599,7 @@ async function renderImages(host) {
      <button class="btn btn-primary" onclick="location.hash='#/p/${p.id}/assemble'">${icon("i-assemble")} Assemble →</button>`);
   const page = el("div", "page page-wide"); page.innerHTML = stepper("images");
 
-  const cfg = Object.assign({ model: "local-sd15", steps: null, guidance: null, width: null, height: null, seed: -1, use_default_lora: true, default_lora_weight: 0.95, gguf_quant: "Q4_K_S", loras: [] }, state.settings.image || {}, p.settings.image || {});
+  const cfg = Object.assign({ model: "cartoon-rag", steps: null, guidance: null, width: null, height: null, seed: -1, use_default_lora: true, default_lora_weight: 0.95, gguf_quant: "Q4_K_S", loras: [], use_refs: true, ip_scale: 0.7 }, state.settings.image || {}, p.settings.image || {});
   cfg.loras = (cfg.loras || []).slice();
 
   const builtin = state.imageModels.builtin || [];
@@ -641,6 +643,25 @@ async function renderImages(host) {
     </div>`;
   page.appendChild(mcard);
 
+  // --- reference style pack (RAG / IP-Adapter) — cartoon-rag model only ---
+  const rcard = el("div", "card"); rcard.id = "imRefsCard"; rcard.style.marginTop = "16px";
+  rcard.innerHTML = `
+    <div class="spread"><h2 class="mb0">Cartoon style references <span class="hint">(RAG)</span></h2><span class="badge teal" id="imRefCount"></span></div>
+    <p class="desc">No ComfyUI: the cartoon look comes from these reference images, fed to <b>IP-Adapter</b> in style-transfer mode. Seed the pack from your existing krea2 renders, or upload your own. <b>Composition</b> still follows each scene's prompt.</p>
+    <div class="grid2">
+      <div class="field"><label>Style strength <span class="hint" id="imIpVal"></span></label><input type="range" min="0" max="1.2" step="0.05" id="imIp" value="${cfg.ip_scale}"/></div>
+      <div class="field" style="justify-content:flex-end"><label>&nbsp;</label>
+        <label class="switch"><input type="checkbox" id="imUseRefs" ${cfg.use_refs ? "checked" : ""}/><span class="track"></span> Use references</label></div>
+    </div>
+    <div class="row" style="margin:6px 0 12px">
+      <button class="btn btn-ghost btn-sm" id="imSeed">${icon("i-image")} Seed from this project</button>
+      <button class="btn btn-ghost btn-sm" id="imRefAdd">${icon("i-plus")} Upload reference</button>
+      <input type="file" id="imRefFile" accept=".png,.jpg,.jpeg,.webp" multiple style="display:none"/>
+      <span class="muted mono" id="imRefMsg"></span>
+    </div>
+    <div class="media-grid" id="imRefGrid"></div>`;
+  page.appendChild(rcard);
+
   const gcard = el("div", "card"); gcard.style.marginTop = "16px";
   gcard.innerHTML = `
     <div class="spread"><h2 class="mb0">Generate</h2><div class="row" id="imCounts"></div></div>
@@ -661,9 +682,45 @@ async function renderImages(host) {
     const flux = isFlux();
     $("#imQuantField", page).style.display = flux ? "" : "none";
     $("#imBuiltinLora", page).style.display = flux ? "" : "none";
+    $("#imRefsCard", page).style.display = mdef().ip_adapter ? "" : "none";
     if (flux) syncDef();
   };
-  setVal(); applyVis();
+  const setIp = () => $("#imIpVal", page).textContent = (+$("#imIp", page).value).toFixed(2);
+  setVal(); setIp(); applyVis();
+
+  // --- reference pack (RAG) ---
+  async function loadRefs() {
+    let data = { refs: [], count: 0 };
+    try { data = await api.get("/api/style_refs"); } catch (e) { }
+    $("#imRefCount", page).textContent = `${data.count} reference${data.count === 1 ? "" : "s"}`;
+    const grid = $("#imRefGrid", page); grid.innerHTML = "";
+    if (!data.refs.length) { grid.innerHTML = `<div class="muted" style="font-size:13px">No references yet — seed from this project to copy your krea2 cartoon look.</div>`; return; }
+    data.refs.forEach(r => {
+      const card = el("div", "media-card");
+      card.innerHTML = `<div class="frame"><img src="${r.url}" loading="lazy"/></div>
+        <div class="cap"><div class="t muted mono" style="font-size:11px">${esc((r.tags || []).join(" ") || r.source || "")}</div>
+        <button class="btn-icon btn-danger" title="Remove">${icon("i-trash")}</button></div>`;
+      $(".btn-danger", card).onclick = async () => { await api.del(`/api/style_refs/${r.id}`); loadRefs(); };
+      grid.appendChild(card);
+    });
+  }
+  $("#imIp", page).oninput = e => { cfg.ip_scale = +e.target.value; setIp(); };
+  $("#imUseRefs", page).onchange = e => cfg.use_refs = e.target.checked;
+  $("#imSeed", page).onclick = async () => {
+    const msg = $("#imRefMsg", page); msg.textContent = "seeding…";
+    try { const r = await api.post("/api/style_refs/seed", { pid: p.id, limit: 24 }); msg.textContent = `added ${r.added}`; loadRefs(); }
+    catch (e) { msg.textContent = ""; toast(e.message, "err"); }
+  };
+  $("#imRefAdd", page).onclick = () => $("#imRefFile", page).click();
+  $("#imRefFile", page).onchange = async e => {
+    const files = [...e.target.files]; if (!files.length) return;
+    const msg = $("#imRefMsg", page); msg.textContent = `uploading ${files.length}…`;
+    try {
+      for (const f of files) { const fd = new FormData(); fd.append("file", f); fd.append("tags", "cartoon"); await api.form("/api/style_refs/upload", fd); }
+      msg.textContent = "uploaded ✓"; loadRefs();
+    } catch (err) { msg.textContent = ""; toast(err.message, "err"); }
+  };
+  loadRefs();
   $("#imModel", page).onchange = e => {
     cfg.model = e.target.value;
     cfg.steps = cfg.guidance = cfg.width = cfg.height = null;   // re-derive for new model
@@ -809,6 +866,137 @@ async function quickImage(sid) {
     await loadProject(p.id); toast(`Scene ${sid} rendered`); closeModal(); render();
   } catch (e) { toast(e.message, "err"); }
 }
+/* ============================================================
+   PAGE: ANIMATE  (LTX-2 image -> short clip)
+   ============================================================ */
+function animatableScenes() {
+  return state.project.scenes.filter(s =>
+    s.status.image === "ready" && (
+      (s.motion_prompt && s.motion_prompt.trim()) ||
+      ["ambient", "transform"].includes((s.motion_type || "").toLowerCase())));
+}
+async function renderAnimate(host) {
+  const p = state.project; if (!p) { location.hash = "#/projects"; return; }
+  try { state.status = await api.get("/api/status"); } catch (e) { }
+  const ltx = (state.status && state.status.ltx) || { ready: false };
+  const imgReady = p.scenes.filter(s => s.status.image === "ready").length;
+  const vidReady = p.scenes.filter(s => s.status.video === "ready").length;
+  const motion = animatableScenes();
+
+  topbar(p.name, `Animate · ${vidReady}/${imgReady} stills animated`,
+    `<button class="btn btn-ghost" onclick="location.hash='#/p/${p.id}/images'">${icon("i-back")} Images</button>
+     <button class="btn btn-primary" onclick="location.hash='#/p/${p.id}/assemble'">${icon("i-assemble")} Assemble →</button>`);
+  const page = el("div", "page page-wide"); page.innerHTML = stepper("animate");
+
+  const cfg = Object.assign({ seconds: 4, fps: 25, width: 768, height: 512, seed: 42, motion_prompt: "" }, p.settings.animate || {});
+
+  // --- model / readiness card ---
+  const fileRow = (ok, label) => `<div class="row" style="gap:8px"><span class="badge ${ok ? "good" : ""}">${ok ? "✓" : "—"}</span><span class="${ok ? "" : "muted"}">${esc(label)}</span></div>`;
+  const mcard = el("div", "card");
+  mcard.innerHTML = `
+    <div class="spread"><h2 class="mb0">LTX-2 model</h2><span class="badge ${ltx.ready ? "good" : "teal"}">${ltx.ready ? "ready" : "weights missing"}</span></div>
+    <p class="desc">Animation turns each generated <b>still</b> into a short clip with <b>LTX-2</b> (image-to-video), through your local ComfyUI. It's heavy on a 16&nbsp;GB GPU, so only scenes whose storyboard declares motion (a <span class="mono">motion_prompt</span>, or <span class="mono">motion_type</span> = ambient/transform) are animated by default. <span class="mono">transform</span> scenes morph from the still to a krea2-rendered end frame.</p>
+    <div class="grid2" style="margin:10px 0">
+      ${fileRow(ltx.checkpoint, (ltx.files && ltx.files.checkpoint) || "LTX-2 19B checkpoint (fused)")}
+      ${fileRow(ltx.text_encoder, (ltx.files && ltx.files.text_encoder) || "gemma text encoder")}
+    </div>
+    <div class="row" id="ltxDlRow" ${ltx.ready ? 'style="display:none"' : ""}>
+      <button class="btn btn-ghost" id="ltxDl">${icon("i-download")} Download LTX-2 weights</button>
+      <span class="muted" id="ltxDlMsg">LTX-2 19B (fp4, fits 16&nbsp;GB) + gemma encoder — downloads in-app.</span>
+    </div>`;
+  page.appendChild(mcard);
+
+  // --- settings card ---
+  const scard = el("div", "card"); scard.style.marginTop = "16px";
+  scard.innerHTML = `
+    <h2>Motion settings</h2>
+    <div class="grid3">
+      <div class="field"><label>Clip length (s)</label><input type="number" id="anSec" value="${cfg.seconds}" min="1" max="8" step="0.5"/></div>
+      <div class="field"><label>FPS</label><input type="number" id="anFps" value="${cfg.fps}" min="8" max="30"/></div>
+      <div class="field"><label>Seed <span class="hint">(-1 random)</span></label><input type="number" id="anSeed" value="${cfg.seed}"/></div>
+      <div class="field"><label>Width</label><input type="number" id="anW" value="${cfg.width}" step="32"/></div>
+      <div class="field"><label>Height</label><input type="number" id="anH" value="${cfg.height}" step="32"/></div>
+    </div>
+    <div class="field"><label>Fallback motion <span class="hint">(used for scenes with no motion_prompt)</span></label>
+      <input type="text" id="anMP" value="${esc(cfg.motion_prompt)}" placeholder="e.g. subtle ambient motion, slow drifting camera"/></div>`;
+  page.appendChild(scard);
+
+  // --- generate card ---
+  const gcard = el("div", "card"); gcard.style.marginTop = "16px";
+  gcard.innerHTML = `
+    <div class="spread"><h2 class="mb0">Animate</h2><div class="row"><span class="badge ${vidReady ? "good" : ""}">${vidReady}/${imgReady} animated</span></div></div>
+    <p class="desc">Clips are saved per scene and used automatically by Assemble (stills without a clip keep their Ken Burns pan).</p>
+    <div class="row" id="anActions"></div>
+    <div id="anRun" style="margin-top:16px"></div>
+    <div class="divider"></div>
+    <div class="media-grid" id="anGrid"></div>`;
+  page.appendChild(gcard);
+  host.appendChild(page);
+
+  // wire settings
+  const num = (id, k, f) => $(id, page).oninput = e => cfg[k] = f ? f(e.target.value) : +e.target.value;
+  num("#anSec", "seconds"); num("#anFps", "fps"); num("#anSeed", "seed");
+  num("#anW", "width"); num("#anH", "height");
+  $("#anMP", page).oninput = e => cfg.motion_prompt = e.target.value;
+
+  // download (headless in-app job)
+  $("#ltxDl", page).onclick = async () => {
+    const btn = $("#ltxDl", page), msg = $("#ltxDlMsg", page);
+    btn.disabled = true;
+    try {
+      const { job_id } = await api.post("/api/ltx/download", {});
+      await pollJob(job_id, j => msg.textContent = `${j.stage} ${Math.round((j.progress || 0) * 100)}%`);
+      msg.textContent = "weights ready ✓";
+      toast("LTX-2 weights ready");
+      render();
+    } catch (e) { btn.disabled = false; msg.textContent = ""; toast(e.message, "err"); }
+  };
+
+  function actions() {
+    const a = $("#anActions", page); a.innerHTML = "";
+    const gen = el("button", "btn btn-primary", `${icon("i-wand")} Animate motion scenes (${motion.length})`);
+    gen.disabled = !ltx.ready || motion.length === 0;
+    gen.onclick = () => runANI("motion");
+    const all = el("button", "btn btn-ghost", `${icon("i-refresh")} Animate all stills (${imgReady})`);
+    all.disabled = !ltx.ready || imgReady === 0;
+    all.onclick = () => runANI("all");
+    a.append(gen, all);
+    if (!ltx.ready) a.append(el("span", "muted", "Download the LTX-2 weights above to enable animation."));
+    else if (motion.length === 0) a.append(el("span", "muted", "No scenes declare motion — use “Animate all stills”, or add motion_prompt/motion_type to the storyboard."));
+  }
+  function drawGrid() {
+    const grid = $("#anGrid", page); grid.innerHTML = "";
+    state.project.scenes.forEach(s => {
+      if (s.status.image !== "ready") return;
+      const card = el("div", "media-card");
+      const can = (s.motion_prompt && s.motion_prompt.trim()) || ["ambient", "transform"].includes((s.motion_type || "").toLowerCase());
+      const frame = s.video_file
+        ? `<video src="${assetUrl(s.video_file, Date.now())}" muted loop autoplay playsinline></video>`
+        : `<img src="${assetUrl(s.image_file, Date.now())}" loading="lazy"/>`;
+      const tag = s.video_file ? `<span class="badge good">clip</span>` : (can ? `<span class="badge teal">${esc((s.motion_type || "motion"))}</span>` : "");
+      card.innerHTML = `<div class="frame">${frame}</div>
+        <div class="cap"><div class="t">scene <b>${s.id}</b> ${tag}</div>
+        <button class="btn-icon" title="Animate this scene" ${ltx.ready ? "" : "disabled"}>${icon("i-wand")}</button></div>`;
+      $(".btn-icon", card).onclick = () => runANI("scene", s.id);
+      grid.appendChild(card);
+    });
+  }
+  actions(); drawGrid();
+
+  async function runANI(scope, sceneId) {
+    const runEl = $("#anRun", page);
+    runEl.innerHTML = `<div class="run-panel"><div class="spinner"></div><div style="flex:1"><div class="lab" id="anStage">Starting…</div><div class="progress teal" style="margin-top:8px"><div class="bar" id="anBar"></div></div></div></div>`;
+    try {
+      await api.put(`/api/projects/${p.id}/settings`, { animate: cfg });
+      const { job_id } = await api.post(`/api/projects/${p.id}/animate`, { opts: cfg, scope, scene_id: sceneId != null ? String(sceneId) : null });
+      const res = await pollJob(job_id, j => { const st = $("#anStage", page); if (st) st.textContent = j.stage; const b = $("#anBar", page); if (b) b.style.width = Math.round((j.progress || 0) * 100) + "%"; });
+      await loadProject(p.id); runEl.innerHTML = "";
+      toast(`Animated ${res.done} scene(s)`);
+      render();
+    } catch (e) { runEl.innerHTML = ""; toast(e.message, "err"); }
+  }
+}
+
 async function renderAssemble(host) {
   const p = state.project; if (!p) { location.hash = "#/projects"; return; }
   const c = sceneCounts();
@@ -817,7 +1005,7 @@ async function renderAssemble(host) {
      <button class="btn btn-primary" onclick="location.hash='#/p/${p.id}/preview'">${icon("i-preview")} Preview →</button>`);
   const page = el("div", "page"); page.innerHTML = stepper("assemble");
 
-  const opts = Object.assign({ width: 1920, height: 1080, fps: 30, ken_burns: true, transitions: true, burn_text: true }, p.settings.assemble || {});
+  const opts = Object.assign({ width: 1920, height: 1080, fps: 30, ken_burns: true, transitions: true, burn_text: true, use_animation: true }, p.settings.assemble || {});
   const RES = [[1920, 1080, "1080p"], [1280, 720, "720p"], [854, 480, "480p (fast)"]];
 
   const card = el("div", "card");
@@ -841,6 +1029,7 @@ async function renderAssemble(host) {
     <div class="row" style="gap:18px;margin-bottom:8px">
       <label class="switch"><input type="checkbox" id="asTrans" ${opts.transitions ? "checked" : ""}/><span class="track"></span> Transitions (crossfade)</label>
       <label class="switch"><input type="checkbox" id="asText" ${opts.burn_text ? "checked" : ""}/><span class="track"></span> Burn in on-screen text</label>
+      <label class="switch"><input type="checkbox" id="asAnim" ${opts.use_animation !== false ? "checked" : ""}/><span class="track"></span> Use animated clips</label>
     </div>
     <div class="row"><button class="btn btn-primary" id="asGo">${icon("i-assemble")} Build video</button>
       <span class="muted" id="asEta"></span></div>
@@ -857,6 +1046,7 @@ async function renderAssemble(host) {
   $("#asKB", page).onchange = e => opts.ken_burns = e.target.checked;
   $("#asTrans", page).onchange = e => opts.transitions = e.target.checked;
   $("#asText", page).onchange = e => opts.burn_text = e.target.checked;
+  $("#asAnim", page).onchange = e => opts.use_animation = e.target.checked;
 
   function drawRenders() {
     const wrap = $("#asRenders", page);
@@ -1265,7 +1455,7 @@ async function renderTraining(host) {
 
 const Pages = {
   projects: renderProjects, storyboard: renderStoryboard, voiceover: renderVoiceover,
-  images: renderImages, assemble: renderAssemble, preview: renderPreview,
+  images: renderImages, animate: renderAnimate, assemble: renderAssemble, preview: renderPreview,
   history: renderHistory, voices: renderVoiceLab, training: renderTraining, settings: renderSettings,
 };
 

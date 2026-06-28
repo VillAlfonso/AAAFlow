@@ -11,8 +11,8 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from . import (assemble, config, humanize, images, jobs, projects, service,
-               storage, training, voiceover)
+from . import (animate, assemble, config, humanize, images, jobs, projects,
+               service, storage, style_refs, training, voiceover)
 from .audio import ffmpeg_ok
 from .engine import engine
 from .image_engine import image_engine
@@ -136,7 +136,8 @@ def _image_models_payload():
         {"id": k, "label": v["label"], "kind": "checkpoint", "builtin": True,
          "type": v.get("type", "sd"), "gated": v.get("gated", False),
          "size": v.get("size", ""), "steps": v.get("steps"), "guidance": v.get("guidance"),
-         "width": v.get("width"), "height": v.get("height")}
+         "width": v.get("width"), "height": v.get("height"),
+         "ip_adapter": bool(v.get("ip_adapter"))}
         for k, v in config.IMAGE_BASES.items()
     ]
     return {
@@ -155,6 +156,11 @@ def _status_payload():
         st["comfy"] = comfy_engine.status()
     except Exception:  # noqa: BLE001
         st["comfy"] = {"alive": False, "available": False}
+    try:
+        from .ltx_engine import ltx_engine
+        st["ltx"] = ltx_engine.status()
+    except Exception:  # noqa: BLE001
+        st["ltx"] = {"ready": False}
     return st
 
 
@@ -428,6 +434,49 @@ def image_download_defaults():
     return {"job_id": images.submit_download_defaults()}
 
 
+# --- API: style references (cartoon RAG pack) ------------------------------
+@app.get("/api/style_refs")
+def get_style_refs():
+    return {"refs": style_refs.list_refs(), "count": style_refs.count(),
+            "ip": _status_payload().get("image", {}).get("ip_loaded", False)}
+
+
+@app.post("/api/style_refs/upload")
+async def upload_style_ref(file: UploadFile = File(...), tags: str = Form("")):
+    suffix = Path(file.filename or "ref.png").suffix or ".png"
+    tmp = config.STYLE_REFS_DIR / f"_upload_{storage.new_id()}{suffix}"
+    tmp.write_bytes(await file.read())
+    try:
+        entry = style_refs.add_ref(str(tmp), tags=tags, source="upload")
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    finally:
+        try:
+            tmp.unlink()
+        except OSError:
+            pass
+    return {"ref": entry}
+
+
+class SeedRefsReq(BaseModel):
+    pid: str
+    limit: int = 12
+
+
+@app.post("/api/style_refs/seed")
+def seed_style_refs(req: SeedRefsReq):
+    try:
+        n = style_refs.seed_from_project(req.pid, req.limit)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    return {"added": n, "count": style_refs.count()}
+
+
+@app.delete("/api/style_refs/{rid}")
+def delete_style_ref(rid: str):
+    return {"deleted": style_refs.delete_ref(rid)}
+
+
 @app.post("/api/image_models/import")
 async def import_image_model(
     file: UploadFile = File(...),
@@ -474,6 +523,34 @@ class AssembleReq(BaseModel):
 def assemble_video(pid: str, req: AssembleReq):
     try:
         job_id = assemble.submit_assemble(pid, req.opts)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    return {"job_id": job_id}
+
+
+# --- API: animate (LTX-2 image->video) ------------------------------------
+class AnimateReq(BaseModel):
+    opts: dict = {}
+    scope: str = "motion"             # "motion" | "all" | "missing" | "scene"
+    scene_id: Optional[str] = None
+
+
+@app.get("/api/ltx/status")
+def ltx_status():
+    from .ltx_engine import ltx_engine
+    return ltx_engine.status()
+
+
+@app.post("/api/ltx/download")
+def ltx_download():
+    """Download any missing LTX-2 weights in-app (headless background job)."""
+    return {"job_id": animate.submit_ltx_download()}
+
+
+@app.post("/api/projects/{pid}/animate")
+def gen_animate(pid: str, req: AnimateReq):
+    try:
+        job_id = animate.submit_animate(pid, req.opts, req.scope, req.scene_id)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
     return {"job_id": job_id}
@@ -537,4 +614,5 @@ async def _http_exc(request, exc: HTTPException):
 # Mounted last so /api wins; /projects + /audio win over the SPA catch-all.
 app.mount("/audio", StaticFiles(directory=str(config.OUTPUTS_DIR)), name="audio")
 app.mount("/projects", StaticFiles(directory=str(config.PROJECTS_DIR)), name="projects")
+app.mount("/style_refs", StaticFiles(directory=str(config.STYLE_REFS_DIR)), name="style_refs")
 app.mount("/", StaticFiles(directory=str(config.WEB_DIR), html=True), name="web")

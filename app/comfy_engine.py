@@ -67,13 +67,25 @@ class ComfyEngine:
                     f"ComfyUI not found at {config.COMFY_DIR}. Set AAAFLOW_COMFY_URL "
                     "to a running ComfyUI, or place the portable build there.")
             if progress:
-                progress("Starting ComfyUI…", 0.03)
+                progress("Starting ComfyUI (headless)…", 0.03)
             port = urllib.parse.urlparse(self.url).port or 8188
+            # Headless: no console window, no browser auto-launch; logs to a file
+            # so we can debug without a visible terminal.
+            log = open(config.COMFY_LOG, "a", encoding="utf-8", errors="replace")
+            log.write(f"\n===== ComfyUI start {time.strftime('%Y-%m-%d %H:%M:%S')} =====\n")
+            log.flush()
+            kwargs = dict(cwd=str(config.COMFY_DIR), stdout=log, stderr=log,
+                          stdin=subprocess.DEVNULL)
+            flags = 0
+            if hasattr(subprocess, "CREATE_NO_WINDOW"):        # Windows: suppress console
+                flags |= subprocess.CREATE_NO_WINDOW
+            if flags:
+                kwargs["creationflags"] = flags
             self._proc = subprocess.Popen(
                 [str(config.COMFY_PYTHON), "-s", str(config.COMFY_MAIN),
-                 "--windows-standalone-build", "--port", str(port)],
-                cwd=str(config.COMFY_DIR),
-                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                 "--windows-standalone-build", "--port", str(port),
+                 "--disable-auto-launch"],
+                **kwargs)
             self._started_here = True
             t0 = time.time()
             while time.time() - t0 < wait:
@@ -158,6 +170,58 @@ class ComfyEngine:
             with urllib.request.urlopen(self.url + "/view?" + q, timeout=120) as resp:
                 data = resp.read()
         return Image.open(io.BytesIO(data)).convert("RGB")
+
+    # ---- generic workflow runner (shared with the LTX engine) -------------
+    @property
+    def infer_lock(self):
+        """The single-GPU inference lock; LTX animation shares it with krea2."""
+        return _infer
+
+    def run_workflow(self, wf: Dict, *, want=("images",), client_id: Optional[str] = None,
+                     timeout: float = 1800, progress=None, prange=(0.4, 0.95),
+                     stage: str = "Rendering"):
+        """Submit a raw API workflow, wait for completion, return output file infos.
+
+        ``want`` is the set of /history output keys to collect (krea2 SaveImage and
+        LTX SaveVideo both surface under "images"). Serialized on ``_infer`` so a
+        krea2 render and an LTX clip never fight over the GPU at once.
+        """
+        self.ensure_running(progress=progress)
+        with _infer:
+            r = self._post("/prompt", {"prompt": wf, "client_id": client_id or self._cid})
+            if "error" in r:
+                detail = r.get("node_errors") or r.get("error")
+                raise RuntimeError(f"ComfyUI rejected the prompt: {json.dumps(detail)[:500]}")
+            pid = r["prompt_id"]
+            t0 = time.time()
+            lo, hi = prange
+            while time.time() - t0 < timeout:
+                hist = self._get(f"/history/{pid}", timeout=15)
+                if pid in hist:
+                    entry = hist[pid]
+                    st = entry.get("status", {})
+                    outs = []
+                    for _nid, out in (entry.get("outputs") or {}).items():
+                        for key in want:
+                            outs.extend(out.get(key) or [])
+                    if outs:
+                        return outs
+                    if st.get("status_str") == "error":
+                        raise RuntimeError(
+                            f"ComfyUI error: {json.dumps(st.get('messages'))[:500]}")
+                if progress:
+                    frac = min(0.95, (time.time() - t0) / max(timeout, 1))
+                    progress(stage, lo + (hi - lo) * frac)
+                time.sleep(2)
+            raise RuntimeError("ComfyUI workflow timed out.")
+
+    def fetch(self, info: Dict, timeout: float = 300) -> bytes:
+        """Download a /history output file (image or video) as bytes."""
+        q = urllib.parse.urlencode({
+            "filename": info["filename"], "subfolder": info.get("subfolder", ""),
+            "type": info.get("type", "output")})
+        with urllib.request.urlopen(self.url + "/view?" + q, timeout=timeout) as resp:
+            return resp.read()
 
     # ---- status -----------------------------------------------------------
     def status(self) -> Dict:

@@ -10,7 +10,7 @@ import random
 import time
 from typing import Callable, Dict, List, Optional
 
-from . import config, jobs, projects, scenes, storage
+from . import config, jobs, projects, scenes, storage, style_refs
 from .image_engine import DEFAULT_LORA, image_engine
 from .comfy_engine import comfy_engine
 
@@ -87,7 +87,14 @@ def submit_images(pid: str, image_cfg: Dict, scope: str = "missing",
 
         is_comfy = dims["type"] == "comfyui"
         mdef = config.IMAGE_BASES.get(image_cfg.get("model", "")) or {}
-        style = image_cfg.get("style") or (config.KREA2_STYLE if is_comfy else None)
+        uses_ip = bool(mdef.get("ip_adapter")) and image_cfg.get("use_refs", True)
+        if is_comfy:
+            style = image_cfg.get("style") or config.KREA2_STYLE
+        elif mdef.get("ip_adapter"):
+            style = image_cfg.get("style") or config.CARTOON_STYLE
+        else:
+            style = image_cfg.get("style")
+        ip_scale = image_cfg.get("ip_scale")
 
         # warm the backend once (first scene shows load / start-up progress)
         if is_comfy:
@@ -111,9 +118,11 @@ def submit_images(pid: str, image_cfg: Dict, scope: str = "missing",
                     prompt, neg, width=dims["width"], height=dims["height"],
                     steps=dims["steps"], guidance=dims["guidance"], seed=seed, mdef=mdef)
             else:
+                refs = style_refs.retrieve(sc) if uses_ip else None
                 img = image_engine.generate(
                     prompt, neg, width=dims["width"], height=dims["height"],
-                    steps=dims["steps"], guidance=dims["guidance"], seed=seed)
+                    steps=dims["steps"], guidance=dims["guidance"], seed=seed,
+                    ref_images=refs, ip_scale=ip_scale)
             rel = f"images/scene_{projects.scene_key(sid)}.png"
             img.save(str(projects.project_dir(pid) / rel))
             projects.set_scene_image(proj, sid, rel, seed,

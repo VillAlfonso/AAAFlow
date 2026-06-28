@@ -40,6 +40,7 @@ class TTSReq(BaseModel):
     preview: bool = False
     format: Optional[str] = None     # "mp3" | "wav" | "both"
     loudnorm: Optional[bool] = None
+    speed: Optional[float] = None    # pacing time-stretch: <1 slower, >1 faster (0.5–2.0)
 
 
 class DesignReq(BaseModel):

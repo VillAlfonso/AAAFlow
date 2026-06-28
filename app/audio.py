@@ -72,8 +72,11 @@ def stitch(segments: List[Dict], sr: int, gap_ms: int, paragraph_gap_ms: int,
 
 
 def export(stitched: np.ndarray, sr: int, basename: str, *, loudnorm: bool,
-           loudnorm_i: float, fmt: str) -> Dict:
+           loudnorm_i: float, fmt: str, speed: float = 1.0) -> Dict:
     """Write stitched audio to disk in the requested format(s).
+
+    ``speed`` time-stretches the whole take (words *and* pauses) without changing
+    pitch: <1.0 = slower / more deliberate, >1.0 = faster. 1.0 leaves it untouched.
 
     Returns {"files": {"mp3": name, "wav": name}, "duration": seconds}.
     """
@@ -85,7 +88,13 @@ def export(stitched: np.ndarray, sr: int, basename: str, *, loudnorm: bool,
         stitched = stitched / peak
     sf.write(str(tmp), stitched, sr, subtype="PCM_16")
 
-    af = f"loudnorm=I={loudnorm_i}:TP=-1.5:LRA=11" if loudnorm else None
+    speed = max(0.5, min(2.0, float(speed or 1.0)))
+    filters = []
+    if abs(speed - 1.0) > 1e-3:
+        filters.append(f"atempo={speed:.4f}")     # pitch-preserving tempo change
+    if loudnorm:
+        filters.append(f"loudnorm=I={loudnorm_i}:TP=-1.5:LRA=11")
+    af = ",".join(filters) if filters else None
     targets = []
     if fmt in ("wav", "both"):
         targets.append(("wav", config.OUTPUTS_DIR / f"{basename}.wav"))
@@ -116,7 +125,7 @@ def export(stitched: np.ndarray, sr: int, basename: str, *, loudnorm: bool,
     except OSError:
         pass
 
-    duration = float(len(stitched) / sr) if sr else 0.0
+    duration = (float(len(stitched) / sr) / speed) if sr else 0.0
     return {"files": files, "duration": duration}
 
 

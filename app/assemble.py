@@ -81,7 +81,7 @@ def submit_assemble(pid: str, opts: Optional[Dict] = None) -> str:
             "file": out["rel"], "duration": out["duration"],
             "width": out["width"], "height": out["height"], "fps": out["fps"],
             "scenes": out["scenes"], "with_audio": out["with_audio"],
-            "with_images": out["with_images"],
+            "with_images": out["with_images"], "with_videos": out.get("with_videos", 0),
         }
         proj.setdefault("renders", []).insert(0, render)
         projects.save_project(proj)
@@ -100,7 +100,7 @@ def submit_assemble(pid: str, opts: Optional[Dict] = None) -> str:
 def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
     os.environ.setdefault("IMAGEIO_FFMPEG_EXE", config.FFMPEG)
     from moviepy import (AudioArrayClip, ColorClip, CompositeVideoClip,
-                         ImageClip, TextClip, concatenate_videoclips)
+                         ImageClip, TextClip, VideoFileClip, concatenate_videoclips)
 
     project = projects.get_project(pid)
     asm = {**project["settings"].get("assemble", {}), **(opts or {})}
@@ -115,11 +115,34 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
     rows = {str(r["id"]): r for r in tl["scenes"]}
     scenes = project["scenes"]
     n = len(scenes)
-    with_audio = with_images = 0
+    with_audio = with_images = with_videos = 0
+    use_anim = bool(asm.get("use_animation", True))
     clips = []
 
+    def _fit_clip(clip, dur):
+        """Cover-fit a VideoFileClip to WxH and make it exactly `dur` seconds."""
+        scale = max(W / clip.w, H / clip.h)
+        clip = clip.resized(scale)
+        clip = clip.cropped(x_center=clip.w / 2, y_center=clip.h / 2, width=W, height=H)
+        cd = float(clip.duration or dur)
+        if cd >= dur:
+            return clip.subclipped(0, dur)
+        # hold the last frame to fill the (audio-led) scene duration
+        last = ImageClip(clip.get_frame(max(0.0, cd - 1e-3))).with_duration(dur - cd)
+        return concatenate_videoclips([clip, last], method="compose").with_duration(dur)
+
     def visual(s, dur):
-        nonlocal with_images
+        nonlocal with_images, with_videos
+        vidp = pdir / s["video_file"] if s.get("video_file") else None
+        if use_anim and vidp and vidp.exists():
+            try:
+                clip = VideoFileClip(str(vidp))
+                if clip.audio is not None:
+                    clip = clip.without_audio()
+                with_videos += 1
+                return _fit_clip(clip, dur)
+            except Exception:
+                pass
         imgp = pdir / s["image_file"] if s.get("image_file") else None
         if imgp and imgp.exists():
             with_images += 1
@@ -194,4 +217,5 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
 
     return {"rel": out_rel, "duration": round(float(tl["total_dur"]), 2),
             "width": W, "height": H, "fps": fps, "scenes": n,
-            "with_audio": with_audio, "with_images": with_images}
+            "with_audio": with_audio, "with_images": with_images,
+            "with_videos": with_videos}

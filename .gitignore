@@ -27,19 +27,38 @@ trainers/weights/
 # --- ComfyUI portable (huge, user-provided) ---
 ComfyUI_windows_portable/
 
+# --- Vendored LTX-2 source (huge, nested git repo; not our source) ---
+ltx2.3pro/
+
 # --- External trainer clone (cloned by setup, not our source) ---
 trainers/musubi-tuner/
+
+# --- Stray model dirs/files if they ever land at the repo root ---
+# (ComfyUI model dirs belong under ComfyUI_windows_portable/; these at root are
+#  accidental, e.g. a mis-redirected download script)
+/checkpoints
+/loras
+/text_encoders
+/diffusion_models
+/vae
 
 # --- Generated data / runtime state ---
 data/outputs/
 data/refs/
 data/ambiance/
 data/training_runs/
+# cartoon RAG reference pack (seeded/uploaded), and runtime logs
+data/style_refs/
 data/*.json
+data/*.log
 data/projects/*/audio/
 data/projects/*/images/
 data/projects/*/video/
 data/projects/*/*.backup.*.json
+
+# --- Local test artifacts (smoke tests write these to the repo root) ---
+cartoon_rag_test.*
+*_ltxtest.mp4
 
 # --- LoRA training: keep the READMEs + folder structure, ignore the heavy bits ---
 training/**/dataset/

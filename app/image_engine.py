@@ -50,6 +50,7 @@ class ImageEngine:
         self._loaded_adapters: List[str] = []
         self._import_error: Optional[str] = None
         self._lora_supported = True
+        self._ip_loaded = False
 
     # ---- imports / device -------------------------------------------------
     def ensure_imports(self):
@@ -92,7 +93,13 @@ class ImageEngine:
         quant = img.get("quantize", "gguf")
         gguf_q = img.get("gguf_quant", "Q4_K_S")
         offload = img.get("offload", "model")
-        key = (model_key, mtype, quant, gguf_q, offload)
+        # IP-Adapter (cartoon-rag): only wire it up when SDXL + refs are requested
+        # and the style pack is non-empty; the count is in the key so 0->N reloads.
+        from . import style_refs
+        n_refs = style_refs.count()
+        want_ip = (bool(mdef.get("ip_adapter")) and mtype == "sdxl"
+                   and img.get("use_refs", True) and n_refs > 0)
+        key = (model_key, mtype, quant, gguf_q, offload, want_ip, n_refs > 0)
 
         with _lock:
             if self._pipe is not None and self._pipe_key == key:
@@ -102,10 +109,13 @@ class ImageEngine:
                 del self._pipe
                 self._pipe = None
                 self._free()
+            self._ip_loaded = False
             if mtype == "flux":
                 pipe = self._load_flux(mdef, quant, gguf_q, offload, progress)
             else:
                 pipe = self._load_sd(mdef, progress)
+            if want_ip:
+                self._load_ip(pipe, progress)
             self._pipe = pipe
             self._pipe_key = key
             self._pipe_type = mtype
@@ -130,6 +140,9 @@ class ImageEngine:
             pipe = _SDPipe.from_single_file(
                 mdef["path"], torch_dtype=dtype, safety_checker=None,
                 load_safety_checker=False)
+        elif str(mdef.get("type")) == "sdxl":
+            # SDXL has no safety_checker component; don't pass the kwarg.
+            pipe = AutoPipelineForText2Image.from_pretrained(mdef["repo"], torch_dtype=dtype)
         else:
             pipe = AutoPipelineForText2Image.from_pretrained(
                 mdef["repo"], torch_dtype=dtype, safety_checker=None)
@@ -209,6 +222,27 @@ class ImageEngine:
         except Exception:
             pass
 
+    # ---- IP-Adapter (cartoon style RAG) -----------------------------------
+    def _load_ip(self, pipe, progress=None):
+        """Attach IP-Adapter so retrieved reference images steer the cartoon style."""
+        ipc = config.IP_ADAPTER
+        try:
+            if progress:
+                progress("Loading IP-Adapter (style RAG)", 0.85)
+            pipe.load_ip_adapter(
+                ipc["repo"], subfolder=ipc["subfolder"], weight_name=ipc["weight_name"])
+            self._ip_loaded = True
+        except Exception as exc:  # noqa: BLE001 - degrade to base SDXL + style prompt
+            print(f"[image] IP-Adapter load failed ({exc}); using base SDXL + prompt only")
+            self._ip_loaded = False
+
+    def _ip_scale(self, scale: float):
+        """Style-transfer scale: route the reference only through the style block so
+        composition stays prompt-driven (diffusers IP-Adapter style/layout trick)."""
+        if config.IP_ADAPTER.get("style_only"):
+            return {"up": {"block_0": [0.0, float(scale), 0.0]}}
+        return float(scale)
+
     # ---- LoRA -------------------------------------------------------------
     def _resolve_loras(self, img: Dict) -> List[Dict]:
         out: List[Dict] = []
@@ -268,7 +302,8 @@ class ImageEngine:
 
     # ---- generation -------------------------------------------------------
     def generate(self, prompt: str, negative: str = "", *, width: int, height: int,
-                 steps: int, guidance: float, seed: int, progress=None):
+                 steps: int, guidance: float, seed: int, ref_images=None,
+                 ip_scale=None, progress=None):
         pipe = self.get_pipeline(progress=progress)
         img = storage.get_settings().get("image", {})
         triggers = self.apply_loras(pipe, img)
@@ -284,11 +319,30 @@ class ImageEngine:
                            generator=gen, max_sequence_length=mseq)
             else:
                 gen = torch.Generator(device=self._device()).manual_seed(int(seed) & 0x7FFFFFFF)
-                out = pipe(prompt=prompt, negative_prompt=(negative or None),
-                           width=int(width), height=int(height),
-                           num_inference_steps=int(steps), guidance_scale=float(guidance),
-                           generator=gen)
+                kwargs = dict(prompt=prompt, negative_prompt=(negative or None),
+                              width=int(width), height=int(height),
+                              num_inference_steps=int(steps),
+                              guidance_scale=float(guidance), generator=gen)
+                if self._ip_loaded:
+                    kwargs["ip_adapter_image"] = self._prep_refs(ref_images)
+                    scale = ip_scale if ip_scale is not None else config.IP_ADAPTER["default_scale"]
+                    # no usable refs -> neutralize the adapter (still must pass an image)
+                    pipe.set_ip_adapter_scale(self._ip_scale(scale if ref_images else 0.0))
+                out = pipe(**kwargs)
         return out.images[0]
+
+    def _prep_refs(self, ref_images):
+        """Open reference image paths as PIL (or a blank when the pack is empty)."""
+        import os
+        from PIL import Image
+        imgs = []
+        for p in (ref_images or []):
+            try:
+                if os.path.exists(p):
+                    imgs.append(Image.open(p).convert("RGB"))
+            except Exception:  # noqa: BLE001
+                pass
+        return imgs or [Image.new("RGB", (224, 224), (255, 255, 255))]
 
     # ---- status -----------------------------------------------------------
     def status(self) -> Dict:
@@ -297,6 +351,7 @@ class ImageEngine:
             "model": (self._pipe_key[0] if self._pipe_key else None),
             "type": self._pipe_type,
             "lora_supported": self._lora_supported,
+            "ip_loaded": self._ip_loaded,
             "adapters": list(self._loaded_adapters),
             "torch_ready": self._torch is not None,
             "import_error": self._import_error,

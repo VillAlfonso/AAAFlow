@@ -78,7 +78,17 @@ def normalize_scene(raw: Dict, index: int) -> Dict:
     scene["image_file"] = None        # images/scene_0001.png
     scene["image_seed"] = None
     scene["image_meta"] = None
-    scene["status"] = {"audio": "none", "image": "none"}
+    # v2 storyboard fields — carried through for the future animation/diagram stages;
+    # the current static pipeline ignores them, so importing a v2 JSON stays safe.
+    scene["type"] = raw.get("type") or "scene"           # scene | diagram | title
+    scene["motion_type"] = raw.get("motion_type") or ""  # still | ambient | transform
+    scene["end_image_prompt"] = raw.get("end_image_prompt") or ""
+    scene["motion_prompt"] = raw.get("motion_prompt") or ""
+    scene["characters"] = raw.get("characters") or []
+    scene["visual_aid"] = raw.get("visual_aid")
+    scene["end_image_file"] = None    # end frame (krea2) for start->end animation
+    scene["video_file"] = None        # animated clip (LTX-2)
+    scene["status"] = {"audio": "none", "image": "none", "video": "none"}
     return scene
 
 
@@ -118,3 +128,43 @@ def build_image_prompt(scene: Dict, video: Dict, style: Optional[str] = None) ->
         prompt = f"{base}, {suffix}" if (base and suffix) else (base or suffix)
     negative = (video.get("global_negative_prompt") or "").strip()
     return prompt, negative
+
+
+# Default camera/ambient motion per motion_type, used when a scene declares it
+# wants to move but gives no explicit motion_prompt.
+_MOTION_FALLBACK = {
+    "ambient": "subtle ambient motion, gentle idle movement and breathing, slow "
+               "drifting camera, the scene stays composed and on-model",
+    "transform": "smooth animated transition from the first frame to the last frame, "
+                 "the change happens gradually and clearly",
+    "still": "very subtle, almost still, a faint breathing motion only",
+}
+
+
+def is_animatable(scene: Dict) -> bool:
+    """A scene wants animation if its storyboard gives it motion to play."""
+    mt = (scene.get("motion_type") or "").strip().lower()
+    if (scene.get("motion_prompt") or "").strip():
+        return True
+    return mt in ("ambient", "transform")
+
+
+def wants_end_frame(scene: Dict) -> bool:
+    """Transform scenes animate from the still to a generated end frame."""
+    return ((scene.get("motion_type") or "").strip().lower() == "transform"
+            and bool((scene.get("end_image_prompt") or "").strip()))
+
+
+def build_motion_prompt(scene: Dict, video: Dict, fallback: str = "") -> str:
+    """LTX prompt for animating a scene: its motion_prompt (or a sensible default),
+    grounded with the still's subject so the model keeps the same content moving."""
+    mt = (scene.get("motion_type") or "").strip().lower()
+    motion = (scene.get("motion_prompt") or "").strip()
+    if not motion:
+        motion = (fallback.strip() or _MOTION_FALLBACK.get(mt)
+                  or _MOTION_FALLBACK["ambient"])
+    subject = (scene.get("image_prompt") or scene.get("visual")
+               or scene.get("narration") or "").strip().rstrip(",")
+    if subject:
+        return f"{subject}. {motion}"
+    return motion

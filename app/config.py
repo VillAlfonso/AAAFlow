@@ -23,9 +23,10 @@ DIFFUSION_DIR = MODELS_DIR / "diffusion"                  # imported image check
 LORAS_DIR = MODELS_DIR / "loras"                          # imported / downloaded LoRAs
 TRAINING_DIR = BASE_DIR / "training"                      # LoRA datasets: <base>/<name>/dataset
 TRAINING_RUNS_DIR = DATA_DIR / "training_runs"            # per-run training logs
+STYLE_REFS_DIR = DATA_DIR / "style_refs"                  # cartoon style reference pack (RAG)
 
 for _d in (DATA_DIR, OUTPUTS_DIR, REFS_DIR, PROJECTS_DIR, MODELS_DIR,
-           DIFFUSION_DIR, LORAS_DIR, TRAINING_DIR, TRAINING_RUNS_DIR):
+           DIFFUSION_DIR, LORAS_DIR, TRAINING_DIR, TRAINING_RUNS_DIR, STYLE_REFS_DIR):
     _d.mkdir(parents=True, exist_ok=True)
 
 # Keep model weights local to the project and use the fast downloader.
@@ -63,6 +64,13 @@ MODEL_REPOS = {
 #            download (transformer GGUF + T5), heavier on a slow connection.
 # Imported .safetensors checkpoints are added to this set at runtime.
 IMAGE_BASES = {
+    "cartoon-rag": {
+        "label": "Cartoon (SDXL + reference RAG · local, no ComfyUI)", "type": "sdxl",
+        "repo": "stabilityai/stable-diffusion-xl-base-1.0",
+        "ip_adapter": True,          # IP-Adapter style transfer from the reference pack
+        "steps": 30, "guidance": 6.0, "width": 1024, "height": 576,
+        "gated": False, "size": "~7 GB", "negative": True,
+    },
     "krea2": {
         "label": "Krea-2 Turbo · flat cartoon (local · ComfyUI)", "type": "comfyui",
         "unet": "krea2_turbo_fp8_scaled.safetensors",
@@ -90,9 +98,35 @@ IMAGE_BASES = {
         "gated": True, "size": "~16 GB", "negative": False,
     },
 }
-# Default to the local krea2 (flat-cartoon, Qwen-Image-class) via ComfyUI — best
-# quality with no download. SD 1.5 / FLUX remain selectable for the diffusers path.
-DEFAULT_IMAGE_MODEL = "krea2"
+# Default to the standalone **cartoon-rag** path (SDXL + IP-Adapter reference RAG):
+# fully local, NO ComfyUI. krea2 (ComfyUI) stays selectable as the legacy engine;
+# SD 1.5 / FLUX remain available via diffusers too.
+DEFAULT_IMAGE_MODEL = "cartoon-rag"
+
+# --- cartoon style via reference RAG (IP-Adapter, no ComfyUI) ----------------
+# The reference pack lives in data/style_refs/ (seed it from your krea2 cartoon
+# renders). At generation time the top-k references are fed to IP-Adapter in
+# *style-transfer* mode so SDXL reproduces the flat-cartoon look without copying
+# composition — the standalone replacement for krea2's baked-in style.
+IP_ADAPTER = {
+    "repo": "h94/IP-Adapter",
+    "subfolder": "sdxl_models",
+    "weight_name": "ip-adapter_sdxl_vit-h.safetensors",
+    "image_encoder_subfolder": "models/image_encoder",
+    "default_scale": 0.7,          # overall style strength
+    "top_k": 3,                    # how many references to blend per image
+    # style-transfer layer targeting (diffusers IP-Adapter trick): only the
+    # style block carries the reference, so composition stays prompt-driven.
+    "style_only": True,
+}
+# Flat-cartoon style suffix for the RAG/diffusers path (same intent as KREA2_STYLE).
+CARTOON_STYLE = (
+    "flat 2D cartoon explainer illustration, Cyanide-and-Happiness style: simple "
+    "minimal bodies with thin noodle limbs but expressive detailed faces (clear "
+    "eyes, eyebrows, mouth conveying emotion); bold clean uniform black outlines, "
+    "flat solid color fills, soft cell-shading, gentle directional lighting, no "
+    "gradients, no photorealism, no 3D, clean vector look, simple uncluttered background"
+)
 
 # --- ComfyUI backend (drives the local krea2 / Qwen-Image checkpoint) -------
 # krea2 is a ComfyUI fp8 checkpoint the in-app diffusers engine can't load, so
@@ -102,15 +136,74 @@ COMFY_DIR = BASE_DIR / "ComfyUI_windows_portable"
 COMFY_PYTHON = COMFY_DIR / "python_embeded" / "python.exe"
 COMFY_MAIN = COMFY_DIR / "ComfyUI" / "main.py"
 COMFY_URL = os.environ.get("AAAFLOW_COMFY_URL", "http://127.0.0.1:8188")
+COMFY_LOG = DATA_DIR / "comfyui.log"                       # headless ComfyUI stdout/stderr
 KREA2_PER_LAYER = "1.0,1.0,1.0,1.0,1.0,1.0,1.0,2.5,5.0,1.1,4.0,1.0"  # ConditioningKrea2Rebalance
 # Flat 2D cartoon "history-explainer" style that overrides the storyboard's own
 # ink/whiteboard suffix when rendering with krea2.
 KREA2_STYLE = (
-    "flat 2D cartoon illustration, YouTube history-explainer animation style, "
-    "bold clean black outlines, flat solid colors, simple cartoon shapes, minimal "
-    "flat shading, no gradients, no photorealism, clean vector art look, characters "
-    "with simple rounded bodies, plain dot eyes and thin stick-like limbs"
+    "flat 2D cartoon explainer illustration in a Cyanide-and-Happiness style: "
+    "simple minimal bodies (rounded torsos with thin noodle/stick limbs and small "
+    "simple hands) but expressive, detailed faces with clear eyes, eyebrows and mouth "
+    "shapes conveying real emotion; bold clean uniform black outlines, flat solid color "
+    "fills, soft cell-shading with simple drop shadows and gentle directional lighting, "
+    "no gradients, no photorealism, no 3D, clean vector look, simple uncluttered background"
 )
+
+# --- LTX-2 video animation (still -> short clip, via ComfyUI) ---------------
+# Animates a generated scene still into a short clip when the storyboard scene
+# declares motion (its ``motion_prompt`` / ``motion_type``). This drives the same
+# ComfyUI instance as krea2, using the model set that ComfyUI's bundled
+# "Image to Video (LTX-2.3)" blueprint expects — the gemma text encoder is shared
+# with that blueprint (already downloaded). Video-only: the narration still comes
+# from Qwen3-TTS, so LTX's own audio branch is skipped. LTX-2 is heavy on a 16 GB
+# GPU, so animation is opt-in per scene (animate hero / "transform" scenes only).
+LTX2 = {
+    # The 19B "dev" fp4 build is a *fused* checkpoint (DiT + VAE + audio_vae +
+    # text_embedding_projection) and is the largest LTX-2 that runs on a 16 GB card.
+    # It lives in ComfyUI/models/checkpoints/ so CheckpointLoaderSimple (model+VAE) and
+    # LTXAVTextEncoderLoader (gemma + this ckpt for the projection/tokenizer) can use it.
+    "checkpoint": "ltx-2-19b-dev-fp4.safetensors",             # models/checkpoints (fused)
+    "text_encoder": "gemma_3_12B_it_fp4_mixed.safetensors",    # models/text_encoders
+    # generation defaults (kept modest to fit 16 GB)
+    "width": 768, "height": 512, "fps": 25,
+    "default_seconds": 3.0,        # clip length when a scene gives none
+    "max_seconds": 6.0,            # cap (LTX cost scales hard with length)
+    "steps": 16,                   # dev model (no distilled LoRA) -> moderate steps
+    "guidance": 3.0,               # dev model -> real CFG
+    "sampler": "euler",
+    # LTXVScheduler (sigma schedule for the dev model)
+    "max_shift": 2.05, "base_shift": 0.95, "terminal": 0.1,
+    "image_strength": 1.0,         # 1.0 = first frame locked to the still
+    "end_strength": 0.85,          # last-frame guide strength (transform scenes)
+    "negative": ("blurry, out of focus, low quality, jpeg artifacts, distorted, "
+                 "deformed, warping, flickering, morphing artifacts, watermark, text"),
+}
+# Weights the animate stage needs. url -> ComfyUI/models/<subdir>. Both are usually
+# already present; the in-app download job skips files that match the HF size.
+LTX2_DOWNLOADS = [
+    ("checkpoints", "ltx-2-19b-dev-fp4.safetensors",
+     "https://huggingface.co/Lightricks/LTX-2/resolve/main/ltx-2-19b-dev-fp4.safetensors"),
+    ("text_encoders", "gemma_3_12B_it_fp4_mixed.safetensors",
+     "https://huggingface.co/Comfy-Org/ltx-2/resolve/main/split_files/text_encoders/gemma_3_12B_it_fp4_mixed.safetensors"),
+]
+
+
+def comfy_models_dir() -> Path:
+    return COMFY_DIR / "ComfyUI" / "models"
+
+
+def _big_enough(path: Path, min_bytes: int) -> bool:
+    try:
+        return path.exists() and path.stat().st_size >= min_bytes
+    except OSError:
+        return False
+
+
+def ltx2_ready() -> bool:
+    """True when the fused LTX-2 19B checkpoint + gemma encoder are present (in full)."""
+    m = comfy_models_dir()
+    return (_big_enough(m / "checkpoints" / LTX2["checkpoint"], 8 * 1024**3)
+            and _big_enough(m / "text_encoders" / LTX2["text_encoder"], 1 * 1024**3))
 
 # --- defaults --------------------------------------------------------------
 DEFAULT_SETTINGS = {
@@ -135,8 +228,10 @@ DEFAULT_SETTINGS = {
     },
     # --- image generation (SD 1.5 default / FLUX optional) ----------------
     "image": {
-        "model": "krea2",             # key into IMAGE_BASES or an imported checkpoint id
+        "model": "cartoon-rag",       # key into IMAGE_BASES or an imported checkpoint id
         "style": None,               # optional style preset; None = model/storyboard default
+        "use_refs": True,            # cartoon-rag: condition on the style reference pack
+        "ip_scale": 0.7,             # IP-Adapter style strength (cartoon-rag)
         "offload": "model",          # FLUX only: "model" | "sequential" | "none"
         "quantize": "gguf",          # FLUX only: "gguf" (small) | "fp8" | "none"
         "gguf_quant": "Q4_K_S",      # FLUX GGUF level: Q4_K_S | Q5_K_S | Q8_0

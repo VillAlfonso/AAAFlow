@@ -217,7 +217,18 @@ async function renderProjects(host) {
         <div class="section-title">…or paste JSON</div>
         <div class="field"><input type="text" id="pName" placeholder="Project name (optional)" /></div>
         <div class="field"><textarea id="pText" placeholder='{ "video": {...}, "scenes": [...] }' style="min-height:150px;font-family:var(--font-mono);font-size:12px"></textarea></div>
-        <div class="row row-end"><button class="btn btn-primary" id="pCreate">${icon("i-plus")} Create project</button></div>
+        <div class="row" style="justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+          <div class="row" style="gap:6px;align-items:center">
+            <button class="btn btn-ghost btn-sm" id="pTemplate">${icon("i-plus")} Template</button>
+            <input type="number" id="pTplScenes" min="1" max="200" value="1" title="number of scene blocks" style="width:56px" />
+            <span class="muted">scenes</span>
+            <button class="btn btn-ghost btn-sm" id="pTplDownload">${icon("i-download")} Download</button>
+          </div>
+          <button class="btn btn-primary" id="pCreate">${icon("i-plus")} Create project</button>
+        </div>
+        <div class="muted mono" style="font-size:11px;margin-top:7px;line-height:1.5">
+          Template = every importable key, blank. <b>type</b>: scene·diagram·title — <b>motion_type</b>: still·ambient·transform
+        </div>
       </div>
     </div>`;
   page.appendChild(imp);
@@ -249,6 +260,28 @@ async function renderProjects(host) {
       const { project } = await api.post("/api/projects", { text, name: $("#pName", page).value.trim() || null });
       toast(`Imported “${project.name}” (${project.scenes.length} scenes)`);
       location.hash = `#/p/${project.id}/storyboard`;
+    } catch (e) { toast(e.message, "err"); }
+  };
+
+  // Blank full-schema template (every importable key) — insert into the box or download.
+  const tplCount = () => Math.max(1, Math.min(parseInt($("#pTplScenes", page).value, 10) || 1, 200));
+  const fetchTemplate = () => api.get(`/api/storyboard/template?scene_count=${tplCount()}&character_count=1`);
+  $("#pTemplate", page).onclick = async () => {
+    const box = $("#pText", page);
+    if (box.value.trim() &&
+        !(await confirmModal("Replace paste box?", "This overwrites the JSON currently in the box with a blank template.", "Replace"))) return;
+    try {
+      box.value = JSON.stringify(await fetchTemplate(), null, 2);
+      box.focus();
+      toast("Template inserted — fill in the fields, then Create project.");
+    } catch (e) { toast(e.message, "err"); }
+  };
+  $("#pTplDownload", page).onclick = async () => {
+    try {
+      const blob = new Blob([JSON.stringify(await fetchTemplate(), null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob); a.download = "storyboard_template.json";
+      document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href);
     } catch (e) { toast(e.message, "err"); }
   };
 }
@@ -1888,8 +1921,13 @@ async function renderTranscribe(host) {
     <div class="row" id="tsTrActions"></div>
     <div id="tsRun" style="margin-top:14px"></div>
     <div id="tsJsonWrap" style="margin-top:14px" hidden>
-      <div class="row" style="align-items:center;margin-bottom:8px">
-        <label class="switch"><input type="checkbox" id="tsWords"/><span class="track"></span> Include per-word times</label>
+      <div class="row" style="align-items:center;margin-bottom:8px;gap:10px">
+        <label class="muted" for="tsFormat" style="white-space:nowrap">Format</label>
+        <select id="tsFormat" style="max-width:210px">
+          <option value="transcript" selected>Transcript (timed blocks)</option>
+          <option value="storyboard">Storyboard (uploadable)</option>
+        </select>
+        <label class="switch" id="tsWordsWrap"><input type="checkbox" id="tsWords"/><span class="track"></span> Include per-word times</label>
         <span class="grow"></span>
         <button class="btn btn-ghost btn-sm" id="tsCopy">${icon("i-check")} Copy JSON</button>
         <button class="btn btn-ghost btn-sm" id="tsDownload">${icon("i-download")} Download</button>
@@ -1982,16 +2020,44 @@ async function renderTranscribe(host) {
     finally { btn.disabled = false; }
   };
 
-  function showJson() {
-    if (!lastTranscript) return;
-    const withWords = $("#tsWords", page).checked;
-    const doc = {
-      duration: lastTranscript.duration,
-      language: lastTranscript.language,
-      model: lastTranscript.model,
-      sentences: (lastTranscript.sentences || []).map(b => withWords ? b
-        : { index: b.index, text: b.text, start: b.start, end: b.end, dur: b.dur }),
+  // Blank scene shape pulled once from the importer's own template, so the
+  // storyboard we emit can never drift from what the Projects tab accepts.
+  let blankTpl = null;
+  async function storyboardDoc() {
+    if (!blankTpl) blankTpl = await api.get("/api/storyboard/template?scene_count=1&character_count=0");
+    const shape = blankTpl.scenes[0];
+    const scenes = (lastTranscript.sentences || []).map((b, i) => ({
+      ...shape,
+      characters: [],            // fresh array — don't share the template's reference
+      id: i + 1,
+      narration: b.text || "",   // transcript text → narration
+      start_sec: b.start,        // transcript timing → scene timing
+      end_sec: b.end,
+      duration_sec: b.dur,
+    }));
+    return {
+      video: { ...blankTpl.video, character_bible: [], total_runtime_sec: lastTranscript.duration || null },
+      scenes,
     };
+  }
+  async function showJson() {
+    if (!lastTranscript) return;
+    const fmt = ($("#tsFormat", page) || {}).value || "transcript";
+    const wordsWrap = $("#tsWordsWrap", page);
+    if (wordsWrap) wordsWrap.style.display = fmt === "storyboard" ? "none" : "";  // per-word only applies to transcript
+    let doc;
+    if (fmt === "storyboard") {
+      doc = await storyboardDoc();
+    } else {
+      const withWords = $("#tsWords", page).checked;
+      doc = {
+        duration: lastTranscript.duration,
+        language: lastTranscript.language,
+        model: lastTranscript.model,
+        sentences: (lastTranscript.sentences || []).map(b => withWords ? b
+          : { index: b.index, text: b.text, start: b.start, end: b.end, dur: b.dur }),
+      };
+    }
     $("#tsJson", page).value = JSON.stringify(doc, null, 2);
   }
 
@@ -2007,22 +2073,24 @@ async function renderTranscribe(host) {
       lastTranscript = res.transcript;
       runEl.innerHTML = "";
       $("#tsJsonWrap", page).hidden = false;
-      showJson();
+      await showJson();
       loadSaved();   // reflect the now-saved timestamps in the list
       toast(`${(lastTranscript.sentences || []).length} sentence(s) timestamped & saved`);
     } catch (e) { runEl.innerHTML = ""; toast(e.message, "err"); }
   }
 
   $("#tsWords", page).onchange = showJson;
+  $("#tsFormat", page).onchange = showJson;
   $("#tsCopy", page).onclick = async () => {
     const ta = $("#tsJson", page);
     try { await navigator.clipboard.writeText(ta.value); toast("JSON copied"); }
     catch (_) { ta.select(); document.execCommand("copy"); toast("JSON copied"); }
   };
   $("#tsDownload", page).onclick = () => {
+    const fmt = ($("#tsFormat", page) || {}).value || "transcript";
     const blob = new Blob([$("#tsJson", page).value], { type: "application/json" });
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
-    a.download = "transcript.json"; a.click(); URL.revokeObjectURL(a.href);
+    a.download = fmt === "storyboard" ? "storyboard.json" : "transcript.json"; a.click(); URL.revokeObjectURL(a.href);
   };
 
   // --- saved voiceovers (persisted server-side; also in History) ---
@@ -2190,6 +2258,8 @@ const Pages = {
     state.voices = b.voices || state.voices; state.history = b.history || [];
     state.projects = b.projects || []; state.imageModels = b.image_models || state.imageModels;
   } catch (e) { toast("Could not reach the server: " + e.message, "err"); }
+  // Setting the hash fires `hashchange` → render(); only render() directly when
+  // the hash is already set (no hashchange will fire). Calling both double-renders.
   if (!location.hash) location.hash = "#/projects";
-  render();
+  else render();
 })();

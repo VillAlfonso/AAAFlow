@@ -139,6 +139,53 @@ def parse_characters(raw: Dict) -> List[Dict]:
     return out
 
 
+def blank_scene(index: int = 0) -> Dict:
+    """An empty scene holding every key the importer reads (see normalize_scene).
+
+    Timing numbers are null so they auto-pace from the narration until filled in.
+    """
+    scene: Dict = {"id": index + 1, "type": "scene"}  # type: scene | diagram | title
+    scene.update({field: "" for field in TEXT_FIELDS})
+    scene["start_sec"] = None         # seconds; leave null to auto-pace from narration
+    scene["end_sec"] = None
+    scene["duration_sec"] = None
+    scene["motion_type"] = ""         # "" | still | ambient | transform
+    scene["motion_prompt"] = ""
+    scene["end_image_prompt"] = ""    # only used when motion_type == "transform"
+    scene["characters"] = []          # character names/ids appearing in this scene
+    scene["visual_aid"] = None
+    return scene
+
+
+def blank_character() -> Dict:
+    """An empty character_bible entry with every key normalize_character reads."""
+    return {"name": "", "aliases": [], "description": "", "palette": ""}
+
+
+def blank_storyboard(n_scenes: int = 1, n_characters: int = 1) -> Dict:
+    """A full-schema, *empty* storyboard template for the import box / download.
+
+    Carries every key the pipeline actually reads (video meta + per-scene fields +
+    character bible) with blank values, so it can be filled in by hand or by an LLM
+    and uploaded on the Projects tab. Kept here next to parse_storyboard so the
+    offered template can never drift from what the parser consumes.
+    """
+    n_scenes = max(1, min(int(n_scenes or 1), 500))
+    n_characters = max(0, min(int(n_characters or 0), 200))
+    return {
+        "video": {
+            "title": "",
+            "global_style_suffix": "",      # appended to every image prompt
+            "global_negative_prompt": "",   # negative prompt for every image
+            "total_runtime": "",            # display only, e.g. "9:56"
+            "total_runtime_sec": None,      # planned timeline length, seconds
+            "character_bible": [],          # optional: may live here instead of top level
+        },
+        "scenes": [blank_scene(i) for i in range(n_scenes)],
+        "character_bible": [blank_character() for _ in range(n_characters)],
+    }
+
+
 def parse_storyboard(raw: Dict) -> Dict:
     """Validate + normalize a full storyboard JSON object."""
     if not isinstance(raw, dict):

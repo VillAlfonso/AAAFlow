@@ -12,8 +12,8 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from . import (animate, assemble, captions, characters, config, humanize,
-               images, jobs, music, projects, service, storage, style_refs,
-               training, transcribe, voiceover)
+               images, jobs, music, projects, scenes, service, storage,
+               style_refs, training, transcribe, voiceover)
 from .audio import ffmpeg_ok
 from .engine import engine
 from .image_engine import image_engine
@@ -383,6 +383,12 @@ async def upload_project(file: UploadFile = File(...), name: str = Form("")):
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
     return {"project": project}
+
+
+@app.get("/api/storyboard/template")
+def storyboard_template(scene_count: int = 1, character_count: int = 1):
+    """Blank, full-schema storyboard JSON (every importable key) for the paste box / download."""
+    return scenes.blank_storyboard(scene_count, character_count)
 
 
 @app.get("/api/projects/{pid}")

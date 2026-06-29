@@ -436,6 +436,22 @@ def gen_voiceover(pid: str, req: VoiceoverReq):
     return {"job_id": job_id}
 
 
+class AttachVoiceReq(BaseModel):
+    file: str                         # recording, relative to the outputs dir (e.g. tts_xxx.wav)
+    voice: Optional[str] = None       # label stored on the voiced scenes
+
+
+@app.post("/api/projects/{pid}/voiceover/attach")
+def attach_voiceover(pid: str, req: AttachVoiceReq):
+    """Voice a project from an existing recording by slicing it at each scene's timing."""
+    try:
+        job_id = voiceover.submit_attach_recording(
+            pid, req.file, (req.voice or "").strip() or "Imported recording")
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    return {"job_id": job_id}
+
+
 # --- API: transcription (timed sentence blocks per scene) ------------------
 class TranscribeReq(BaseModel):
     scope: str = "missing"            # "all" | "missing" | "scene"

@@ -10,12 +10,13 @@ synth_clone, audio.stitch / save_wav.
 """
 from __future__ import annotations
 
+import shutil
 import time
 from typing import Callable, Dict, List, Optional
 
 import numpy as np
 
-from . import audio, jobs, projects, storage
+from . import audio, config, jobs, projects, storage
 from .chunking import chunk_text
 from .engine import engine
 from .voices import display_name
@@ -128,3 +129,86 @@ def submit_voiceover(pid: str, voice: Dict, scope: str = "missing",
                 "timeline": proj["timeline"], "counts": counts}
 
     return jobs.submit("voiceover", task)
+
+
+def _ingest_narration(master, pid: str):
+    """Bring the master recording into the project as audio/narration.wav (a single
+    continuous track the browser and moviepy can both read); return (rel, dur)."""
+    rel = "audio/narration.wav"
+    dst = projects.project_dir(pid) / rel
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    if str(master).lower().endswith(".wav"):
+        shutil.copyfile(str(master), str(dst))
+    else:
+        audio._run([config.FFMPEG, "-y", "-i", str(master), str(dst)])
+    arr, sr = audio.read_wav(str(dst))
+    return rel, (float(len(arr) / sr) if sr else 0.0)
+
+
+def submit_attach_recording(pid: str, src_file: str,
+                            voice_label: str = "Imported recording") -> str:
+    """Attach an already-made master recording as the project's *narration track*.
+
+    The voiceover is kept whole — one continuous audio file — rather than cut into
+    per-scene clips, so playback and the final render never gap/cut between scenes.
+    Each scene's image is simply timed to the recording using the ``planned_start``
+    it inherited from this recording's Whisper transcript. Scenes are marked voiced
+    and the timeline is rebuilt (transcript-led) from those timings.
+    """
+    project = projects.get_project(pid)
+    if not project:
+        raise ValueError("Project not found.")
+    out = config.OUTPUTS_DIR.resolve()
+    try:
+        master = (out / src_file).resolve()
+        master.relative_to(out)               # reject paths outside the outputs dir
+    except (ValueError, OSError):
+        raise ValueError("Invalid recording path.")
+    if not master.exists():
+        raise ValueError("Recording file not found.")
+
+    scenes = [s for s in project.get("scenes", []) if (s.get("narration") or "").strip()]
+    if not scenes:
+        raise ValueError("This project has no narrated scenes to attach audio to.")
+    last_end = max((float(s.get("planned_end") or 0.0) for s in scenes), default=0.0)
+
+    def task(progress: ProgressFn) -> Dict:
+        progress("Importing narration track", 0.15)
+        rel, dur = _ingest_narration(master, pid)
+        # Guard against an obviously-wrong pick (a different / shorter clip).
+        if last_end > dur + 3.0:
+            try:
+                (projects.project_dir(pid) / rel).unlink()
+            except OSError:
+                pass
+            raise ValueError(
+                f"That recording is only {dur:.0f}s but this storyboard runs to "
+                f"{last_end:.0f}s — looks like the wrong clip for this project.")
+
+        progress("Timing scenes to the voiceover", 0.7)
+        proj = projects.get_project(pid)
+        proj["narration"] = {"file": rel, "dur": round(dur, 3),
+                             "voice": voice_label, "source": src_file}
+        done = 0
+        for s in proj["scenes"]:
+            if not (s.get("narration") or "").strip():
+                continue
+            s["audio_file"] = None             # audio lives in the single master track
+            s["audio_dur"] = s.get("planned_dur")
+            s["audio_voice"] = voice_label
+            s["status"]["audio"] = "ready"
+            done += 1
+        projects.recompute_timeline(proj)
+        projects.save_project(proj)
+        storage.add_history({
+            "id": storage.new_id(), "created": time.time(), "preview": False,
+            "kind": "voiceover", "project": pid, "project_name": proj["name"],
+            "voice": voice_label, "scenes": done,
+            "duration": proj["timeline"]["total_dur"],
+            "text_preview": f"Attached narration to “{proj['name']}” ({done} scenes)",
+        })
+        return {"done": done, "scenes": len(scenes),
+                "duration": proj["timeline"]["total_dur"],
+                "recording_dur": round(dur, 3)}
+
+    return jobs.submit("attach_voiceover", task)

@@ -196,7 +196,8 @@ function stepper(active) {
    ============================================================ */
 async function renderProjects(host) {
   topbar("Projects", "Import a storyboard JSON, then generate voiceovers and images.");
-  state.projects = (await api.get("/api/projects")).projects;
+  const [projData, history] = await Promise.all([api.get("/api/projects"), api.get("/api/history").catch(() => [])]);
+  state.projects = projData.projects;
 
   const page = el("div", "page");
 
@@ -230,6 +231,10 @@ async function renderProjects(host) {
           Template = every importable key, blank. <b>type</b>: scene·diagram·title — <b>motion_type</b>: still·ambient·transform
         </div>
       </div>
+    </div>
+    <div class="field" id="pVoiceoverWrap" style="margin-top:14px;display:none">
+      <label>Attach recorded voiceover <span class="hint">(optional — slices a saved recording into the scenes so the project imports already-voiced)</span></label>
+      <select id="pVoiceover"><option value="">— none (voice it later) —</option></select>
     </div>`;
   page.appendChild(imp);
 
@@ -247,6 +252,20 @@ async function renderProjects(host) {
   page.appendChild(listWrap);
   host.appendChild(page);
 
+  // saved recordings → "attach voiceover" dropdown (already-voiced import)
+  const recs = (history || []).filter(it => it.files && (it.files.wav || it.files.mp3) && it.kind !== "transcript" && !it.project);
+  const vsel = $("#pVoiceover", page), vwrap = $("#pVoiceoverWrap", page);
+  if (vsel && vwrap && recs.length) {
+    vwrap.style.display = "";
+    recs.forEach(it => {
+      const f = it.files.wav || it.files.mp3;
+      const o = document.createElement("option");
+      o.value = f; o.dataset.voice = it.voice || "Imported recording";
+      o.textContent = `${it.voice || "voice"}${it.duration ? " · " + fmtClock(it.duration) : ""}${it.text_preview ? " · " + it.text_preview.slice(0, 44) : ""}`;
+      vsel.appendChild(o);
+    });
+  }
+
   // wire import
   const fileInput = $("#fileInput", page), dz = $("#dz", page);
   fileInput.onchange = () => { if (fileInput.files[0]) uploadProject(fileInput.files[0]); };
@@ -258,8 +277,7 @@ async function renderProjects(host) {
     if (!text) return toast("Paste some JSON or use the file picker.", "err");
     try {
       const { project } = await api.post("/api/projects", { text, name: $("#pName", page).value.trim() || null });
-      toast(`Imported “${project.name}” (${project.scenes.length} scenes)`);
-      location.hash = `#/p/${project.id}/storyboard`;
+      await finishCreate(project);
     } catch (e) { toast(e.message, "err"); }
   };
 
@@ -289,9 +307,26 @@ async function uploadProject(file) {
   const fd = new FormData(); fd.append("file", file);
   try {
     const { project } = await api.form("/api/projects/upload", fd);
-    toast(`Imported “${project.name}” (${project.scenes.length} scenes)`);
-    location.hash = `#/p/${project.id}/storyboard`;
+    await finishCreate(project);
   } catch (e) { toast(e.message, "err"); }
+}
+
+// After creating a project: if a saved recording was picked in the import card,
+// slice it into the scenes (already-voiced import) and land on Voiceover;
+// otherwise go straight to the Storyboard.
+async function finishCreate(project) {
+  const selEl = document.getElementById("pVoiceover");
+  const file = selEl ? selEl.value : "";
+  const opt = selEl && selEl.selectedOptions[0];
+  toast(`Imported “${project.name}” (${project.scenes.length} scenes)`);
+  if (!file) { location.hash = `#/p/${project.id}/storyboard`; return; }
+  try {
+    toast("Attaching your recording to the scenes…");
+    const { job_id } = await api.post(`/api/projects/${project.id}/voiceover/attach`, { file, voice: (opt && opt.dataset.voice) || "Imported recording" });
+    const res = await pollJob(job_id);
+    toast(`Voiceover attached · ${res.done}/${res.scenes} scenes voiced`);
+  } catch (e) { toast("Project created, but attaching the recording failed: " + e.message, "err"); }
+  location.hash = `#/p/${project.id}/voiceover`;
 }
 function projectCard(p) {
   const c = el("div", "proj-card");
@@ -501,11 +536,24 @@ async function renderVoiceover(host) {
   const page = el("div", "page page-wide");
   page.innerHTML = stepper("voiceover");
 
+  // Voiceover-first projects are voiced by one continuous recording (see attach):
+  // show that master track up front; the per-scene generator below still works too.
+  if (p.narration && p.narration.file) {
+    const nb = el("div", "card");
+    nb.innerHTML = `
+      <div class="spread"><h2 class="mb0">Narration track</h2><span class="badge good">${c.audio} / ${c.total} scenes timed</span></div>
+      <p class="desc">This project is voiced by one continuous recording${p.narration.voice ? ` — <b>${esc(p.narration.voice)}</b>` : ""} (${fmtClock(p.narration.dur || 0)}). The images are timed to it and the audio is never cut. (Generating per-scene voiceover below would switch back to per-scene clips.)</p>
+      <audio controls preload="none" src="${assetUrl(p.narration.file, 1)}" style="width:100%"></audio>
+      <div class="row" style="margin-top:10px"><button class="btn btn-ghost btn-sm" id="voReplace">${icon("i-history")} Replace recording</button></div>`;
+    page.appendChild(nb);
+  }
+
   const sel = Object.assign({ mode: "custom", speaker: "Ryan", voice_id: null, language: "English", instruct: "" }, p.settings.voice || {});
 
   const vcard = el("div", "card");
   vcard.innerHTML = `
-    <h2>Voice</h2>
+    <div class="spread"><h2 class="mb0">Voice</h2>
+      <button class="btn btn-ghost btn-sm" id="voImport">${icon("i-history")} Use a saved recording</button></div>
     <p class="desc">Pick the narrator. Each scene is synthesized to its own clip; the timeline rebuilds from the real audio length (audio-led sync), so images always match the narration.</p>
     <div class="row" id="voModes" style="margin-bottom:14px"></div>
     <div class="opt-list" id="voList"></div>
@@ -571,6 +619,76 @@ async function renderVoiceover(host) {
     }
   }
   drawModes(); drawVoices();
+
+  // ---- Use a saved Script→JSON voiceover: attach the recording (slice it into the
+  //      scenes, already-voiced) or just adopt its voice + style to re-generate ----
+  function applyImportedVoice(it) {
+    const mode = it.mode || (it.voice_id ? "clone" : "custom");
+    sel.mode = mode;
+    if (mode === "clone") sel.voice_id = it.voice_id;
+    else { sel.speaker = it.speaker || sel.speaker; sel.voice_id = null; }
+    sel.instruct = it.instruct || "";
+    if (it.language) sel.language = it.language;
+    drawModes(); drawVoices();
+    const ls = $("#voLang", page);
+    if (ls && [...ls.options].some(o => o.value === sel.language)) ls.value = sel.language;
+    const inst = $("#voInstruct", page); if (inst) inst.value = sel.instruct;
+    if (p.settings) p.settings.voice = { ...sel };                                  // reflect locally
+    api.put(`/api/projects/${p.id}/settings`, { voice: sel }).catch(() => {});      // persist (per-scene quick-voice reads this)
+  }
+  async function attachRecording(it) {
+    const f = it.files && (it.files.wav || it.files.mp3);
+    if (!f) return toast("That entry has no audio file.", "err");
+    closeModal();
+    const runEl = $("#voRun", page);
+    runEl.innerHTML = `<div class="run-panel"><div class="spinner"></div><div style="flex:1"><div class="lab" id="voStage">Attaching recording…</div><div class="progress" style="margin-top:8px"><div class="bar" id="voBar"></div></div></div></div>`;
+    try {
+      const { job_id } = await api.post(`/api/projects/${state.project.id}/voiceover/attach`, { file: f, voice: it.voice || "Imported recording" });
+      const res = await pollJob(job_id, j => { const st = $("#voStage", page); if (st) st.textContent = j.stage; const b = $("#voBar", page); if (b) b.style.width = Math.round((j.progress || 0) * 100) + "%"; });
+      await loadProject(state.project.id);
+      runEl.innerHTML = "";
+      toast(`Recording attached · ${res.done}/${res.scenes} scenes voiced`);
+      timing(); actions(); drawScenes(); renderNav();
+      if (typeof trActions === "function") trActions();
+    } catch (e) { runEl.innerHTML = ""; toast(e.message, "err"); }
+  }
+  async function openVoiceImport() {
+    const card = openModal(`
+      <div class="modal-head"><h2 class="mb0">Use a saved voiceover</h2><button class="btn-icon" id="mClose">${icon("i-x")}</button></div>
+      <p class="muted" style="line-height:1.5"><b>Use recording</b> slices that exact clip into your scenes by their timing — already voiced, no re-synthesis (the scene timings came from this recording's transcript). <b>Voice only</b> just adopts its voice + style to re-generate.</p>
+      <div id="viList" style="max-height:56vh;overflow:auto;margin-top:4px"><div class="muted" style="padding:14px">Loading…</div></div>`);
+    $("#mClose", card).onclick = closeModal;
+    let items = [];
+    try { items = await api.get("/api/history"); }
+    catch (e) { const l = $("#viList", card); if (l) l.innerHTML = `<div class="muted" style="padding:14px">Couldn't load history: ${esc(e.message)}</div>`; return; }
+    const saved = items.filter(it => it.files && (it.files.wav || it.files.mp3) && it.kind !== "transcript" && !it.project);
+    const list = $("#viList", card); if (!list) return;
+    list.innerHTML = "";
+    if (!saved.length) { list.innerHTML = `<div class="muted" style="padding:14px">No saved recordings yet — generate one on the <a href="#/transcribe">Script → JSON</a> page.</div>`; return; }
+    saved.forEach(it => {
+      const f = it.files.wav || it.files.mp3;
+      const mode = it.mode || (it.voice_id ? "clone" : (it.speaker ? "custom" : null));
+      const canVoice = mode === "custom" ? !!it.speaker : (mode === "clone" ? (state.voices.custom || []).some(v => v.id === it.voice_id) : false);
+      const row = el("div", "opt"); row.style.cssText = "align-items:flex-start;gap:12px;cursor:default";
+      row.innerHTML = `
+        <div style="flex:1;min-width:0">
+          <div class="nm">${esc(it.voice || "Voice")}${mode ? ` <span class="badge ${mode === "clone" ? "teal" : ""}" style="padding:1px 6px">${mode === "clone" ? "cloned" : "built-in"}</span>` : ""}${it.duration ? ` <span class="muted" style="font-size:12px">· ${fmtClock(it.duration)}</span>` : ""}${it.language ? ` <span class="muted" style="font-size:12px">· ${esc(it.language)}</span>` : ""}</div>
+          ${it.instruct ? `<div class="ds">style: “${esc(it.instruct)}”</div>` : ""}
+          ${it.text_preview ? `<div class="ds" style="opacity:.7">${esc(it.text_preview)}</div>` : ""}
+          <audio controls preload="none" src="/audio/${f}" style="height:32px;width:100%;max-width:360px;margin-top:8px"></audio>
+        </div>
+        <div class="row" style="flex-direction:column;gap:6px;align-items:stretch;min-width:118px">
+          <button class="btn btn-sm btn-primary useRec">Use recording</button>
+          <button class="btn btn-sm btn-ghost useVoice"${canVoice ? "" : " disabled title='voice config unavailable'"}>Voice only</button>
+        </div>`;
+      $(".useRec", row).onclick = () => attachRecording(it);
+      const uv = $(".useVoice", row);
+      if (canVoice && uv) uv.onclick = () => { applyImportedVoice(it); closeModal(); toast(`Voice set: ${it.voice || "voice"}`); };
+      list.appendChild(row);
+    });
+  }
+  $("#voImport", page).onclick = openVoiceImport;
+  const voReplace = $("#voReplace", page); if (voReplace) voReplace.onclick = openVoiceImport;
 
   function timing() {
     const tl = state.project.timeline;
@@ -1270,7 +1388,7 @@ async function renderAssemble(host) {
 }
 async function renderPreview(host) {
   const p = state.project; if (!p) { location.hash = "#/projects"; return; }
-  topbar(p.name, "Preview · in-browser timeline (audio-led)",
+  topbar(p.name, p.narration ? "Preview · plays your voiceover, images timed to it" : "Preview · in-browser timeline (audio-led)",
     `<button class="btn btn-ghost" onclick="location.hash='#/p/${p.id}/assemble'">${icon("i-back")} Assemble</button>`);
   const page = el("div", "page"); page.innerHTML = stepper("preview");
 
@@ -1302,6 +1420,10 @@ async function renderPreview(host) {
 
   const audio = new Audio();
   const bgAudio = new Audio(); bgAudio.loop = true;
+  // Voiceover-first projects play one continuous master track (the audio is the
+  // clock; we only switch images). Per-scene projects keep the old per-clip path.
+  const master = (p.narration && p.narration.file) ? assetUrl(p.narration.file, 1) : null;
+  if (master) audio.src = master;
   const _pm = (p.settings && p.settings.music) || null;
   if (_pm && _pm.file) { bgAudio.src = `/music/${_pm.file}`; bgAudio.volume = clamp(_pm.volume != null ? _pm.volume : 0.18, 0, 1); }
   const stageImg = $("#pvImg", page), ph = $("#pvPh", page), ostEl = $("#pvOst", page);
@@ -1319,14 +1441,16 @@ async function renderPreview(host) {
     else { stageImg.style.display = "none"; ph.style.display = "block"; ph.textContent = "scene " + s.id; }
     ostEl.textContent = (s.on_screen_text || "").trim();
     narrEl.innerHTML = `<span class="muted">scene ${s.id} · ${fmtClock(r.start)}</span><br><b>${esc(s.narration || "")}</b>`;
-    if (seekAudio) {
+    if (seekAudio && !master) {
       if (s.audio_file) { audio.src = assetUrl(s.audio_file, 1); audio.currentTime = 0; if (playing) audio.play().catch(() => { }); }
       else { audio.removeAttribute("src"); audio.load(); }
     }
   }
   function frame(now) {
     if (!playing) return;
-    const dt = (now - last) / 1000; last = now; t += dt;
+    if (master) t = audio.currentTime;                       // the recording is the clock
+    else { const dt = (now - last) / 1000; t += dt; }
+    last = now;
     if (t >= total) { t = total; pause(); update(); return; }
     const i = sceneAt(t);
     if (i !== curIdx) showScene(i, true);
@@ -1336,12 +1460,23 @@ async function renderPreview(host) {
     seek.style.width = total ? (t / total * 100) + "%" : "0%";
     timeEl.textContent = `${fmtClock(t)} / ${fmtClock(total)}`;
   }
-  function play() { if (playing || !total) return; playing = true; playBtn.innerHTML = icon("i-pause"); last = performance.now(); const i = sceneAt(t); showScene(i, true); const s = byId[rows[i].id]; if (s && s.audio_file) { audio.currentTime = Math.max(0, t - rows[i].start); audio.play().catch(() => { }); } if (bgAudio.src) { try { bgAudio.currentTime = t % (bgAudio.duration || 1e9); } catch (e) { } bgAudio.play().catch(() => { }); } raf = requestAnimationFrame(frame); }
+  function play() {
+    if (playing || !total) return;
+    playing = true; playBtn.innerHTML = icon("i-pause"); last = performance.now();
+    const i = sceneAt(t); showScene(i, true);
+    if (master) { try { audio.currentTime = t; } catch (e) { } audio.play().catch(() => { }); }
+    else { const s = byId[rows[i].id]; if (s && s.audio_file) { audio.currentTime = Math.max(0, t - rows[i].start); audio.play().catch(() => { }); } }
+    if (bgAudio.src) { try { bgAudio.currentTime = t % (bgAudio.duration || 1e9); } catch (e) { } bgAudio.play().catch(() => { }); }
+    raf = requestAnimationFrame(frame);
+  }
   function pause() { playing = false; playBtn.innerHTML = icon("i-play"); audio.pause(); bgAudio.pause(); if (raf) cancelAnimationFrame(raf); }
   playBtn.onclick = () => playing ? pause() : play();
   $("#pvScrub", page).onclick = e => {
     const rect = e.currentTarget.getBoundingClientRect(); t = total * clamp((e.clientX - rect.left) / rect.width, 0, 1);
-    const i = sceneAt(t); showScene(i, true); if (playing && byId[rows[i].id].audio_file) audio.currentTime = Math.max(0, t - rows[i].start); update();
+    const i = sceneAt(t); showScene(i, true);
+    if (master) { try { audio.currentTime = t; } catch (e2) { } }
+    else if (playing && byId[rows[i].id].audio_file) audio.currentTime = Math.max(0, t - rows[i].start);
+    update();
   };
   if (rows.length) showScene(0, false);
   update();

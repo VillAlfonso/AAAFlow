@@ -55,6 +55,26 @@ def _read_wav(path: Path):
     return wav, int(sr)
 
 
+def _full_track(path: Optional[Path], dur: float) -> Optional[np.ndarray]:
+    """Whole narration recording as stereo float32 @ SR, padded/trimmed to `dur` sec."""
+    if not path or not path.exists() or dur <= 0:
+        return None
+    try:
+        wav, sr = _read_wav(path)
+    except Exception:
+        return None
+    if sr != SR:
+        wav = _resample(wav, sr, SR)
+    if wav.ndim == 1:
+        wav = np.stack([wav, wav], axis=-1)
+    elif wav.shape[-1] == 1:
+        wav = np.repeat(wav, 2, axis=-1)
+    n = max(1, int(dur * SR))
+    if wav.shape[0] < n:
+        wav = np.pad(wav, ((0, n - wav.shape[0]), (0, 0)))
+    return wav[:n].astype(np.float32)
+
+
 def _background_bed(music: Optional[Dict], total_dur: float) -> Optional[np.ndarray]:
     """Looped/trimmed, faded, volume-scaled stereo music bed for the whole video."""
     if not music or not music.get("file") or total_dur <= 0:
@@ -144,6 +164,7 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
     lead = float(sync.get("lead_in_ms", 120)) / 1000.0
 
     pdir = projects.project_dir(pid)
+    narr = project.get("narration")           # one continuous voiceover track, if attached
     tl = projects.recompute_timeline(project)
     rows = {str(r["id"]): r for r in tl["scenes"]}
     scenes = project["scenes"]
@@ -219,11 +240,12 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
         cap = caption(s, dur)
         if cap is not None:
             v = CompositeVideoClip([v, cap], size=(W, H)).with_duration(dur)
-        ap = (pdir / s["audio_file"]) if s.get("audio_file") else None
-        if ap and ap.exists():
-            with_audio += 1
-        arr = _audio_array(ap, dur, lead)
-        v = v.with_audio(AudioArrayClip(arr, fps=SR))
+        if not narr:                          # per-scene audio (the master track is set below)
+            ap = (pdir / s["audio_file"]) if s.get("audio_file") else None
+            if ap and ap.exists():
+                with_audio += 1
+            arr = _audio_array(ap, dur, lead)
+            v = v.with_audio(AudioArrayClip(arr, fps=SR))
         if do_transitions:
             kind = transitions.classify_transition(s.get("transition"))
             v = transitions.apply_transition(v, kind, dur=dur, W=W, H=H)
@@ -232,6 +254,14 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
     progress("Encoding video", 0.74)
     # Per-scene transitions are self-contained entrances, so clips join cleanly.
     final = concatenate_videoclips(clips, method="compose")
+
+    # Narration-track projects: lay the whole voiceover over the timeline as one
+    # continuous file (never cut per scene), so the render matches the recording.
+    if narr:
+        track = _full_track(pdir / narr.get("file", ""), float(final.duration))
+        if track is not None:
+            with_audio = n
+            final = final.with_audio(AudioArrayClip(track, fps=SR))
 
     # Background music bed (ACE-Step) mixed under the narration, if the project
     # has one set. Looped/trimmed to the full runtime, low volume, gentle fades.

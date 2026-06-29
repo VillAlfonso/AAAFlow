@@ -230,12 +230,41 @@ def set_scene_video(project: Dict, sid, rel_path: Optional[str],
 
 # --- timeline (audio-led) --------------------------------------------------
 def recompute_timeline(project: Dict) -> Dict:
-    """Rebuild the timeline from real audio durations (audio-led sync).
+    """Rebuild the timeline.
 
-    Each scene starts when the previous ends; its on-screen duration is its real
-    narration length (clamped to a minimum hold) plus configured lead-in/tail.
-    Scenes without audio yet fall back to their planned duration.
+    Two modes:
+    * Narration-track (voiceover-first): one continuous master recording drives the
+      timing. Each scene's image is held from its ``planned_start`` (the transcript
+      time it inherited) until the next scene's start, tiling the whole recording
+      with no gaps — the audio is never cut. Total runtime = the recording length.
+    * Audio-led (per-scene): each scene starts when the previous ends; its on-screen
+      duration is its real narration length (clamped to a minimum hold) + lead/tail.
     """
+    narr = project.get("narration")
+    scenes = project.get("scenes", [])
+    if narr and scenes:
+        starts = [float(s.get("planned_start") or 0.0) for s in scenes]
+        ends = [float(s.get("planned_end") or 0.0) for s in scenes]
+        total = float(narr.get("dur") or 0.0) or (max(starts + ends) if scenes else 0.0)
+        rows = []
+        for i, s in enumerate(scenes):
+            st = starts[i]
+            en = starts[i + 1] if i + 1 < len(scenes) else total
+            en = max(en, st)
+            rows.append({
+                "id": s.get("id"),
+                "start": round(st, 3),
+                "end": round(en, 3),
+                "dur": round(en - st, 3),
+                "has_audio": s.get("status", {}).get("audio") == "ready",
+                "has_image": s.get("status", {}).get("image") == "ready",
+            })
+        timeline = {"total_dur": round(total, 3), "scenes": rows,
+                    "planned_dur": project.get("video", {}).get("total_runtime_sec"),
+                    "narration": narr.get("file")}
+        project["timeline"] = timeline
+        return timeline
+
     sync = project.get("settings", {}).get("sync", {})
     min_hold = float(sync.get("min_hold_sec", 1.2))
     lead = float(sync.get("lead_in_ms", 120)) / 1000.0

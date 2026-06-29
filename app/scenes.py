@@ -94,6 +94,51 @@ def normalize_scene(raw: Dict, index: int) -> Dict:
     return scene
 
 
+def _slug(s: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "-", (s or "").lower()).strip("-") or "character"
+
+
+def normalize_character(raw, index: int) -> Dict:
+    """One raw character_bible entry -> a normalized bible character (no sheet yet)."""
+    if isinstance(raw, str):
+        raw = {"name": raw}
+    raw = raw or {}
+    name = (raw.get("name") or f"Character {index + 1}").strip()
+    aliases = raw.get("aliases") or []
+    if isinstance(aliases, str):
+        aliases = [a.strip() for a in aliases.split(",")]
+    return {
+        "id": _slug(name),
+        "name": name,
+        "aliases": [a.strip() for a in aliases if a and a.strip()],
+        "description": (raw.get("description") or raw.get("look")
+                        or raw.get("appearance") or "").strip(),
+        "palette": (raw.get("palette") or raw.get("colors") or "").strip(),
+        "anchor": None,            # rel path to the front/neutral reference
+        "sheet": [],               # [{file, label, kind}] generated references
+        "status": "none",          # none | generating | ready
+    }
+
+
+def parse_characters(raw: Dict) -> List[Dict]:
+    """Extract the storyboard's top-level character bible, if present."""
+    bible = raw.get("character_bible")
+    if not isinstance(bible, list):
+        v = raw.get("video") or {}
+        bible = v.get("character_bible") if isinstance(v, dict) else None
+    if not isinstance(bible, list):
+        return []
+    out: List[Dict] = []
+    seen = set()
+    for i, c in enumerate(bible):
+        ch = normalize_character(c, i)
+        if ch["id"] in seen:
+            continue
+        seen.add(ch["id"])
+        out.append(ch)
+    return out
+
+
 def parse_storyboard(raw: Dict) -> Dict:
     """Validate + normalize a full storyboard JSON object."""
     if not isinstance(raw, dict):
@@ -105,7 +150,7 @@ def parse_storyboard(raw: Dict) -> Dict:
     if not isinstance(video, dict):
         video = {}
     scenes = [normalize_scene(s, i) for i, s in enumerate(scenes_raw)]
-    return {"video": video, "scenes": scenes}
+    return {"video": video, "scenes": scenes, "characters": parse_characters(raw)}
 
 
 def build_image_prompt(scene: Dict, video: Dict, style: Optional[str] = None) -> Tuple[str, str]:

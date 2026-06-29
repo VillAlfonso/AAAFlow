@@ -33,6 +33,9 @@ ltx2.3pro/
 # --- External trainer clone (cloned by setup, not our source) ---
 trainers/musubi-tuner/
 
+# --- Vendored ACE-Step source (music engine; huge, nested git repo; not our source) ---
+ACE-Step-1.5/
+
 # --- Stray model dirs/files if they ever land at the repo root ---
 # (ComfyUI model dirs belong under ComfyUI_windows_portable/; these at root are
 #  accidental, e.g. a mis-redirected download script)

@@ -39,6 +39,7 @@ SETTINGS_FILE = DATA_DIR / "settings.json"
 HISTORY_FILE = DATA_DIR / "history.json"
 CUSTOM_VOICES_FILE = DATA_DIR / "voices_custom.json"
 IMAGE_MODELS_FILE = DATA_DIR / "image_models.json"         # registry of imported checkpoints/LoRAs
+MUSIC_LIBRARY_FILE = DATA_DIR / "music_library.json"       # generated background music / SFX clips
 
 # --- models ----------------------------------------------------------------
 # Each "size" maps a task -> Hugging Face repo id. The model bundles its own
@@ -140,6 +141,20 @@ COMFY_PYTHON = COMFY_DIR / "python_embeded" / "python.exe"
 COMFY_MAIN = COMFY_DIR / "ComfyUI" / "main.py"
 COMFY_URL = os.environ.get("AAAFLOW_COMFY_URL", "http://127.0.0.1:8188")
 COMFY_LOG = DATA_DIR / "comfyui.log"                       # headless ComfyUI stdout/stderr
+
+# --- ACE-Step 1.5 music/SFX generation (isolated venv + sidecar HTTP server) -
+# ACE-Step pins torch 2.7.1 + numba/torchcodec/torchao, which would clash with the
+# app's torch-2.11 stack — so it runs in its OWN venv as a small sidecar server
+# (app/music_engine.py drives it over HTTP, like ComfyUI). DiT-only, instrumental.
+ACE_DIR = BASE_DIR / "ACE-Step-1.5"
+ACE_VENV_PYTHON = ACE_DIR / ".venv" / "Scripts" / "python.exe"
+ACE_SERVER = ACE_DIR / "aaaflow_music_server.py"
+ACE_CHECKPOINTS = ACE_DIR / "checkpoints"
+ACE_MODEL = os.environ.get("AAAFLOW_ACE_MODEL", "acestep-v15-turbo")
+ACE_URL = os.environ.get("AAAFLOW_ACE_URL", "http://127.0.0.1:8765")
+ACE_LOG = DATA_DIR / "acestep.log"                         # headless music-server stdout/stderr
+MUSIC_DIR = DATA_DIR / "music"                             # generated BGM / SFX library
+MUSIC_DIR.mkdir(parents=True, exist_ok=True)
 KREA2_PER_LAYER = "1.0,1.0,1.0,1.0,1.0,1.0,1.0,2.5,5.0,1.1,4.0,1.0"  # ConditioningKrea2Rebalance
 # Flat 2D cartoon "history-explainer" style that overrides the storyboard's own
 # ink/whiteboard suffix when rendering with krea2.
@@ -263,6 +278,30 @@ def wan_ready() -> bool:
             and _big_enough(m / "vae" / WAN["vae"], 50 * 1024**2)
             and _big_enough(m / "loras" / WAN["lora_high"], 50 * 1024**2)
             and _big_enough(m / "loras" / WAN["lora_low"], 50 * 1024**2))
+
+
+def music_env_ready() -> bool:
+    """True when the isolated ACE-Step venv + sidecar server are installed."""
+    return ACE_VENV_PYTHON.exists() and ACE_SERVER.exists()
+
+
+def music_model_ready() -> bool:
+    """True when the chosen ACE-Step model's actual weights are fully downloaded.
+
+    Checks for a finalized weight file (not just the folder / in-progress .cache),
+    so an interrupted download isn't mistaken for a ready model.
+    """
+    d = ACE_CHECKPOINTS / ACE_MODEL
+    try:
+        if not d.exists():
+            return False
+        for pat in ("*.safetensors", "*.bin", "*.ckpt"):
+            for f in d.rglob(pat):
+                if f.is_file() and f.stat().st_size > 400 * 1024**2:
+                    return True
+        return False
+    except OSError:
+        return False
 
 # --- defaults --------------------------------------------------------------
 DEFAULT_SETTINGS = {

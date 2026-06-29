@@ -55,6 +55,38 @@ def _read_wav(path: Path):
     return wav, int(sr)
 
 
+def _background_bed(music: Optional[Dict], total_dur: float) -> Optional[np.ndarray]:
+    """Looped/trimmed, faded, volume-scaled stereo music bed for the whole video."""
+    if not music or not music.get("file") or total_dur <= 0:
+        return None
+    path = config.MUSIC_DIR / music["file"]
+    if not path.exists():
+        return None
+    try:
+        wav, sr = _read_wav(path)
+    except Exception:
+        return None
+    if sr != SR:
+        wav = _resample(wav, sr, SR)
+    if wav.ndim == 1:
+        wav = np.stack([wav, wav], axis=-1)
+    elif wav.shape[-1] == 1:
+        wav = np.repeat(wav, 2, axis=-1)
+    if wav.shape[0] == 0:
+        return None
+    n = int(total_dur * SR)
+    reps = int(np.ceil(n / wav.shape[0]))
+    bed = np.tile(wav, (reps, 1))[:n].astype(np.float32)
+    bed *= max(0.0, min(1.0, float(music.get("volume", 0.18))))
+    fade = max(0.0, float(music.get("fade", 1.5)))
+    f = int(fade * SR)
+    if f > 0 and 2 * f < n:
+        ramp = np.linspace(0.0, 1.0, f, dtype=np.float32)[:, None]
+        bed[:f] *= ramp
+        bed[-f:] *= ramp[::-1]
+    return bed
+
+
 def _resample(wav: np.ndarray, sr: int, target: int) -> np.ndarray:
     if sr == target or wav.size == 0:
         return wav
@@ -99,8 +131,9 @@ def submit_assemble(pid: str, opts: Optional[Dict] = None) -> str:
 
 def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
     os.environ.setdefault("IMAGEIO_FFMPEG_EXE", config.FFMPEG)
-    from moviepy import (AudioArrayClip, ColorClip, CompositeVideoClip,
-                         ImageClip, TextClip, VideoFileClip, concatenate_videoclips)
+    from moviepy import (AudioArrayClip, ColorClip, CompositeAudioClip,
+                         CompositeVideoClip, ImageClip, TextClip, VideoFileClip,
+                         concatenate_videoclips)
 
     project = projects.get_project(pid)
     asm = {**project["settings"].get("assemble", {}), **(opts or {})}
@@ -199,6 +232,15 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
     progress("Encoding video", 0.74)
     # Per-scene transitions are self-contained entrances, so clips join cleanly.
     final = concatenate_videoclips(clips, method="compose")
+
+    # Background music bed (ACE-Step) mixed under the narration, if the project
+    # has one set. Looped/trimmed to the full runtime, low volume, gentle fades.
+    bed = _background_bed(project["settings"].get("music"), float(tl["total_dur"]))
+    if bed is not None:
+        bg_clip = AudioArrayClip(bed, fps=SR).with_duration(final.duration)
+        final = final.with_audio(
+            CompositeAudioClip([final.audio, bg_clip]) if final.audio is not None
+            else bg_clip)
 
     out_rel = f"video/final_{time.strftime('%Y%m%d_%H%M%S')}.mp4"
     out_abs = pdir / out_rel

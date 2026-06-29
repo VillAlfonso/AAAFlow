@@ -187,3 +187,33 @@ def delete_image_model(model_id: str) -> bool:
         kept = [x for x in items if x.get("id") != model_id]
         _write(config.IMAGE_MODELS_FILE, kept)
         return len(kept) != len(items)
+
+
+# --- music / SFX library (ACE-Step generated background clips) --------------
+def get_music() -> List[Dict]:
+    with _lock:
+        return _read(config.MUSIC_LIBRARY_FILE, [])
+
+
+def get_music_item(item_id: str) -> Dict | None:
+    with _lock:
+        for m in _read(config.MUSIC_LIBRARY_FILE, []):
+            if m.get("id") == item_id:
+                return m
+    return None
+
+
+def add_music(entry: Dict) -> Dict:
+    with _lock:
+        items = _read(config.MUSIC_LIBRARY_FILE, [])
+        items.insert(0, entry)
+        _write(config.MUSIC_LIBRARY_FILE, items[:200])
+        return entry
+
+
+def delete_music(item_id: str) -> bool:
+    with _lock:
+        items = _read(config.MUSIC_LIBRARY_FILE, [])
+        kept = [x for x in items if x.get("id") != item_id]
+        _write(config.MUSIC_LIBRARY_FILE, kept)
+        return len(kept) != len(items)

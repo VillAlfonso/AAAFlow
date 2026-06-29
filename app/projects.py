@@ -62,6 +62,7 @@ def default_project_settings() -> Dict:
         "image": dict(s.get("image", {})),
         "sync": dict(s.get("sync", {})),
         "assemble": dict(s.get("assemble", {})),
+        "music": None,        # background music bed {file, id, prompt, volume, fade} or None
     }
 
 
@@ -83,6 +84,7 @@ def create_project(raw_json: Dict, name: Optional[str] = None) -> Dict:
         "video": video,
         "settings": default_project_settings(),
         "scenes": parsed["scenes"],
+        "characters": parsed.get("characters", []),
         "timeline": None,
         "renders": [],
     }

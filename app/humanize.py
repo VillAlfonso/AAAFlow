@@ -36,14 +36,33 @@ WORK_SR = 24000  # internal working sample rate (Qwen native)
 # Full default parameter set — process() always has every key available.
 DEFAULTS: Dict = {
     "tempo_jitter": {"enabled": True, "amount": 1.2, "segments": 6},
+    # mic: emulate a real microphone chain — subsonic roll-off + a gentle presence
+    # bump (real condenser mics aren't ruler-flat like a synthesizer).
+    "mic": {"enabled": True, "highpass": 72, "presence_gain": 1.2, "deess": 2.0},
     "eq": {"enabled": True, "high_freq": 10000, "high_gain": -4.0, "warmth_gain": 1.5},
     "saturation": {"enabled": True, "amount": 10},
     "wow": {"enabled": True, "amount": 18},
+    # reverb: a hint of real-room early reflections so it reads as "recorded in a
+    # space," not rendered in a vacuum. Kept tiny to protect intelligibility.
+    "reverb": {"enabled": True, "amount": 12, "delay_ms": 28},
     "ambiance": {"enabled": True, "type": "room", "level_db": -32, "file": None},
     "output": {"sample_rate": 32000, "bitrate": 128},
 }
 
 PRESETS: Dict[str, Dict] = {
+    # The default "voice filter" applied right after a record: gentle, keeps the
+    # performance intact, but lays down the real-mic + real-room + analog tells
+    # that synthetic audio lacks.
+    "natural": {
+        "tempo_jitter": {"enabled": True, "amount": 1.0, "segments": 6},
+        "mic": {"enabled": True, "highpass": 75, "presence_gain": 1.2, "deess": 2.5},
+        "eq": {"enabled": True, "high_freq": 11000, "high_gain": -3.0, "warmth_gain": 1.2},
+        "saturation": {"enabled": True, "amount": 8},
+        "wow": {"enabled": True, "amount": 12},
+        "reverb": {"enabled": True, "amount": 12, "delay_ms": 26},
+        "ambiance": {"enabled": True, "type": "room", "level_db": -34, "file": None},
+        "output": {"sample_rate": 44100, "bitrate": 160},
+    },
     "minimal": {
         "tempo_jitter": {"enabled": False, "amount": 0.8, "segments": 4},
         "eq": {"enabled": True, "high_freq": 11000, "high_gain": -3.0, "warmth_gain": 1.0},
@@ -125,6 +144,13 @@ def resolve_params(params: Optional[Dict]) -> Dict:
     if merged["ambiance"].get("type") not in AMBIANCE_TYPES:
         if not merged["ambiance"].get("file"):
             merged["ambiance"]["type"] = "room"
+    mic = merged.setdefault("mic", {"enabled": False})
+    mic["highpass"] = _clamp(mic.get("highpass", 72), 0, 200)
+    mic["presence_gain"] = _clamp(mic.get("presence_gain", 0), 0, 5)
+    mic["deess"] = _clamp(mic.get("deess", 0), 0, 8)
+    rev = merged.setdefault("reverb", {"enabled": False})
+    rev["amount"] = _clamp(rev.get("amount", 0), 0, 60)
+    rev["delay_ms"] = int(_clamp(rev.get("delay_ms", 28), 8, 80))
     merged["output"]["sample_rate"] = int(merged["output"].get("sample_rate", 32000))
     merged["output"]["bitrate"] = int(merged["output"].get("bitrate", 128))
     return merged
@@ -154,6 +180,16 @@ def _apply_tempo_jitter(y: np.ndarray, segments: int, amount_pct: float) -> np.n
 
 def _voice_chain(p: Dict) -> str:
     chain = []
+    # 0) mic emulation — subsonic roll-off, presence bump, gentle sibilance tame.
+    mic = p.get("mic", {})
+    if mic.get("enabled"):
+        hp = int(mic.get("highpass", 0) or 0)
+        if hp > 0:
+            chain.append(f"highpass=f={hp}")
+        if mic.get("presence_gain"):
+            chain.append(f"equalizer=f=3200:t=q:w=1.6:g={float(mic['presence_gain']):.2f}")
+        if mic.get("deess"):                       # static de-ess around sibilance band
+            chain.append(f"equalizer=f=6500:t=q:w=2.0:g={-float(mic['deess']):.2f}")
     eq = p["eq"]
     if eq["enabled"]:
         if eq["warmth_gain"]:
@@ -170,6 +206,10 @@ def _voice_chain(p: Dict) -> str:
     if wow["enabled"] and wow["amount"] > 0:
         depth = min(0.5, wow["amount"] / 100.0 * 0.15)
         chain.append(f"vibrato=f=3:d={depth:.3f}")
+    rev = p.get("reverb", {})
+    if rev.get("enabled") and rev.get("amount", 0) > 0:   # a hint of room early reflections
+        g = min(0.2, float(rev["amount"]) / 100.0 * 0.3)
+        chain.append(f"aecho=0.9:0.9:{int(rev.get('delay_ms', 28))}:{g:.3f}")
     return ",".join(chain) if chain else "anull"
 
 

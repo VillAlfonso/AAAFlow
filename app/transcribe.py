@@ -47,6 +47,9 @@ _LANG_CODE = {
 
 # Sentence terminators (Latin + CJK) for the no-script verbatim fallback.
 _SENT_END_CH = ".!?…。！？"
+# Clause terminators (commas/semicolons, Latin + CJK) for the "split by commas" mode.
+_CLAUSE_END_CH = ",;，；、"
+_COMMA_SPLIT = re.compile(r"(?<=[,;，；、])\s+")
 # Drop everything but letters/digits when comparing a spoken word to a script
 # word (so "Germany," == "germany" and "1923." == "1923").
 _NONWORD = re.compile(r"\W+", re.UNICODE)
@@ -234,56 +237,120 @@ def _block(index: int, text: str, words: List[Dict]) -> Dict:
     }
 
 
-def _anchored_sentences(ref_text: str, rwords: List[Dict], clip_dur: float
-                        ) -> List[Dict]:
-    sentences: List[str] = []
+# Function words that naturally start a phrase — used to find break points for
+# the finer "phrase"/"tight" levels (split *before* one of these words).
+_CONJ = {"and", "but", "or", "nor", "so", "yet", "because", "although", "though",
+         "while", "when", "whenever", "since", "if", "unless", "whereas", "that",
+         "which", "who", "whom", "whose", "where", "why", "how", "after", "before",
+         "until", "as", "than", "then"}
+_PREP = {"at", "in", "on", "into", "onto", "to", "from", "by", "with", "without",
+         "for", "like", "over", "under", "above", "below", "behind", "beside",
+         "between", "through", "during", "against", "toward", "towards", "near",
+         "around", "about", "upon", "across", "along", "among", "amid", "beyond",
+         "within", "outside", "inside"}
+_PREP_TIGHT = _PREP | {"of", "off", "up", "down", "out"}
+
+# (max_words, min_words, prepositions) per finer level. "tight" cuts harder.
+_PHRASE_CFG = {"phrase": (7, 3, _PREP), "tight": (4, 2, _PREP_TIGHT)}
+
+
+def _chunk_items(items: List[Dict], mode: str) -> List[List[Dict]]:
+    """Group word records into phrase/tight blocks. Breaks after a clause end,
+    before a function word (once the block has >= min words), or at a max length.
+    ``items`` are dicts with a ``disp`` string (script words or recognized words)."""
+    max_w, min_w, preps = _PHRASE_CFG.get(mode, _PHRASE_CFG["phrase"])
+    breakers = preps | _CONJ
+    groups: List[List[Dict]] = []
+    cur: List[Dict] = []
+    for i, it in enumerate(items):
+        cur.append(it)
+        last = (it["disp"].strip()[-1:] or "")
+        ends_clause = last in _CLAUSE_END_CH or last in _SENT_END_CH
+        nxt = items[i + 1] if i + 1 < len(items) else None
+        nxt_is_breaker = nxt is not None and _norm(nxt["disp"]) in breakers
+        if (ends_clause or nxt is None
+                or (nxt_is_breaker and len(cur) >= min_w) or len(cur) >= max_w):
+            groups.append(cur)
+            cur = []
+    if cur:
+        groups.append(cur)
+    return groups
+
+
+def _split_phrases(text: str, mode: str) -> List[str]:
+    items = [{"disp": w} for w in text.split()]
+    return [" ".join(x["disp"] for x in g) for g in _chunk_items(items, mode)]
+
+
+def _split_units(ref_text: str, split: str) -> List[str]:
+    """The text spans each timestamp block covers: whole sentences (default),
+    comma/clause fragments ("comma"), or finer phrase groups ("phrase"/"tight")."""
+    units: List[str] = []
     for para in split_paragraphs(ref_text):
-        sentences.extend(split_sentences(para))
-    sentences = [s for s in sentences if s.strip()]
-    if not sentences:
+        for sent in split_sentences(para):
+            if split == "comma":
+                units.extend(p.strip() for p in _COMMA_SPLIT.split(sent) if p.strip())
+            elif split in ("phrase", "tight"):
+                units.extend(_split_phrases(sent, split))
+            else:
+                units.append(sent)
+    return [u for u in units if u.strip()]
+
+
+def _anchored_blocks(ref_text: str, rwords: List[Dict], clip_dur: float,
+                     split: str) -> List[Dict]:
+    units = _split_units(ref_text, split)
+    if not units:
         return []
-    swords = _script_words(sentences)
+    swords = _script_words(units)
     if not swords:
         return []
     _assign_times(swords, rwords, clip_dur)
     blocks: List[Dict] = []
-    for si, text in enumerate(sentences):
-        ws = [w for w in swords if w["si"] == si]
+    for ui, text in enumerate(units):
+        ws = [w for w in swords if w["si"] == ui]
         if ws:
             blocks.append(_block(len(blocks) + 1, text, ws))
     return blocks
 
 
-def _verbatim_sentences(rwords: List[Dict], clip_dur: float) -> List[Dict]:
-    """No script to anchor to: cut sentences at spoken punctuation instead."""
+def _verbatim_blocks(rwords: List[Dict], clip_dur: float, split: str) -> List[Dict]:
+    """No script to anchor to: cut blocks from the recognized words — at sentence
+    ends, plus commas ("comma") or finer phrase groups ("phrase"/"tight")."""
+    if split in ("phrase", "tight"):
+        groups = _chunk_items(rwords, split)
+    else:
+        ends = _SENT_END_CH + (_CLAUSE_END_CH if split == "comma" else "")
+        groups, cur = [], []
+        for w in rwords:
+            cur.append(w)
+            if (w["disp"].strip()[-1:] or "") in ends:
+                groups.append(cur)
+                cur = []
+        if cur:
+            groups.append(cur)
     blocks: List[Dict] = []
-    cur: List[Dict] = []
-
-    def flush():
-        text = " ".join(x["disp"] for x in cur).strip()
+    for g in groups:
+        text = " ".join(x["disp"] for x in g).strip()
         if text:
-            blocks.append(_block(len(blocks) + 1, text, cur))
-
-    for w in rwords:
-        cur.append(w)
-        if (w["disp"].strip()[-1:] or "") in _SENT_END_CH:
-            flush()
-            cur = []
-    if cur:
-        flush()
+            blocks.append(_block(len(blocks) + 1, text, g))
     return blocks
 
 
 # --- engine: one clip -------------------------------------------------------
 def transcribe_clip(wav_path: str, ref_text: Optional[str] = None,
                     language: Optional[str] = None,
-                    progress: Optional[ProgressFn] = None) -> Dict:
-    """Transcribe one audio clip into sentence blocks (times relative to the clip).
+                    progress: Optional[ProgressFn] = None,
+                    split: str = "sentence") -> Dict:
+    """Transcribe one audio clip into timed blocks (times relative to the clip).
 
-    ``ref_text`` is the known script; when given, each sentence block reads with
-    your exact wording and timing is aligned to it. Without it, sentences are
-    cut at the punctuation Whisper itself produces (verbatim).
+    ``ref_text`` is the known script; when given, each block reads with your exact
+    wording and timing is aligned to it. Without it, blocks are cut at the
+    punctuation Whisper itself produces (verbatim). ``split`` chooses the block
+    granularity: ``"sentence"`` (standard) or ``"comma"`` (clause-level).
     """
+    if split not in ("comma", "phrase", "tight"):
+        split = "sentence"
     model = load_model(progress)
     cfg = _settings()
     code = lang_code(language)
@@ -311,10 +378,10 @@ def transcribe_clip(wav_path: str, ref_text: Optional[str] = None,
 
     ref = (ref_text or "").strip()
     if ref:
-        sentences = _anchored_sentences(ref, rwords, clip_dur)
+        sentences = _anchored_blocks(ref, rwords, clip_dur, split)
         anchored = True
     else:
-        sentences = _verbatim_sentences(rwords, clip_dur)
+        sentences = _verbatim_blocks(rwords, clip_dur, split)
         anchored = False
 
     return {
@@ -322,6 +389,7 @@ def transcribe_clip(wav_path: str, ref_text: Optional[str] = None,
         "duration": round(clip_dur, 3),
         "model": cfg["model"],
         "anchored": anchored,
+        "split": split,
         "verbatim": verbatim,
         "sentences": sentences,
     }
@@ -452,7 +520,8 @@ def _write_outputs(pid: str, doc: Dict) -> Dict:
     return files
 
 
-def submit_transcribe(pid: str, scope: str = "missing", scene_id=None) -> str:
+def submit_transcribe(pid: str, scope: str = "missing", scene_id=None,
+                      split: str = "sentence") -> str:
     """Queue a background job that transcribes the selected voiced scenes."""
     project = projects.get_project(pid)
     if not project:
@@ -479,11 +548,12 @@ def submit_transcribe(pid: str, scope: str = "missing", scene_id=None) -> str:
             if not wav.exists():
                 continue
             result = transcribe_clip(str(wav), ref_text=sc.get("narration"),
-                                     language=default_lang)
+                                     language=default_lang, split=split)
             sc["transcript"] = {
                 "language": result["language"],
                 "model": result["model"],
                 "anchored": result["anchored"],
+                "split": result["split"],
                 "verbatim": result["verbatim"],
                 "duration": result["duration"],
                 "sentences": result["sentences"],
@@ -515,7 +585,8 @@ def submit_transcribe(pid: str, scope: str = "missing", scene_id=None) -> str:
 
 def submit_file_transcribe(file_name: str, ref_text: Optional[str] = None,
                            language: Optional[str] = None,
-                           item_id: Optional[str] = None) -> str:
+                           item_id: Optional[str] = None,
+                           split: str = "sentence") -> str:
     """Queue a job that transcribes one generated clip in data/outputs.
 
     The standalone "paste a script → voice → JSON" tool: the audio was just
@@ -535,7 +606,7 @@ def submit_file_transcribe(file_name: str, ref_text: Optional[str] = None,
     def task(progress: ProgressFn) -> Dict:
         progress("Loading transcription model…", 0.05)
         result = transcribe_clip(str(path), ref_text=ref_text, language=language,
-                                 progress=progress)
+                                 progress=progress, split=split)
         progress("Saving timestamps…", 0.97)
         storage.write_json(config.OUTPUTS_DIR / sidecar, result)
         if item_id:

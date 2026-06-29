@@ -11,8 +11,9 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from . import (animate, assemble, config, humanize, images, jobs, projects,
-               service, storage, style_refs, training, transcribe, voiceover)
+from . import (animate, assemble, captions, characters, config, humanize,
+               images, jobs, music, projects, service, storage, style_refs,
+               training, transcribe, voiceover)
 from .audio import ffmpeg_ok
 from .engine import engine
 from .image_engine import image_engine
@@ -41,6 +42,7 @@ class TTSReq(BaseModel):
     format: Optional[str] = None     # "mp3" | "wav" | "both"
     loudnorm: Optional[bool] = None
     speed: Optional[float] = None    # pacing time-stretch: <1 slower, >1 faster (0.5–2.0)
+    humanize: Optional[dict] = None  # voice filter; e.g. {"preset": "natural"} or null
 
 
 class DesignReq(BaseModel):
@@ -171,6 +173,11 @@ def _status_payload():
         st["transcribe"] = transcribe.status()
     except Exception:  # noqa: BLE001
         st["transcribe"] = {"available": False}
+    try:
+        from .music_engine import music_engine
+        st["music"] = music_engine.status()
+    except Exception:  # noqa: BLE001
+        st["music"] = {"available": False}
     return st
 
 
@@ -427,12 +434,13 @@ def gen_voiceover(pid: str, req: VoiceoverReq):
 class TranscribeReq(BaseModel):
     scope: str = "missing"            # "all" | "missing" | "scene"
     scene_id: Optional[str] = None
+    split: str = "sentence"           # "sentence" (standard) | "comma" (clause-level)
 
 
 @app.post("/api/projects/{pid}/transcribe")
 def gen_transcribe(pid: str, req: TranscribeReq):
     try:
-        job_id = transcribe.submit_transcribe(pid, req.scope, req.scene_id)
+        job_id = transcribe.submit_transcribe(pid, req.scope, req.scene_id, req.split)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
     return {"job_id": job_id}
@@ -453,6 +461,7 @@ class FileTranscribeReq(BaseModel):
     text: Optional[str] = None         # the script to anchor sentence text to
     language: Optional[str] = None
     item_id: Optional[str] = None      # the saved history entry to attach the transcript to
+    split: str = "sentence"            # "sentence" (standard) | "comma" (clause-level)
 
 
 @app.post("/api/transcribe")
@@ -460,9 +469,77 @@ def transcribe_file(req: FileTranscribeReq):
     """Standalone: transcribe one generated clip into timed sentence JSON."""
     try:
         return {"job_id": transcribe.submit_file_transcribe(
-            req.file, req.text, req.language, req.item_id)}
+            req.file, req.text, req.language, req.item_id, req.split)}
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
+
+
+# --- API: music / SFX (ACE-Step background audio) --------------------------
+class MusicReq(BaseModel):
+    prompt: str
+    kind: str = "music"               # "music" | "sfx"
+    seconds: Optional[float] = None
+    seed: int = -1
+    steps: int = 8
+    instrumental: bool = True
+
+
+def _music_status():
+    try:
+        from .music_engine import music_engine
+        return music_engine.status()
+    except Exception:  # noqa: BLE001
+        return {"available": False}
+
+
+@app.get("/api/music")
+def music_library():
+    return {"library": storage.get_music(), "presets": music.MUSIC_PRESETS,
+            "status": _music_status()}
+
+
+@app.post("/api/music")
+def gen_music(req: MusicReq):
+    try:
+        return {"job_id": music.submit_music(req.model_dump())}
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
+@app.post("/api/music/download")
+def music_download():
+    """Start the music sidecar + download/load the model (~9 GB on first run)."""
+    return {"job_id": music.submit_music_download()}
+
+
+@app.delete("/api/music/{item_id}")
+def delete_music(item_id: str):
+    m = storage.get_music_item(item_id)
+    if m:
+        for name in (m.get("files") or {}).values():
+            try:
+                (config.MUSIC_DIR / name).unlink()
+            except OSError:
+                pass
+    return {"deleted": storage.delete_music(item_id)}
+
+
+class ProjectMusicReq(BaseModel):
+    file: Optional[str] = None        # a filename in data/music (None clears it)
+    id: Optional[str] = None
+    prompt: Optional[str] = None
+    volume: float = 0.18              # background level under the narration (0..1)
+    duck: bool = True                 # lower music further while narration plays
+    fade: float = 1.5                 # fade in/out seconds
+
+
+@app.put("/api/projects/{pid}/music")
+def set_project_music(pid: str, req: ProjectMusicReq):
+    patch = {"music": (None if not req.file else req.model_dump())}
+    settings = projects.update_settings(pid, patch)
+    if settings is None:
+        raise HTTPException(status_code=404, detail="project not found")
+    return settings
 
 
 # --- API: images -----------------------------------------------------------
@@ -484,6 +561,60 @@ def gen_images(pid: str, req: ImagesReq):
 @app.post("/api/image/download_defaults")
 def image_download_defaults():
     return {"job_id": images.submit_download_defaults()}
+
+
+# --- API: character bible (consistent recurring characters) ----------------
+class CharacterReq(BaseModel):
+    name: str
+    description: Optional[str] = ""
+    palette: Optional[str] = ""
+    aliases: Optional[List[str]] = None
+
+
+class SheetReq(BaseModel):
+    seed: int = -1
+    identity: float = 0.72
+
+
+@app.get("/api/projects/{pid}/characters")
+def get_characters(pid: str):
+    project = projects.get_project(pid)
+    if not project:
+        raise HTTPException(status_code=404, detail="project not found")
+    return {"characters": characters.list_characters(project),
+            "image": _status_payload().get("image", {})}
+
+
+@app.post("/api/projects/{pid}/characters")
+def upsert_character(pid: str, req: CharacterReq):
+    try:
+        ch = characters.add_or_update(pid, req.model_dump())
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    if ch is None:
+        raise HTTPException(status_code=404, detail="project not found")
+    return {"character": ch}
+
+
+@app.delete("/api/projects/{pid}/characters/{cid}")
+def del_character(pid: str, cid: str):
+    return {"deleted": characters.delete_character(pid, cid)}
+
+
+@app.post("/api/projects/{pid}/characters/{cid}/sheet")
+def gen_character_sheet(pid: str, cid: str, req: SheetReq = SheetReq()):
+    try:
+        return {"job_id": characters.submit_character_sheet(pid, cid, req.model_dump())}
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
+@app.post("/api/projects/{pid}/characters/seed")
+def seed_characters(pid: str):
+    try:
+        return {"added": characters.seed_from_storyboard(pid)}
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
 
 
 # --- API: style references (cartoon RAG pack) ------------------------------
@@ -662,6 +793,57 @@ def training_stop():
     return {"stopped": training.stop()}
 
 
+# --- API: scene-graph -> LoRA dataset (caption generator, JSON source of truth) ---
+class DatasetBuildReq(BaseModel):
+    pid: str
+    base: str = "krea2"
+    name: str
+    trigger: str = ""
+    opts: Optional[dict] = None
+
+
+class RecaptionReq(BaseModel):
+    base: str = "krea2"
+    name: str
+    trigger: str = ""
+    opts: Optional[dict] = None
+
+
+class CaptionPreviewReq(BaseModel):
+    trigger: str = ""
+    opts: Optional[dict] = None
+
+
+@app.get("/api/captions/fields")
+def captions_fields():
+    return {"defaults": captions.DEFAULT_CAPTION_OPTS}
+
+
+@app.post("/api/projects/{pid}/captions/preview")
+def captions_preview(pid: str, req: CaptionPreviewReq):
+    try:
+        return {"samples": captions.preview_captions(pid, req.trigger, req.opts)}
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
+@app.post("/api/training/dataset/from_scenes")
+def dataset_from_scenes(req: DatasetBuildReq):
+    try:
+        return captions.build_dataset_from_project(
+            req.pid, req.base, req.name, req.trigger, req.opts)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
+@app.post("/api/training/dataset/recaption")
+def dataset_recaption(req: RecaptionReq):
+    try:
+        return captions.recaption(req.base, req.name, req.trigger, req.opts)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
 # --- file serving ----------------------------------------------------------
 @app.get("/download/{name}")
 def download(name: str):
@@ -679,4 +861,5 @@ async def _http_exc(request, exc: HTTPException):
 app.mount("/audio", StaticFiles(directory=str(config.OUTPUTS_DIR)), name="audio")
 app.mount("/projects", StaticFiles(directory=str(config.PROJECTS_DIR)), name="projects")
 app.mount("/style_refs", StaticFiles(directory=str(config.STYLE_REFS_DIR)), name="style_refs")
+app.mount("/music", StaticFiles(directory=str(config.MUSIC_DIR)), name="music")
 app.mount("/", StaticFiles(directory=str(config.WEB_DIR), html=True), name="web")

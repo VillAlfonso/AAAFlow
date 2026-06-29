@@ -10,7 +10,7 @@ import random
 import time
 from typing import Callable, Dict, List, Optional
 
-from . import config, jobs, projects, scenes, storage, style_refs
+from . import characters, config, jobs, projects, scenes, storage, style_refs
 from .image_engine import DEFAULT_LORA, image_engine
 from .comfy_engine import comfy_engine
 
@@ -118,7 +118,13 @@ def submit_images(pid: str, image_cfg: Dict, scope: str = "missing",
                     prompt, neg, width=dims["width"], height=dims["height"],
                     steps=dims["steps"], guidance=dims["guidance"], seed=seed, mdef=mdef)
             else:
-                refs = style_refs.retrieve(sc) if uses_ip else None
+                refs = None
+                if uses_ip:
+                    # Character bible first (keeps recurring characters on-model),
+                    # then a couple of style refs for the channel look.
+                    char_refs = characters.retrieve_for_scene(proj, sc)
+                    style_r = style_refs.retrieve(sc, k=2 if char_refs else None)
+                    refs = (char_refs + style_r) if char_refs else style_r
                 img = image_engine.generate(
                     prompt, neg, width=dims["width"], height=dims["height"],
                     steps=dims["steps"], guidance=dims["guidance"], seed=seed,

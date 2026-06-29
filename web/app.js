@@ -79,6 +79,7 @@ const NAV = [
   { id: "projects", label: "Projects", icon: "i-projects" },
   { sep: true },
   { id: "storyboard", label: "Storyboard", icon: "i-storyboard", proj: true },
+  { id: "characters", label: "Characters", icon: "i-voices", proj: true },
   { id: "voiceover", label: "Voiceover", icon: "i-voice", proj: true },
   { id: "images", label: "Images", icon: "i-image", proj: true },
   { id: "animate", label: "Animate", icon: "i-preview", proj: true },
@@ -1267,6 +1268,9 @@ async function renderPreview(host) {
   host.appendChild(page);
 
   const audio = new Audio();
+  const bgAudio = new Audio(); bgAudio.loop = true;
+  const _pm = (p.settings && p.settings.music) || null;
+  if (_pm && _pm.file) { bgAudio.src = `/music/${_pm.file}`; bgAudio.volume = clamp(_pm.volume != null ? _pm.volume : 0.18, 0, 1); }
   const stageImg = $("#pvImg", page), ph = $("#pvPh", page), ostEl = $("#pvOst", page);
   const seek = $("#pvSeek", page), timeEl = $("#pvTime", page), narrEl = $("#pvNarr", page), playBtn = $("#pvPlay", page);
 
@@ -1299,8 +1303,8 @@ async function renderPreview(host) {
     seek.style.width = total ? (t / total * 100) + "%" : "0%";
     timeEl.textContent = `${fmtClock(t)} / ${fmtClock(total)}`;
   }
-  function play() { if (playing || !total) return; playing = true; playBtn.innerHTML = icon("i-pause"); last = performance.now(); const i = sceneAt(t); showScene(i, true); const s = byId[rows[i].id]; if (s && s.audio_file) { audio.currentTime = Math.max(0, t - rows[i].start); audio.play().catch(() => { }); } raf = requestAnimationFrame(frame); }
-  function pause() { playing = false; playBtn.innerHTML = icon("i-play"); audio.pause(); if (raf) cancelAnimationFrame(raf); }
+  function play() { if (playing || !total) return; playing = true; playBtn.innerHTML = icon("i-pause"); last = performance.now(); const i = sceneAt(t); showScene(i, true); const s = byId[rows[i].id]; if (s && s.audio_file) { audio.currentTime = Math.max(0, t - rows[i].start); audio.play().catch(() => { }); } if (bgAudio.src) { try { bgAudio.currentTime = t % (bgAudio.duration || 1e9); } catch (e) { } bgAudio.play().catch(() => { }); } raf = requestAnimationFrame(frame); }
+  function pause() { playing = false; playBtn.innerHTML = icon("i-play"); audio.pause(); bgAudio.pause(); if (raf) cancelAnimationFrame(raf); }
   playBtn.onclick = () => playing ? pause() : play();
   $("#pvScrub", page).onclick = e => {
     const rect = e.currentTarget.getBoundingClientRect(); t = total * clamp((e.clientX - rect.left) / rect.width, 0, 1);
@@ -1308,8 +1312,165 @@ async function renderPreview(host) {
   };
   if (rows.length) showScene(0, false);
   update();
+  page.appendChild(await musicCard(p, bgAudio));
   // stop audio when leaving the page
-  window.addEventListener("hashchange", () => { try { audio.pause(); } catch (e) { } }, { once: true });
+  window.addEventListener("hashchange", () => { try { audio.pause(); bgAudio.pause(); } catch (e) { } }, { once: true });
+}
+
+/* ---------- background music / SFX panel (ACE-Step) ---------- */
+async function musicCard(p, bgAudio) {
+  const card = el("div", "card"); card.style.marginTop = "16px";
+  card.innerHTML = `
+    <div class="spread"><h2 class="mb0">Background music <span class="hint">(ACE-Step)</span></h2><div class="row" id="muMeta"></div></div>
+    <p class="desc">Generate an instrumental bed or a sound effect, then set one as this video's background — it plays under the narration here in the preview and in the final render.</p>
+    <div id="muSetup"></div>
+    <div id="muGen" hidden>
+      <div class="grid2" style="margin-bottom:10px;align-items:end">
+        <div class="field"><label>Describe the music / sound</label><textarea id="muPrompt" rows="2" placeholder="e.g. calm cinematic ambient bed, soft warm pads, slow, instrumental"></textarea></div>
+        <div>
+          <div class="field"><label>Type</label><div class="row" id="muKind"></div></div>
+          <div class="field"><label>Length <span class="hint" id="muLenVal"></span></label><input type="range" id="muLen" min="3" max="120" step="1" value="30"/></div>
+        </div>
+      </div>
+      <div class="row" id="muPresets" style="gap:6px;flex-wrap:wrap;margin-bottom:10px"></div>
+      <div class="row"><button class="btn btn-primary" id="muGo">${icon("i-voice")} Generate</button><span class="muted mono" id="muMsg"></span></div>
+      <div id="muRun" style="margin-top:12px"></div>
+    </div>
+    <div class="divider"></div>
+    <div class="section-title">This video's background</div>
+    <div id="muCurrent" style="margin-bottom:6px"></div>
+    <div class="divider"></div>
+    <div class="section-title">Library</div>
+    <div class="scene-list" id="muLib"></div>`;
+
+  const sel = { kind: "music", seconds: 30 };
+  let data = { library: [], presets: [], status: {} };
+  try { data = await api.get("/api/music"); } catch (e) { }
+
+  function meta() {
+    const s = data.status || {};
+    let label = "not installed", cls = "";
+    if (s.available && s.loaded) { label = "ready · " + (s.model || ""); cls = "good"; }
+    else if (s.available && s.loading) { label = "loading…"; cls = "teal"; }
+    else if (s.available && s.model_ready) { label = "model ready"; cls = "teal"; }
+    else if (s.available) { label = "needs download"; cls = ""; }
+    $("#muMeta", card).innerHTML = `<span class="badge ${cls}">${esc(label)}</span>`;
+  }
+  function setup() {
+    const s = data.status || {}; const host = $("#muSetup", card); host.innerHTML = "";
+    const gen = $("#muGen", card);
+    if (!s.available) {
+      host.innerHTML = `<div class="muted" style="padding:8px 2px">ACE-Step isn't installed yet (its isolated venv is still being set up). Check back once setup finishes.</div>`;
+      gen.hidden = true; return;
+    }
+    if (!s.model_ready && !s.loaded) {
+      const b = el("button", "btn btn-primary", `${icon("i-download")} Download music model (~9 GB, one-time)`);
+      const msg = el("span", "muted mono"); msg.style.marginLeft = "10px";
+      b.onclick = async () => {
+        b.disabled = true;
+        try {
+          const { job_id } = await api.post("/api/music/download", {});
+          await pollJob(job_id, j => { msg.textContent = j.stage + " " + Math.round((j.progress || 0) * 100) + "%"; });
+          data = await api.get("/api/music"); meta(); setup();
+          toast("Music model ready");
+        } catch (e) { b.disabled = false; msg.textContent = ""; toast(e.message, "err"); }
+      };
+      host.append(b, msg); gen.hidden = true; return;
+    }
+    gen.hidden = false;
+  }
+  function drawKind() {
+    const k = $("#muKind", card); k.innerHTML = "";
+    [["music", "Music bed"], ["sfx", "Sound effect"]].forEach(([v, lab]) => {
+      const b = el("button", "btn btn-sm " + (sel.kind === v ? "btn-primary" : "btn-ghost"), lab);
+      b.onclick = () => { sel.kind = v; if (v === "sfx" && sel.seconds > 10) { sel.seconds = 5; $("#muLen", card).value = 5; lenVal(); } drawKind(); };
+      k.appendChild(b);
+    });
+  }
+  const lenVal = () => { sel.seconds = +$("#muLen", card).value; $("#muLenVal", card).textContent = sel.seconds + "s"; };
+  function drawPresets() {
+    const host = $("#muPresets", card); host.innerHTML = "";
+    (data.presets || []).forEach(pr => {
+      const b = el("button", "btn btn-sm btn-ghost", esc(pr.name));
+      b.title = pr.prompt;
+      b.onclick = () => { $("#muPrompt", card).value = pr.prompt; sel.kind = pr.kind || "music"; sel.seconds = pr.seconds || (sel.kind === "sfx" ? 5 : 30); $("#muLen", card).value = sel.seconds; lenVal(); drawKind(); };
+      host.appendChild(b);
+    });
+  }
+  function current() {
+    const host = $("#muCurrent", card); host.innerHTML = "";
+    const m = (state.project.settings && state.project.settings.music) || null;
+    if (!m || !m.file) { host.innerHTML = `<div class="muted" style="padding:4px 2px">No background music set — generate one below and click “Use as background”.</div>`; return; }
+    const row = el("div", "scene-row"); row.style.gridTemplateColumns = "1fr auto";
+    row.innerHTML = `
+      <div class="scene-body">
+        <div class="narr">${esc(m.prompt || m.file)}</div>
+        <div class="sub" style="align-items:center;gap:10px"><span>volume</span><input type="range" id="muVol" min="0" max="0.6" step="0.02" value="${m.volume != null ? m.volume : 0.18}" style="max-width:160px"/><span class="mono" id="muVolVal"></span></div>
+        <audio controls preload="none" src="/music/${m.file}" style="height:34px;width:100%;max-width:440px;margin-top:6px"></audio>
+      </div>
+      <div class="scene-meta"><button class="btn btn-sm btn-ghost" id="muClear">${icon("i-x")} Remove</button></div>`;
+    host.appendChild(row);
+    const vv = () => $("#muVolVal", card).textContent = (+$("#muVol", card).value).toFixed(2);
+    vv();
+    $("#muVol", card).oninput = () => { bgAudio.volume = clamp(+$("#muVol", card).value, 0, 1); vv(); };
+    $("#muVol", card).onchange = () => setBg(m.file, m.id, m.prompt, +$("#muVol", card).value);
+    $("#muClear", card).onclick = () => setBg(null);
+  }
+  async function setBg(file, id, prompt, volume) {
+    try {
+      const body = file ? { file, id, prompt, volume: volume != null ? volume : 0.18 } : { file: null };
+      const settings = await api.put(`/api/projects/${state.project.id}/music`, body);
+      state.project.settings = settings;
+      if (file) { bgAudio.src = `/music/${file}`; bgAudio.volume = clamp(volume != null ? volume : 0.18, 0, 1); }
+      else { bgAudio.removeAttribute("src"); bgAudio.load(); }
+      current();
+      toast(file ? "Background music set" : "Background removed");
+    } catch (e) { toast(e.message, "err"); }
+  }
+  function library() {
+    const host = $("#muLib", card); host.innerHTML = "";
+    if (!data.library.length) { host.innerHTML = `<div class="muted" style="padding:8px 2px">No clips yet — generate one above.</div>`; return; }
+    data.library.forEach(it => {
+      const f = (it.files || {}).mp3 || (it.files || {}).wav; if (!f) return;
+      const row = el("div", "scene-row"); row.style.gridTemplateColumns = "1fr auto";
+      row.innerHTML = `
+        <div class="scene-body">
+          <div class="narr">${esc(it.prompt || "clip")}</div>
+          <div class="sub"><span class="badge ${it.kind === "sfx" ? "" : "teal"}">${esc(it.kind || "music")}</span>${it.duration ? `<span>${fmtClock(it.duration)}</span>` : ""}<span>${fmtAgo(it.created)}</span></div>
+          <audio controls preload="none" src="/music/${f}" style="height:34px;width:100%;max-width:440px;margin-top:6px"></audio>
+        </div>
+        <div class="scene-meta">
+          <button class="btn btn-sm btn-ghost muUse">${icon("i-check")} Use as background</button>
+          <a class="btn-icon" href="/music/${f}" download title="Download">${icon("i-download")}</a>
+          <button class="btn-icon btn-danger muDel" title="Delete">${icon("i-trash")}</button>
+        </div>`;
+      $(".muUse", row).onclick = () => setBg(f, it.id, it.prompt, ((state.project.settings || {}).music || {}).volume);
+      $(".muDel", row).onclick = async () => { try { await api.del(`/api/music/${it.id}`); data.library = data.library.filter(x => x.id !== it.id); library(); toast("Deleted"); } catch (e) { toast(e.message, "err"); } };
+      host.appendChild(row);
+    });
+  }
+
+  async function runGen() {
+    const prompt = $("#muPrompt", card).value.trim();
+    if (!prompt) { toast("Describe the music or sound first.", "err"); return; }
+    const runEl = $("#muRun", card), btn = $("#muGo", card);
+    btn.disabled = true;
+    runEl.innerHTML = `<div class="run-panel"><div class="spinner"></div><div style="flex:1"><div class="lab" id="muStage">Starting…</div><div class="progress" style="margin-top:8px"><div class="bar" id="muBar"></div></div></div></div>`;
+    try {
+      const { job_id } = await api.post("/api/music", { prompt, kind: sel.kind, seconds: sel.seconds, instrumental: true });
+      const res = await pollJob(job_id, j => { const st = $("#muStage", card); if (st) st.textContent = j.stage; const b = $("#muBar", card); if (b) b.style.width = Math.round((j.progress || 0) * 100) + "%"; });
+      runEl.innerHTML = "";
+      data = await api.get("/api/music"); meta(); library();
+      toast("Clip generated");
+      if (res.item) { const f = (res.item.files || {}).mp3 || (res.item.files || {}).wav; if (f) new Audio(`/music/${f}`).play().catch(() => { }); }
+    } catch (e) { runEl.innerHTML = ""; toast(e.message, "err"); }
+    finally { btn.disabled = false; }
+  }
+
+  meta(); setup(); drawKind(); lenVal(); drawPresets(); current(); library();
+  $("#muLen", card).oninput = lenVal;
+  $("#muGo", card).onclick = runGen;
+  return card;
 }
 async function renderHistory(host) {
   topbar("History", "Every voiceover, image batch and assembled video");
@@ -1515,6 +1676,62 @@ async function renderTraining(host) {
     page.appendChild(head);
     $("#trRefresh", page).onclick = load;
 
+    // --- Build a LoRA dataset from a project's scenes (caption generator) ---
+    const projs = state.projects || [];
+    const CAP_FIELDS = [["trigger", "trigger"], ["style", "style"], ["camera", "camera/shot"], ["characters", "characters"], ["emotion", "emotion"], ["action", "pose/action"], ["subject", "subject"], ["act", "act"], ["on_screen_text", "on-screen text"]];
+    const capDef = { trigger: true, style: false, camera: true, act: false, characters: true, emotion: true, action: true, subject: true, on_screen_text: false };
+    const dsb = el("div", "card"); dsb.style.marginTop = "16px";
+    dsb.innerHTML = `
+      <h2 class="mb0">Build a dataset from your scenes <span class="hint">(JSON → captions)</span></h2>
+      <p class="desc">Turn a project's rendered scenes into a trainer-ready dataset. Each image gets a <b>.txt caption generated from its scene metadata</b> (camera, character emotion/action, subject) plus a rich <b>.json scene graph</b> kept as the source of truth — so you can re-caption everything in seconds by changing the template, no relabeling.</p>
+      <div class="grid2">
+        <div class="field"><label>From project</label><select id="dsbProj">${projs.map(p => `<option value="${p.id}">${esc(p.name)} · ${p.image_done || 0}/${p.scenes} images</option>`).join("") || `<option value="">— no projects —</option>`}</select></div>
+        <div class="field"><label>Base model</label><select id="dsbBase"><option value="krea2">krea2</option><option value="sdxl">sdxl</option><option value="flux">flux</option><option value="sd15">sd15</option></select></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>Dataset name</label><input id="dsbName" placeholder="e.g. my-style"/></div>
+        <div class="field"><label>Trigger word <span class="hint">(absorbs the look)</span></label><input id="dsbTrig" placeholder="e.g. mychannel"/></div>
+      </div>
+      <div class="field"><label>Caption template <span class="hint">(toggle what the LoRA learns)</span></label><div class="row" id="dsbOpts" style="gap:14px;flex-wrap:wrap"></div></div>
+      <div class="field"><label>Preview</label><div id="dsbPreview" class="mono" style="font-size:12px;white-space:pre-wrap;background:#11100d;color:#d8d2c4;padding:10px;border-radius:8px;min-height:40px"></div></div>
+      <div class="row"><button class="btn btn-ghost btn-sm" id="dsbPrev">${icon("i-refresh")} Preview</button><button class="btn btn-primary" id="dsbBuild">${icon("i-plus")} Build dataset</button><button class="btn btn-ghost btn-sm" id="dsbRecap">${icon("i-refresh")} Recaption existing</button><span class="muted mono" id="dsbMsg"></span></div>`;
+    page.appendChild(dsb);
+    const optsEl = $("#dsbOpts", page);
+    CAP_FIELDS.forEach(([k, lab]) => {
+      const w = el("label", "switch"); w.style.fontSize = "13px";
+      w.innerHTML = `<input type="checkbox" id="dsbOpt_${k}" ${capDef[k] ? "checked" : ""}/><span class="track"></span> ${lab}`;
+      optsEl.appendChild(w);
+    });
+    const readOpts = () => { const o = {}; CAP_FIELDS.forEach(([k]) => o[k] = $("#dsbOpt_" + k, page).checked); return o; };
+    async function dsbPreview() {
+      const pid = $("#dsbProj", page).value; if (!pid) { $("#dsbPreview", page).textContent = "(no project)"; return; }
+      try {
+        const { samples } = await api.post(`/api/projects/${pid}/captions/preview`, { trigger: $("#dsbTrig", page).value.trim(), opts: readOpts() });
+        $("#dsbPreview", page).textContent = (samples || []).map(s => `scene ${s.scene}: ${s.caption}`).join("\n") || "(render some scene images first)";
+      } catch (e) { $("#dsbPreview", page).textContent = e.message; }
+    }
+    $("#dsbPrev", page).onclick = dsbPreview;
+    $("#dsbBuild", page).onclick = async () => {
+      const pid = $("#dsbProj", page).value, name = $("#dsbName", page).value.trim();
+      if (!pid || !name) { toast("Pick a project and a dataset name.", "err"); return; }
+      const b = $("#dsbBuild", page); b.disabled = true; $("#dsbMsg", page).textContent = "building…";
+      try {
+        const r = await api.post("/api/training/dataset/from_scenes", { pid, base: $("#dsbBase", page).value, name, trigger: $("#dsbTrig", page).value.trim(), opts: readOpts() });
+        $("#dsbMsg", page).textContent = ""; toast(`Built ${r.images} image/caption pairs → ${r.base}/${r.name}`); load();
+      } catch (e) { $("#dsbMsg", page).textContent = ""; toast(e.message, "err"); } finally { b.disabled = false; }
+    };
+    $("#dsbRecap", page).onclick = async () => {
+      const name = $("#dsbName", page).value.trim(); if (!name) { toast("Enter the dataset name to recaption.", "err"); return; }
+      try {
+        const r = await api.post("/api/training/dataset/recaption", { base: $("#dsbBase", page).value, name, trigger: $("#dsbTrig", page).value.trim(), opts: readOpts() });
+        toast(`Recaptioned ${r.recaptioned} images in seconds`);
+        if (r.samples && r.samples.length) $("#dsbPreview", page).textContent = r.samples.map((c, i) => `#${i + 1}: ${c}`).join("\n");
+      } catch (e) { toast(e.message, "err"); }
+    };
+    CAP_FIELDS.forEach(([k]) => $("#dsbOpt_" + k, page).onchange = dsbPreview);
+    $("#dsbProj", page).onchange = dsbPreview; $("#dsbTrig", page).oninput = dsbPreview;
+    dsbPreview();
+
     const colab = el("div", "card"); colab.style.marginTop = "16px";
     colab.innerHTML = `
       <div class="spread"><h2 class="mb0">Train on Google Colab</h2><span class="badge gold">A100 · ~30 min · fastest</span></div>
@@ -1638,6 +1855,15 @@ async function renderTranscribe(host) {
       <option value="1.1">Brisk</option>
       <option value="1.2">🐇 Fast</option>
     </select></div>
+    <div class="row" style="gap:16px;align-items:center;margin-bottom:14px;flex-wrap:wrap">
+      <label class="switch"><input type="checkbox" id="tsFilter"/><span class="track"></span> Voice filter <span class="hint">(humanize — real mic/room character, removes synthetic tells)</span></label>
+      <select id="tsFilterPreset" style="max-width:170px" disabled>
+        <option value="natural" selected>Natural (recommended)</option>
+        <option value="minimal">Minimal</option>
+        <option value="balanced">Balanced</option>
+        <option value="heavy">Heavy</option>
+      </select>
+    </div>
     <div class="field"><label>Script</label><textarea id="tsText" rows="8" placeholder="Paste your script here…"></textarea></div>
     <div class="row" style="margin-top:14px">
       <button class="btn btn-primary" id="tsGen">${icon("i-voice")} Generate voice</button>
@@ -1649,7 +1875,16 @@ async function renderTranscribe(host) {
   const tcard = el("div", "card"); tcard.style.marginTop = "16px";
   tcard.innerHTML = `
     <div class="spread"><h2 class="mb0">Timestamps</h2><div class="row" id="tsMeta"></div></div>
-    <p class="desc">Each sentence becomes a block with an accurate <b>start</b>/<b>end</b>, anchored to your script. Copy the JSON or download it.</p>
+    <p class="desc">Each block gets an accurate <b>start</b>/<b>end</b>, anchored to your script. Copy the JSON or download it.</p>
+    <div class="row" style="align-items:center;gap:10px;margin-bottom:12px">
+      <label class="muted" for="tsSplit" style="white-space:nowrap">Split by</label>
+      <select id="tsSplit" style="max-width:230px">
+        <option value="sentence" selected>Sentences (standard)</option>
+        <option value="comma">Commas (clause-level)</option>
+        <option value="phrase">Phrases (finer)</option>
+        <option value="tight">Tight (~3-4 words)</option>
+      </select>
+    </div>
     <div class="row" id="tsTrActions"></div>
     <div id="tsRun" style="margin-top:14px"></div>
     <div id="tsJsonWrap" style="margin-top:14px" hidden>
@@ -1703,6 +1938,7 @@ async function renderTranscribe(host) {
     b.onclick = () => { const inp = $("#tsInstruct", page); inp.value = text; sel.instruct = text; inp.focus(); };
     stylesEl.appendChild(b);
   });
+  $("#tsFilter", page).onchange = e => { $("#tsFilterPreset", page).disabled = !e.target.checked; };
 
   const meta = state.status.transcribe || {};
   $("#tsMeta", page).innerHTML =
@@ -1725,7 +1961,8 @@ async function renderTranscribe(host) {
     const msg = $("#tsGenMsg", page); const btn = $("#tsGen", page);
     const [mode, id] = sel.value.split(":");
     const speed = parseFloat($("#tsPace", page).value) || 1;
-    const body = { mode, text, language: sel.language, instruct: sel.instruct || null, format: "wav", loudnorm: false, speed };
+    const filterOn = $("#tsFilter", page).checked;
+    const body = { mode, text, language: sel.language, instruct: sel.instruct || null, format: "wav", loudnorm: false, speed, humanize: filterOn ? { preset: $("#tsFilterPreset", page).value || "natural" } : null };
     if (mode === "clone") body.voice_id = id; else body.speaker = id;
     btn.disabled = true; msg.textContent = "synthesizing…";
     try {
@@ -1764,7 +2001,8 @@ async function renderTranscribe(host) {
     const runEl = $("#tsRun", page);
     runEl.innerHTML = `<div class="run-panel"><div class="spinner"></div><div style="flex:1"><div class="lab" id="tsStage">Starting…</div><div class="progress" style="margin-top:8px"><div class="bar" id="tsBar"></div></div></div></div>`;
     try {
-      const { job_id } = await api.post("/api/transcribe", { file: generatedFile, text, language: sel.language, item_id: currentItemId });
+      const split = ($("#tsSplit", page) || {}).value || "sentence";
+      const { job_id } = await api.post("/api/transcribe", { file: generatedFile, text, language: sel.language, item_id: currentItemId, split });
       const res = await pollJob(job_id, j => { const st = $("#tsStage", page); if (st) st.textContent = j.stage; const b = $("#tsBar", page); if (b) b.style.width = Math.round((j.progress || 0) * 100) + "%"; });
       lastTranscript = res.transcript;
       runEl.innerHTML = "";
@@ -1842,11 +2080,104 @@ async function renderTranscribe(host) {
   loadSaved();
 }
 
+/* ============================================================
+   PAGE: CHARACTERS  (character bible — consistent recurring characters)
+   ============================================================ */
+async function renderCharacters(host) {
+  const p = state.project; if (!p) { location.hash = "#/projects"; return; }
+  topbar(p.name, "Character bible · consistent recurring characters",
+    `<button class="btn btn-ghost" onclick="location.hash='#/p/${p.id}/storyboard'">${icon("i-back")} Storyboard</button>
+     <button class="btn btn-primary" onclick="location.hash='#/p/${p.id}/images'">${icon("i-image")} Images →</button>`);
+  const page = el("div", "page page-wide");
+
+  let data = { characters: [], image: {} };
+  try { data = await api.get(`/api/projects/${p.id}/characters`); } catch (e) { }
+
+  const top = el("div", "card");
+  top.innerHTML = `
+    <h2>Character bible</h2>
+    <p class="desc">Define each recurring character once, then generate a <b>reference sheet</b> (angles + expressions). When a scene features a character, the app feeds that sheet to IP-Adapter so they stay <b>on-model</b> across the whole video. Sheets render with the <b>Cartoon (SDXL · RAG)</b> model.</p>
+    <div class="row" id="chSeedRow" style="margin-bottom:12px"></div>
+    <div class="divider"></div>
+    <div class="grid2">
+      <div class="field"><label>Name</label><input id="chName" placeholder="e.g. Otto the banker"/></div>
+      <div class="field"><label>Palette <span class="hint">(optional)</span></label><input id="chPalette" placeholder="e.g. navy suit, grey hair, red tie"/></div>
+    </div>
+    <div class="field"><label>Description <span class="hint">(the fixed look)</span></label><textarea id="chDesc" rows="2" placeholder="e.g. a short round middle-aged man, bald with a grey moustache, navy pinstripe suit"></textarea></div>
+    <div class="row"><button class="btn btn-primary" id="chAdd">${icon("i-plus")} Add character</button></div>`;
+  page.appendChild(top);
+
+  const listCard = el("div", "card"); listCard.style.marginTop = "16px";
+  listCard.innerHTML = `<div class="section-title">Characters</div><div id="chList"></div>`;
+  page.appendChild(listCard);
+  host.appendChild(page);
+
+  function drawSeed() {
+    const r = $("#chSeedRow", page); r.innerHTML = "";
+    const b = el("button", "btn btn-ghost btn-sm", "Seed from storyboard's character bible");
+    b.onclick = async () => {
+      try { const { added } = await api.post(`/api/projects/${p.id}/characters/seed`, {}); toast(added ? `Added ${added} character(s)` : "No character bible found in the storyboard"); await reload(); }
+      catch (e) { toast(e.message, "err"); }
+    };
+    r.appendChild(b);
+  }
+
+  function drawList() {
+    const wrap = $("#chList", page); wrap.innerHTML = "";
+    if (!data.characters.length) { wrap.innerHTML = `<div class="muted" style="padding:8px 2px">No characters yet — add one above, or seed from the storyboard.</div>`; return; }
+    data.characters.forEach(c => {
+      const card = el("div", "card"); card.style.cssText = "margin:10px 0;background:rgba(255,255,255,.02)";
+      const sheet = (c.sheet || []).map(s => `<figure style="margin:0;text-align:center"><img src="${s.url}" loading="lazy" style="width:92px;height:112px;object-fit:cover;border-radius:8px;background:#15140f;border:1px solid rgba(255,255,255,.06)"/><figcaption class="muted" style="font-size:11px;margin-top:3px">${esc(s.label)}</figcaption></figure>`).join("");
+      const badge = c.status === "ready" ? `<span class="badge good">${(c.sheet || []).length} refs</span>`
+        : c.status === "generating" ? `<span class="badge teal">generating…</span>` : `<span class="badge">no sheet</span>`;
+      card.innerHTML = `
+        <div class="spread"><div><b style="font-size:16px">${esc(c.name)}</b> ${badge}</div>
+          <div class="row">
+            <button class="btn btn-sm btn-primary chGen">${icon("i-wand")} ${(c.sheet || []).length ? "Regenerate" : "Generate"} sheet</button>
+            <button class="btn-icon btn-danger chDel" title="Delete character">${icon("i-trash")}</button>
+          </div></div>
+        <div class="muted" style="margin:6px 0 4px">${esc(c.description || "(no description yet — edit below)")}${c.palette ? ` · ${esc(c.palette)}` : ""}</div>
+        <div class="chRun"></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">${sheet || `<span class="muted">No reference sheet yet — click Generate to draw angles + expressions.</span>`}</div>`;
+      $(".chGen", card).onclick = () => genSheet(c, card);
+      $(".chDel", card).onclick = async () => {
+        if (!await confirmModal("Delete character?", `Remove <b>${esc(c.name)}</b> and its reference sheet?`)) return;
+        try { await api.del(`/api/projects/${p.id}/characters/${c.id}`); await reload(); toast("Deleted"); } catch (e) { toast(e.message, "err"); }
+      };
+      wrap.appendChild(card);
+    });
+  }
+
+  async function genSheet(c, card) {
+    const runEl = $(".chRun", card);
+    runEl.innerHTML = `<div class="run-panel"><div class="spinner"></div><div style="flex:1"><div class="lab chStage">Starting… (first run loads the cartoon model)</div><div class="progress" style="margin-top:8px"><div class="bar chBar"></div></div></div></div>`;
+    try {
+      const { job_id } = await api.post(`/api/projects/${p.id}/characters/${c.id}/sheet`, {});
+      await pollJob(job_id, j => { const st = $(".chStage", card); if (st) st.textContent = j.stage; const b = $(".chBar", card); if (b) b.style.width = Math.round((j.progress || 0) * 100) + "%"; });
+      await reload(); toast(`${c.name}'s reference sheet is ready`);
+    } catch (e) { runEl.innerHTML = ""; toast(e.message, "err"); }
+  }
+
+  $("#chAdd", page).onclick = async () => {
+    const name = $("#chName", page).value.trim();
+    if (!name) { toast("Give the character a name.", "err"); return; }
+    try {
+      await api.post(`/api/projects/${p.id}/characters`, { name, description: $("#chDesc", page).value.trim(), palette: $("#chPalette", page).value.trim() });
+      $("#chName", page).value = ""; $("#chDesc", page).value = ""; $("#chPalette", page).value = "";
+      await reload(); toast("Character added");
+    } catch (e) { toast(e.message, "err"); }
+  };
+
+  async function reload() { try { data = await api.get(`/api/projects/${p.id}/characters`); } catch (e) { } drawList(); }
+  drawSeed(); drawList();
+}
+
 const Pages = {
-  projects: renderProjects, storyboard: renderStoryboard, voiceover: renderVoiceover,
-  images: renderImages, animate: renderAnimate, assemble: renderAssemble, preview: renderPreview,
-  history: renderHistory, voices: renderVoiceLab, transcribe: renderTranscribe,
-  training: renderTraining, settings: renderSettings,
+  projects: renderProjects, storyboard: renderStoryboard, characters: renderCharacters,
+  voiceover: renderVoiceover, images: renderImages, animate: renderAnimate,
+  assemble: renderAssemble, preview: renderPreview, history: renderHistory,
+  voices: renderVoiceLab, transcribe: renderTranscribe, training: renderTraining,
+  settings: renderSettings,
 };
 
 /* ============================================================

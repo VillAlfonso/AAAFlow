@@ -77,6 +77,25 @@ def submit_tts(req: Dict) -> str:
         out = audio.export(stitched, sr, basename, loudnorm=loudnorm,
                            loudnorm_i=loudnorm_i, fmt=fmt, speed=speed)
 
+        # Voice filter ("humanizer") — runs right after the record to lay down the
+        # real-mic/real-room/analog character synthetic TTS lacks. Becomes the
+        # delivered file, so any later transcription times the *filtered* audio.
+        filt = req.get("humanize")
+        humanized = False
+        if filt and not is_preview:
+            progress("Applying voice filter…", 0.95)
+            src = out["files"].get("wav") or out["files"].get("mp3")
+            hp = filt if isinstance(filt, dict) else {"preset": "natural"}
+            hout = humanize.process(str(config.OUTPUTS_DIR / src), hp,
+                                    _basename("filtered"))
+            for f in out["files"].values():       # drop the pre-filter file(s)
+                try:
+                    (config.OUTPUTS_DIR / f).unlink()
+                except OSError:
+                    pass
+            out = {"files": hout["files"], "duration": hout["duration"]}
+            humanized = True
+
         entry = {
             "id": storage.new_id(),
             "created": time.time(),
@@ -87,6 +106,7 @@ def submit_tts(req: Dict) -> str:
             "chunks": len(chunks),
             "duration": out["duration"],
             "files": out["files"],
+            "humanized": humanized,
             "text": text,                 # full script (lets a saved clip be reloaded + re-transcribed)
             "text_preview": text[:160],
             **meta,

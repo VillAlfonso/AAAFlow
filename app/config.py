@@ -180,81 +180,14 @@ KREA2_STYLE_CHAR_CLAUSE = (
     "shapes conveying real emotion; "
 )
 
-# --- LTX-2 video animation (still -> short clip, via ComfyUI) ---------------
-# Animates a generated scene still into a short clip when the storyboard scene
-# declares motion (its ``motion_prompt`` / ``motion_type``). This drives the same
-# ComfyUI instance as krea2, using the model set that ComfyUI's bundled
-# "Image to Video (LTX-2.3)" blueprint expects — the gemma text encoder is shared
-# with that blueprint (already downloaded). Video-only: the narration still comes
-# from Qwen3-TTS, so LTX's own audio branch is skipped. LTX-2 is heavy on a 16 GB
-# GPU, so animation is opt-in per scene (animate hero / "transform" scenes only).
-LTX2 = {
-    # The 19B "dev" fp4 build is a *fused* checkpoint (DiT + VAE + audio_vae +
-    # text_embedding_projection) and is the largest LTX-2 that runs on a 16 GB card.
-    # It lives in ComfyUI/models/checkpoints/ so CheckpointLoaderSimple (model+VAE) and
-    # LTXAVTextEncoderLoader (gemma + this ckpt for the projection/tokenizer) can use it.
-    "checkpoint": "ltx-2-19b-dev-fp4.safetensors",             # models/checkpoints (fused)
-    "text_encoder": "gemma_3_12B_it_fp4_mixed.safetensors",    # models/text_encoders
-    # Optional: the official 19B recipe applies this distilled LoRA (used when present
-    # in models/loras/). ~7.3 GB. fp8 ckpt is NOT used — 25 GB won't fit 16 GB.
-    "distilled_lora": "ltx-2-19b-distilled-lora-384.safetensors",
-    "lora_strength": 1.0,
-    # generation defaults (kept modest to fit 16 GB)
-    "width": 768, "height": 512,
-    "fps": 12,                     # "on twos" cartoon cadence — hand-drawn feel, not smooth-AI; fewer frames
-    "default_seconds": 1.5,        # short clips: drift never accumulates -> stays on-model
-    "max_seconds": 6.0,            # cap (LTX cost scales hard with length)
-    "steps": 20,                   # matches the official 19B LTXVScheduler
-    "guidance": 3.0,               # cfg 3 (official 19B stage-1)
-    "sampler": "euler",
-    # LTXVScheduler (sigma schedule for the dev model)
-    "max_shift": 2.05, "base_shift": 0.95, "terminal": 0.1,
-    "image_strength": 1.0,         # 1.0 = first frame locked to the still
-    "end_strength": 0.85,          # last-frame guide strength (transform scenes)
-    # Global style appended to EVERY clip's prompt — anchors LTX to the flat-cartoon
-    # look so it animates the drawing instead of repainting it into melty realism.
-    # Per LTX's own 2D-animation prompting guide: LEAD with the style declaration,
-    # then the action, then explicit negations. style_lead is prepended; style_tail
-    # appended (the "no gradients, no shadows" negation is what holds the flat look).
-    "style_lead": "Flat vector illustration style, 2D motion graphics cartoon.",
-    "style_tail": (
-        "Clean bold black outlines define every shape. Solid color fills, no "
-        "gradients, no shadows, no shading. Flat background, minimalist design, "
-        "hand-drawn 2D cartoon. The art style stays exactly the same, characters "
-        "on-model, crisp consistent linework. No realism, no 3D, no texture."
-    ),
-    "negative": (
-        "realistic, photorealistic, 3d, render, cgi, painterly, oil painting, "
-        "watercolor, textured, grainy, noisy, smeared, melting, melted face, "
-        "distorted face, deformed, mutated, warping, morphing, boiling lines, "
-        "shimmering, wobbling outlines, jitter, flickering, blurry outlines, "
-        "sketchy lines, semi-realistic, uncanny, extra limbs, messy, low quality, "
-        "jpeg artifacts, watermark, text"
-    ),
-    # Style-agnostic motion-quality negatives, combined with the *project's* own
-    # global negative when its storyboard declares a style (the full "negative"
-    # above bans 3D/render/realism, which would fight non-cartoon projects).
-    "negative_motion": (
-        "smeared, melting, melted face, distorted face, deformed, mutated, "
-        "warping, morphing, boiling lines, shimmering, wobbling outlines, jitter, "
-        "flickering, blurry, uncanny, extra limbs, messy, low quality, jpeg "
-        "artifacts, watermark, text"
-    ),
-}
-# Weights the animate stage needs. url -> ComfyUI/models/<subdir>. Both are usually
-# already present; the in-app download job skips files that match the HF size.
-LTX2_DOWNLOADS = [
-    ("checkpoints", "ltx-2-19b-dev-fp4.safetensors",
-     "https://huggingface.co/Lightricks/LTX-2/resolve/main/ltx-2-19b-dev-fp4.safetensors"),
-    ("text_encoders", "gemma_3_12B_it_fp4_mixed.safetensors",
-     "https://huggingface.co/Comfy-Org/ltx-2/resolve/main/split_files/text_encoders/gemma_3_12B_it_fp4_mixed.safetensors"),
-]
-
-
-# --- Wan 2.2 14B (image->video, via ComfyUI) --------------------------------
+# --- Wan 2.2 14B (image->video, via ComfyUI) — THE animation engine ---------
 # Best open video model; MoE = two 14B fp8 experts (high/low noise), each with a
-# 4-step lightx2v LoRA so it runs on 16 GB (experts load one at a time, only 4 steps).
-# Recipe from ComfyUI's bundled "Image to Video (Wan 2.2)" blueprint.
+# 4-step lightx2v LoRA (the CausVid-style speed distill) so it runs on 16 GB
+# (experts load one at a time, only 4 steps). Recipe from ComfyUI's bundled
+# "Image to Video (Wan 2.2)" blueprint. Golden workflow: sharp krea2 init image
+# -> Wan at modest 832x480 -> enhance chain (interpolate to 30 fps + Real-ESRGAN
+# animevideov3 2x upscale) for crisp, mush-free lines. (LTX-2 was removed
+# 2026-07-03 — worse style-hold, 35 GB of weights.)
 WAN = {
     "high_noise": "wan2.2_i2v_high_noise_14B_fp8_scaled.safetensors",  # diffusion_models
     "low_noise": "wan2.2_i2v_low_noise_14B_fp8_scaled.safetensors",
@@ -264,12 +197,65 @@ WAN = {
     "lora_low": "wan2.2_i2v_lightx2v_4steps_lora_v1_low_noise.safetensors",
     "lora_strength": 1.0,
     "shift": 5.0,                  # ModelSamplingSD3
-    "steps": 4, "boundary": 2,     # 4 steps total; high-noise expert 0->2, low-noise 2->4
-    "cfg": 1.0, "sampler": "euler", "scheduler": "simple",
-    "width": 640, "height": 640, "fps": 16,
+    "sampler": "euler", "scheduler": "simple",
+    # Quality profiles (user rule: QUALITY OVER EVERYTHING — "max" is default;
+    # render time is explicitly not a concern on this machine):
+    #   max  = full base recipe: 20 steps, cfg 3.5, NO speed LoRAs, native 720p
+    #   fast = lightx2v 4-step distill at 832x480 (drafts / previews)
+    "quality_profiles": {
+        "max": {"steps": 20, "boundary": 10, "cfg": 3.5, "use_lora": False,
+                "width": 1280, "height": 720},
+        "fast": {"steps": 4, "boundary": 2, "cfg": 1.0, "use_lora": True,
+                 "width": 832, "height": 480},
+    },
+    "quality": "max",
+    "fps": 16,
     "default_seconds": 3.0, "max_seconds": 5.0,
     "negative": ("low quality, blurry, distorted, deformed, bad anatomy, jpeg "
                  "artifacts, watermark, text, oversaturated, extra limbs, messy"),
+    # Style-agnostic motion-quality negatives, combined with the *project's* own
+    # global negative when its storyboard declares a style.
+    "negative_motion": (
+        "smeared, melting, melted face, distorted face, deformed, mutated, "
+        "warping, morphing, boiling lines, shimmering, wobbling outlines, jitter, "
+        "flickering, blurry, uncanny, extra limbs, messy, low quality, jpeg "
+        "artifacts, watermark, text"
+    ),
+    # generic style-hold tail appended to every clip prompt (the project's own
+    # global style leads; see animate.py)
+    "style_tail": ("The art style stays exactly the same as the first frame "
+                   "throughout, consistent and on-model. No style change, no "
+                   "repainting."),
+}
+# repo, file-in-repo, ComfyUI models subdir, filename — for the in-app download job
+WAN_DOWNLOADS = [
+    ("Comfy-Org/Wan_2.2_ComfyUI_Repackaged",
+     "split_files/diffusion_models/wan2.2_i2v_high_noise_14B_fp8_scaled.safetensors",
+     "diffusion_models", WAN["high_noise"]),
+    ("Comfy-Org/Wan_2.2_ComfyUI_Repackaged",
+     "split_files/diffusion_models/wan2.2_i2v_low_noise_14B_fp8_scaled.safetensors",
+     "diffusion_models", WAN["low_noise"]),
+    ("Comfy-Org/Wan_2.2_ComfyUI_Repackaged",
+     "split_files/loras/wan2.2_i2v_lightx2v_4steps_lora_v1_high_noise.safetensors",
+     "loras", WAN["lora_high"]),
+    ("Comfy-Org/Wan_2.2_ComfyUI_Repackaged",
+     "split_files/loras/wan2.2_i2v_lightx2v_4steps_lora_v1_low_noise.safetensors",
+     "loras", WAN["lora_low"]),
+    ("Comfy-Org/Wan_2.1_ComfyUI_repackaged",
+     "split_files/text_encoders/umt5_xxl_fp8_e4m3fn_scaled.safetensors",
+     "text_encoders", WAN["text_encoder"]),
+    ("Comfy-Org/Wan_2.1_ComfyUI_repackaged",
+     "split_files/vae/wan_2.1_vae.safetensors", "vae", WAN["vae"]),
+]
+
+# --- clip enhance chain (anti-mush post-processing) --------------------------
+# Wan output (832x480@16) -> ffmpeg minterpolate to the assemble frame rate ->
+# Real-ESRGAN (realesr-animevideov3) 2x upscale = crisp re-sharpened linework.
+ENHANCE = {
+    "exe": BASE_DIR / "tools" / "realesrgan" / "realesrgan-ncnn-vulkan.exe",
+    "model": "realesr-animevideov3",
+    "scale": 2,
+    "fps": 30,
 }
 
 
@@ -284,22 +270,20 @@ def _big_enough(path: Path, min_bytes: int) -> bool:
         return False
 
 
-def ltx2_ready() -> bool:
-    """True when the fused LTX-2 19B checkpoint + gemma encoder are present (in full)."""
-    m = comfy_models_dir()
-    return (_big_enough(m / "checkpoints" / LTX2["checkpoint"], 8 * 1024**3)
-            and _big_enough(m / "text_encoders" / LTX2["text_encoder"], 1 * 1024**3))
-
-
 def wan_ready() -> bool:
     """True when the Wan 2.2 14B experts + encoder + VAE + lightx2v LoRAs are present."""
     m = comfy_models_dir()
-    return (_big_enough(m / "diffusion_models" / WAN["high_noise"], 8 * 1024**3)
-            and _big_enough(m / "diffusion_models" / WAN["low_noise"], 8 * 1024**3)
+    return (_big_enough(m / "diffusion_models" / WAN["high_noise"], 13 * 1024**3)
+            and _big_enough(m / "diffusion_models" / WAN["low_noise"], 13 * 1024**3)
             and _big_enough(m / "text_encoders" / WAN["text_encoder"], 1 * 1024**3)
             and _big_enough(m / "vae" / WAN["vae"], 50 * 1024**2)
             and _big_enough(m / "loras" / WAN["lora_high"], 50 * 1024**2)
             and _big_enough(m / "loras" / WAN["lora_low"], 50 * 1024**2))
+
+
+def enhance_ready() -> bool:
+    """True when the Real-ESRGAN anime upscaler binary is installed."""
+    return Path(ENHANCE["exe"]).exists()
 
 
 def music_env_ready() -> bool:

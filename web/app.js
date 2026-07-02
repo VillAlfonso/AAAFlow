@@ -232,11 +232,40 @@ async function renderProjects(host) {
         </div>
       </div>
     </div>
-    <div class="field" id="pVoiceoverWrap" style="margin-top:14px;display:none">
+    <div class="grid3" style="margin-top:14px">
+      <div class="field"><label>Image model</label><select id="pEngImg">
+        <option value="krea2">Krea-2 Turbo (ComfyUI)</option>
+        <option value="cartoon-rag">SDXL + reference RAG</option>
+        <option value="flux-schnell">FLUX.1 schnell</option>
+      </select></div>
+      <div class="field"><label>Animation</label><select id="pEngAnim">
+        <option value="wan">Wan 2.2 14B (max quality)</option>
+        <option value="wan-fast">Wan 2.2 — fast profile (drafts)</option>
+        <option value="none">None (parallax/stills only)</option>
+      </select></div>
+      <div class="field"><label>Editing style</label><select id="pEngPreset">
+        <option value="cinematic">Cinematic (clips + parallax + SFX)</option>
+        <option value="parallax-slides">Parallax slides</option>
+        <option value="dynamic-slides">Dynamic slides</option>
+        <option value="simple-slides">Simple slides</option>
+      </select></div>
+    </div>
+    <div class="field" id="pVoiceoverWrap" style="margin-top:6px;display:none">
       <label>Attach recorded voiceover <span class="hint">(optional — slices a saved recording into the scenes so the project imports already-voiced)</span></label>
       <select id="pVoiceover"><option value="">— none (voice it later) —</option></select>
     </div>`;
   page.appendChild(imp);
+
+  // per-project engine choices, sent with both create paths
+  window._projEngines = () => {
+    const anim = $("#pEngAnim", page).value;
+    return {
+      image_model: $("#pEngImg", page).value,
+      animate_engine: anim === "none" ? "none" : "wan",
+      quality: anim === "wan-fast" ? "fast" : "max",
+      preset: $("#pEngPreset", page).value,
+    };
+  };
 
   // list
   const listWrap = el("div", "card");
@@ -276,7 +305,7 @@ async function renderProjects(host) {
     const text = $("#pText", page).value.trim();
     if (!text) return toast("Paste some JSON or use the file picker.", "err");
     try {
-      const { project } = await api.post("/api/projects", { text, name: $("#pName", page).value.trim() || null });
+      const { project } = await api.post("/api/projects", { text, name: $("#pName", page).value.trim() || null, engines: window._projEngines ? window._projEngines() : null });
       await finishCreate(project);
     } catch (e) { toast(e.message, "err"); }
   };
@@ -305,6 +334,7 @@ async function renderProjects(host) {
 }
 async function uploadProject(file) {
   const fd = new FormData(); fd.append("file", file);
+  if (window._projEngines) fd.append("engines", JSON.stringify(window._projEngines()));
   try {
     const { project } = await api.form("/api/projects/upload", fd);
     await finishCreate(project);
@@ -1198,7 +1228,7 @@ async function quickImage(sid) {
   } catch (e) { toast(e.message, "err"); }
 }
 /* ============================================================
-   PAGE: ANIMATE  (LTX-2 image -> short clip)
+   PAGE: ANIMATE  (Wan 2.2 image -> short clip)
    ============================================================ */
 function animatableScenes() {
   return state.project.scenes.filter(s =>
@@ -1209,7 +1239,7 @@ function animatableScenes() {
 async function renderAnimate(host) {
   const p = state.project; if (!p) { location.hash = "#/projects"; return; }
   try { state.status = await api.get("/api/status"); } catch (e) { }
-  const ltx = (state.status && state.status.ltx) || { ready: false };
+  const wan = (state.status && state.status.wan) || { ready: false };
   const imgReady = p.scenes.filter(s => s.status.image === "ready").length;
   const vidReady = p.scenes.filter(s => s.status.video === "ready").length;
   const motion = animatableScenes();
@@ -1219,23 +1249,26 @@ async function renderAnimate(host) {
      <button class="btn btn-primary" onclick="location.hash='#/p/${p.id}/assemble'">${icon("i-assemble")} Assemble →</button>`);
   const page = el("div", "page page-wide"); page.innerHTML = stepper("animate");
 
-  const cfg = Object.assign({ engine: "ltx", seconds: 1.5, fps: 12, width: 768, height: 512, seed: 42, motion_prompt: "" }, p.settings.animate || {});
-  const wan = (state.status && state.status.wan) || { ready: false };
-  const ENGINE_DEFAULTS = { ltx: { fps: 12, width: 768, height: 512, seconds: 1.5 }, wan: { fps: 16, width: 640, height: 640, seconds: 3 } };
+  const cfg = Object.assign({ engine: "wan", quality: "max", enhance: true, seconds: 3, fps: 16, seed: 42, motion_prompt: "" }, p.settings.animate || {});
+  if (cfg.engine === "ltx") cfg.engine = "wan";   // LTX was removed 2026-07-03
 
   // --- model / readiness card ---
   const fileRow = (ok, label) => `<div class="row" style="gap:8px"><span class="badge ${ok ? "good" : ""}">${ok ? "✓" : "—"}</span><span class="${ok ? "" : "muted"}">${esc(label)}</span></div>`;
   const mcard = el("div", "card");
   mcard.innerHTML = `
-    <div class="spread"><h2 class="mb0">LTX-2 model</h2><span class="badge ${ltx.ready ? "good" : "teal"}">${ltx.ready ? "ready" : "weights missing"}</span></div>
-    <p class="desc">Animation turns each generated <b>still</b> into a short clip with <b>LTX-2</b> (image-to-video), through your local ComfyUI. It's heavy on a 16&nbsp;GB GPU, so only scenes whose storyboard declares motion (a <span class="mono">motion_prompt</span>, or <span class="mono">motion_type</span> = ambient/transform) are animated by default. <span class="mono">transform</span> scenes morph from the still to a krea2-rendered end frame.</p>
+    <div class="spread"><h2 class="mb0">Wan 2.2 14B</h2><span class="badge ${wan.ready ? "good" : "teal"}">${wan.ready ? "ready" : "weights missing"}</span></div>
+    <p class="desc">Animation turns each generated <b>still</b> into a short clip with <b>Wan 2.2</b> (image-to-video, two fp8 experts) through your local ComfyUI, then the <b>enhance chain</b> (motion interpolation + Real-ESRGAN anime upscale) sharpens the linework. Only scenes whose storyboard declares motion (a <span class="mono">motion_prompt</span>, or <span class="mono">motion_type</span> = ambient/transform) animate by default.</p>
     <div class="grid2" style="margin:10px 0">
-      ${fileRow(ltx.checkpoint, (ltx.files && ltx.files.checkpoint) || "LTX-2 19B checkpoint (fused)")}
-      ${fileRow(ltx.text_encoder, (ltx.files && ltx.files.text_encoder) || "gemma text encoder")}
+      ${fileRow(wan.high_noise, "high-noise expert (14B fp8)")}
+      ${fileRow(wan.low_noise, "low-noise expert (14B fp8)")}
+      ${fileRow(wan.text_encoder, "umt5 text encoder")}
+      ${fileRow(wan.vae, "Wan VAE")}
+      ${fileRow(wan.lora_high && wan.lora_low, "lightx2v 4-step LoRAs (fast profile)")}
+      ${fileRow(wan.enhance, "Real-ESRGAN upscaler (enhance chain)")}
     </div>
-    <div class="row" id="ltxDlRow" ${ltx.ready ? 'style="display:none"' : ""}>
-      <button class="btn btn-ghost" id="ltxDl">${icon("i-download")} Download LTX-2 weights</button>
-      <span class="muted" id="ltxDlMsg">LTX-2 19B (fp4, fits 16&nbsp;GB) + gemma encoder — downloads in-app.</span>
+    <div class="row" id="wanDlRow" ${wan.ready ? 'style="display:none"' : ""}>
+      <button class="btn btn-ghost" id="wanDl">${icon("i-download")} Download Wan 2.2 weights</button>
+      <span class="muted" id="wanDlMsg">Fetches only what's missing — resumable, headless.</span>
     </div>`;
   page.appendChild(mcard);
 
@@ -1243,16 +1276,18 @@ async function renderAnimate(host) {
   const scard = el("div", "card"); scard.style.marginTop = "16px";
   scard.innerHTML = `
     <h2>Motion settings</h2>
-    <div class="field"><label>Engine</label><select id="anEngine">
-      <option value="ltx" ${cfg.engine === "ltx" ? "selected" : ""}>LTX-2 19B ${ltx.ready ? "" : "(weights missing)"}</option>
-      <option value="wan" ${cfg.engine === "wan" ? "selected" : ""}>Wan 2.2 14B ${wan.ready ? "" : "(downloading / missing)"}</option>
-    </select><span class="hint">LTX = flat-cartoon (short clips); Wan = best quality, shines on claymation/semi-real</span></div>
+    <div class="grid2">
+      <div class="field"><label>Quality</label><select id="anQuality">
+        <option value="max" ${cfg.quality !== "fast" ? "selected" : ""}>Max — 20 steps · native 720p · no shortcuts (slow, best)</option>
+        <option value="fast" ${cfg.quality === "fast" ? "selected" : ""}>Fast — 4-step lightning · 480p (drafts)</option>
+      </select><span class="hint">Quality over everything: “Max” is the house default</span></div>
+      <div class="field" style="justify-content:flex-end"><label>&nbsp;</label>
+        <label class="switch"><input type="checkbox" id="anEnh" ${cfg.enhance !== false ? "checked" : ""}/><span class="track"></span> Enhance chain (interpolate + 2x sharpen)</label></div>
+    </div>
     <div class="grid3">
-      <div class="field"><label>Clip length (s)</label><input type="number" id="anSec" value="${cfg.seconds}" min="1" max="8" step="0.5"/></div>
-      <div class="field"><label>FPS</label><input type="number" id="anFps" value="${cfg.fps}" min="8" max="30"/></div>
+      <div class="field"><label>Clip length (s)</label><input type="number" id="anSec" value="${cfg.seconds}" min="1" max="5" step="0.5"/></div>
+      <div class="field"><label>FPS <span class="hint">(raw; enhance lifts to 30)</span></label><input type="number" id="anFps" value="${cfg.fps}" min="8" max="30"/></div>
       <div class="field"><label>Seed <span class="hint">(-1 random)</span></label><input type="number" id="anSeed" value="${cfg.seed}"/></div>
-      <div class="field"><label>Width</label><input type="number" id="anW" value="${cfg.width}" step="32"/></div>
-      <div class="field"><label>Height</label><input type="number" id="anH" value="${cfg.height}" step="32"/></div>
     </div>
     <div class="field"><label>Fallback motion <span class="hint">(used for scenes with no motion_prompt)</span></label>
       <input type="text" id="anMP" value="${esc(cfg.motion_prompt)}" placeholder="e.g. subtle ambient motion, slow drifting camera"/></div>`;
@@ -1273,24 +1308,19 @@ async function renderAnimate(host) {
   // wire settings
   const num = (id, k, f) => $(id, page).oninput = e => cfg[k] = f ? f(e.target.value) : +e.target.value;
   num("#anSec", "seconds"); num("#anFps", "fps"); num("#anSeed", "seed");
-  num("#anW", "width"); num("#anH", "height");
   $("#anMP", page).oninput = e => cfg.motion_prompt = e.target.value;
-  $("#anEngine", page).onchange = e => {
-    cfg.engine = e.target.value;
-    Object.assign(cfg, ENGINE_DEFAULTS[cfg.engine] || {});
-    $("#anSec", page).value = cfg.seconds; $("#anFps", page).value = cfg.fps;
-    $("#anW", page).value = cfg.width; $("#anH", page).value = cfg.height;
-  };
+  $("#anQuality", page).onchange = e => cfg.quality = e.target.value;
+  $("#anEnh", page).onchange = e => cfg.enhance = e.target.checked;
 
   // download (headless in-app job)
-  $("#ltxDl", page).onclick = async () => {
-    const btn = $("#ltxDl", page), msg = $("#ltxDlMsg", page);
+  $("#wanDl", page).onclick = async () => {
+    const btn = $("#wanDl", page), msg = $("#wanDlMsg", page);
     btn.disabled = true;
     try {
-      const { job_id } = await api.post("/api/ltx/download", {});
+      const { job_id } = await api.post("/api/wan/download", {});
       await pollJob(job_id, j => msg.textContent = `${j.stage} ${Math.round((j.progress || 0) * 100)}%`);
       msg.textContent = "weights ready ✓";
-      toast("LTX-2 weights ready");
+      toast("Wan 2.2 weights ready");
       render();
     } catch (e) { btn.disabled = false; msg.textContent = ""; toast(e.message, "err"); }
   };
@@ -1298,10 +1328,10 @@ async function renderAnimate(host) {
   function actions() {
     const a = $("#anActions", page); a.innerHTML = "";
     const gen = el("button", "btn btn-primary", `${icon("i-wand")} Animate motion scenes (${motion.length})`);
-    gen.disabled = !ltx.ready || motion.length === 0;
+    gen.disabled = !wan.ready || motion.length === 0;
     gen.onclick = () => runANI("motion");
     const all = el("button", "btn btn-ghost", `${icon("i-refresh")} Animate all stills (${imgReady})`);
-    all.disabled = !ltx.ready || imgReady === 0;
+    all.disabled = !wan.ready || imgReady === 0;
     all.onclick = () => runANI("all");
     const fill = el("button", "btn btn-ghost", `${icon("i-wand")} Auto-fill prompts`);
     fill.onclick = async () => {
@@ -1312,8 +1342,8 @@ async function renderAnimate(host) {
       } catch (e) { toast(e.message, "err"); }
     };
     a.append(gen, all, fill);
-    a.append(el("span", "muted", "Tip: click a scene to preview, edit its prompt, and re-animate. For all 162 at once, run animate_all.bat (its own terminal)."));
-    if (!ltx.ready) a.append(el("span", "muted", "Download the LTX-2 weights above to enable animation."));
+    a.append(el("span", "muted", "Tip: click a scene to preview, edit its prompt, and re-animate. On Max quality a clip can take a long while — that's the point."));
+    if (!wan.ready) a.append(el("span", "muted", "Download the Wan 2.2 weights above to enable animation."));
   }
   function drawGrid() {
     const grid = $("#anGrid", page); grid.innerHTML = "";
@@ -1355,8 +1385,8 @@ async function renderAnimate(host) {
 function openAnimScene(sid) {
   const p = state.project; if (!p) return;
   const s = p.scenes.find(x => String(x.id) === String(sid)); if (!s) return;
-  const ltxReady = !!(state.status && state.status.ltx && state.status.ltx.ready);
-  const a = Object.assign({ seconds: 4, fps: 25, width: 768, height: 512, seed: 42 }, p.settings.animate || {});
+  const wanReady = !!(state.status && state.status.wan && state.status.wan.ready);
+  const a = Object.assign({ seconds: 3, fps: 16, seed: 42, quality: "max", enhance: true }, p.settings.animate || {});
   const preview = s.video_file
     ? `<video src="${assetUrl(s.video_file, Date.now())}" controls loop autoplay muted playsinline style="width:100%;border-radius:10px;background:#000"></video>`
     : (s.image_file ? `<img src="${assetUrl(s.image_file, Date.now())}" style="width:100%;border-radius:10px"/>` : `<div class="ph">scene ${s.id}</div>`);
@@ -1373,14 +1403,14 @@ function openAnimScene(sid) {
       </select></div>
       <div class="field"><label>Clip length (s)</label><input type="number" id="asSec" value="${a.seconds}" min="1" max="8" step="0.5"/></div>
     </div>
-    <div class="field" id="asEndWrap" style="display:${mt === "transform" ? "" : "none"}"><label>End-frame prompt <span class="hint">(transform: krea2 renders this, LTX morphs to it)</span></label>
+    <div class="field" id="asEndWrap" style="display:${mt === "transform" ? "" : "none"}"><label>End-frame prompt <span class="hint">(reference note — Wan animates from the still)</span></label>
       <input type="text" id="asEnd" value="${esc(s.end_image_prompt || "")}" placeholder="e.g. the same scene but the chart has skyrocketed"/></div>
     <div id="asRun" style="margin:10px 0"></div>
     <div class="row row-end">
       <button class="btn btn-ghost" id="asSave">Save prompt</button>
-      <button class="btn btn-primary" id="asGo" ${ltxReady ? "" : "disabled"}>${icon("i-wand")} ${s.video_file ? "Re-animate" : "Animate"}</button>
+      <button class="btn btn-primary" id="asGo" ${wanReady ? "" : "disabled"}>${icon("i-wand")} ${s.video_file ? "Re-animate" : "Animate"}</button>
     </div>
-    ${ltxReady ? "" : '<p class="muted" style="font-size:12px;margin-top:8px">LTX-2 weights not ready — download them on the Animate page.</p>'}`);
+    ${wanReady ? "" : '<p class="muted" style="font-size:12px;margin-top:8px">Wan 2.2 weights not ready — download them on the Animate page.</p>'}`);
   $("#asX", card).onclick = closeModal;
   $("#asMT", card).onchange = e => $("#asEndWrap", card).style.display = e.target.value === "transform" ? "" : "none";
 
@@ -1422,12 +1452,12 @@ async function renderAssemble(host) {
   const opts = Object.assign({ width: 1920, height: 1080, fps: 30, preset: "cinematic", ken_burns: true, transitions: true, sfx: true }, p.settings.assemble || {});
   delete opts.burn_text;   // on-screen text is never burned anymore
   const RES = [[1920, 1080, "1080p"], [1280, 720, "720p"], [854, 480, "480p (fast)"]];
-  const SOURCES = [["", "Preset default"], ["clips,parallax", "LTX clips + parallax (both)"], ["parallax", "Parallax only (no LTX)"], ["clips", "LTX clips only"], ["stills", "Stills (Ken Burns)"]];
+  const SOURCES = [["", "Preset default"], ["clips,parallax", "Wan clips + parallax (both)"], ["parallax", "Parallax only (no video model)"], ["clips", "Wan clips only"], ["stills", "Stills (Ken Burns)"]];
 
   const card = el("div", "card");
   card.innerHTML = `
     <h2>Build the video</h2>
-    <p class="desc">Each scene shows for its real narration length. The <b>style preset</b> decides how scenes move — LTX clips, 2.5D <b>parallax</b> (depth camera moves on stills), or classic Ken Burns — plus stinger SFX and music ducking. Presets live in <span class="mono">data/effects_presets.json</span> and are reusable across projects.</p>
+    <p class="desc">Each scene shows for its real narration length. The <b>style preset</b> decides how scenes move — Wan 2.2 clips, 2.5D <b>parallax</b> (depth camera moves on stills), or classic Ken Burns — plus stinger SFX and music ducking. Presets live in <span class="mono">data/effects_presets.json</span> and are reusable across projects.</p>
     <div class="row" style="margin-bottom:14px">
       <span class="badge ${c.audio === c.total ? "good" : "warn"}">${c.audio}/${c.total} voiced</span>
       <span class="badge ${c.image === c.total ? "good" : "warn"}">${c.image}/${c.total} imaged</span>

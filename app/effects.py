@@ -8,8 +8,8 @@ moves are, and whether stinger SFX are mixed in. The assembler resolves:
     settings.assemble/opts  >  preset fields  >  built-in defaults
 
 ``sources`` is a priority chain per scene: the first available source wins,
-with plain stills always the final fallback ("krea only" = stills/parallax,
-"ltx" = clips first, "both" = clips then parallax).
+with plain stills always the final fallback ("stills only" = krea art with
+Ken Burns, "clips" = Wan animation first, "both" = clips then parallax).
 """
 from __future__ import annotations
 
@@ -20,9 +20,9 @@ from . import config, storage
 DEFAULT_PRESETS: List[Dict] = [
     {
         "id": "cinematic",
-        "label": "Cinematic — parallax + LTX clips + SFX",
+        "label": "Cinematic — animated clips (Wan) + parallax + SFX",
         "sources": ["clips", "parallax"],
-        "parallax": {"amplitude": 0.024, "fps": 30},
+        "parallax": {"amplitude": 0.018, "fps": 30},
         "ken_burns": True, "kb_strength": 1.0,
         "transitions": True,
         "sfx": True, "sfx_volume": 0.5,
@@ -30,9 +30,9 @@ DEFAULT_PRESETS: List[Dict] = [
     },
     {
         "id": "parallax-slides",
-        "label": "Parallax slides — 2.5D depth moves on every still (no LTX)",
+        "label": "Parallax slides — 2.5D depth moves on every still (no video model)",
         "sources": ["parallax"],
-        "parallax": {"amplitude": 0.024, "fps": 30},
+        "parallax": {"amplitude": 0.018, "fps": 30},
         "ken_burns": True, "kb_strength": 1.0,
         "transitions": True,
         "sfx": True, "sfx_volume": 0.45,

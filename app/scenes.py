@@ -350,7 +350,7 @@ def auto_motion_prompt(scene: Dict) -> Tuple[str, str]:
     camera move, and at most one *very* subtle ambient effect. No big character
     actions: those make LTX over-move and smear small details, which reads as the
     "AI feel" the user wants to avoid. Returns motion-only text (the still's subject
-    is added by build_motion_prompt; the flat-cartoon style by ltx_engine)."""
+    is added by build_motion_prompt; the project style is anchored by animate)."""
     blob = " ".join(_clean(scene.get(f)) for f in ("image_prompt", "narration", "visual")).lower()
     effect = ""
     for pat, phrase in _AMBIENT_RULES:

@@ -2,8 +2,8 @@
 
 Audio-led: each scene is shown for its timeline duration (real narration length
 + lead/tail, clamped to a minimum hold). Each scene's visual comes from the
-style preset's source chain — LTX clip, 2.5D parallax clip, or a varied
-Ken Burns still (always the final fallback) — so one storyboard renders as
+style preset's source chain — animated clip (Wan), 2.5D parallax clip, or a
+varied Ken Burns still (always the final fallback) — so one storyboard renders as
 "cinematic", "parallax slides" or "simple slides" without re-generating
 anything. No on-screen text is burned in (it reads as AI; narration + visuals
 carry the video). Scenes missing an image fall back to a cream card and scenes
@@ -255,7 +255,7 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
                     from .parallax import parallax_engine
                     pc = parallax_engine.ensure_scene_clip(
                         pdir, s, dur=dur, width=W, height=H, fps=fps, idx=idx,
-                        amplitude=float(plx_cfg.get("amplitude", 0.024)))
+                        amplitude=float(plx_cfg.get("amplitude", 0.018)))
                     if pc:
                         v = _try_clip(pc, dur)
                         if v is not None:
@@ -366,10 +366,12 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
     out_rel = f"video/final_{time.strftime('%Y%m%d_%H%M%S')}.mp4"
     out_abs = pdir / out_rel
     out_abs.parent.mkdir(parents=True, exist_ok=True)
+    # QUALITY OVER EVERYTHING: near-lossless encode; flat art shows crf-23
+    # blocking, and render time is explicitly not a concern on this machine.
     final.write_videofile(
         str(out_abs), fps=fps, codec="libx264", audio_codec="aac",
-        preset="medium", threads=os.cpu_count() or 4, logger=None,
-        ffmpeg_params=["-pix_fmt", "yuv420p"],
+        preset="slow", threads=os.cpu_count() or 4, logger=None,
+        ffmpeg_params=["-pix_fmt", "yuv420p", "-crf", "17"],
     )
     try:
         final.close()

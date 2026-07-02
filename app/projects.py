@@ -62,13 +62,38 @@ def default_project_settings() -> Dict:
         "image": dict(s.get("image", {})),
         "sync": dict(s.get("sync", {})),
         "assemble": dict(s.get("assemble", {})),
+        # QUALITY OVER EVERYTHING (user rule): Wan 2.2 max profile by default.
+        "animate": {"engine": "wan", "quality": "max", "enhance": True},
         "music": None,        # background music bed {file, id, prompt, volume, fade} or None
     }
 
 
 # --- CRUD ------------------------------------------------------------------
-def create_project(raw_json: Dict, name: Optional[str] = None) -> Dict:
-    parsed = parse_storyboard(raw_json)        # raises ValueError on bad input
+def _apply_engines(settings: Dict, engines: Optional[Dict]) -> Dict:
+    """Per-project engine choices made at creation time (Projects page)."""
+    e = engines or {}
+    if e.get("image_model"):
+        settings["image"] = {**settings.get("image", {}), "model": e["image_model"]}
+    an = settings.setdefault("animate", {"engine": "wan", "quality": "max",
+                                         "enhance": True})
+    if e.get("animate_engine"):
+        an["engine"] = e["animate_engine"]        # "wan" | "none"
+    if e.get("quality"):
+        an["quality"] = e["quality"]              # "max" | "fast"
+    if e.get("preset"):
+        settings["assemble"] = {**settings.get("assemble", {}), "preset": e["preset"]}
+    return settings
+
+
+def create_project(raw_json: Dict, name: Optional[str] = None,
+                   engines: Optional[Dict] = None) -> Dict:
+    # Auto-direction: whatever wrote this storyboard (a strong model, a weak
+    # one, or a human sketch), every directing field is filled deterministically
+    # before parsing — undirected videos can't happen. Author-provided fields
+    # are never overwritten; the report says exactly what was filled/flagged.
+    from . import autodirect
+    directed, direction = autodirect.direct(raw_json)
+    parsed = parse_storyboard(directed)        # raises ValueError on bad input
     pid = storage.new_id()
     d = ensure_dirs(pid)
     (d / "source.json").write_text(
@@ -82,9 +107,10 @@ def create_project(raw_json: Dict, name: Optional[str] = None) -> Dict:
         "created": time.time(),
         "updated": time.time(),
         "video": video,
-        "settings": default_project_settings(),
+        "settings": _apply_engines(default_project_settings(), engines),
         "scenes": parsed["scenes"],
         "characters": parsed.get("characters", []),
+        "direction_report": direction,
         "timeline": None,
         "renders": [],
     }

@@ -93,7 +93,7 @@ class ParallaxEngine:
     # -------------------------------------------------------------------
     def render_clip(self, image_path: str, out_path: str, *, dur: float,
                     width: int, height: int, fps: int = 30, move: str = "auto",
-                    idx: int = 0, hint: str = "", amplitude: float = 0.022,
+                    idx: int = 0, hint: str = "", amplitude: float = 0.018,
                     progress=None) -> str:
         """Render a 2.5D camera-move clip for one still; returns out_path."""
         self._ensure(progress=progress)
@@ -166,7 +166,7 @@ class ParallaxEngine:
     # -------------------------------------------------------------------
     def ensure_scene_clip(self, pdir: Path, scene: Dict, *, dur: float, width: int,
                           height: int, fps: int = 30, idx: int = 0,
-                          amplitude: float = 0.022, progress=None) -> Optional[str]:
+                          amplitude: float = 0.018, progress=None) -> Optional[str]:
         """Cached per-scene parallax clip; (re)rendered when missing or stale."""
         if not scene.get("image_file"):
             return None
@@ -181,8 +181,20 @@ class ParallaxEngine:
                 return str(out)
         except OSError:
             pass
+        # quality-over-everything: warp from a line-sharpened 2x still when the
+        # upscaler is installed, so 720p art stays crisp inside a 1080p+ frame
+        src = img
+        try:
+            from . import enhance
+            up = img.parent / f"{img.stem}_up2x.png"
+            if not (up.exists() and up.stat().st_mtime >= img.stat().st_mtime):
+                up = enhance.upscale_image(img, up) or img
+            if Path(up).exists() and Path(up) != img:
+                src = Path(up)
+        except Exception:  # noqa: BLE001
+            src = img
         hint = f"{scene.get('shot') or ''} {scene.get('transition') or ''}"
-        self.render_clip(str(img), str(out), dur=min(dur, 14.0), width=width,
+        self.render_clip(str(src), str(out), dur=min(dur, 14.0), width=width,
                          height=height, fps=fps, idx=idx, hint=hint,
                          amplitude=amplitude, progress=progress)
         return str(out)

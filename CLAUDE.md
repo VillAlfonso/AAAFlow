@@ -6,11 +6,30 @@
 creator — writing, pacing, art direction, editing, sound. If a viewer (or a
 platform) can tell it's AI-generated, that's a failure.
 
+**QUALITY OVER EVERYTHING (user rule, 2026-07-03).** Render time is explicitly
+not a concern on this machine. Default to the highest-quality path everywhere:
+Wan "max" profile (20 steps, native 720p, no speed LoRAs), enhance chain on,
+CRF 17 final encodes, Real-ESRGAN-sharpened stills. Fast/draft profiles exist
+only for previews and must be opted into.
+
+## Design principle: the SYSTEM carries the intelligence
+The pipeline must produce a competent, human-looking video even when the
+storyboard came from a small/weak model. Everything that can be decided
+deterministically IS: `app/autodirect.py` runs on every import and fills
+transitions, SFX cues, shot variety, hero-scene motion flags, style fallback,
+and fixes TTS-unsafe punctuation — author-provided fields are never
+overwritten. The writing model only has to produce narration lines + picture
+subjects following `storyboard_v3_prompt.md` (which carries the viral formula:
+≤12-word cold open, 6–12-word hook scenes, escalation, payoff ending).
+Validate any storyboard without importing: `POST /api/storyboard/lint`.
+When a video underwhelms, improve the template/auto-director/validators —
+not just that one video.
+
 ## THE PIPELINE ORDER (non-negotiable — see .claude/PIPELINE.md for detail)
 Voice comes FIRST. Never voice a video scene-by-scene: independent per-scene TTS
 generations sound cut-up and out of tone; only prosody *within* a take is good.
 
-1. **Script** — write/receive the full script.
+1. **Script** — write/receive the full script (spec: `storyboard_v3_prompt.md`).
 2. **One-take narration** — the WHOLE script in a single Qwen3-TTS pass:
    `POST /api/projects/{pid}/voiceover/onetake` (UI: Voiceover → "One-take
    narration"). Whisper aligns every scene to the take and QA-checks the
@@ -23,7 +42,11 @@ generations sound cut-up and out of tone; only prosody *within* a take is good.
 5. **Music / SFX** — ACE-Step bed set on the project (ducked automatically);
    stinger SFX come from `data/sfx_library/` via each scene's `audio_cue`
    (browse `GET /api/sfx` when writing the script; drop new wavs in the folder).
-6. **Animate (optional per style)** — LTX-2 clips only for hero/motion scenes.
+6. **Animate (optional per style)** — **Wan 2.2 14B** clips (fp8 MoE via
+   ComfyUI; LTX-2 was deleted 2026-07-03) for hero/motion scenes, "max"
+   quality profile by default, then the **enhance chain** (minterpolate →
+   Real-ESRGAN animevideov3) sharpens every clip. Engine/quality/preset are
+   chosen per project at creation (Projects page) or in settings.animate.
 7. **Assemble** — style preset decides scene motion:
    `cinematic` = LTX clips + 2.5D **parallax** (depth camera moves) + SFX;
    `parallax-slides` = parallax only (no LTX); `dynamic-slides` /
@@ -42,7 +65,8 @@ One call runs 2→7: `POST /api/projects/{pid}/produce` (UI: Assemble →
   `video.global_style_suffix` — never hardcode a look into a pipeline stage.
 - Scenes with no people get the style minus its character clause
   (`scenes.scene_has_people`) or the model draws phantom figures.
-- Keep LTX clips short (~2 s) and subtle; anchor them to the project style.
+- Keep animated clips short (~3 s) and subtle; the project style LEADS every
+  clip prompt (see animate.py) so Wan animates the drawing, not repaints it.
 - Narration lines should end with a period — trailing commas invite TTS to
   keep talking (hallucination).
 

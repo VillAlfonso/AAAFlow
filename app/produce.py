@@ -39,13 +39,15 @@ def _set(pid: str, **kw):
 
 
 def default_plan(project: Dict) -> Dict:
-    preset = effects.get((project.get("settings", {}).get("assemble", {})
-                          or {}).get("preset") or "cinematic")
+    settings = project.get("settings", {})
+    preset = effects.get((settings.get("assemble", {}) or {}).get("preset")
+                         or "cinematic")
     uses_clips = "clips" in (preset.get("sources") or [])
+    engine = (settings.get("animate", {}) or {}).get("engine", "wan")
     return {
         "voice": "skip" if project.get("narration") else "onetake",
         "images": True,
-        "animate": {"scope": "missing"} if uses_clips else False,
+        "animate": {"scope": "missing"} if (uses_clips and engine != "none") else False,
         "assemble": {},
     }
 

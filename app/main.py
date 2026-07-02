@@ -166,13 +166,8 @@ def _status_payload():
     except Exception:  # noqa: BLE001
         st["comfy"] = {"alive": False, "available": False}
     try:
-        from .ltx_engine import ltx_engine
-        st["ltx"] = ltx_engine.status()
-    except Exception:  # noqa: BLE001
-        st["ltx"] = {"ready": False}
-    try:
         from .wan_engine import wan_engine
-        st["wan"] = wan_engine.status()
+        st["wan"] = {**wan_engine.status(), "enhance": config.enhance_ready()}
     except Exception:  # noqa: BLE001
         st["wan"] = {"ready": False}
     try:
@@ -345,6 +340,7 @@ class CreateProjectReq(BaseModel):
     text: Optional[str] = None       # raw JSON text to parse
     data: Optional[dict] = None      # ...or an already-parsed storyboard object
     name: Optional[str] = None
+    engines: Optional[dict] = None   # {"image_model", "animate_engine", "quality", "preset"}
 
 
 @app.get("/api/image_models")
@@ -386,26 +382,46 @@ def create_project(req: CreateProjectReq):
     if not isinstance(raw, dict):
         raise HTTPException(status_code=400, detail="Provide a storyboard JSON object.")
     try:
-        project = projects.create_project(raw, req.name)
+        project = projects.create_project(raw, req.name, engines=req.engines)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
     return {"project": project}
 
 
 @app.post("/api/projects/upload")
-async def upload_project(file: UploadFile = File(...), name: str = Form("")):
+async def upload_project(file: UploadFile = File(...), name: str = Form(""),
+                         engines: str = Form("")):
     import json as _json
     data = await file.read()
     try:
         raw = _json.loads(data.decode("utf-8"))
     except Exception as exc:  # noqa: BLE001
         raise HTTPException(status_code=400, detail=f"Invalid JSON file: {exc}")
+    eng = None
+    if engines.strip():
+        try:
+            eng = _json.loads(engines)
+        except Exception:  # noqa: BLE001
+            eng = None
     try:
         project = projects.create_project(
-            raw, name.strip() or Path(file.filename or "").stem or None)
+            raw, name.strip() or Path(file.filename or "").stem or None, engines=eng)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
     return {"project": project}
+
+
+class LintReq(BaseModel):
+    data: dict
+
+
+@app.post("/api/storyboard/lint")
+def storyboard_lint(req: LintReq):
+    """Auto-direct + lint a storyboard without importing it: returns the fixed
+    copy and a report (fixes applied, warnings, hook/runtime stats)."""
+    from . import autodirect
+    fixed, report = autodirect.direct(req.data or {})
+    return {"report": report, "fixed": fixed}
 
 
 @app.get("/api/storyboard/template")
@@ -823,16 +839,16 @@ class AnimateReq(BaseModel):
     scene_id: Optional[str] = None
 
 
-@app.get("/api/ltx/status")
-def ltx_status():
-    from .ltx_engine import ltx_engine
-    return ltx_engine.status()
+@app.get("/api/wan/status")
+def wan_status():
+    from .wan_engine import wan_engine
+    return {**wan_engine.status(), "enhance": config.enhance_ready()}
 
 
-@app.post("/api/ltx/download")
-def ltx_download():
-    """Download any missing LTX-2 weights in-app (headless background job)."""
-    return {"job_id": animate.submit_ltx_download()}
+@app.post("/api/wan/download")
+def wan_download():
+    """Download any missing Wan 2.2 weights in-app (headless background job)."""
+    return {"job_id": animate.submit_wan_download()}
 
 
 class AutoPromptReq(BaseModel):

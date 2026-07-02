@@ -147,6 +147,11 @@ def _image_models_payload():
         "builtin": builtin,
         "default": config.DEFAULT_IMAGE_MODEL,
         "imported": storage.get_image_models(),
+        # Optional global-style presets the Images page can insert verbatim.
+        "style_presets": [
+            {"id": "flat-cartoon", "label": "Flat cartoon (krea2 look)",
+             "text": config.KREA2_STYLE},
+        ],
     }
 
 
@@ -346,6 +351,23 @@ def image_models():
     return _image_models_payload()
 
 
+@app.get("/api/comfy_loras")
+def comfy_loras():
+    """LoRA files in ComfyUI's models/loras — usable by comfyui-type models (krea2)."""
+    d = config.comfy_models_dir() / "loras"
+    out = []
+    if d.exists():
+        for f in sorted(d.glob("*.safetensors")):
+            if "ltx" in f.name.lower():        # LTX video LoRAs aren't for krea2
+                continue
+            try:
+                mb = round(f.stat().st_size / 1e6)
+            except OSError:
+                mb = None
+            out.append({"name": f.name, "size_mb": mb})
+    return {"loras": out}
+
+
 @app.get("/api/projects")
 def get_projects():
     return {"projects": projects.list_projects()}
@@ -410,6 +432,15 @@ def put_project_settings(pid: str, patch: dict):
     if settings is None:
         raise HTTPException(status_code=404, detail="project not found")
     return settings
+
+
+@app.patch("/api/projects/{pid}/video")
+def patch_video_meta(pid: str, patch: dict):
+    """Edit the storyboard-wide prompts (global style / negative) from the UI."""
+    meta = projects.update_video_meta(pid, patch or {})
+    if meta is None:
+        raise HTTPException(status_code=404, detail="project not found")
+    return meta
 
 
 @app.patch("/api/projects/{pid}/scenes/{sid}")

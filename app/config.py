@@ -218,6 +218,15 @@ LTX2 = {
         "sketchy lines, semi-realistic, uncanny, extra limbs, messy, low quality, "
         "jpeg artifacts, watermark, text"
     ),
+    # Style-agnostic motion-quality negatives, combined with the *project's* own
+    # global negative when its storyboard declares a style (the full "negative"
+    # above bans 3D/render/realism, which would fight non-cartoon projects).
+    "negative_motion": (
+        "smeared, melting, melted face, distorted face, deformed, mutated, "
+        "warping, morphing, boiling lines, shimmering, wobbling outlines, jitter, "
+        "flickering, blurry, uncanny, extra limbs, messy, low quality, jpeg "
+        "artifacts, watermark, text"
+    ),
 }
 # Weights the animate stage needs. url -> ComfyUI/models/<subdir>. Both are usually
 # already present; the in-app download job skips files that match the HF size.

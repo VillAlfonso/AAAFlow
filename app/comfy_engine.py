@@ -107,8 +107,9 @@ class ComfyEngine:
                 pass
 
     # ---- workflow ---------------------------------------------------------
-    def _workflow(self, mdef: Dict, prompt: str, width: int, height: int,
-                  steps: int, cfg: float, seed: int, lora: Optional[Dict]) -> Dict:
+    def _workflow(self, mdef: Dict, prompt: str, negative: str, width: int,
+                  height: int, steps: int, cfg: float, seed: int,
+                  lora: Optional[Dict]) -> Dict:
         wf = {
             "1": {"class_type": "UNETLoader",
                   "inputs": {"unet_name": mdef["unet"], "weight_dtype": "default"}},
@@ -137,6 +138,16 @@ class ComfyEngine:
                         "inputs": {"model": ["1", 0], "lora_name": lora["name"],
                                    "strength_model": float(lora.get("strength", 0.8))}}
             wf["8"]["inputs"]["model"] = ["11", 0]
+        # A real negative only participates when cfg > 1 (at the turbo default of
+        # 1.0 ComfyUI skips the uncond pass entirely) — rebalanced the same way as
+        # the positive so both sides of the CFG arithmetic live on the same scale.
+        if (negative or "").strip() and float(cfg) > 1.0:
+            wf["12"] = {"class_type": "CLIPTextEncode",
+                        "inputs": {"clip": ["2", 0], "text": negative.strip()}}
+            wf["13"] = {"class_type": "ConditioningKrea2Rebalance",
+                        "inputs": {"conditioning": ["12", 0], "multiplier": 4.0,
+                                   "per_layer_weights": config.KREA2_PER_LAYER}}
+            wf["8"]["inputs"]["negative"] = ["13", 0]
         return wf
 
     # ---- generation -------------------------------------------------------
@@ -145,7 +156,8 @@ class ComfyEngine:
                  lora: Optional[Dict] = None, progress=None):
         from PIL import Image
         self.ensure_running(progress=progress)
-        wf = self._workflow(mdef, prompt, width, height, steps, guidance, seed, lora)
+        wf = self._workflow(mdef, prompt, negative, width, height, steps, guidance,
+                            seed, lora)
         with _infer:
             r = self._post("/prompt", {"prompt": wf, "client_id": self._cid})
             if "error" in r:

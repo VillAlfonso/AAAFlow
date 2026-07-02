@@ -1,8 +1,9 @@
-"""Per-scene image generation orchestration (FLUX, background jobs).
+"""Per-scene image generation orchestration (diffusers or ComfyUI, background jobs).
 
-Builds each scene's prompt from scenes.build_image_prompt (image_prompt +
-global_style_suffix, with the storyboard's negative kept for reference), runs
-image_engine.generate, and saves a PNG into the project's images/ dir.
+Builds each scene's prompt from scenes.build_image_prompt — image_prompt +
+character-bible looks + the project's *editable* global style (clause-deduped),
+with settings.image.style as an explicit override — runs the selected backend,
+and saves a PNG into the project's images/ dir.
 """
 from __future__ import annotations
 
@@ -28,8 +29,9 @@ def _counts(project: Dict) -> Dict:
 
 def _targets(scenes_list: List[Dict], video: Dict, scope: str, scene_id) -> List[Dict]:
     def renderable(s):
-        prompt, _ = scenes.build_image_prompt(s, video)
-        return bool(prompt.strip())
+        # Needs scene content of its own — the global style alone isn't a scene.
+        return bool((s.get("image_prompt") or s.get("visual")
+                     or s.get("narration") or "").strip())
     if scope == "scene":
         return [s for s in scenes_list if str(s.get("id")) == str(scene_id) and renderable(s)]
     if scope == "all":
@@ -88,13 +90,16 @@ def submit_images(pid: str, image_cfg: Dict, scope: str = "missing",
         is_comfy = dims["type"] == "comfyui"
         mdef = config.IMAGE_BASES.get(image_cfg.get("model", "")) or {}
         uses_ip = bool(mdef.get("ip_adapter")) and image_cfg.get("use_refs", True)
-        if is_comfy:
-            style = image_cfg.get("style") or config.KREA2_STYLE
-        elif mdef.get("ip_adapter"):
-            style = image_cfg.get("style") or config.CARTOON_STYLE
-        else:
-            style = image_cfg.get("style")
+        # The storyboard's (editable) global_style_suffix drives the look on
+        # every backend; settings.image.style is an explicit override only.
+        style = (image_cfg.get("style") or "").strip() or None
         ip_scale = image_cfg.get("ip_scale")
+        comfy_lora = None
+        if is_comfy:
+            cl = image_cfg.get("comfy_lora") or {}
+            if (cl.get("name") or "").strip():
+                comfy_lora = {"name": cl["name"].strip(),
+                              "strength": float(cl.get("strength", 0.8))}
 
         # warm the backend once (first scene shows load / start-up progress)
         if is_comfy:
@@ -108,7 +113,9 @@ def submit_images(pid: str, image_cfg: Dict, scope: str = "missing",
         done = 0
         for sid in target_ids:
             sc = projects.get_scene(proj, sid)
-            prompt, neg = scenes.build_image_prompt(sc, video, style=style)
+            prompt, neg = scenes.build_image_prompt(
+                sc, proj.get("video", {}), style=style,
+                characters=proj.get("characters"))
             progress(f"Rendering scene {sid} ({done + 1}/{n})", 0.2 + 0.78 * done / max(n, 1))
             seed = dims["seed"]
             seed = (seed + int(sid) if seed is not None and seed >= 0
@@ -116,7 +123,8 @@ def submit_images(pid: str, image_cfg: Dict, scope: str = "missing",
             if is_comfy:
                 img = comfy_engine.generate(
                     prompt, neg, width=dims["width"], height=dims["height"],
-                    steps=dims["steps"], guidance=dims["guidance"], seed=seed, mdef=mdef)
+                    steps=dims["steps"], guidance=dims["guidance"], seed=seed, mdef=mdef,
+                    lora=comfy_lora)
             else:
                 refs = None
                 if uses_ip:
@@ -132,7 +140,8 @@ def submit_images(pid: str, image_cfg: Dict, scope: str = "missing",
             rel = f"images/scene_{projects.scene_key(sid)}.png"
             img.save(str(projects.project_dir(pid) / rel))
             projects.set_scene_image(proj, sid, rel, seed,
-                                     {"prompt": prompt, **dims, "seed": seed})
+                                     {"prompt": prompt, "negative": neg, **dims,
+                                      "seed": seed})
             done += 1
             if done % 3 == 0:
                 projects.save_project(proj)

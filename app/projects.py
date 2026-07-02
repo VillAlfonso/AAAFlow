@@ -155,6 +155,22 @@ def update_settings(pid: str, patch: Dict) -> Optional[Dict]:
     return p["settings"]
 
 
+# The video-meta fields the UI may edit (global prompts drive every render).
+_VIDEO_EDITABLE = ("title", "global_style_suffix", "global_negative_prompt")
+
+
+def update_video_meta(pid: str, patch: Dict) -> Optional[Dict]:
+    p = get_project(pid)
+    if not p:
+        return None
+    v = p.setdefault("video", {})
+    for k in _VIDEO_EDITABLE:
+        if k in patch:
+            v[k] = (patch[k] or "").strip() if isinstance(patch[k], (str, type(None))) else v.get(k)
+    save_project(p)
+    return v
+
+
 # --- scene helpers ---------------------------------------------------------
 def get_scene(project: Dict, sid) -> Optional[Dict]:
     for s in project.get("scenes", []):

@@ -3,7 +3,7 @@
 Only scenes whose storyboard declares motion are animated (``motion_prompt`` set,
 or ``motion_type`` ambient/transform) — animation is expensive on a 16 GB GPU.
 For ``transform`` scenes with an ``end_image_prompt`` we first render an end frame
-with krea2 (same flat-cartoon style as the still) and use LTX first+last-frame so
+with krea2 (same global style as the still) and use LTX first+last-frame so
 the scene morphs from the still to the end frame. Output: ``video/scene_XXXX.mp4``.
 
 The narration audio is intentionally *not* baked into the clip here — the assemble
@@ -41,7 +41,12 @@ def _krea2_end_frame(proj, sc, video, sid, seed, width, height) -> Optional[str]
     """Render the transform end frame with krea2; return its project-relative path."""
     tmp = dict(sc)
     tmp["image_prompt"] = sc.get("end_image_prompt") or ""
-    prompt, neg = scenes.build_image_prompt(tmp, video, style=config.KREA2_STYLE)
+    # Same style rule as the stills (explicit override else the storyboard's
+    # global style) — start and end frames must live in the same look or LTX
+    # morphs between two art styles.
+    style = (proj.get("settings", {}).get("image", {}).get("style") or "").strip() or None
+    prompt, neg = scenes.build_image_prompt(tmp, video, style=style,
+                                            characters=proj.get("characters"))
     if not prompt.strip():
         return None
     mdef = config.IMAGE_BASES["krea2"]
@@ -140,6 +145,20 @@ def submit_animate(pid: str, opts: Optional[Dict] = None, scope: str = "motion",
     base_seed = opts.get("seed", 42)
     target_ids = [s["id"] for s in targets]
 
+    # Anchor LTX to the same style the stills were rendered in: the project's
+    # global style leads, a style-hold tail replaces the flat-cartoon one, and
+    # the project negative + motion-quality terms replace the anti-3D set (which
+    # would melt e.g. a low-poly-3D storyboard). No global style -> old defaults.
+    gstyle = (video.get("global_style_suffix") or "").strip().strip(",").strip()
+    gneg = (video.get("global_negative_prompt") or "").strip()
+    style_lead = style_tail = ltx_negative = None
+    if gstyle:
+        style_lead = gstyle
+        style_tail = ("The art style stays exactly the same as the first frame "
+                      "throughout, consistent and on-model. No style change, no "
+                      "repainting.")
+        ltx_negative = ", ".join(p for p in (gneg, config.LTX2["negative_motion"]) if p)
+
     def task(progress: ProgressFn) -> Dict:
         proj = projects.get_project(pid)
         projects.ensure_dirs(pid)
@@ -176,7 +195,8 @@ def submit_animate(pid: str, opts: Optional[Dict] = None, scope: str = "motion",
                 data = ltx_engine.animate(
                     still, mp, seconds=seconds, fps=fps, width=width, height=height,
                     seed=seed, end_image_path=(str(pdir / end_rel) if end_rel else None),
-                    progress=cb)
+                    style_lead=style_lead, style_tail=style_tail,
+                    negative=ltx_negative, progress=cb)
 
             rel = f"video/scene_{projects.scene_key(sid)}.mp4"
             (pdir / rel).write_bytes(data)

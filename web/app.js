@@ -469,7 +469,7 @@ function openScene(sid) {
     ${s.image_file ? `<div class="player" style="margin-bottom:16px"><div class="stage"><img src="${assetUrl(s.image_file, Date.now())}"/></div></div>` : ""}
     ${s.audio_file ? `<audio controls style="width:100%;margin-bottom:16px" src="${assetUrl(s.audio_file, Date.now())}"></audio>` : ""}
     <div class="field"><label>Narration</label><textarea id="scNarr" rows="3">${esc(s.narration)}</textarea></div>
-    <div class="field"><label>Image prompt</label><textarea id="scPrompt" rows="3">${esc(s.image_prompt)}</textarea></div>
+    <div class="field"><label>Image prompt <span class="hint">(the global style is appended at render — edit it on the Images page)</span></label><textarea id="scPrompt" rows="3">${esc(s.image_prompt)}</textarea></div>
     <div class="grid2">
       <div class="field"><label>On-screen text</label><input type="text" id="scOst" value="${esc(s.on_screen_text)}" /></div>
       <div class="field"><label>Transition</label><input type="text" id="scTrans" value="${esc(s.transition)}" /></div>
@@ -823,7 +823,7 @@ async function renderImages(host) {
      <button class="btn btn-primary" onclick="location.hash='#/p/${p.id}/assemble'">${icon("i-assemble")} Assemble →</button>`);
   const page = el("div", "page page-wide"); page.innerHTML = stepper("images");
 
-  const cfg = Object.assign({ model: "cartoon-rag", steps: null, guidance: null, width: null, height: null, seed: -1, use_default_lora: true, default_lora_weight: 0.95, gguf_quant: "Q4_K_S", loras: [], use_refs: true, ip_scale: 0.7 }, state.settings.image || {}, p.settings.image || {});
+  const cfg = Object.assign({ model: "cartoon-rag", steps: null, guidance: null, width: null, height: null, seed: -1, use_default_lora: true, default_lora_weight: 0.95, gguf_quant: "Q4_K_S", loras: [], use_refs: true, ip_scale: 0.7, comfy_lora: null }, state.settings.image || {}, p.settings.image || {});
   cfg.loras = (cfg.loras || []).slice();
 
   const builtin = state.imageModels.builtin || [];
@@ -838,7 +838,7 @@ async function renderImages(host) {
   const mcard = el("div", "card");
   mcard.innerHTML = `
     <div class="spread"><h2 class="mb0">Model</h2><span class="badge teal" id="imLoaded"></span></div>
-    <p class="desc">Default is <b>Krea-2 Turbo</b> — your local flat-cartoon model, rendered through ComfyUI (no download). <b>SD&nbsp;1.5</b> / <b>FLUX</b> remain available via the in-app diffusers engine. Import your own checkpoints / LoRAs anytime.</p>
+    <p class="desc">Default is <b>Krea-2 Turbo</b> — local, rendered through ComfyUI (no download). The look now comes from the <b>Global prompts</b> card below, not a baked-in style. <b>SD&nbsp;1.5</b> / <b>FLUX</b> remain available via the in-app diffusers engine.</p>
     <div class="grid2">
       <div class="field"><label>Base model</label><select id="imModel">
         ${builtin.map(m => `<option value="${m.id}" ${cfg.model === m.id ? "selected" : ""}>${esc(m.label)}${m.size ? " · " + esc(m.size) : ""}${m.gated ? " · gated" : ""}</option>`).join("")}
@@ -854,6 +854,12 @@ async function renderImages(host) {
     <div id="imBuiltinLora">
       <label class="switch" style="margin-bottom:12px"><input type="checkbox" id="imDefLora" ${cfg.use_default_lora ? "checked" : ""}/><span class="track"></span> Built-in simple-sketch / stick-figure LoRA <span class="hint">(FLUX)</span></label>
       <div class="field" id="imDefWrap"><label>Built-in LoRA strength <span class="hint" id="imDefVal"></span></label><input type="range" min="0" max="1.5" step="0.05" id="imDefW" value="${cfg.default_lora_weight}"/></div>
+    </div>
+    <div id="imComfyLora">
+      <div class="grid2">
+        <div class="field"><label>Krea-2 LoRA <span class="hint">(ComfyUI models/loras — e.g. your trained style)</span></label><select id="imCLora"><option value="">— none —</option></select></div>
+        <div class="field"><label>LoRA strength</label><input type="number" id="imCLoraW" step="0.05" min="0" max="1.5" value="${cfg.comfy_lora && cfg.comfy_lora.strength != null ? cfg.comfy_lora.strength : 0.8}"/></div>
+      </div>
     </div>
     <div id="imLoraList"></div>
     <div class="row"><button class="btn btn-ghost btn-sm" id="imImport">${icon("i-plus")} Import LoRA / checkpoint</button></div>
@@ -878,7 +884,7 @@ async function renderImages(host) {
         <label class="switch"><input type="checkbox" id="imUseRefs" ${cfg.use_refs ? "checked" : ""}/><span class="track"></span> Use references</label></div>
     </div>
     <div class="row" style="margin:6px 0 12px">
-      <button class="btn btn-ghost btn-sm" id="imSeed">${icon("i-image")} Seed from this project</button>
+      <button class="btn btn-ghost btn-sm" id="imRefSeed">${icon("i-image")} Seed from this project</button>
       <button class="btn btn-ghost btn-sm" id="imRefAdd">${icon("i-plus")} Upload reference</button>
       <input type="file" id="imRefFile" accept=".png,.jpg,.jpeg,.webp" multiple style="display:none"/>
       <span class="muted mono" id="imRefMsg"></span>
@@ -886,10 +892,30 @@ async function renderImages(host) {
     <div class="media-grid" id="imRefGrid"></div>`;
   page.appendChild(rcard);
 
+  // --- global prompts (storyboard-wide style + negative, editable) ---
+  const v0 = p.video || {};
+  const pcard = el("div", "card"); pcard.style.marginTop = "16px";
+  pcard.innerHTML = `
+    <div class="spread"><h2 class="mb0">Global prompts</h2><span class="badge" id="gpState">saved</span></div>
+    <p class="desc">Applied to <b>every</b> scene: final prompt = scene <b>image_prompt</b> + the global style below. Style clauses a scene already contains aren't repeated, so storyboards that bake the style into each scene stay clean.</p>
+    <div class="field"><label>Global style <span class="hint">(appended to every scene's prompt)</span></label>
+      <textarea id="gpStyle" rows="4">${esc((v0.global_style_suffix || "").replace(/^[\s,]+/, ""))}</textarea></div>
+    <div class="field"><label>Global negative <span class="hint" id="gpNegHint"></span></label>
+      <textarea id="gpNeg" rows="2">${esc(v0.global_negative_prompt || "")}</textarea></div>
+    <div class="row">
+      <button class="btn btn-primary btn-sm" id="gpSave">${icon("i-check")} Save global prompts</button>
+      <button class="btn btn-ghost btn-sm" id="gpPreset">${icon("i-wand")} Insert flat-cartoon preset</button>
+      <span class="muted mono" id="gpMsg"></span>
+    </div>
+    <div class="divider"></div>
+    <div class="field" style="margin-bottom:0"><label>Final prompt preview <span class="hint">— scene <span id="gpPrevId"></span>, exactly what the model will get</span></label>
+      <div class="mono" id="gpPreview" style="font-size:12px;line-height:1.6;white-space:pre-wrap;opacity:.75"></div></div>`;
+  page.appendChild(pcard);
+
   const gcard = el("div", "card"); gcard.style.marginTop = "16px";
   gcard.innerHTML = `
     <div class="spread"><h2 class="mb0">Generate</h2><div class="row" id="imCounts"></div></div>
-    <p class="desc">Each scene's prompt = its <b>image_prompt</b> + the storyboard's global style. Batches run in the background.</p>
+    <p class="desc">Each scene's prompt = its <b>image_prompt</b> + the global style above. Batches run in the background.</p>
     <div class="row" id="imActions"></div>
     <div id="imRun" style="margin-top:16px"></div>
     <div class="divider"></div>
@@ -902,15 +928,85 @@ async function renderImages(host) {
   $("#imLoaded", page).textContent = st.loaded ? `loaded: ${st.model || ""}` : "model not loaded";
   const setVal = () => $("#imDefVal", page).textContent = (+$("#imDefW", page).value).toFixed(2);
   const syncDef = () => { $("#imDefWrap", page).style.display = $("#imDefLora", page).checked ? "" : "none"; };
+  const syncNegHint = () => {
+    const t = mdef().type, h = $("#gpNegHint", page);
+    if (!h) return;
+    h.textContent = t === "comfyui" ? "(krea2: only used when guidance > 1 — the turbo default is 1.0)"
+      : t === "flux" ? "(FLUX ignores negative prompts)"
+        : "(applies on SD / SDXL)";
+  };
   const applyVis = () => {
-    const flux = isFlux();
+    const flux = isFlux(), comfy = mdef().type === "comfyui";
     $("#imQuantField", page).style.display = flux ? "" : "none";
     $("#imBuiltinLora", page).style.display = flux ? "" : "none";
+    $("#imComfyLora", page).style.display = comfy ? "" : "none";
+    $("#imLoraList", page).style.display = comfy ? "none" : "";
     $("#imRefsCard", page).style.display = mdef().ip_adapter ? "" : "none";
     if (flux) syncDef();
+    syncNegHint();
   };
   const setIp = () => $("#imIpVal", page).textContent = (+$("#imIp", page).value).toFixed(2);
   setVal(); setIp(); applyVis();
+
+  // --- Krea-2 (ComfyUI) LoRA picker ---
+  const syncCLora = () => {
+    const name = $("#imCLora", page).value;
+    cfg.comfy_lora = name ? { name, strength: +$("#imCLoraW", page).value || 0.8 } : null;
+  };
+  $("#imCLora", page).onchange = syncCLora;
+  $("#imCLoraW", page).oninput = syncCLora;
+  (async () => {
+    let data = { loras: [] };
+    try { data = await api.get("/api/comfy_loras"); } catch (e) { }
+    const cur = (cfg.comfy_lora && cfg.comfy_lora.name) || "";
+    $("#imCLora", page).innerHTML = `<option value="">— none —</option>` + data.loras.map(l =>
+      `<option value="${esc(l.name)}" ${l.name === cur ? "selected" : ""}>${esc(l.name)}${l.size_mb ? ` · ${l.size_mb} MB` : ""}</option>`).join("");
+    if (cur && !data.loras.some(l => l.name === cur)) { cfg.comfy_lora = null; }
+  })();
+
+  // --- global prompts (mirror of scenes.merge_style on the backend) ---
+  const normClause = c => c.replace(/\s+/g, " ").trim().replace(/^[\s.;:]+|[\s.;:]+$/g, "").toLowerCase();
+  function mergeStyle(base, style) {
+    base = (base || "").trim().replace(/^,+|,+$/g, "").trim();
+    const have = new Set(base.split(",").map(normClause));
+    const add = (style || "").split(",").map(c => c.trim()).filter(c => normClause(c) && !have.has(normClause(c)));
+    if (!add.length) return base;
+    return base ? `${base}, ${add.join(", ")}` : add.join(", ");
+  }
+  const prevScene = p.scenes.find(s => (s.image_prompt || "").trim()) || p.scenes[0];
+  function drawPreview() {
+    if (!prevScene) return;
+    $("#gpPrevId", page).textContent = prevScene.id;
+    const base = (prevScene.image_prompt || prevScene.visual || prevScene.narration || "").trim();
+    $("#gpPreview", page).textContent = mergeStyle(base, $("#gpStyle", page).value) || "—";
+  }
+  const setGpState = dirty => {
+    const b = $("#gpState", page);
+    b.textContent = dirty ? "unsaved changes" : "saved";
+    b.className = dirty ? "badge gold" : "badge";
+  };
+  $("#gpStyle", page).oninput = () => { setGpState(true); drawPreview(); };
+  $("#gpNeg", page).oninput = () => setGpState(true);
+  $("#gpPreset", page).onclick = () => {
+    const pr = (state.imageModels.style_presets || [])[0];
+    if (!pr) return toast("No preset available", "err");
+    $("#gpStyle", page).value = pr.text;
+    setGpState(true); drawPreview();
+  };
+  $("#gpSave", page).onclick = async () => {
+    const msg = $("#gpMsg", page);
+    try {
+      const meta = await api.patch(`/api/projects/${p.id}/video`, {
+        global_style_suffix: $("#gpStyle", page).value.trim(),
+        global_negative_prompt: $("#gpNeg", page).value.trim(),
+      });
+      p.video = Object.assign(p.video || {}, meta);
+      setGpState(false);
+      msg.textContent = "saved ✓ — re-render scenes to apply";
+      setTimeout(() => { if (msg.textContent.startsWith("saved")) msg.textContent = ""; }, 5000);
+    } catch (e) { toast(e.message, "err"); }
+  };
+  drawPreview();
 
   // --- reference pack (RAG) ---
   async function loadRefs() {
@@ -930,7 +1026,7 @@ async function renderImages(host) {
   }
   $("#imIp", page).oninput = e => { cfg.ip_scale = +e.target.value; setIp(); };
   $("#imUseRefs", page).onchange = e => cfg.use_refs = e.target.checked;
-  $("#imSeed", page).onclick = async () => {
+  $("#imRefSeed", page).onclick = async () => {
     const msg = $("#imRefMsg", page); msg.textContent = "seeding…";
     try { const r = await api.post("/api/style_refs/seed", { pid: p.id, limit: 24 }); msg.textContent = `added ${r.added}`; loadRefs(); }
     catch (e) { msg.textContent = ""; toast(e.message, "err"); }

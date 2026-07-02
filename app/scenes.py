@@ -200,26 +200,76 @@ def parse_storyboard(raw: Dict) -> Dict:
     return {"video": video, "scenes": scenes, "characters": parse_characters(raw)}
 
 
-def build_image_prompt(scene: Dict, video: Dict, style: Optional[str] = None) -> Tuple[str, str]:
+def _norm_clause(c: str) -> str:
+    return re.sub(r"\s+", " ", c).strip(" .;:").lower()
+
+
+def merge_style(base: str, style: str) -> str:
+    """Append the style's comma-clauses to base, skipping clauses already there.
+
+    Storyboard LLMs tend to bake the global style into every scene's
+    image_prompt *and* provide it as global_style_suffix — naive concatenation
+    would repeat ~40 words of style text per scene (and partial bakes would
+    half-repeat). Deduping clause-by-clause keeps the prompt clean whichever
+    form the JSON arrives in, while any style clause the scene is missing
+    still gets appended.
+    """
+    base = (base or "").strip().strip(",").strip()
+    have = {_norm_clause(c) for c in base.split(",")}
+    add = [c.strip() for c in (style or "").split(",")
+           if _norm_clause(c) and _norm_clause(c) not in have]
+    if not add:
+        return base
+    return f"{base}, {', '.join(add)}" if base else ", ".join(add)
+
+
+def character_blurb(scene: Dict, characters: Optional[List[Dict]]) -> str:
+    """Ground the scene's bible characters textually: 'Name: fixed look'.
+
+    Backends without reference conditioning (krea2) only know a character by
+    what the prompt says, so recurring characters drift unless every scene
+    restates their look.
+    """
+    if not characters:
+        return ""
+    idx: Dict[str, Dict] = {}
+    for c in characters:
+        for nm in [c.get("name", "")] + (c.get("aliases") or []):
+            if nm:
+                idx[nm.strip().lower()] = c
+    bits, seen = [], set()
+    for ref in (scene.get("characters") or []):
+        name = (ref.get("name") if isinstance(ref, dict) else ref) or ""
+        c = idx.get(name.strip().lower())
+        if not c or c.get("id") in seen:
+            continue
+        seen.add(c.get("id"))
+        desc = ", ".join(p for p in [(c.get("description") or "").strip(),
+                                     (c.get("palette") or "").strip()] if p)
+        if desc:
+            bits.append(f"{c.get('name')} ({desc})")
+    return f"Featuring {'; '.join(bits)}." if bits else ""
+
+
+def build_image_prompt(scene: Dict, video: Dict, style: Optional[str] = None,
+                       characters: Optional[List[Dict]] = None) -> Tuple[str, str]:
     """Compose the per-scene generation prompt.
 
-    Default (no ``style``): prompt = image_prompt + ', ' + global_style_suffix, per
-    the JSON's _pipeline_notes. When a ``style`` preset is given (e.g. the krea2
-    flat-cartoon look), it *replaces* the storyboard's ink/whiteboard suffix and
-    leads the prompt; wording that fights a non-ink style ("stick figure",
-    "whiteboard") is softened so the scene content survives. on_screen_text is
-    ignored (composited in post). Negative = global_negative_prompt.
+    prompt = image_prompt (+ character-bible looks) + style, where ``style``
+    is an explicit override when given, else the storyboard's editable
+    global_style_suffix — one rule for every backend, so what the UI shows is
+    what renders. Style clauses the scene already contains aren't appended
+    twice (see merge_style). on_screen_text is ignored (composited in post).
+    Negative = global_negative_prompt.
     """
     base = (scene.get("image_prompt") or scene.get("visual")
             or scene.get("narration") or "").strip().rstrip(",")
-    if style and style.strip():
-        base = re.sub(r"\bstick[- ]?figures?\b", "character", base, flags=re.I)
-        base = re.sub(r"\bwhiteboard\b", "", base, flags=re.I)
-        base = re.sub(r"\s{2,}", " ", base).strip().rstrip(",")
-        prompt = f"{style.strip()}. {base}" if base else style.strip()
-    else:
-        suffix = (video.get("global_style_suffix") or "").strip()
-        prompt = f"{base}, {suffix}" if (base and suffix) else (base or suffix)
+    blurb = character_blurb(scene, characters)
+    if blurb:
+        base = f"{base}. {blurb}" if base else blurb
+    suffix = (style if style and style.strip()
+              else (video.get("global_style_suffix") or "")).strip()
+    prompt = merge_style(base, suffix)
     negative = (video.get("global_negative_prompt") or "").strip()
     return prompt, negative
 

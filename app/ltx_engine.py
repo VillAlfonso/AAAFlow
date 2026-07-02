@@ -207,6 +207,7 @@ class LTXEngine:
                 negative: Optional[str] = None, width: Optional[int] = None,
                 height: Optional[int] = None, fps: Optional[int] = None,
                 seed: int = 0, end_image_path: Optional[str] = None,
+                style_lead: Optional[str] = None, style_tail: Optional[str] = None,
                 progress=None) -> bytes:
         """Animate ``image_path`` into an mp4 clip; returns the raw mp4 bytes."""
         if not config.ltx2_ready():
@@ -220,10 +221,14 @@ class LTXEngine:
         length = _snap_length(seconds or cfg["default_seconds"], fps)
         negative = negative if negative is not None else cfg["negative"]
 
-        # LTX 2D-animation prompt format: style declaration first, then the
-        # subject/action, then explicit flat-look negations.
-        lead = (cfg.get("style_lead") or "").strip()
-        tail = (cfg.get("style_tail") or "").strip()
+        # LTX animation prompt format: style declaration first, then the
+        # subject/action, then explicit style-hold negations. Callers pass a
+        # project-specific lead/tail (the storyboard's global style); the config
+        # flat-cartoon anchors are only the fallback.
+        lead = (style_lead if style_lead is not None
+                else cfg.get("style_lead") or "").strip()
+        tail = (style_tail if style_tail is not None
+                else cfg.get("style_tail") or "").strip()
         full_prompt = ". ".join(p.strip().strip(".").strip()
                                 for p in (lead, prompt, tail) if p.strip().strip("."))
 

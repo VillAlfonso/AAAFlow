@@ -251,6 +251,20 @@ def character_blurb(scene: Dict, characters: Optional[List[Dict]]) -> str:
     return f"Featuring {'; '.join(bits)}." if bits else ""
 
 
+_PERSON_RE = re.compile(
+    r"\b(man|men|woman|women|person|people|character|figure|kid|child|crowd|"
+    r"dealer|businessman|businessmen|boss|agent|agents|worker|guard|doorman|"
+    r"he|she|his|her|portrait|face)\b", re.I)
+
+
+def scene_has_people(scene: Dict) -> bool:
+    """Does this scene actually feature someone (named or described)?"""
+    if scene.get("characters"):
+        return True
+    blob = f"{scene.get('image_prompt') or ''} {scene.get('visual') or ''}"
+    return bool(_PERSON_RE.search(blob))
+
+
 def build_image_prompt(scene: Dict, video: Dict, style: Optional[str] = None,
                        characters: Optional[List[Dict]] = None) -> Tuple[str, str]:
     """Compose the per-scene generation prompt.
@@ -259,9 +273,12 @@ def build_image_prompt(scene: Dict, video: Dict, style: Optional[str] = None,
     is an explicit override when given, else the storyboard's editable
     global_style_suffix — one rule for every backend, so what the UI shows is
     what renders. Style clauses the scene already contains aren't appended
-    twice (see merge_style). on_screen_text is ignored (composited in post).
+    twice (see merge_style). Scenes featuring nobody get the style minus its
+    people-describing clause — otherwise the model draws phantom figures into
+    object/landscape shots. on_screen_text is ignored (composited in post).
     Negative = global_negative_prompt.
     """
+    from . import config
     base = (scene.get("image_prompt") or scene.get("visual")
             or scene.get("narration") or "").strip().rstrip(",")
     blurb = character_blurb(scene, characters)
@@ -269,6 +286,8 @@ def build_image_prompt(scene: Dict, video: Dict, style: Optional[str] = None,
         base = f"{base}. {blurb}" if base else blurb
     suffix = (style if style and style.strip()
               else (video.get("global_style_suffix") or "")).strip()
+    if suffix and not scene_has_people(scene):
+        suffix = suffix.replace(config.KREA2_STYLE_CHAR_CLAUSE, "").strip()
     prompt = merge_style(base, suffix)
     negative = (video.get("global_negative_prompt") or "").strip()
     return prompt, negative

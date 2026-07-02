@@ -1,10 +1,15 @@
 """Assemble per-scene images + timed audio into one synced MP4 (moviepy 2.x).
 
 Audio-led: each scene is shown for its timeline duration (real narration length
-+ lead/tail, clamped to a minimum hold). Stills get an optional Ken Burns
-zoom; on_screen_text is composited in post (the image models aren't used for
++ lead/tail, clamped to a minimum hold). Stills get a varied Ken Burns move
+(direction/zoom alternate per scene so pacing doesn't feel robotic);
+on_screen_text is composited in post (the image models aren't used for
 spelling); scenes missing an image fall back to a cream title card and scenes
 missing audio play silence — so a partial project still assembles.
+
+Audio is built as ONE mix: narration placed on the timeline, the music bed
+ducked under speech (sidechain-style), procedural SFX stingers from each
+scene's ``audio_cue``, then a peak limiter — like a human editor's session.
 """
 from __future__ import annotations
 
@@ -15,7 +20,7 @@ from typing import Callable, Dict, List, Optional
 
 import numpy as np
 
-from . import config, jobs, projects, storage, transitions
+from . import config, jobs, projects, sfx, storage, transitions
 
 ProgressFn = Callable[[str, float], None]
 
@@ -29,24 +34,31 @@ _FONTS = [r"C:\Windows\Fonts\arialbd.ttf", r"C:\Windows\Fonts\segoeuib.ttf",
 FONT = next((f for f in _FONTS if Path(f).exists()), None)
 
 
-def _audio_array(path: Optional[Path], dur: float, lead: float) -> np.ndarray:
-    """Stereo float array of exactly `dur` seconds with narration placed at `lead`."""
-    total = np.zeros((max(1, int(dur * SR)), 2), dtype=np.float32)
-    if path and path.exists():
-        try:
-            wav, sr = _read_wav(path)
-            if sr != SR:
-                wav = _resample(wav, sr, SR)
-            if wav.ndim == 1:
-                wav = np.stack([wav, wav], axis=-1)
-            elif wav.shape[-1] == 1:
-                wav = np.repeat(wav, 2, axis=-1)
-            off = int(min(lead, max(0.0, dur - len(wav) / SR)) * SR)
-            end = min(total.shape[0], off + wav.shape[0])
-            total[off:end] = wav[: end - off]
-        except Exception:
-            pass
-    return total
+def _as_stereo(wav: np.ndarray, sr: int) -> np.ndarray:
+    if sr != SR:
+        wav = _resample(wav, sr, SR)
+    if wav.ndim == 1:
+        wav = np.stack([wav, wav], axis=-1)
+    elif wav.shape[-1] == 1:
+        wav = np.repeat(wav, 2, axis=-1)
+    return wav.astype(np.float32)
+
+
+def _duck_gain(speech: np.ndarray, duck_gain: float = 0.35,
+               thresh: float = 0.02) -> np.ndarray:
+    """Per-sample gain curve that lowers the bed while narration plays.
+
+    Block-max envelope -> speech mask -> smoothed (~350 ms) so the music
+    breathes back up in pauses instead of pumping.
+    """
+    win = int(SR * 0.04)
+    nb = int(np.ceil(len(speech) / win)) or 1
+    env = np.pad(speech, (0, nb * win - len(speech))).reshape(nb, win).max(axis=1)
+    mask = (env > thresh).astype(np.float32)
+    kern = np.ones(9, dtype=np.float32) / 9.0
+    m = np.clip(np.convolve(mask, kern, mode="same") * 1.4, 0.0, 1.0)
+    gain = 1.0 - (1.0 - duck_gain) * m
+    return np.repeat(gain, win)[: len(speech)]
 
 
 def _read_wav(path: Path):
@@ -185,7 +197,26 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
         last = ImageClip(clip.get_frame(max(0.0, cd - 1e-3))).with_duration(dur - cd)
         return concatenate_videoclips([clip, last], method="compose").with_duration(dur)
 
-    def visual(s, dur):
+    def _ken_burns(base, dur, idx):
+        """Varied, deterministic move per scene: alternate zoom in/out and
+        drift direction so long runs of stills don't feel like a metronome."""
+        zin = idx % 2 == 0
+        z0, z1 = (1.0, 1.075) if zin else (1.085, 1.005)
+        dxs = (0, -1, 0, 1)[idx % 4]
+        dys = (-1, 0, 1, 0)[idx % 4]
+
+        def zf(t):
+            return z0 + (z1 - z0) * (t / max(dur, 0.1))
+
+        def pos(t):
+            z = zf(t)
+            mx, my = (z - 1) * W / 2, (z - 1) * H / 2
+            return ((W - W * z) / 2 + dxs * 0.5 * mx,
+                    (H - H * z) / 2 + dys * 0.5 * my)
+        zc = base.resized(zf).with_position(pos)
+        return CompositeVideoClip([zc], size=(W, H)).with_duration(dur)
+
+    def visual(s, dur, idx):
         nonlocal with_images, with_videos
         vidp = pdir / s["video_file"] if s.get("video_file") else None
         if use_anim and vidp and vidp.exists():
@@ -205,8 +236,7 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
             base = base.resized(scale)
             base = base.cropped(x_center=base.w / 2, y_center=base.h / 2, width=W, height=H)
             if kb:
-                z = base.resized(lambda t: 1 + 0.06 * (t / max(dur, 0.1)))
-                return CompositeVideoClip([z.with_position("center")], size=(W, H)).with_duration(dur)
+                return _ken_burns(base, dur, idx)
             return base.with_duration(dur)
         # placeholder cream card
         bg = ColorClip(size=(W, H), color=CREAM).with_duration(dur)
@@ -224,9 +254,12 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
         if not (burn and txt and FONT):
             return None
         try:
-            t = TextClip(font=FONT, text=txt, font_size=int(H * 0.058), color=INK,
-                         method="caption", size=(int(W * 0.8), None), text_align="center",
-                         stroke_color="white", stroke_width=2).with_duration(dur)
+            # White bold with a heavy dark stroke — reads on any art, light or
+            # busy (thin ink-on-white washed out on rich scenes).
+            t = TextClip(font=FONT, text=txt, font_size=int(H * 0.062), color="white",
+                         method="caption", size=(int(W * 0.86), None), text_align="center",
+                         stroke_color="#14110c", stroke_width=max(4, int(H * 0.008))
+                         ).with_duration(dur)
             pos = ("center", int(H * 0.76))
             kind = transitions.classify_text_anim(s.get("text_anim"))
             return transitions.apply_text_anim(t, kind, dur=dur, W=W, H=H, pos=pos)
@@ -234,43 +267,84 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
             return None
 
     for i, s in enumerate(scenes):
-        progress(f"Composing scene {s['id']} ({i + 1}/{n})", 0.04 + 0.66 * i / max(n, 1))
+        progress(f"Composing scene {s['id']} ({i + 1}/{n})", 0.04 + 0.60 * i / max(n, 1))
         dur = float(rows.get(str(s["id"]), {}).get("dur") or s.get("planned_dur") or 2.0)
-        v = visual(s, dur)
+        v = visual(s, dur, i)
         cap = caption(s, dur)
         if cap is not None:
             v = CompositeVideoClip([v, cap], size=(W, H)).with_duration(dur)
-        if not narr:                          # per-scene audio (the master track is set below)
-            ap = (pdir / s["audio_file"]) if s.get("audio_file") else None
-            if ap and ap.exists():
-                with_audio += 1
-            arr = _audio_array(ap, dur, lead)
-            v = v.with_audio(AudioArrayClip(arr, fps=SR))
         if do_transitions:
             kind = transitions.classify_transition(s.get("transition"))
-            v = transitions.apply_transition(v, kind, dur=dur, W=W, H=H)
+            v = transitions.apply_transition(v, kind, dur=dur, W=W, H=H,
+                                             raw=s.get("transition") or "")
         clips.append(v)
 
-    progress("Encoding video", 0.74)
+    progress("Mixing audio", 0.66)
     # Per-scene transitions are self-contained entrances, so clips join cleanly.
     final = concatenate_videoclips(clips, method="compose")
 
-    # Narration-track projects: lay the whole voiceover over the timeline as one
-    # continuous file (never cut per scene), so the render matches the recording.
+    # --- one audio session: narration + ducked bed + SFX + limiter ----------
+    total_dur = float(final.duration)
+    N = max(1, int(total_dur * SR))
+    mix = np.zeros((N, 2), dtype=np.float32)
+
     if narr:
-        track = _full_track(pdir / narr.get("file", ""), float(final.duration))
+        # Narration-track projects: the whole recording laid over the timeline
+        # as one continuous file (never cut per scene).
+        track = _full_track(pdir / narr.get("file", ""), total_dur)
         if track is not None:
             with_audio = n
-            final = final.with_audio(AudioArrayClip(track, fps=SR))
+            mix[: len(track)] += track[:N]
+    else:
+        for s in scenes:
+            r = rows.get(str(s["id"]))
+            ap = (pdir / s["audio_file"]) if s.get("audio_file") else None
+            if r is None or not (ap and ap.exists()):
+                continue
+            try:
+                wav = _as_stereo(*_read_wav(ap))
+            except Exception:
+                continue
+            with_audio += 1
+            off = int((float(r["start"]) + lead) * SR)
+            end = min(N, off + len(wav))
+            if end > off:
+                mix[off:end] += wav[: end - off]
 
-    # Background music bed (ACE-Step) mixed under the narration, if the project
-    # has one set. Looped/trimmed to the full runtime, low volume, gentle fades.
-    bed = _background_bed(project["settings"].get("music"), float(tl["total_dur"]))
+    speech = np.abs(mix).max(axis=1)          # narration-only envelope (pre-bed)
+
+    music_cfg = project["settings"].get("music") or {}
+    bed = _background_bed(music_cfg, total_dur)
     if bed is not None:
-        bg_clip = AudioArrayClip(bed, fps=SR).with_duration(final.duration)
-        final = final.with_audio(
-            CompositeAudioClip([final.audio, bg_clip]) if final.audio is not None
-            else bg_clip)
+        if music_cfg.get("duck", True) and speech.any():
+            bed = bed * _duck_gain(speech)[:, None][: len(bed)]
+        mix[: len(bed)] += bed[:N]
+
+    with_sfx = 0
+    if bool(asm.get("sfx", True)):
+        vol = float(asm.get("sfx_volume", 0.5))
+        for s in scenes:
+            cue = (s.get("audio_cue") or "").strip()
+            r = rows.get(str(s["id"]))
+            if not cue or r is None:
+                continue
+            arr = sfx.render(cue)
+            if arr is None:
+                continue
+            off = int(float(r["start"]) * SR)
+            if sfx.is_pre(cue):                # risers END on the cut
+                off = max(0, off - len(arr))
+            end = min(N, off + len(arr))
+            if end > off:
+                mix[off:end] += arr[: end - off] * vol
+                with_sfx += 1
+
+    peak = float(np.max(np.abs(mix)))
+    if peak > 0.985:                           # keep the sum out of clipping
+        mix *= 0.985 / peak
+    if peak > 0.0:
+        final = final.with_audio(AudioArrayClip(mix, fps=SR))
+    progress("Encoding video", 0.74)
 
     out_rel = f"video/final_{time.strftime('%Y%m%d_%H%M%S')}.mp4"
     out_abs = pdir / out_rel
@@ -290,4 +364,4 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
     return {"rel": out_rel, "duration": round(float(tl["total_dur"]), 2),
             "width": W, "height": H, "fps": fps, "scenes": n,
             "with_audio": with_audio, "with_images": with_images,
-            "with_videos": with_videos}
+            "with_videos": with_videos, "with_sfx": with_sfx}

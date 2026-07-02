@@ -166,6 +166,16 @@ KREA2_STYLE = (
     "fills, soft cell-shading with simple drop shadows and gentle directional lighting, "
     "no gradients, no photorealism, no 3D, clean vector look, simple uncluttered background"
 )
+# The people-describing clause inside KREA2_STYLE. Scenes with no characters
+# get the style WITHOUT it — a style that describes bodies/faces conjures
+# phantom figures into object/landscape shots (cfg 1.0 has no negative to
+# fight them). Kept as an exact substring so the strip is a no-op on styles
+# that don't contain it.
+KREA2_STYLE_CHAR_CLAUSE = (
+    "simple minimal bodies (rounded torsos with thin noodle/stick limbs and small "
+    "simple hands) but expressive, detailed faces with clear eyes, eyebrows and mouth "
+    "shapes conveying real emotion; "
+)
 
 # --- LTX-2 video animation (still -> short clip, via ComfyUI) ---------------
 # Animates a generated scene still into a short clip when the storyboard scene
@@ -370,10 +380,12 @@ DEFAULT_SETTINGS = {
     # --- final video assembly ---------------------------------------------
     "assemble": {
         "width": 1920, "height": 1080, "fps": 30,
-        "ken_burns": True,           # subtle pan/zoom on stills
+        "ken_burns": True,           # varied pan/zoom on stills
         "transitions": True,         # honor per-scene transition (cut/fade/whip)
         "burn_text": True,           # composite on_screen_text in post
         "crossfade_ms": 220,
+        "sfx": True,                 # procedural stingers from scene audio_cue
+        "sfx_volume": 0.5,           # stinger level in the final mix (0..1)
     },
 }
 

@@ -27,6 +27,8 @@ from typing import Dict, List, Tuple
 # --- classification --------------------------------------------------------
 # (substring, primitive) — first match wins, so order specific -> generic.
 _TRANSITION_RULES: List[Tuple[str, str]] = [
+    ("flash", "flash"), ("bolt", "flash"), ("lightning", "flash"),
+    ("shake", "shake"), ("rumble", "shake"), ("earthquake", "shake"),
     ("smash", "punch"), ("record-scratch", "punch"), ("record-needle", "punch"),
     ("punch-in", "punch"), ("quick punch", "punch"), ("fast zoom", "punch"),
     ("glitch", "glitch"), ("rewind", "glitch"), ("reverse-zoom", "glitch"),
@@ -101,12 +103,19 @@ def _fade(clip, d, W, H):
 
 
 def _zoom(clip, d, W, H, start=1.10, snap=1.0):
-    """Settle from a slightly zoomed state to rest over d seconds (push/pull/iris)."""
+    """Settle from a slightly zoomed state to rest over d seconds (push/pull/iris).
+
+    Wrapped in a fixed W*H composite: a bare time-varying resize reports its
+    t=0 (zoomed, possibly odd) size, which inflates concatenate(compose) and
+    can hand libx264 an odd width."""
     try:
+        from moviepy import CompositeVideoClip
+
         def scale(t):
             p = _ease_out(t / d) if d > 0 else 1.0
             return 1.0 if t >= d else (start + (1.0 - start) * p) * snap
-        return clip.resized(scale).with_position("center")
+        z = clip.resized(scale).with_position("center")
+        return CompositeVideoClip([z], size=(W, H)).with_duration(clip.duration)
     except Exception:
         return clip
 
@@ -132,12 +141,52 @@ def _slide(clip, d, W, H, frm="right"):
         return clip
 
 
-def apply_transition(clip, kind: str, *, dur: float, W: int, H: int):
+def _shake(clip, d, W, H):
+    """Impact shake: slight over-zoom + decaying two-axis jitter on entry."""
+    try:
+        import math
+
+        from moviepy import CompositeVideoClip
+        dd = max(0.28, min(0.5, d))
+        amp = 0.012 * W
+        z = clip.resized(1.05)
+
+        def pos(t):
+            if t >= dd:
+                return ((W - z.w) / 2, (H - z.h) / 2)
+            decay = (1 - t / dd) ** 1.5
+            return ((W - z.w) / 2 + amp * decay * math.sin(t * 73.0),
+                    (H - z.h) / 2 + 0.6 * amp * decay * math.cos(t * 97.0))
+        return CompositeVideoClip([z.with_position(pos)],
+                                  size=(W, H)).with_duration(clip.duration)
+    except Exception:
+        return clip
+
+
+def _flash(clip, d, W, H):
+    """White flash-frame over a snappy punch-in (music-video style cut)."""
+    base = _punch(clip, d, W, H)
+    try:
+        from moviepy import ColorClip, CompositeVideoClip
+        from moviepy.video.fx import CrossFadeOut
+        fd = 0.14
+        white = (ColorClip(size=(W, H), color=(255, 255, 255))
+                 .with_duration(fd).with_effects([CrossFadeOut(fd)]))
+        return CompositeVideoClip([base, white],
+                                  size=(W, H)).with_duration(clip.duration)
+    except Exception:
+        return base
+
+
+def apply_transition(clip, kind: str, *, dur: float, W: int, H: int, raw: str = ""):
     d = max(0.18, min(0.5, dur / 3.0))
     fn = _TRANSITIONS.get(kind)
     if not fn:
         return clip
     try:
+        if kind == "slide":
+            frm = "left" if "left" in (raw or "").lower() else "right"
+            return _slide(clip, d, W, H, frm=frm)
         return fn(clip, d, W, H)
     except Exception:
         return clip
@@ -152,6 +201,8 @@ _TRANSITIONS: Dict = {
     "punch": _punch,
     "glitch": _punch,
     "slide": _slide,
+    "shake": _shake,
+    "flash": _flash,
 }
 
 

@@ -11,9 +11,10 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from . import (animate, assemble, captions, characters, config, humanize,
-               images, jobs, music, projects, scenes, service, storage,
-               style_refs, training, transcribe, voiceover)
+from . import (animate, assemble, captions, characters, config, effects,
+               humanize, images, jobs, music, produce, projects, scenes,
+               service, sfx, storage, style_refs, training, transcribe,
+               voiceover)
 from .audio import ffmpeg_ok
 from .engine import engine
 from .image_engine import image_engine
@@ -465,6 +466,57 @@ def gen_voiceover(pid: str, req: VoiceoverReq):
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
     return {"job_id": job_id}
+
+
+@app.post("/api/projects/{pid}/voiceover/onetake")
+def gen_voiceover_onetake(pid: str, req: VoiceoverReq):
+    """Canonical voice flow: whole script in one take + Whisper scene alignment."""
+    try:
+        job_id = voiceover.submit_onetake(pid, req.voice)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    return {"job_id": job_id}
+
+
+class ProduceReq(BaseModel):
+    plan: dict = {}                   # overrides for produce.default_plan
+
+
+@app.post("/api/projects/{pid}/produce")
+def start_produce(pid: str, req: ProduceReq = ProduceReq()):
+    """Run the whole pipeline (voice → images → animate → assemble) in one call."""
+    try:
+        return produce.submit_produce(pid, req.plan)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
+@app.get("/api/projects/{pid}/produce")
+def produce_status(pid: str):
+    st = produce.status(pid)
+    if st is None:
+        raise HTTPException(status_code=404, detail="no production for this project")
+    return st
+
+
+@app.get("/api/effects_presets")
+def get_effects_presets():
+    return {"presets": effects.load()}
+
+
+@app.put("/api/effects_presets")
+def put_effects_preset(preset: dict):
+    """Add/replace one editing-style preset (save a look for future videos)."""
+    try:
+        return {"presets": effects.upsert(preset or {})}
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
+@app.get("/api/sfx")
+def get_sfx_library():
+    """Browsable stinger library — consult this when writing audio_cue fields."""
+    return {"sfx": sfx.library(), "dir": str(config.SFX_LIB_DIR)}
 
 
 class AttachVoiceReq(BaseModel):

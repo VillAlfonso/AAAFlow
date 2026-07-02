@@ -40,6 +40,9 @@ HISTORY_FILE = DATA_DIR / "history.json"
 CUSTOM_VOICES_FILE = DATA_DIR / "voices_custom.json"
 IMAGE_MODELS_FILE = DATA_DIR / "image_models.json"         # registry of imported checkpoints/LoRAs
 MUSIC_LIBRARY_FILE = DATA_DIR / "music_library.json"       # generated background music / SFX clips
+EFFECTS_PRESETS_FILE = DATA_DIR / "effects_presets.json"   # reusable editing-style presets
+SFX_LIB_DIR = DATA_DIR / "sfx_library"                     # editing stinger wavs (tagged)
+SFX_LIBRARY_FILE = DATA_DIR / "sfx_library.json"           # manifest for the stinger library
 
 # --- models ----------------------------------------------------------------
 # Each "size" maps a task -> Hugging Face repo id. The model bundles its own
@@ -378,13 +381,16 @@ DEFAULT_SETTINGS = {
         "write_subtitles": True,     # also emit captions.srt + captions.vtt next to transcript.json
     },
     # --- final video assembly ---------------------------------------------
+    # No on-screen text is ever burned in: narration + visuals carry the video
+    # (burned captions read as AI; text lives in the edit only if a human adds
+    # it later in a real editor).
     "assemble": {
         "width": 1920, "height": 1080, "fps": 30,
-        "ken_burns": True,           # varied pan/zoom on stills
+        "preset": "cinematic",       # id into data/effects_presets.json
+        "ken_burns": True,           # varied pan/zoom on still fallbacks
         "transitions": True,         # honor per-scene transition (cut/fade/whip)
-        "burn_text": True,           # composite on_screen_text in post
         "crossfade_ms": 220,
-        "sfx": True,                 # procedural stingers from scene audio_cue
+        "sfx": True,                 # stingers from scene audio_cue (library/synth)
         "sfx_volume": 0.5,           # stinger level in the final mix (0..1)
     },
 }

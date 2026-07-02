@@ -1,15 +1,18 @@
-"""Assemble per-scene images + timed audio into one synced MP4 (moviepy 2.x).
+"""Assemble per-scene visuals + timed audio into one synced MP4 (moviepy 2.x).
 
 Audio-led: each scene is shown for its timeline duration (real narration length
-+ lead/tail, clamped to a minimum hold). Stills get a varied Ken Burns move
-(direction/zoom alternate per scene so pacing doesn't feel robotic);
-on_screen_text is composited in post (the image models aren't used for
-spelling); scenes missing an image fall back to a cream title card and scenes
-missing audio play silence — so a partial project still assembles.
++ lead/tail, clamped to a minimum hold). Each scene's visual comes from the
+style preset's source chain — LTX clip, 2.5D parallax clip, or a varied
+Ken Burns still (always the final fallback) — so one storyboard renders as
+"cinematic", "parallax slides" or "simple slides" without re-generating
+anything. No on-screen text is burned in (it reads as AI; narration + visuals
+carry the video). Scenes missing an image fall back to a cream card and scenes
+missing audio play silence — a partial project still assembles.
 
 Audio is built as ONE mix: narration placed on the timeline, the music bed
-ducked under speech (sidechain-style), procedural SFX stingers from each
-scene's ``audio_cue``, then a peak limiter — like a human editor's session.
+ducked under speech (sidechain-style), stinger SFX from each scene's
+``audio_cue`` (library file or synth), then a peak limiter — like a human
+editor's session.
 """
 from __future__ import annotations
 
@@ -20,7 +23,7 @@ from typing import Callable, Dict, List, Optional
 
 import numpy as np
 
-from . import config, jobs, projects, sfx, storage, transitions
+from . import config, effects, jobs, projects, sfx, storage, transitions
 
 ProgressFn = Callable[[str, float], None]
 
@@ -169,9 +172,18 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
 
     project = projects.get_project(pid)
     asm = {**project["settings"].get("assemble", {}), **(opts or {})}
+    # Style preset: settings/opts override individual preset fields.
+    preset = effects.get(asm.get("preset") or "cinematic")
+    sources = [s for s in (asm.get("sources") or preset.get("sources") or ["stills"])
+               if s in ("clips", "parallax", "stills")]
+    plx_cfg = {**(preset.get("parallax") or {}), **(asm.get("parallax") or {})}
+    kb_strength = float(asm.get("kb_strength", preset.get("kb_strength", 1.0)))
     W = int(asm.get("width", 1920)); H = int(asm.get("height", 1080)); fps = int(asm.get("fps", 30))
-    kb = bool(asm.get("ken_burns", True)); burn = bool(asm.get("burn_text", True))
-    do_transitions = bool(asm.get("transitions", True))
+    kb = bool(asm.get("ken_burns", preset.get("ken_burns", True)))
+    do_transitions = bool(asm.get("transitions", preset.get("transitions", True)))
+    sfx_on = bool(asm.get("sfx", preset.get("sfx", True)))
+    sfx_vol = float(asm.get("sfx_volume", preset.get("sfx_volume", 0.5)))
+    duck_gain = float(asm.get("music_duck", preset.get("music_duck", 0.35)))
     sync = project["settings"].get("sync", {})
     lead = float(sync.get("lead_in_ms", 120)) / 1000.0
 
@@ -181,8 +193,10 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
     rows = {str(r["id"]): r for r in tl["scenes"]}
     scenes = project["scenes"]
     n = len(scenes)
-    with_audio = with_images = with_videos = 0
-    use_anim = bool(asm.get("use_animation", True))
+    with_audio = with_images = with_videos = with_parallax = 0
+    # legacy toggle: use_animation False drops "clips" from the chain
+    if asm.get("use_animation") is False:
+        sources = [s for s in sources if s != "clips"]
     clips = []
 
     def _fit_clip(clip, dur):
@@ -200,8 +214,9 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
     def _ken_burns(base, dur, idx):
         """Varied, deterministic move per scene: alternate zoom in/out and
         drift direction so long runs of stills don't feel like a metronome."""
+        amt = 0.075 * max(0.2, kb_strength)
         zin = idx % 2 == 0
-        z0, z1 = (1.0, 1.075) if zin else (1.085, 1.005)
+        z0, z1 = (1.0, 1.0 + amt) if zin else (1.01 + amt, 1.005)
         dxs = (0, -1, 0, 1)[idx % 4]
         dys = (-1, 0, 1, 0)[idx % 4]
 
@@ -216,28 +231,50 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
         zc = base.resized(zf).with_position(pos)
         return CompositeVideoClip([zc], size=(W, H)).with_duration(dur)
 
+    def _try_clip(path, dur):
+        try:
+            clip = VideoFileClip(str(path))
+            if clip.audio is not None:
+                clip = clip.without_audio()
+            return _fit_clip(clip, dur)
+        except Exception:
+            return None
+
     def visual(s, dur, idx):
-        nonlocal with_images, with_videos
-        vidp = pdir / s["video_file"] if s.get("video_file") else None
-        if use_anim and vidp and vidp.exists():
-            try:
-                clip = VideoFileClip(str(vidp))
-                if clip.audio is not None:
-                    clip = clip.without_audio()
-                with_videos += 1
-                return _fit_clip(clip, dur)
-            except Exception:
-                pass
-        imgp = pdir / s["image_file"] if s.get("image_file") else None
-        if imgp and imgp.exists():
-            with_images += 1
-            base = ImageClip(str(imgp))
-            scale = max(W / base.w, H / base.h)
-            base = base.resized(scale)
-            base = base.cropped(x_center=base.w / 2, y_center=base.h / 2, width=W, height=H)
-            if kb:
-                return _ken_burns(base, dur, idx)
-            return base.with_duration(dur)
+        nonlocal with_images, with_videos, with_parallax
+        for src in list(sources) + ["stills"]:
+            if src == "clips" and s.get("video_file"):
+                p = pdir / s["video_file"]
+                if p.exists():
+                    v = _try_clip(p, dur)
+                    if v is not None:
+                        with_videos += 1
+                        return v
+            elif src == "parallax":
+                try:
+                    from .parallax import parallax_engine
+                    pc = parallax_engine.ensure_scene_clip(
+                        pdir, s, dur=dur, width=W, height=H, fps=fps, idx=idx,
+                        amplitude=float(plx_cfg.get("amplitude", 0.024)))
+                    if pc:
+                        v = _try_clip(pc, dur)
+                        if v is not None:
+                            with_parallax += 1
+                            return v
+                except Exception as exc:  # noqa: BLE001 - fall through to stills
+                    print(f"[assemble] parallax failed for scene {s.get('id')}: {exc}")
+            elif src == "stills":
+                imgp = pdir / s["image_file"] if s.get("image_file") else None
+                if imgp and imgp.exists():
+                    with_images += 1
+                    base = ImageClip(str(imgp))
+                    scale = max(W / base.w, H / base.h)
+                    base = base.resized(scale)
+                    base = base.cropped(x_center=base.w / 2, y_center=base.h / 2,
+                                        width=W, height=H)
+                    if kb:
+                        return _ken_burns(base, dur, idx)
+                    return base.with_duration(dur)
         # placeholder cream card
         bg = ColorClip(size=(W, H), color=CREAM).with_duration(dur)
         if FONT:
@@ -249,30 +286,10 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
                 pass
         return bg
 
-    def caption(s, dur):
-        txt = (s.get("on_screen_text") or "").strip()
-        if not (burn and txt and FONT):
-            return None
-        try:
-            # White bold with a heavy dark stroke — reads on any art, light or
-            # busy (thin ink-on-white washed out on rich scenes).
-            t = TextClip(font=FONT, text=txt, font_size=int(H * 0.062), color="white",
-                         method="caption", size=(int(W * 0.86), None), text_align="center",
-                         stroke_color="#14110c", stroke_width=max(4, int(H * 0.008))
-                         ).with_duration(dur)
-            pos = ("center", int(H * 0.76))
-            kind = transitions.classify_text_anim(s.get("text_anim"))
-            return transitions.apply_text_anim(t, kind, dur=dur, W=W, H=H, pos=pos)
-        except Exception:
-            return None
-
     for i, s in enumerate(scenes):
         progress(f"Composing scene {s['id']} ({i + 1}/{n})", 0.04 + 0.60 * i / max(n, 1))
         dur = float(rows.get(str(s["id"]), {}).get("dur") or s.get("planned_dur") or 2.0)
         v = visual(s, dur, i)
-        cap = caption(s, dur)
-        if cap is not None:
-            v = CompositeVideoClip([v, cap], size=(W, H)).with_duration(dur)
         if do_transitions:
             kind = transitions.classify_transition(s.get("transition"))
             v = transitions.apply_transition(v, kind, dur=dur, W=W, H=H,
@@ -317,12 +334,12 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
     bed = _background_bed(music_cfg, total_dur)
     if bed is not None:
         if music_cfg.get("duck", True) and speech.any():
-            bed = bed * _duck_gain(speech)[:, None][: len(bed)]
+            bed = bed * _duck_gain(speech, duck_gain=duck_gain)[:, None][: len(bed)]
         mix[: len(bed)] += bed[:N]
 
     with_sfx = 0
-    if bool(asm.get("sfx", True)):
-        vol = float(asm.get("sfx_volume", 0.5))
+    if sfx_on:
+        vol = sfx_vol
         for s in scenes:
             cue = (s.get("audio_cue") or "").strip()
             r = rows.get(str(s["id"]))
@@ -363,5 +380,7 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
 
     return {"rel": out_rel, "duration": round(float(tl["total_dur"]), 2),
             "width": W, "height": H, "fps": fps, "scenes": n,
+            "preset": preset.get("id"), "sources": sources,
             "with_audio": with_audio, "with_images": with_images,
-            "with_videos": with_videos, "with_sfx": with_sfx}
+            "with_videos": with_videos, "with_parallax": with_parallax,
+            "with_sfx": with_sfx}

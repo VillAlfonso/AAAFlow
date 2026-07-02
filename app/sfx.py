@@ -1,17 +1,24 @@
-"""Procedural editing SFX (whoosh / impact / riser / ding / pop) — no models.
+"""Editing SFX: a file library with a procedural synth fallback.
 
 The storyboard's free-text ``audio_cue`` per scene ("deep impact boom",
-"quick whoosh", "shimmering riser", "cash register ding"…) is classified by
-keyword and synthesized with numpy at render time. These are the tiny editing
-stingers a human editor drops on cuts; generated audio (ACE-Step) stays for
-music beds. Everything returns stereo float32 @ 44100, peak-normalized —
-the assembler scales by its sfx volume setting.
+"quick whoosh", "shimmering riser", "cash register ding"…) is matched against
+``data/sfx_library/`` (tagged wav files listed in ``data/sfx_library.json``).
+Drop any downloaded packs into that folder — filenames become tags — and
+they're used automatically. When no library file matches, the cue falls back
+to the built-in numpy synths, which also seed the library on first run so
+there is always something to browse when writing a script.
+
+Everything returns stereo float32 @ 44100, peak-normalized — the assembler
+scales by its sfx volume setting.
 """
 from __future__ import annotations
 
-from typing import List, Optional, Tuple
+import re
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
+
+from . import config, storage
 
 SR = 44100
 
@@ -129,8 +136,97 @@ def classify(cue: str) -> Optional[Tuple[object, bool]]:
     return None
 
 
+# --- file library ------------------------------------------------------------
+# Built-in synths that seed the library (id, synth, tags).
+_BUILTINS = [
+    ("whoosh_air", whoosh, ["whoosh", "swish", "swoosh", "transition", "air"]),
+    ("impact_boom", impact, ["impact", "boom", "hit", "thud", "slam", "clank", "drop", "punch"]),
+    ("riser_build", riser, ["riser", "rise", "build", "shimmer", "sweep"]),
+    ("ding_bell", ding, ["ding", "bell", "chime"]),
+    ("kaching_register", kaching, ["kaching", "ka-ching", "cash", "register", "coin", "money"]),
+    ("pop_cartoon", pop, ["pop", "bubble", "blip"]),
+]
+
+
+def _words(text: str) -> List[str]:
+    return re.findall(r"[a-z]+", (text or "").lower())
+
+
+def seed_library() -> int:
+    """Write the procedural stingers as wavs + manifest entries (idempotent)."""
+    import soundfile as sf
+    config.SFX_LIB_DIR.mkdir(parents=True, exist_ok=True)
+    manifest = storage.read_json(config.SFX_LIBRARY_FILE, []) or []
+    have = {m.get("id") for m in manifest}
+    added = 0
+    for sid, fn, tags in _BUILTINS:
+        path = config.SFX_LIB_DIR / f"{sid}.wav"
+        if not path.exists():
+            arr = fn()
+            sf.write(str(path), arr, SR)
+        if sid not in have:
+            manifest.append({"id": sid, "file": path.name, "tags": tags,
+                             "dur": round(len(fn()) / SR, 2),
+                             "source": "builtin-procedural", "pre": sid == "riser_build"})
+            added += 1
+    if added:
+        storage.write_json(config.SFX_LIBRARY_FILE, manifest)
+    return added
+
+
+def library() -> List[Dict]:
+    """Manifest + any loose wavs dropped into the folder (filename = tags)."""
+    seed_library()
+    manifest = storage.read_json(config.SFX_LIBRARY_FILE, []) or []
+    known = {m.get("file") for m in manifest}
+    changed = False
+    if config.SFX_LIB_DIR.exists():
+        for f in sorted(config.SFX_LIB_DIR.glob("*.wav")):
+            if f.name in known:
+                continue
+            manifest.append({"id": f.stem, "file": f.name, "tags": _words(f.stem),
+                             "source": "imported", "pre": "riser" in f.stem.lower()})
+            changed = True
+    if changed:
+        storage.write_json(config.SFX_LIBRARY_FILE, manifest)
+    return manifest
+
+
+def _load_wav(path) -> Optional[np.ndarray]:
+    try:
+        import soundfile as sf
+        wav, sr = sf.read(str(path), dtype="float32", always_2d=True)
+        if wav.shape[1] == 1:
+            wav = np.repeat(wav, 2, axis=1)
+        if sr != SR:
+            n = int(round(len(wav) * SR / sr))
+            xp = np.linspace(0, 1, len(wav), endpoint=False)
+            x = np.linspace(0, 1, n, endpoint=False)
+            wav = np.stack([np.interp(x, xp, wav[:, c]) for c in range(2)], axis=-1)
+        return _norm(wav.astype(np.float32), 0.9)
+    except Exception:
+        return None
+
+
+def _match_library(cue: str) -> Optional[Dict]:
+    cw = set(_words(cue))
+    if not cw:
+        return None
+    best, score = None, 0
+    for entry in library():
+        s = len(cw & set(entry.get("tags") or []))
+        if s > score:
+            best, score = entry, s
+    return best if score > 0 else None
+
+
 def render(cue: str) -> Optional[np.ndarray]:
-    """Synthesize the stinger for a free-text cue, or None if unrecognized."""
+    """Stinger for a free-text cue: tagged library file first, synth fallback."""
+    entry = _match_library(cue)
+    if entry:
+        arr = _load_wav(config.SFX_LIB_DIR / entry["file"])
+        if arr is not None:
+            return arr
     hit = classify(cue)
     if not hit:
         return None
@@ -139,5 +235,8 @@ def render(cue: str) -> Optional[np.ndarray]:
 
 
 def is_pre(cue: str) -> bool:
+    entry = _match_library(cue)
+    if entry is not None:
+        return bool(entry.get("pre"))
     hit = classify(cue)
     return bool(hit and hit[1])

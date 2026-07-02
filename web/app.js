@@ -703,11 +703,15 @@ async function renderVoiceover(host) {
     const cnt = sceneCounts();
     const missing = state.project.scenes.filter(s => (s.narration || "").trim() && s.status.audio !== "ready").length;
     const a = $("#voActions", page); a.innerHTML = "";
-    const gen = el("button", "btn btn-primary", `${icon("i-wand")} Generate missing (${missing})`);
+    // Canonical flow: the WHOLE script in one take — tone flows across scenes,
+    // Whisper aligns each scene to the recording. Per-scene stays for fixes.
+    const one = el("button", "btn btn-primary", `${icon("i-voice")} One-take narration (whole script)`);
+    one.onclick = () => runVO("onetake");
+    const gen = el("button", "btn btn-ghost", `${icon("i-wand")} Per-scene: missing (${missing})`);
     gen.disabled = missing === 0; gen.onclick = () => runVO("missing");
-    const all = el("button", "btn btn-ghost", `${icon("i-refresh")} Re-voice all (${cnt.total})`);
+    const all = el("button", "btn btn-ghost", `${icon("i-refresh")} Per-scene: all (${cnt.total})`);
     all.onclick = () => runVO("all");
-    a.append(gen, all);
+    a.append(one, gen, all);
   }
   function drawScenes() {
     const list = $("#voScenes", page); list.innerHTML = "";
@@ -742,11 +746,18 @@ async function renderVoiceover(host) {
     const runEl = $("#voRun", page);
     runEl.innerHTML = `<div class="run-panel"><div class="spinner"></div><div style="flex:1"><div class="lab" id="voStage">Starting…</div><div class="progress" style="margin-top:8px"><div class="bar" id="voBar"></div></div></div></div>`;
     try {
-      const { job_id } = await api.post(`/api/projects/${state.project.id}/voiceover`, { voice: sel, scope, scene_id: sceneId != null ? String(sceneId) : null });
+      const url = scope === "onetake"
+        ? `/api/projects/${state.project.id}/voiceover/onetake`
+        : `/api/projects/${state.project.id}/voiceover`;
+      const { job_id } = await api.post(url, { voice: sel, scope, scene_id: sceneId != null ? String(sceneId) : null });
       const res = await pollJob(job_id, j => { const st = $("#voStage", page); if (st) st.textContent = j.stage; const b = $("#voBar", page); if (b) b.style.width = Math.round((j.progress || 0) * 100) + "%"; });
       await loadProject(state.project.id);
       runEl.innerHTML = "";
-      toast(`Voiced ${res.done} scene(s) · ${fmtClock(res.timeline.total_dur)} total`);
+      if (scope === "onetake" && res.qa && !res.qa.ok) {
+        toast(`Narrated ${fmtClock(res.duration)} — QA flagged the transcript (overlap ${res.qa.overlap}); listen before rendering`, "err");
+      } else {
+        toast(`Voiced ${res.done} scene(s) · ${fmtClock((res.timeline || {}).total_dur || res.duration || 0)} total`);
+      }
       timing(); actions(); drawScenes(); renderNav();
       if (typeof trActions === "function") trActions();
     } catch (e) { runEl.innerHTML = ""; toast(e.message, "err"); }
@@ -1408,34 +1419,43 @@ async function renderAssemble(host) {
      <button class="btn btn-primary" onclick="location.hash='#/p/${p.id}/preview'">${icon("i-preview")} Preview →</button>`);
   const page = el("div", "page"); page.innerHTML = stepper("assemble");
 
-  const opts = Object.assign({ width: 1920, height: 1080, fps: 30, ken_burns: true, transitions: true, burn_text: true, use_animation: true }, p.settings.assemble || {});
+  const opts = Object.assign({ width: 1920, height: 1080, fps: 30, preset: "cinematic", ken_burns: true, transitions: true, sfx: true }, p.settings.assemble || {});
+  delete opts.burn_text;   // on-screen text is never burned anymore
   const RES = [[1920, 1080, "1080p"], [1280, 720, "720p"], [854, 480, "480p (fast)"]];
+  const SOURCES = [["", "Preset default"], ["clips,parallax", "LTX clips + parallax (both)"], ["parallax", "Parallax only (no LTX)"], ["clips", "LTX clips only"], ["stills", "Stills (Ken Burns)"]];
 
   const card = el("div", "card");
   card.innerHTML = `
     <h2>Build the video</h2>
-    <p class="desc">Each scene shows for its real narration length (audio-led). Stills get a gentle Ken Burns move; on-screen text is composited in post. Scenes without an image use a placeholder card; without audio, they play silent — so a partial project still renders.</p>
+    <p class="desc">Each scene shows for its real narration length. The <b>style preset</b> decides how scenes move — LTX clips, 2.5D <b>parallax</b> (depth camera moves on stills), or classic Ken Burns — plus stinger SFX and music ducking. Presets live in <span class="mono">data/effects_presets.json</span> and are reusable across projects.</p>
     <div class="row" style="margin-bottom:14px">
       <span class="badge ${c.audio === c.total ? "good" : "warn"}">${c.audio}/${c.total} voiced</span>
       <span class="badge ${c.image === c.total ? "good" : "warn"}">${c.image}/${c.total} imaged</span>
+      <span class="badge" id="asVoiceKind">${p.narration ? "one-take narration ✓" : "per-scene audio"}</span>
     </div>
     <div class="grid3">
+      <div class="field"><label>Style preset</label><select id="asPreset"><option>${esc(opts.preset || "cinematic")}</option></select></div>
+      <div class="field"><label>Scene motion</label><select id="asSources">
+        ${SOURCES.map(([v, l]) => `<option value="${v}" ${(opts.sources || []).join(",") === v ? "selected" : ""}>${l}</option>`).join("")}
+      </select></div>
       <div class="field"><label>Resolution</label><select id="asRes">
         ${RES.map(([w, h, l]) => `<option value="${w}x${h}" ${opts.width === w ? "selected" : ""}>${l} (${w}×${h})</option>`).join("")}
       </select></div>
+    </div>
+    <div class="grid3">
       <div class="field"><label>FPS</label><select id="asFps">${[24, 30, 60].map(f => `<option ${opts.fps === f ? "selected" : ""}>${f}</option>`).join("")}</select></div>
       <div class="field" style="justify-content:flex-end"><label>&nbsp;</label>
         <div class="row" style="gap:18px">
-          <label class="switch"><input type="checkbox" id="asKB" ${opts.ken_burns ? "checked" : ""}/><span class="track"></span> Ken Burns</label>
+          <label class="switch"><input type="checkbox" id="asTrans" ${opts.transitions ? "checked" : ""}/><span class="track"></span> Transitions</label>
+          <label class="switch"><input type="checkbox" id="asSfx" ${opts.sfx !== false ? "checked" : ""}/><span class="track"></span> Stinger SFX</label>
         </div></div>
     </div>
-    <div class="row" style="gap:18px;margin-bottom:8px">
-      <label class="switch"><input type="checkbox" id="asTrans" ${opts.transitions ? "checked" : ""}/><span class="track"></span> Transitions (crossfade)</label>
-      <label class="switch"><input type="checkbox" id="asText" ${opts.burn_text ? "checked" : ""}/><span class="track"></span> Burn in on-screen text</label>
-      <label class="switch"><input type="checkbox" id="asAnim" ${opts.use_animation !== false ? "checked" : ""}/><span class="track"></span> Use animated clips</label>
+    <div class="row">
+      <button class="btn btn-primary" id="asGo">${icon("i-assemble")} Build video</button>
+      <button class="btn btn-ghost" id="asProduce" title="voice → images → animate → assemble in one go">${icon("i-wand")} Produce everything</button>
+      <label class="switch" style="margin-left:6px"><input type="checkbox" id="asRevoice"/><span class="track"></span> Re-voice (one take)</label>
+      <span class="muted" id="asEta"></span>
     </div>
-    <div class="row"><button class="btn btn-primary" id="asGo">${icon("i-assemble")} Build video</button>
-      <span class="muted" id="asEta"></span></div>
     <div id="asRun" style="margin-top:16px"></div>`;
   page.appendChild(card);
 
@@ -1446,10 +1466,21 @@ async function renderAssemble(host) {
 
   $("#asRes", page).onchange = e => { const [w, h] = e.target.value.split("x").map(Number); opts.width = w; opts.height = h; };
   $("#asFps", page).onchange = e => opts.fps = +e.target.value;
-  $("#asKB", page).onchange = e => opts.ken_burns = e.target.checked;
   $("#asTrans", page).onchange = e => opts.transitions = e.target.checked;
-  $("#asText", page).onchange = e => opts.burn_text = e.target.checked;
-  $("#asAnim", page).onchange = e => opts.use_animation = e.target.checked;
+  $("#asSfx", page).onchange = e => opts.sfx = e.target.checked;
+  $("#asSources", page).onchange = e => {
+    opts.sources = e.target.value ? e.target.value.split(",") : null;
+    if (!opts.sources) delete opts.sources;
+  };
+  // fill the preset dropdown from the shared library
+  (async () => {
+    try {
+      const { presets } = await api.get("/api/effects_presets");
+      $("#asPreset", page).innerHTML = presets.map(pr =>
+        `<option value="${esc(pr.id)}" ${pr.id === (opts.preset || "cinematic") ? "selected" : ""}>${esc(pr.label || pr.id)}</option>`).join("");
+    } catch (e) { }
+  })();
+  $("#asPreset", page).onchange = e => opts.preset = e.target.value;
 
   function drawRenders() {
     const wrap = $("#asRenders", page);
@@ -1479,6 +1510,31 @@ async function renderAssemble(host) {
       const res = await pollJob(job_id, j => { const s = $("#asStage", page); if (s) s.textContent = j.stage; const b = $("#asBar", page); if (b) b.style.width = Math.round((j.progress || 0) * 100) + "%"; });
       await loadProject(p.id); runEl.innerHTML = "";
       toast("Video assembled ✓"); drawRenders();
+    } catch (e) { runEl.innerHTML = ""; toast(e.message, "err"); }
+  };
+
+  // One click, whole pipeline: voice (one-take) → images → animate → assemble.
+  $("#asProduce", page).onclick = async () => {
+    const runEl = $("#asRun", page);
+    runEl.innerHTML = `<div class="run-panel"><div class="spinner"></div><div style="flex:1"><div class="lab" id="asStage">Starting production…</div><div class="progress" style="margin-top:8px"><div class="bar" id="asBar"></div></div></div></div>`;
+    try {
+      await api.put(`/api/projects/${p.id}/settings`, { assemble: opts });
+      const plan = { assemble: opts };
+      if ($("#asRevoice", page).checked) plan.voice = "onetake";
+      await api.post(`/api/projects/${p.id}/produce`, { plan });
+      const st = await new Promise((resolve, reject) => {
+        const t = setInterval(async () => {
+          try {
+            const s = await api.get(`/api/projects/${p.id}/produce`);
+            const lab = $("#asStage", page); if (lab) lab.textContent = s.stage || s.status;
+            const b = $("#asBar", page); if (b && s.progress != null) b.style.width = Math.round(s.progress * 100) + "%";
+            if (s.status === "done") { clearInterval(t); resolve(s); }
+            else if (s.status === "error") { clearInterval(t); reject(new Error(s.error || "production failed")); }
+          } catch (e) { clearInterval(t); reject(e); }
+        }, 3000);
+      });
+      await loadProject(p.id); runEl.innerHTML = "";
+      toast("Production finished ✓"); drawRenders(); renderNav();
     } catch (e) { runEl.innerHTML = ""; toast(e.message, "err"); }
   };
 }

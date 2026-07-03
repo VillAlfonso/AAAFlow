@@ -43,44 +43,69 @@ def upscale_image(src: Path, dst: Path, *, scale: int = 2) -> Optional[Path]:
         return None
 
 
+def _src_fps(src: Path) -> float:
+    """Source frame rate via ffprobe (fallback 16 — Wan's native rate)."""
+    try:
+        r = subprocess.run([config.FFPROBE, "-v", "error", "-select_streams", "v:0",
+                            "-show_entries", "stream=r_frame_rate",
+                            "-of", "csv=p=0", str(src)],
+                           capture_output=True, text=True, timeout=30)
+        num, _, den = r.stdout.strip().partition("/")
+        return float(num) / float(den or 1)
+    except Exception:  # noqa: BLE001
+        return 16.0
+
+
 def enhance_clip(src: Path, dst: Path, *, fps: Optional[int] = None,
                  scale: Optional[int] = None, progress: Optional[ProgressFn] = None,
                  label: str = "") -> Path:
-    """Interpolate + upscale ``src`` into ``dst``; returns the produced path."""
-    fps = int(fps or config.ENHANCE["fps"])
+    """Upscale/sharpen ``src`` into ``dst``; returns the produced path.
+
+    Frame INTERPOLATION is off by default (config.ENHANCE["interpolate"]):
+    minterpolate ghosted flat art badly (2026-07-03 — birds grew doubles,
+    lattices tore). Clips keep their native rate; the assembler duplicates
+    frames into its 30 fps timeline, which reads as ordinary cartoon timing.
+    """
     scale = int(scale or config.ENHANCE["scale"])
     src, dst = Path(src), Path(dst)
     work = Path(tempfile.mkdtemp(prefix="aaaflow_enh_", dir=str(dst.parent)))
     try:
-        # 1) motion-compensated frame interpolation up to the target fps
-        interp = work / "interp.mp4"
-        if progress:
-            progress(f"Enhancing {label}: interpolating to {fps} fps", 0.0)
-        _run([config.FFMPEG, "-y", "-i", src,
-              "-vf", f"minterpolate=fps={fps}:mi_mode=mci:mc_mode=aobmc:vsbmc=1",
-              "-c:v", "libx264", "-preset", "veryfast", "-crf", "17",
-              "-pix_fmt", "yuv420p", "-an", interp])
+        stage_src = src
+        out_fps = _src_fps(src)
+        if config.ENHANCE.get("interpolate"):
+            # legacy opt-in path — known to artifact on stylized art
+            out_fps = int(fps or config.ENHANCE["fps"])
+            interp = work / "interp.mp4"
+            if progress:
+                progress(f"Enhancing {label}: interpolating to {out_fps} fps", 0.0)
+            _run([config.FFMPEG, "-y", "-i", src,
+                  "-vf", f"minterpolate=fps={out_fps}:mi_mode=mci:mc_mode=aobmc:vsbmc=1",
+                  "-c:v", "libx264", "-preset", "veryfast", "-crf", "17",
+                  "-pix_fmt", "yuv420p", "-an", interp])
+            stage_src = interp
 
-        # 2) anime-video upscale (frame folder round-trip; the ncnn binary
-        #    takes image dirs, not video)
+        # anime-video upscale (frame folder round-trip; the ncnn binary
+        # takes image dirs, not video)
         if scale > 1 and config.enhance_ready():
             if progress:
-                progress(f"Enhancing {label}: {scale}x line-sharpening upscale", 0.4)
+                progress(f"Enhancing {label}: {scale}x line-sharpening upscale", 0.3)
             fin = work / "in"
             fout = work / "out"
             fin.mkdir()
             fout.mkdir()
-            _run([config.FFMPEG, "-y", "-i", interp, str(fin / "f_%05d.png")])
+            _run([config.FFMPEG, "-y", "-i", stage_src, str(fin / "f_%05d.png")])
             _run([config.ENHANCE["exe"], "-i", fin, "-o", fout,
                   "-n", config.ENHANCE["model"], "-s", scale, "-f", "png"])
             if progress:
                 progress(f"Enhancing {label}: re-encoding", 0.85)
-            _run([config.FFMPEG, "-y", "-framerate", fps,
+            _run([config.FFMPEG, "-y", "-framerate", f"{out_fps:.6f}",
                   "-i", str(fout / "f_%05d.png"),
                   "-c:v", "libx264", "-preset", "veryfast", "-crf", "17",
                   "-pix_fmt", "yuv420p", "-an", dst])
+        elif stage_src != src:
+            shutil.copyfile(stage_src, dst)
         else:
-            shutil.copyfile(interp, dst)
+            shutil.copyfile(src, dst)
         return dst
     except Exception as exc:  # noqa: BLE001 — never lose the raw clip
         print(f"[enhance] failed ({exc}); keeping raw clip")

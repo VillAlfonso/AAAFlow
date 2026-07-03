@@ -21,7 +21,7 @@ import threading
 import time
 from typing import Dict, Optional
 
-from . import animate, assemble, effects, images, jobs, projects, storage, voiceover
+from . import animate, assemble, config, effects, images, jobs, music, projects, storage, voiceover
 
 _state: Dict[str, Dict] = {}
 _lock = threading.Lock()
@@ -47,6 +47,9 @@ def default_plan(project: Dict) -> Dict:
     return {
         "voice": "skip" if project.get("narration") else "onetake",
         "images": True,
+        # channel music_vibe + no bed set yet + ACE installed → generate one
+        "music": bool(settings.get("music_vibe")) and not settings.get("music")
+                 and config.music_env_ready() and config.music_model_ready(),
         "animate": {"scope": "missing"} if (uses_clips and engine != "none") else False,
         "assemble": {},
     }
@@ -66,6 +69,8 @@ def submit_produce(pid: str, plan: Optional[Dict] = None) -> Dict:
         stages.append("voice")
     if plan.get("images"):
         stages.append("images")
+    if plan.get("music"):
+        stages.append("music")      # before animate so the ACE sidecar can be freed
     if plan.get("animate"):
         stages.append("animate")
     if plan.get("assemble") is not False:
@@ -87,6 +92,11 @@ def submit_produce(pid: str, plan: Optional[Dict] = None) -> Dict:
         if name == "images":
             icfg = dict(proj["settings"].get("image") or {})
             return images.submit_images(pid, icfg, scope="missing")
+        if name == "music":
+            vibe = (proj["settings"].get("music_vibe") or "").strip()
+            return music.submit_music({
+                "prompt": vibe + ", instrumental background bed, loopable, "
+                                 "no vocals", "seconds": 75, "kind": "bgm"})
         if name == "animate":
             aopts = dict(plan["animate"]) if isinstance(plan["animate"], dict) else {}
             scope = aopts.pop("scope", "missing")
@@ -95,6 +105,36 @@ def submit_produce(pid: str, plan: Optional[Dict] = None) -> Dict:
             aopts = dict(plan["assemble"]) if isinstance(plan["assemble"], dict) else {}
             return assemble.submit_assemble(pid, aopts)
         raise ValueError(f"Unknown stage {name}")
+
+    def _kill_ace_sidecar():
+        """Free the music engine's VRAM before video work (no unload API)."""
+        import re as _re
+        import subprocess
+        try:
+            out = subprocess.run(["netstat", "-ano"], capture_output=True,
+                                 text=True, timeout=15).stdout
+            for line in out.splitlines():
+                if ":8765" in line and "LISTENING" in line:
+                    m = _re.search(r"(\d+)\s*$", line)
+                    if m:
+                        subprocess.run(["taskkill", "/PID", m.group(1), "/F"],
+                                       capture_output=True, timeout=15)
+                        return
+        except Exception:  # noqa: BLE001 — best-effort
+            pass
+
+    def _attach_music(jid: str):
+        """Set the generated bed on the project (ducked, low, faded)."""
+        j = jobs.get_job(jid) or {}
+        files = (j.get("result") or {}).get("files") or {}
+        f = files.get("wav") or next(iter(files.values()), None)
+        if not f:
+            return
+        proj = projects.get_project(pid)
+        proj["settings"]["music"] = {"file": f, "volume": 0.16, "duck": True,
+                                     "fade": 1.5,
+                                     "prompt": proj["settings"].get("music_vibe")}
+        projects.save_project(proj)
 
     def _run():
         try:
@@ -120,6 +160,9 @@ def submit_produce(pid: str, plan: Optional[Dict] = None) -> Dict:
                          progress=j.get("progress"))
                     if j["status"] == "done":
                         entry.update(status="done")
+                        if name == "music":
+                            _attach_music(jid)
+                            _kill_ace_sidecar()
                         if name == "assemble":
                             _set(pid, result=j.get("result"))
                         break

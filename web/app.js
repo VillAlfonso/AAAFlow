@@ -69,28 +69,32 @@ function confirmModal(title, body, okLabel = "Confirm", danger = true) {
 /* ---------- state ---------- */
 const state = {
   status: {}, settings: {}, voices: { builtin: [], custom: [], languages: [] },
-  imageModels: { builtin: [], imported: [], default: "flux-dev" },
-  projects: [], history: [],
+  imageModels: { builtin: [], imported: [], default: "krea2" },
+  projects: [], history: [], channels: [],
+  createChannel: null,          // set by a Channels-page "New video" click
   currentPid: null, project: null, page: "projects",
 };
 
-/* ---------- nav ---------- */
+/* ---------- nav (ordered like the real production flow) ---------- */
 const NAV = [
+  { id: "channels", label: "Channels", icon: "i-channels" },
   { id: "projects", label: "Projects", icon: "i-projects" },
   { sep: true },
-  { id: "storyboard", label: "Storyboard", icon: "i-storyboard", proj: true },
-  { id: "characters", label: "Characters", icon: "i-voices", proj: true },
-  { id: "voiceover", label: "Voiceover", icon: "i-voice", proj: true },
-  { id: "images", label: "Images", icon: "i-image", proj: true },
-  { id: "animate", label: "Animate", icon: "i-preview", proj: true },
-  { id: "assemble", label: "Assemble", icon: "i-assemble", proj: true },
-  { id: "preview", label: "Preview", icon: "i-preview", proj: true },
+  // per-project pipeline, in the canonical order: script → voice → look → picture → motion → edit → check
+  { id: "storyboard", label: "1 · Script", icon: "i-storyboard", proj: true },
+  { id: "voiceover", label: "2 · Voice", icon: "i-voice", proj: true },
+  { id: "characters", label: "3 · Characters", icon: "i-voices", proj: true },
+  { id: "images", label: "4 · Images", icon: "i-image", proj: true },
+  { id: "animate", label: "5 · Animate", icon: "i-preview", proj: true },
+  { id: "assemble", label: "6 · Assemble", icon: "i-assemble", proj: true },
+  { id: "preview", label: "7 · Preview", icon: "i-preview", proj: true },
+  { id: "publish", label: "8 · Publish", icon: "i-download", proj: true },
   { sep: true },
-  { id: "history", label: "History", icon: "i-history" },
-  { id: "voices", label: "Voice Lab", icon: "i-voices" },
   { id: "transcribe", label: "Script → JSON", icon: "i-clock" },
+  { id: "voices", label: "Voice Lab", icon: "i-voices" },
+  { id: "history", label: "History", icon: "i-history" },
   { id: "training", label: "Training", icon: "i-wand" },
-  { id: "settings", label: "Settings", icon: "i-settings" },
+  { id: "settings", label: "Settings · Storage", icon: "i-settings" },
 ];
 // Project-scoped nav uses the open project, else the most-recently-updated one,
 // so the Storyboard/Voiceover/Images/... links work straight from the Projects list.
@@ -183,6 +187,7 @@ const STEPS = [
   { id: "animate", label: "Animate" },
   { id: "assemble", label: "Assemble" },
   { id: "preview", label: "Preview" },
+  { id: "publish", label: "Publish" },
 ];
 function stepper(active) {
   const pid = state.currentPid;
@@ -195,9 +200,12 @@ function stepper(active) {
    PAGE: PROJECTS  (import + list)
    ============================================================ */
 async function renderProjects(host) {
-  topbar("Projects", "Import a storyboard JSON, then generate voiceovers and images.");
-  const [projData, history] = await Promise.all([api.get("/api/projects"), api.get("/api/history").catch(() => [])]);
+  topbar("Projects", "Import a storyboard JSON — a channel fills in the look, voice and pipeline defaults.");
+  const [projData, history, chData] = await Promise.all([
+    api.get("/api/projects"), api.get("/api/history").catch(() => []),
+    api.get("/api/channels").catch(() => ({ channels: [] }))]);
   state.projects = projData.projects;
+  state.channels = chData.channels || [];
 
   const page = el("div", "page");
 
@@ -233,13 +241,26 @@ async function renderProjects(host) {
       </div>
     </div>
     <div class="grid3" style="margin-top:14px">
+      <div class="field"><label>Channel <span class="hint">(fills every default below)</span></label><select id="pChannel">
+        <option value="">— standalone (no channel) —</option>
+        ${state.channels.map(c => `<option value="${esc(c.id)}">${esc(c.name)}</option>`).join("")}
+      </select></div>
+      <div class="field"><label>Script author</label><select id="pAuthoring">
+        <option value="">Channel default</option>
+        <option value="pro">Pro script — trust the writing</option>
+        <option value="assisted">Assisted — small-model script (Haiku etc.), director may rewrite</option>
+      </select></div>
+      <div class="field"><label>&nbsp;</label><button class="btn btn-ghost" id="pChPrompt" title="Copy the selected channel's script-writing prompt (spec + brief + topics)">${icon("i-edit")} Copy script prompt</button></div>
+    </div>
+    <div class="grid3" style="margin-top:6px">
       <div class="field"><label>Image model</label><select id="pEngImg">
         <option value="krea2">Krea-2 Turbo (ComfyUI)</option>
         <option value="cartoon-rag">SDXL + reference RAG</option>
         <option value="flux-schnell">FLUX.1 schnell</option>
       </select></div>
       <div class="field"><label>Animation</label><select id="pEngAnim">
-        <option value="wan">Wan 2.2 14B (max quality)</option>
+        <option value="wan">Wan 2.2 14B (max — ~20 min/scene)</option>
+        <option value="wan-balanced">Wan 2.2 balanced (720p 4-step — ~3 min/scene)</option>
         <option value="wan-fast">Wan 2.2 — fast profile (drafts)</option>
         <option value="none">None (parallax/stills only)</option>
       </select></div>
@@ -262,9 +283,39 @@ async function renderProjects(host) {
     return {
       image_model: $("#pEngImg", page).value,
       animate_engine: anim === "none" ? "none" : "wan",
-      quality: anim === "wan-fast" ? "fast" : "max",
+      quality: anim === "wan-fast" ? "fast" : (anim === "wan-balanced" ? "balanced" : "max"),
       preset: $("#pEngPreset", page).value,
+      authoring: $("#pAuthoring", page).value || null,
     };
+  };
+  window._projChannel = () => $("#pChannel", page).value || null;
+
+  // picking a channel mirrors its defaults into the selects (still overridable)
+  const chSel = $("#pChannel", page);
+  chSel.onchange = () => {
+    const c = state.channels.find(x => x.id === chSel.value);
+    if (!c) return;
+    const d = c.defaults || {};
+    if (d.image_model) $("#pEngImg", page).value = d.image_model;
+    $("#pEngAnim", page).value = d.animate_engine === "none" ? "none"
+      : (d.quality === "fast" ? "wan-fast" : (d.quality === "balanced" ? "wan-balanced" : "wan"));
+    if (d.preset) $("#pEngPreset", page).value = d.preset;
+  };
+  if (state.createChannel) {           // arrived via a Channels-page "New video"
+    chSel.value = state.createChannel; state.createChannel = null;
+    chSel.onchange();
+    $("#pText", page).focus();
+  }
+  $("#pChPrompt", page).onclick = async () => {
+    const cid = chSel.value;
+    if (!cid) return toast("Pick a channel first — the prompt carries its brief and topic bank.", "err");
+    const topic = window.prompt("Topic for this video (blank = include the channel's topic bank):", "");
+    if (topic === null) return;
+    try {
+      const { prompt } = await api.get(`/api/channels/${cid}/authoring_prompt${topic.trim() ? "?topic=" + encodeURIComponent(topic.trim()) : ""}`);
+      await navigator.clipboard.writeText(prompt);
+      toast("Script prompt copied — paste it into any model, then import the JSON it returns here.");
+    } catch (e) { toast(e.message, "err"); }
   };
 
   // list
@@ -305,7 +356,7 @@ async function renderProjects(host) {
     const text = $("#pText", page).value.trim();
     if (!text) return toast("Paste some JSON or use the file picker.", "err");
     try {
-      const { project } = await api.post("/api/projects", { text, name: $("#pName", page).value.trim() || null, engines: window._projEngines ? window._projEngines() : null });
+      const { project } = await api.post("/api/projects", { text, name: $("#pName", page).value.trim() || null, engines: window._projEngines ? window._projEngines() : null, channel: window._projChannel ? window._projChannel() : null });
       await finishCreate(project);
     } catch (e) { toast(e.message, "err"); }
   };
@@ -335,6 +386,7 @@ async function renderProjects(host) {
 async function uploadProject(file) {
   const fd = new FormData(); fd.append("file", file);
   if (window._projEngines) fd.append("engines", JSON.stringify(window._projEngines()));
+  if (window._projChannel && window._projChannel()) fd.append("channel", window._projChannel());
   try {
     const { project } = await api.form("/api/projects/upload", fd);
     await finishCreate(project);
@@ -365,7 +417,7 @@ function projectCard(p) {
   c.innerHTML = `
     <button class="btn-icon del" title="Delete">${icon("i-trash")}</button>
     <h3>${esc(p.name)}</h3>
-    <div class="meta"><span>${p.scenes} scenes</span>${p.target_runtime ? `<span>${esc(p.target_runtime)}</span>` : ""}<span>${fmtAgo(p.updated)}</span></div>
+    <div class="meta">${p.channel ? `<span class="chip chip-on">${esc((state.channels.find(c => c.id === p.channel) || { name: p.channel }).name)}</span>` : ""}<span>${p.scenes} scenes</span>${p.target_runtime ? `<span>${esc(p.target_runtime)}</span>` : ""}<span>${fmtAgo(p.updated)}</span></div>
     <div class="pbars">
       <div class="pbar">${icon("i-voice")}<div class="track"><div class="fill audio" style="width:${aPct}%"></div></div><span>${p.audio_done}/${p.scenes}</span></div>
       <div class="pbar">${icon("i-image")}<div class="track"><div class="fill image" style="width:${iPct}%"></div></div><span>${p.image_done}/${p.scenes}</span></div>
@@ -1245,7 +1297,8 @@ async function renderAnimate(host) {
   const motion = animatableScenes();
 
   topbar(p.name, `Animate · ${vidReady}/${imgReady} stills animated`,
-    `<button class="btn btn-ghost" onclick="location.hash='#/p/${p.id}/images'">${icon("i-back")} Images</button>
+    `<a class="btn btn-ghost" href="http://127.0.0.1:8188" target="_blank" title="The app's headless ComfyUI — live queue + sampler progress. Never launch the portable .bat; this instance owns port 8188.">${icon("i-preview")} ComfyUI</a>
+     <button class="btn btn-ghost" onclick="location.hash='#/p/${p.id}/images'">${icon("i-back")} Images</button>
      <button class="btn btn-primary" onclick="location.hash='#/p/${p.id}/assemble'">${icon("i-assemble")} Assemble →</button>`);
   const page = el("div", "page page-wide"); page.innerHTML = stepper("animate");
 
@@ -1571,8 +1624,43 @@ async function renderAssemble(host) {
 async function renderPreview(host) {
   const p = state.project; if (!p) { location.hash = "#/projects"; return; }
   topbar(p.name, p.narration ? "Preview · plays your voiceover, images timed to it" : "Preview · in-browser timeline (audio-led)",
-    `<button class="btn btn-ghost" onclick="location.hash='#/p/${p.id}/assemble'">${icon("i-back")} Assemble</button>`);
+    `<button class="btn btn-ghost" id="pvPack" title="Title options, description with chapters, tags + thumbnail">${icon("i-download")} YouTube package</button>
+     <button class="btn btn-ghost" onclick="location.hash='#/p/${p.id}/assemble'">${icon("i-back")} Assemble</button>`);
   const page = el("div", "page"); page.innerHTML = stepper("preview");
+
+  $("#pvPack").onclick = async () => {
+    const txt = window.prompt("Thumbnail headline (blank = video title, first words):", "");
+    if (txt === null) return;
+    try {
+      const r = await api.post(`/api/projects/${p.id}/package`, { thumb_text: txt.trim() || null });
+      const chap = (r.chapters || []).map(c => `${c.stamp} ${c.label}`).join("\n");
+      const card = openModal(`
+        <div class="modal-head"><h2 class="mb0">YouTube package</h2><button class="btn-icon" id="mClose">${icon("i-x")}</button></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;max-height:62vh;overflow:auto">
+          <div>
+            <div class="section-title" style="font-size:11px">Title options</div>
+            ${(r.titles || []).map(t => `<div class="mono" style="font-size:12.5px;margin-bottom:6px">${esc(t)}</div>`).join("")}
+            <div class="section-title" style="font-size:11px;margin-top:10px">Description</div>
+            <textarea readonly style="width:100%;min-height:180px;font-family:var(--font-mono);font-size:11.5px">${esc(r.description || "")}</textarea>
+            <div class="section-title" style="font-size:11px;margin-top:10px">Tags</div>
+            <div class="mono muted" style="font-size:11.5px">${esc((r.tags || []).join(", "))}</div>
+          </div>
+          <div>
+            <div class="section-title" style="font-size:11px">Thumbnail</div>
+            ${r.thumbnail ? `<img src="/projects/${p.id}/${r.thumbnail}?t=${Date.now()}" style="max-width:100%;border-radius:8px"/>`
+                          : `<div class="muted">No thumbnail (${esc(r.thumbnail_error || "no rendered scene image yet")})</div>`}
+            <div class="muted" style="font-size:11px;margin-top:8px">Saved to <span class="mono">video/youtube_package.md</span> + <span class="mono">thumbnail.png</span> in the project folder.</div>
+          </div>
+        </div>
+        <div class="row row-end" style="margin-top:12px">
+          <button class="btn btn-ghost" id="pkCopyDesc">Copy description</button>
+          <button class="btn btn-ghost" id="pkCopyTags">Copy tags</button>
+        </div>`);
+      $("#mClose", card).onclick = closeModal;
+      $("#pkCopyDesc", card).onclick = async () => { await navigator.clipboard.writeText(r.description || ""); toast("Description copied"); };
+      $("#pkCopyTags", card).onclick = async () => { await navigator.clipboard.writeText((r.tags || []).join(", ")); toast("Tags copied"); };
+    } catch (e) { toast(e.message, "err"); }
+  };
 
   // timeline rows: prefer the saved (audio-led) timeline, else plan from durations
   let rows = (p.timeline && p.timeline.scenes) ? p.timeline.scenes.slice() : null;
@@ -1933,7 +2021,7 @@ async function renderVoiceLab(host) {
   };
 }
 async function renderSettings(host) {
-  topbar("Settings", "Models, devices & defaults");
+  topbar("Settings · Storage", "Models, devices, defaults & disk janitor");
   const [s, st, im] = await Promise.all([api.get("/api/settings"), api.get("/api/status"), api.get("/api/image_models")]);
   state.settings = s; state.status = st;
   const img = s.image || {}; const sync = s.sync || {};
@@ -1979,6 +2067,47 @@ async function renderSettings(host) {
       <div class="field"><label>Tail (ms)</label><input type="number" id="seTail" value="${sync.tail_ms ?? 250}"/></div>
     </div>`;
   page.appendChild(syncC);
+
+  const store = el("div", "card"); store.style.marginTop = "16px";
+  store.innerHTML = `<div class="section-title">Storage</div>
+    <div class="muted" style="font-size:12px;line-height:1.5">Scan measures the model folders and finds safely-deletable leftovers
+      (old renders, parallax/upscale caches, ComfyUI in/out copies, fat logs). Caches regenerate on the next assemble;
+      nothing is deleted until you click Clean.</div>
+    <div class="row" style="margin:10px 0">
+      <button class="btn btn-ghost" id="stScan">${icon("i-refresh")} Scan disk</button>
+      <div class="grow"></div><div id="stFree" class="muted mono" style="font-size:12px"></div></div>
+    <div id="stBody"></div>`;
+  page.appendChild(store);
+  $("#stScan", store).onclick = async () => {
+    $("#stBody", store).innerHTML = `<div class="muted">Scanning (walks the model folders — a few seconds)…</div>`;
+    try {
+      const r = await api.get("/api/storage");
+      $("#stFree", store).textContent = `${r.free_gb} GB free of ${r.total_gb} GB · ${r.used_pct}% used`;
+      const dirs = (r.dirs || []).map(d => `<tr><td style="padding:2px 12px 2px 0">${esc(d.label)}</td><td style="text-align:right">${d.gb} GB</td></tr>`).join("");
+      const cls = (r.cleanables || []).map(cn => `
+        <label class="row" style="gap:8px;align-items:center;font-size:12.5px">
+          <input type="checkbox" class="stCk" value="${cn.id}" ${cn.bytes > 50e6 ? "checked" : ""}/>
+          ${esc(cn.label)} <span class="muted mono">· ${cn.count} items · ${cn.gb} GB</span></label>`).join("");
+      $("#stBody", store).innerHTML = `
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+          <div><div class="section-title" style="font-size:11px">Where the disk went</div>
+            <table class="mono" style="font-size:12px;width:100%">${dirs}</table></div>
+          <div style="display:flex;flex-direction:column;gap:7px">
+            <div class="section-title" style="font-size:11px">Reclaimable</div>
+            ${cls || `<span class="muted">Nothing to clean — disk is tidy.</span>`}
+            ${cls ? `<button class="btn btn-danger btn-sm" id="stClean" style="align-self:flex-start;margin-top:6px">${icon("i-trash")} Clean selected</button>` : ""}
+          </div></div>`;
+      const b = $("#stClean", store);
+      if (b) b.onclick = async () => {
+        const acts = $$(".stCk", store).filter(x => x.checked).map(x => x.value);
+        if (!acts.length) return toast("Nothing selected.", "err");
+        try {
+          const res = await api.post("/api/storage/clean", { actions: acts });
+          toast(`Freed ${res.freed_gb} GB`); $("#stScan", store).click();
+        } catch (e) { toast(e.message, "err"); }
+      };
+    } catch (e) { $("#stBody", store).innerHTML = ""; toast(e.message, "err"); }
+  };
 
   const bar = el("div", "row row-end"); bar.style.marginTop = "18px";
   bar.innerHTML = `<button class="btn btn-primary" id="seSave">Save settings</button>`;
@@ -2557,10 +2686,356 @@ async function renderCharacters(host) {
   drawSeed(); drawList();
 }
 
+/* ============================================================
+   PAGE: CHANNELS  (multi-channel identities + per-channel defaults)
+   ============================================================ */
+async function renderChannels(host) {
+  topbar("Channels", "Each channel remembers its niche, art direction, narrator, editing preset and authoring mode — new videos inherit all of it.",
+    `<button class="btn btn-primary" id="chNew">${icon("i-plus")} New channel</button>`);
+  const [chData, projData] = await Promise.all([
+    api.get("/api/channels"), api.get("/api/projects").catch(() => ({ projects: [] }))]);
+  state.channels = chData.channels || [];
+  state.projects = projData.projects || [];
+  const page = el("div", "page page-wide");
+  const grid = el("div", "proj-grid");
+  state.channels.forEach(c => grid.appendChild(channelCard(c)));
+  if (!state.channels.length) {
+    grid.appendChild(el("div", "empty", `${icon("i-channels")}<h3>No channels</h3><p>Create one to give your videos a persistent identity.</p>`));
+  }
+  page.appendChild(grid);
+  host.appendChild(page);
+  $("#chNew").onclick = () => editChannelModal(null);
+}
+
+function channelCard(c) {
+  const d = c.defaults || {};
+  const vids = (state.projects || []).filter(p => p.channel === c.id);
+  const card = el("div", "proj-card");
+  card.style.cursor = "default";
+  card.innerHTML = `
+    <button class="btn-icon del chDel" title="Delete channel">${icon("i-trash")}</button>
+    <h3>${esc(c.name)}</h3>
+    <div class="meta"><span>${esc(c.niche || "")}</span></div>
+    <div class="muted" style="font-style:italic;font-size:12px;margin:2px 0 8px">“${esc(c.tagline || "")}”</div>
+    <div class="row" style="gap:6px;flex-wrap:wrap;margin-bottom:8px">
+      <span class="chip">${esc(d.preset || "cinematic")}</span>
+      <span class="chip">${d.animate_engine === "none" ? "no video model" : "Wan · " + esc(d.quality || "max")}</span>
+      <span class="chip">${esc(d.voice || "Ryan")}</span>
+      <span class="chip ${d.authoring === "assisted" ? "chip-on" : ""}">${d.authoring === "assisted" ? "assisted scripts" : "pro scripts"}</span>
+      <span class="chip">${esc(c.cadence || "")}</span>
+    </div>
+    <div class="muted" style="font-size:11.5px;line-height:1.55;margin-bottom:8px">${esc(c.why_it_earns || "")}</div>
+    <div class="meta" style="margin-bottom:10px"><span>${vids.length ? vids.length + " video" + (vids.length > 1 ? "s" : "") : "no videos yet"}</span>
+      ${vids.slice(0, 2).map(v => `<a href="#/p/${v.id}/storyboard" onclick="event.stopPropagation()">${esc(v.name)}</a>`).join("")}</div>
+    <div class="row" style="gap:8px;flex-wrap:wrap">
+      <button class="btn btn-primary btn-sm chNewVid">${icon("i-plus")} New video</button>
+      <button class="btn btn-ghost btn-sm chWrite" title="Write the next script with the LOCAL model and import it as a project">${icon("i-wand")} Write with AI</button>
+      <button class="btn btn-ghost btn-sm chPrompt" title="Copy the script-writing prompt (spec + channel brief + topic bank)">${icon("i-edit")} Script prompt</button>
+      <button class="btn btn-ghost btn-sm chEdit">${icon("i-settings")} Edit</button>
+    </div>`;
+  $(".chNewVid", card).onclick = () => { state.createChannel = c.id; location.hash = "#/projects"; };
+  $(".chWrite", card).onclick = async () => {
+    const topic = window.prompt(`Topic for the next ${c.name} video (blank = the model picks from the topic bank):`, "");
+    if (topic === null) return;
+    try {
+      const st = await api.get("/api/writer/status").catch(() => ({}));
+      if (!st.ollama && !st.local_model_cached)
+        toast("First run downloads the local writer model (~8 GB) — this one will take a while.");
+      const { job_id } = await api.post(`/api/channels/${c.id}/write`, { topic: topic.trim() || null });
+      toast("Writing the script locally…");
+      const res = await pollJob(job_id);
+      toast(`Script imported: “${res.name}” · ${res.scenes} scenes${res.mode === "assisted" ? " · assisted fixes applied" : ""}`);
+      location.hash = `#/p/${res.project_id}/storyboard`;
+    } catch (e) { toast(e.message, "err"); }
+  };
+  $(".chPrompt", card).onclick = async () => {
+    const topic = window.prompt(`Topic for the next ${c.name} video (blank = include the topic bank):`, "");
+    if (topic === null) return;
+    try {
+      const { prompt } = await api.get(`/api/channels/${c.id}/authoring_prompt${topic.trim() ? "?topic=" + encodeURIComponent(topic.trim()) : ""}`);
+      await navigator.clipboard.writeText(prompt);
+      toast("Script prompt copied — paste it into any model, then import its JSON on the Projects page.");
+    } catch (e) { toast(e.message, "err"); }
+  };
+  $(".chEdit", card).onclick = () => editChannelModal(c);
+  $(".chDel", card).onclick = async (e) => {
+    e.stopPropagation();
+    if (await confirmModal("Delete channel?", `“${esc(c.name)}” is removed from the registry — its projects are kept.`, "Delete")) {
+      try { await api.del(`/api/channels/${c.id}`); toast("Channel deleted"); render(); }
+      catch (err) { toast(err.message, "err"); }
+    }
+  };
+  return card;
+}
+
+async function editChannelModal(c) {
+  const isNew = !c;
+  c = c || {};
+  const d = c.defaults || {};
+  const yt = c.youtube || {};
+  let presets = [{ id: "cinematic" }, { id: "parallax-slides" }, { id: "dynamic-slides" }, { id: "simple-slides" }];
+  try { presets = (await api.get("/api/effects_presets")).presets || presets; } catch (e) { }
+  const spk = (state.voices.builtin || []).map(v => v.id);
+  const clones = state.voices.custom || [];
+  const voiceVal = d.voice_id ? "clone:" + d.voice_id : "spk:" + (d.voice || "Ryan");
+  const animVal = d.animate_engine === "none" ? "none"
+    : (d.quality === "fast" ? "wan-fast" : (d.quality === "balanced" ? "wan-balanced" : "wan"));
+  const F = (label, inner) => `<div class="field"><label>${label}</label>${inner}</div>`;
+  const card = openModal(`
+    <div class="modal-head"><h2 class="mb0">${isNew ? "New channel" : "Edit " + esc(c.name || "")}</h2>
+      <button class="btn-icon" id="mClose">${icon("i-x")}</button></div>
+    <div style="max-height:64vh;overflow:auto;padding-right:6px">
+      <div class="grid3">
+        ${F("Name", `<input id="ceName" value="${esc(c.name || "")}"/>`)}
+        ${F("Cadence", `<input id="ceCadence" value="${esc(c.cadence || "1 video / week")}"/>`)}
+        ${F("Script author", `<select id="ceAuthoring">
+            <option value="pro" ${d.authoring !== "assisted" ? "selected" : ""}>Pro — trust the writing</option>
+            <option value="assisted" ${d.authoring === "assisted" ? "selected" : ""}>Assisted — small-model scripts, director may rewrite</option></select>`)}
+      </div>
+      ${F("Niche", `<input id="ceNiche" value="${esc(c.niche || "")}"/>`)}
+      <div class="grid3">
+        ${F("Tagline", `<input id="ceTag" value="${esc(c.tagline || "")}"/>`)}
+        ${F("Editing preset", `<select id="cePreset">${presets.map(p => `<option value="${esc(p.id)}" ${d.preset === p.id ? "selected" : ""}>${esc(p.id)}</option>`).join("")}</select>`)}
+        ${F("Animation", `<select id="ceAnim">
+            <option value="wan" ${animVal === "wan" ? "selected" : ""}>Wan 2.2 · max (~20 min/scene)</option>
+            <option value="wan-balanced" ${animVal === "wan-balanced" ? "selected" : ""}>Wan 2.2 · balanced 720p (~3 min/scene)</option>
+            <option value="wan-fast" ${animVal === "wan-fast" ? "selected" : ""}>Wan 2.2 · fast (drafts)</option>
+            <option value="none" ${animVal === "none" ? "selected" : ""}>None — parallax/stills only</option></select>`)}
+      </div>
+      <div class="grid3">
+        ${F("Narrator voice", `<select id="ceVoice">
+            ${spk.map(s => `<option value="spk:${esc(s)}" ${voiceVal === "spk:" + s ? "selected" : ""}>${esc(s)} (built-in)</option>`).join("")}
+            ${clones.map(v => `<option value="clone:${esc(v.id)}" ${voiceVal === "clone:" + v.id ? "selected" : ""}>${esc(v.name || v.id)} (your clone)</option>`).join("")}
+          </select>`)}
+        ${F("Music vibe", `<input id="ceMusic" value="${esc(d.music_vibe || "")}" placeholder="e.g. smoky noir jazz, slow tension"/>`)}
+        ${F("Image model", `<select id="ceImg">
+            <option value="krea2" ${(d.image_model || "krea2") === "krea2" ? "selected" : ""}>Krea-2 Turbo (ComfyUI)</option>
+            <option value="cartoon-rag" ${d.image_model === "cartoon-rag" ? "selected" : ""}>SDXL + reference RAG</option></select>`)}
+      </div>
+      ${F("Voice delivery (instruct)", `<input id="ceInstruct" value="${esc(d.voice_instruct || "")}" placeholder="how the narrator should read"/>`)}
+      ${F("Art direction (style suffix — the channel's look on every image)",
+        `<textarea id="ceStyle" style="min-height:64px">${esc(d.style_suffix || "")}</textarea>`)}
+      ${F("Style negatives", `<input id="ceNeg" value="${esc(d.negative_style || "")}"/>`)}
+      ${F("Writing brief (feeds the script prompt)", `<textarea id="ceBrief" style="min-height:56px">${esc(c.brief || "")}</textarea>`)}
+      ${F("Topic bank (one per line)", `<textarea id="ceTopics" style="min-height:80px;font-family:var(--font-mono);font-size:11.5px">${esc((c.topic_bank || []).join("\n"))}</textarea>`)}
+      ${F("SEO keyword pool (comma-separated — mixed into every video's tags)",
+        `<input id="ceSeo" value="${esc((c.seo_keywords || []).join(", "))}"/>`)}
+      <div class="section-title" style="margin-top:10px">YouTube upload (this channel's own credentials)</div>
+      <div class="muted" style="font-size:11px;line-height:1.5;margin-bottom:8px">
+        Google Cloud Console → create an OAuth client, type <b>Desktop app</b>, enable the YouTube Data API v3 —
+        paste the client id/secret here, save, then Connect on the Publish page. Uploads default to <b>private</b>.
+        ${yt.refresh_token ? `<b style="color:var(--ok,#7cbf7c)">Connected ✓</b>` : "Not connected yet."}</div>
+      <div class="grid3">
+        ${F("Client ID", `<input id="ceYtId" value="${esc(yt.client_id || "")}"/>`)}
+        ${F("Client secret", `<input id="ceYtSecret" type="password" value="${esc(yt.client_secret || "")}"/>`)}
+        ${F("Default privacy", `<select id="ceYtPriv">${["private", "unlisted", "public"].map(v => `<option ${(yt.privacy || "private") === v ? "selected" : ""}>${v}</option>`).join("")}</select>`)}
+      </div>
+    </div>
+    <div class="row row-end" style="margin-top:14px;gap:8px">
+      <button class="btn btn-ghost btn-sm" id="ceRaw">Raw JSON</button>
+      <button class="btn btn-primary" id="ceSave">Save channel</button></div>`);
+  $("#mClose", card).onclick = closeModal;
+  $("#ceRaw", card).onclick = () => {
+    closeModal();
+    const raw = openModal(`
+      <div class="modal-head"><h2 class="mb0">Raw channel JSON</h2><button class="btn-icon" id="mClose2">${icon("i-x")}</button></div>
+      <textarea id="chJson" style="width:100%;min-height:380px;font-family:var(--font-mono);font-size:11.5px">${esc(JSON.stringify(c, null, 2))}</textarea>
+      <div class="row row-end" style="margin-top:12px"><button class="btn btn-primary" id="chSaveRaw">Save</button></div>`);
+    $("#mClose2", raw).onclick = closeModal;
+    $("#chSaveRaw", raw).onclick = async () => {
+      try { await api.post("/api/channels", JSON.parse($("#chJson", raw).value)); closeModal(); toast("Channel saved"); render(); }
+      catch (e) { toast(e.message, "err"); }
+    };
+  };
+  $("#ceSave", card).onclick = async () => {
+    const v = id => $(id, card).value;
+    const anim = v("#ceAnim");
+    const voice = v("#ceVoice");
+    const obj = {
+      id: c.id, name: v("#ceName").trim(), niche: v("#ceNiche").trim(),
+      tagline: v("#ceTag").trim(), cadence: v("#ceCadence").trim(),
+      brief: v("#ceBrief").trim(),
+      topic_bank: v("#ceTopics").split("\n").map(s => s.trim()).filter(Boolean),
+      seo_keywords: v("#ceSeo").split(",").map(s => s.trim()).filter(Boolean),
+      defaults: {
+        image_model: v("#ceImg"),
+        animate_engine: anim === "none" ? "none" : "wan",
+        quality: anim === "wan-fast" ? "fast" : (anim === "wan-balanced" ? "balanced" : "max"),
+        preset: v("#cePreset"), authoring: v("#ceAuthoring"),
+        voice: voice.startsWith("spk:") ? voice.slice(4) : (c.defaults || {}).voice || "Ryan",
+        voice_id: voice.startsWith("clone:") ? voice.slice(6) : null,
+        voice_instruct: v("#ceInstruct").trim(),
+        style_suffix: v("#ceStyle").trim(), negative_style: v("#ceNeg").trim(),
+        music_vibe: v("#ceMusic").trim(), language: (c.defaults || {}).language || "English",
+      },
+      youtube: { client_id: v("#ceYtId").trim(), client_secret: v("#ceYtSecret").trim(),
+                 privacy: v("#ceYtPriv") },
+    };
+    if (!obj.name) return toast("Give the channel a name.", "err");
+    try { await api.post("/api/channels", obj); closeModal(); toast("Channel saved"); render(); }
+    catch (e) { toast(e.message, "err"); }
+  };
+}
+
+/* ============================================================
+   PAGE: PUBLISH  (SEO + Shorts + YouTube upload)
+   ============================================================ */
+async function renderPublish(host) {
+  const p = state.project; if (!p) { location.hash = "#/projects"; return; }
+  topbar(p.name, "Publish · SEO package, Shorts, and the channel's YouTube upload",
+    `<button class="btn btn-ghost" onclick="location.hash='#/p/${p.id}/preview'">${icon("i-back")} Preview</button>`);
+  const page = el("div", "page"); page.innerHTML = stepper("publish");
+  if (!state.channels.length) {
+    try { state.channels = (await api.get("/api/channels")).channels || []; } catch (e) { }
+  }
+  const ch = state.channels.find(c => c.id === p.channel);
+  const reload = async () => { await loadProject(p.id); };
+
+  /* --- SEO card --- */
+  const seoCard = el("div", "card");
+  seoCard.innerHTML = `
+    <div class="section-title">SEO package ${ch ? `· tuned to ${esc(ch.name)}` : "· no channel (generic)"}</div>
+    <div class="row" style="gap:8px;margin-bottom:10px;flex-wrap:wrap">
+      <button class="btn btn-primary btn-sm" id="pkGen">${icon("i-wand")} ${p.seo && p.seo.built ? "Regenerate" : "Generate"} SEO + thumbnail</button>
+      <input type="text" id="pkThumbTxt" placeholder="Thumbnail headline (blank = title words)" style="flex:1;min-width:220px"/>
+    </div>
+    <div id="pkBody"><div class="muted">Titles, keyword-front-loaded description with chapters, tags and thumbnail — unique to this video and the channel's niche.</div></div>`;
+  page.appendChild(seoCard);
+  function drawSeo() {
+    const s = state.project.seo || {};
+    if (!s.built) return;
+    $("#pkBody", seoCard).innerHTML = `
+      <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:16px">
+        <div>
+          <div class="field"><label>Title <span class="hint">(used by Upload)</span></label>
+            <input id="seoTitle" maxlength="100" value="${esc((s.titles || [""])[0])}"/></div>
+          ${(s.titles || []).length > 1 ? `<div class="muted mono" style="font-size:11px;margin:-4px 0 8px">alt: ${(s.titles || []).slice(1).map(esc).join(" · ")}</div>` : ""}
+          <div class="field"><label>Description</label>
+            <textarea id="seoDesc" style="min-height:170px;font-family:var(--font-mono);font-size:11.5px">${esc(s.description || "")}</textarea></div>
+          <div class="field"><label>Tags</label>
+            <textarea id="seoTags" style="min-height:54px;font-family:var(--font-mono);font-size:11.5px">${esc((s.tags || []).join(", "))}</textarea></div>
+          <div class="row row-end"><button class="btn btn-ghost btn-sm" id="seoSave">${icon("i-check")} Save edits</button></div>
+        </div>
+        <div>
+          ${s.thumbnail ? `<img src="/projects/${p.id}/${s.thumbnail}?t=${Date.now()}" style="max-width:100%;border-radius:8px"/>` : `<div class="muted">no thumbnail (render images first)</div>`}
+          <div class="muted" style="font-size:11px;margin-top:6px">Also written: <span class="mono">video/youtube_package.md</span></div>
+        </div>
+      </div>`;
+    $("#seoSave", seoCard).onclick = async () => {
+      try {
+        const titles = [($("#seoTitle", seoCard).value || "").trim(), ...(state.project.seo.titles || []).slice(1)];
+        await api.put(`/api/projects/${p.id}/seo`, {
+          titles, description: $("#seoDesc", seoCard).value,
+          tags: $("#seoTags", seoCard).value.split(",").map(t => t.trim()).filter(Boolean),
+        });
+        await reload(); toast("SEO saved — Upload will use it.");
+      } catch (e) { toast(e.message, "err"); }
+    };
+  }
+  drawSeo();
+  $("#pkGen", seoCard).onclick = async () => {
+    try {
+      const t = $("#pkThumbTxt", seoCard).value.trim();
+      await api.post(`/api/projects/${p.id}/package`, { thumb_text: t || null });
+      await reload(); drawSeo(); toast("SEO package built");
+    } catch (e) { toast(e.message, "err"); }
+  };
+
+  /* --- Shorts card --- */
+  const shC = el("div", "card"); shC.style.marginTop = "16px";
+  shC.innerHTML = `<div class="section-title">Shorts (vertical 9:16)</div>
+    <div class="muted" style="font-size:12px;margin-bottom:8px">Cuts the hook (first ~30 s) and the payoff (last ~30 s) at scene boundaries —
+      same visuals re-framed vertical, same mix. Shorts are the subscriber engine for a new channel.</div>
+    <div class="row" style="gap:8px;margin-bottom:8px">
+      <button class="btn btn-primary btn-sm" id="shCut">${icon("i-wand")} Cut Shorts</button>
+      <div class="muted" id="shStage" style="font-size:12px"></div></div>
+    <div id="shList"></div>`;
+  page.appendChild(shC);
+  function drawShorts() {
+    const list = state.project.shorts || [];
+    $("#shList", shC).innerHTML = !list.length ? "" : list.map((s, i) => `
+      <div class="row" style="gap:10px;align-items:center;padding:6px 0;border-top:1px solid rgba(255,255,255,.06)">
+        <b style="min-width:64px">${esc(s.name)}</b>
+        <span class="muted mono" style="font-size:11.5px">${(s.duration || 0).toFixed(0)}s · ${esc(s.file)}</span>
+        <a class="btn btn-ghost btn-sm" href="/projects/${p.id}/${s.file}" target="_blank">${icon("i-play")} Watch</a>
+        <button class="btn btn-ghost btn-sm shUp" data-i="${i}">${icon("i-upload")} Upload #Shorts</button>
+      </div>`).join("");
+    $$(".shUp", shC).forEach(b => b.onclick = () => doUpload({
+      file: (state.project.shorts || [])[+b.dataset.i].file,
+      title: ((((state.project.seo || {}).titles || [])[0]) || p.name).slice(0, 90) + " #Shorts",
+    }));
+  }
+  drawShorts();
+  $("#shCut", shC).onclick = async () => {
+    try {
+      const { job_id } = await api.post(`/api/projects/${p.id}/shorts`, { count: 2 });
+      $("#shStage", shC).textContent = "cutting…";
+      await pollJob(job_id, j => { $("#shStage", shC).textContent = j.stage || ""; });
+      await reload(); drawShorts(); $("#shStage", shC).textContent = "";
+      toast("Shorts ready");
+    } catch (e) { $("#shStage", shC).textContent = ""; toast(e.message, "err"); }
+  };
+
+  /* --- YouTube card --- */
+  const ytC = el("div", "card"); ytC.style.marginTop = "16px";
+  page.appendChild(ytC);
+  function drawYt() {
+    const yt = (ch || {}).youtube || {};
+    const ups = state.project.uploads || [];
+    let body;
+    if (!ch) {
+      body = `<div class="muted">This project has no channel — uploads are per-channel. Recreate it inside a channel, or set one on the Channels page.</div>`;
+    } else if (!yt.client_id) {
+      body = `<div class="muted" style="line-height:1.5">Channel “${esc(ch.name)}” has no YouTube credentials yet.
+        Add its Google OAuth <b>client id + secret</b> in the channel editor (Desktop-app client, YouTube Data API v3 enabled).</div>
+        <button class="btn btn-ghost btn-sm" id="ytEditCh" style="margin-top:8px">${icon("i-settings")} Open channel editor</button>`;
+    } else if (!yt.refresh_token) {
+      body = `<div class="muted">Credentials saved — now authorize this machine to upload to “${esc(ch.name)}”.</div>
+        <button class="btn btn-primary btn-sm" id="ytConnect" style="margin-top:8px">${icon("i-upload")} Connect YouTube</button>
+        <div class="muted" style="font-size:11px;margin-top:6px">A Google consent tab opens; approve, then come back and refresh this page.</div>`;
+    } else {
+      body = `<div class="row" style="gap:8px;align-items:center;flex-wrap:wrap">
+          <span class="badge good">Connected ✓</span>
+          <select id="ytPriv" style="width:auto">${["private", "unlisted", "public"].map(v => `<option ${(yt.privacy || "private") === v ? "selected" : ""}>${v}</option>`).join("")}</select>
+          <button class="btn btn-primary btn-sm" id="ytUpload">${icon("i-upload")} Upload newest final</button>
+          <div class="muted" id="ytStage" style="font-size:12px"></div></div>
+        <div class="muted" style="font-size:11px;margin-top:6px">Private by default — review on YouTube, publish there. Uses your saved SEO title/description/tags + thumbnail.</div>
+        ${ups.length ? `<div style="margin-top:10px">${ups.map(u => `
+          <div class="row" style="gap:10px;padding:5px 0;border-top:1px solid rgba(255,255,255,.06);font-size:12.5px">
+            <a href="${esc(u.url)}" target="_blank" class="mono">${esc(u.url)}</a>
+            <span class="muted">${esc(u.title || "")} · ${esc(u.privacy)} · ${fmtAgo(u.uploaded)}</span></div>`).join("")}</div>` : ""}`;
+    }
+    ytC.innerHTML = `<div class="section-title">YouTube ${ch ? "· " + esc(ch.name) : ""}</div>${body}`;
+    const editBtn = $("#ytEditCh", ytC); if (editBtn) editBtn.onclick = () => editChannelModal(ch);
+    const conBtn = $("#ytConnect", ytC);
+    if (conBtn) conBtn.onclick = async () => {
+      try { const { url } = await api.get(`/api/channels/${ch.id}/youtube/auth_url`); window.open(url, "_blank"); }
+      catch (e) { toast(e.message, "err"); }
+    };
+    const upBtn = $("#ytUpload", ytC);
+    if (upBtn) upBtn.onclick = () => doUpload({ privacy: $("#ytPriv", ytC).value });
+  }
+  async function doUpload(opts) {
+    if (!(state.project.seo || {}).built &&
+        !(await confirmModal("No SEO package yet", "Upload with the raw project title/description? Generating SEO first is recommended.", "Upload anyway", false))) return;
+    try {
+      const { job_id } = await api.post(`/api/projects/${p.id}/upload`, opts || {});
+      const st = $("#ytStage", ytC); if (st) st.textContent = "uploading…";
+      const res = await pollJob(job_id, j => { const s = $("#ytStage", ytC); if (s) s.textContent = j.stage || ""; });
+      await reload(); drawYt();
+      toast(`Uploaded (${res.privacy}) — ${res.url}`);
+    } catch (e) { const s = $("#ytStage", ytC); if (s) s.textContent = ""; toast(e.message, "err"); }
+  }
+  drawYt();
+  host.appendChild(page);
+}
+
 const Pages = {
+  channels: renderChannels,
   projects: renderProjects, storyboard: renderStoryboard, characters: renderCharacters,
   voiceover: renderVoiceover, images: renderImages, animate: renderAnimate,
-  assemble: renderAssemble, preview: renderPreview, history: renderHistory,
+  assemble: renderAssemble, preview: renderPreview, publish: renderPublish,
+  history: renderHistory,
   voices: renderVoiceLab, transcribe: renderTranscribe, training: renderTraining,
   settings: renderSettings,
 };

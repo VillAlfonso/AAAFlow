@@ -41,6 +41,7 @@ CUSTOM_VOICES_FILE = DATA_DIR / "voices_custom.json"
 IMAGE_MODELS_FILE = DATA_DIR / "image_models.json"         # registry of imported checkpoints/LoRAs
 MUSIC_LIBRARY_FILE = DATA_DIR / "music_library.json"       # generated background music / SFX clips
 EFFECTS_PRESETS_FILE = DATA_DIR / "effects_presets.json"   # reusable editing-style presets
+CHANNELS_FILE = DATA_DIR / "channels.json"                 # multi-channel registry (per-channel defaults)
 SFX_LIB_DIR = DATA_DIR / "sfx_library"                     # editing stinger wavs (tagged)
 SFX_LIBRARY_FILE = DATA_DIR / "sfx_library.json"           # manifest for the stinger library
 
@@ -102,10 +103,10 @@ IMAGE_BASES = {
         "gated": True, "size": "~16 GB", "negative": False,
     },
 }
-# Default to the standalone **cartoon-rag** path (SDXL + IP-Adapter reference RAG):
-# fully local, NO ComfyUI. krea2 (ComfyUI) stays selectable as the legacy engine;
-# SD 1.5 / FLUX remain available via diffusers too.
-DEFAULT_IMAGE_MODEL = "cartoon-rag"
+# krea2 (ComfyUI) is THE production image engine — every channel defaults to it.
+# cartoon-rag/SD/FLUX stay selectable via diffusers, but their weights were
+# purged 2026-07-03 to reclaim disk; first use auto-re-downloads them.
+DEFAULT_IMAGE_MODEL = "krea2"
 
 # --- cartoon style via reference RAG (IP-Adapter, no ComfyUI) ----------------
 # The reference pack lives in data/style_refs/ (seed it from your krea2 cartoon
@@ -198,13 +199,18 @@ WAN = {
     "lora_strength": 1.0,
     "shift": 5.0,                  # ModelSamplingSD3
     "sampler": "euler", "scheduler": "simple",
-    # Quality profiles (user rule: QUALITY OVER EVERYTHING — "max" is default;
-    # render time is explicitly not a concern on this machine):
-    #   max  = full base recipe: 20 steps, cfg 3.5, NO speed LoRAs, native 720p
-    #   fast = lightx2v 4-step distill at 832x480 (drafts / previews)
+    # Quality profiles (user rule: QUALITY OVER EVERYTHING — "max" is default):
+    #   max      = full base recipe: 20 steps, cfg 3.5, NO speed LoRAs, native
+    #              720p (~20 min/scene on the 5060 Ti — flagship videos)
+    #   balanced = lightx2v 4-step distill at NATIVE 720p + enhance chain
+    #              (~3-4 min/scene; on flat stylized art it lands very close to
+    #              max — the sane default for volume channels)
+    #   fast     = 4-step distill at 832x480 (drafts / previews only)
     "quality_profiles": {
         "max": {"steps": 20, "boundary": 10, "cfg": 3.5, "use_lora": False,
                 "width": 1280, "height": 720},
+        "balanced": {"steps": 4, "boundary": 2, "cfg": 1.0, "use_lora": True,
+                     "width": 1280, "height": 720},
         "fast": {"steps": 4, "boundary": 2, "cfg": 1.0, "use_lora": True,
                  "width": 832, "height": 480},
     },
@@ -248,6 +254,32 @@ WAN_DOWNLOADS = [
      "split_files/vae/wan_2.1_vae.safetensors", "vae", WAN["vae"]),
 ]
 
+# --- local script writer (type a TOPIC in -> storyboard JSON, fully local) ---
+# Prefers a running Ollama (auto-detected; unloads itself via keep_alive) and
+# falls back to a transformers pipeline in-process. Both receive the channel's
+# authoring prompt, so output quality rides on the auto-director either way.
+WRITER = {
+    "ollama_url": os.environ.get("AAAFLOW_OLLAMA_URL", "http://127.0.0.1:11434"),
+    "ollama_model": os.environ.get("AAAFLOW_OLLAMA_MODEL", "qwen3:8b"),
+    "repo": "Qwen/Qwen3-4B-Instruct-2507",   # transformers fallback (~8 GB, auto-downloads)
+    "max_new_tokens": 6144,
+    "temperature": 0.7,
+}
+
+# --- YouTube upload (per-channel OAuth; Google Data API v3 over HTTPS) -------
+# Credentials live on each channel (channels.json: channel.youtube.{client_id,
+# client_secret, refresh_token, privacy, category_id}). Uploads default to
+# PRIVATE so nothing goes public without a human look on YouTube itself.
+YOUTUBE = {
+    "auth_url": "https://accounts.google.com/o/oauth2/v2/auth",
+    "token_url": "https://oauth2.googleapis.com/token",
+    "upload_url": "https://www.googleapis.com/upload/youtube/v3/videos",
+    "thumb_url": "https://www.googleapis.com/upload/youtube/v3/thumbnails/set",
+    "scope": "https://www.googleapis.com/auth/youtube.upload",
+    "redirect_path": "/api/youtube/oauth/callback",   # loopback redirect (Desktop OAuth client)
+    "chunk_bytes": 8 * 1024 * 1024,
+}
+
 # --- clip enhance chain (anti-mush post-processing) --------------------------
 # Wan output (832x480@16) -> ffmpeg minterpolate to the assemble frame rate ->
 # Real-ESRGAN (realesr-animevideov3) 2x upscale = crisp re-sharpened linework.
@@ -255,7 +287,14 @@ ENHANCE = {
     "exe": BASE_DIR / "tools" / "realesrgan" / "realesrgan-ncnn-vulkan.exe",
     "model": "realesr-animevideov3",
     "scale": 2,
-    "fps": 30,
+    # LESSON (2026-07-03): ffmpeg minterpolate on flat stylized art produces
+    # ghost doubles / torn lattice / wobbling outlines — it invented ~44% of
+    # displayed frames and read as "glitchy and melty". Wan's native 16 fps
+    # duplicated into the 30 fps timeline looks like normal cartoon
+    # animation-on-twos. Keep interpolation OFF unless a true-motion source
+    # needs it (and then prefer RIFE over minterpolate).
+    "interpolate": False,
+    "fps": 30,          # only used when interpolate is turned on
 }
 
 
@@ -330,9 +369,9 @@ DEFAULT_SETTINGS = {
         "repetition_penalty": 1.05,
         "max_new_tokens": 4096,
     },
-    # --- image generation (SD 1.5 default / FLUX optional) ----------------
+    # --- image generation (krea2 via ComfyUI is the production default) ----
     "image": {
-        "model": "cartoon-rag",       # key into IMAGE_BASES or an imported checkpoint id
+        "model": "krea2",            # key into IMAGE_BASES or an imported checkpoint id
         "style": None,               # optional style preset; None = model/storyboard default
         "use_refs": True,            # cartoon-rag: condition on the style reference pack
         "ip_scale": 0.7,             # IP-Adapter style strength (cartoon-rag)

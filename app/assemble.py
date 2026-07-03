@@ -190,8 +190,30 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
     pdir = projects.project_dir(pid)
     narr = project.get("narration")           # one continuous voiceover track, if attached
     tl = projects.recompute_timeline(project)
-    rows = {str(r["id"]): r for r in tl["scenes"]}
-    scenes = project["scenes"]
+    # Optional time window [t0, t1] — renders just that slice of the timeline
+    # (the Shorts cutter uses this with a 9:16 size). Scene starts shift to 0.
+    window = asm.get("window")
+    win_t0 = 0.0
+    if window:
+        win_t0, win_t1 = max(0.0, float(window[0])), float(window[1])
+        rows, scenes = {}, []
+        for r in tl["scenes"]:
+            if r["end"] <= win_t0 or r["start"] >= win_t1:
+                continue
+            s = next((x for x in project["scenes"]
+                      if str(x["id"]) == str(r["id"])), None)
+            if not s:
+                continue
+            st = max(r["start"], win_t0) - win_t0
+            en = min(r["end"], win_t1) - win_t0
+            rows[str(r["id"])] = {**r, "start": round(st, 3), "end": round(en, 3),
+                                  "dur": round(en - st, 3)}
+            scenes.append(s)
+        if not scenes:
+            raise ValueError("window matches no scenes")
+    else:
+        rows = {str(r["id"]): r for r in tl["scenes"]}
+        scenes = project["scenes"]
     n = len(scenes)
     with_audio = with_images = with_videos = with_parallax = 0
     # legacy toggle: use_animation False drops "clips" from the chain
@@ -207,9 +229,20 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
         cd = float(clip.duration or dur)
         if cd >= dur:
             return clip.subclipped(0, dur)
-        # hold the last frame to fill the (audio-led) scene duration
-        last = ImageClip(clip.get_frame(max(0.0, cd - 1e-3))).with_duration(dur - cd)
-        return concatenate_videoclips([clip, last], method="compose").with_duration(dur)
+        # fill the rest of the (audio-led) scene with the last frame — but
+        # DRIFTING, never frozen: motion dead-stopping reads as a glitch
+        hold = dur - cd
+        last = ImageClip(clip.get_frame(max(0.0, cd - 1e-3)))
+
+        def zf(t):
+            return 1.0 + 0.05 * (t / max(hold, 0.1))
+
+        def pos(t):
+            z = zf(t)
+            return ((W - W * z) / 2, (H - H * z) / 2)
+        drift = CompositeVideoClip([last.resized(zf).with_position(pos)],
+                                   size=(W, H)).with_duration(hold)
+        return concatenate_videoclips([clip, drift], method="compose").with_duration(dur)
 
     def _ken_burns(base, dur, idx):
         """Varied, deterministic move per scene: alternate zoom in/out and
@@ -307,9 +340,10 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
 
     if narr:
         # Narration-track projects: the whole recording laid over the timeline
-        # as one continuous file (never cut per scene).
-        track = _full_track(pdir / narr.get("file", ""), total_dur)
+        # as one continuous file (never cut per scene). A window slices it.
+        track = _full_track(pdir / narr.get("file", ""), win_t0 + total_dur)
         if track is not None:
+            track = track[int(win_t0 * SR):]
             with_audio = n
             mix[: len(track)] += track[:N]
     else:
@@ -363,7 +397,8 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
         final = final.with_audio(AudioArrayClip(mix, fps=SR))
     progress("Encoding video", 0.74)
 
-    out_rel = f"video/final_{time.strftime('%Y%m%d_%H%M%S')}.mp4"
+    out_name = (asm.get("out_name") or f"final_{time.strftime('%Y%m%d_%H%M%S')}")
+    out_rel = f"video/{out_name}.mp4"
     out_abs = pdir / out_rel
     out_abs.parent.mkdir(parents=True, exist_ok=True)
     # QUALITY OVER EVERYTHING: near-lossless encode; flat art shows crf-23
@@ -380,7 +415,7 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
     except Exception:
         pass
 
-    return {"rel": out_rel, "duration": round(float(tl["total_dur"]), 2),
+    return {"rel": out_rel, "duration": round(total_dur, 2),
             "width": W, "height": H, "fps": fps, "scenes": n,
             "preset": preset.get("id"), "sources": sources,
             "with_audio": with_audio, "with_images": with_images,

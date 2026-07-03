@@ -7,14 +7,14 @@ from pathlib import Path
 from typing import List, Optional
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from . import (animate, assemble, captions, characters, config, effects,
-               humanize, images, jobs, music, produce, projects, scenes,
-               service, sfx, storage, style_refs, training, transcribe,
-               voiceover)
+from . import (animate, assemble, captions, channels, characters, config,
+               effects, humanize, images, janitor, jobs, music, packaging,
+               produce, projects, scenes, service, sfx, shorts, storage,
+               style_refs, training, transcribe, voiceover, writer, youtube)
 from .audio import ffmpeg_ok
 from .engine import engine
 from .image_engine import image_engine
@@ -340,7 +340,8 @@ class CreateProjectReq(BaseModel):
     text: Optional[str] = None       # raw JSON text to parse
     data: Optional[dict] = None      # ...or an already-parsed storyboard object
     name: Optional[str] = None
-    engines: Optional[dict] = None   # {"image_model", "animate_engine", "quality", "preset"}
+    engines: Optional[dict] = None   # {"image_model", "animate_engine", "quality", "preset", "authoring"}
+    channel: Optional[str] = None    # channel id — inherits that channel's defaults
 
 
 @app.get("/api/image_models")
@@ -382,7 +383,8 @@ def create_project(req: CreateProjectReq):
     if not isinstance(raw, dict):
         raise HTTPException(status_code=400, detail="Provide a storyboard JSON object.")
     try:
-        project = projects.create_project(raw, req.name, engines=req.engines)
+        project = projects.create_project(raw, req.name, engines=req.engines,
+                                          channel=req.channel)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
     return {"project": project}
@@ -390,7 +392,7 @@ def create_project(req: CreateProjectReq):
 
 @app.post("/api/projects/upload")
 async def upload_project(file: UploadFile = File(...), name: str = Form(""),
-                         engines: str = Form("")):
+                         engines: str = Form(""), channel: str = Form("")):
     import json as _json
     data = await file.read()
     try:
@@ -405,7 +407,8 @@ async def upload_project(file: UploadFile = File(...), name: str = Form(""),
             eng = None
     try:
         project = projects.create_project(
-            raw, name.strip() or Path(file.filename or "").stem or None, engines=eng)
+            raw, name.strip() or Path(file.filename or "").stem or None,
+            engines=eng, channel=channel.strip() or None)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
     return {"project": project}
@@ -413,6 +416,8 @@ async def upload_project(file: UploadFile = File(...), name: str = Form(""),
 
 class LintReq(BaseModel):
     data: dict
+    channel: Optional[str] = None     # lint with this channel's style/mode defaults
+    authoring: Optional[str] = None   # "pro" | "assisted" (overrides the channel's)
 
 
 @app.post("/api/storyboard/lint")
@@ -420,8 +425,161 @@ def storyboard_lint(req: LintReq):
     """Auto-direct + lint a storyboard without importing it: returns the fixed
     copy and a report (fixes applied, warnings, hook/runtime stats)."""
     from . import autodirect
-    fixed, report = autodirect.direct(req.data or {})
+    ch = channels.get(req.channel)
+    d = (ch or {}).get("defaults") or {}
+    mode = req.authoring or d.get("authoring") or "pro"
+    fixed, report = autodirect.direct(req.data or {},
+                                      default_style=d.get("style_suffix"),
+                                      strict=(mode == "assisted"))
     return {"report": report, "fixed": fixed}
+
+
+# --- API: channels (multi-channel identities + defaults) ---------------------
+@app.get("/api/channels")
+def get_channels():
+    return {"channels": channels.load()}
+
+
+@app.post("/api/channels")
+def upsert_channel(channel: dict):
+    """Create or edit a channel (id or name required); defaults deep-merge."""
+    try:
+        return {"channel": channels.upsert(channel or {})}
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
+@app.delete("/api/channels/{cid}")
+def delete_channel(cid: str):
+    return {"deleted": channels.remove(cid)}
+
+
+@app.get("/api/channels/{cid}/authoring_prompt")
+def channel_authoring_prompt(cid: str, topic: Optional[str] = None):
+    """Copy-paste script-writing prompt: the storyboard spec + this channel's
+    brief/tone/topic bank. Works for any model — including small ones when the
+    channel runs in assisted mode."""
+    ch = channels.get(cid)
+    if not ch:
+        raise HTTPException(status_code=404, detail="channel not found")
+    return {"prompt": channels.authoring_prompt(ch, topic)}
+
+
+# --- API: storage janitor ----------------------------------------------------
+@app.get("/api/storage")
+def storage_report():
+    """Disk overview + what the janitor could reclaim."""
+    return janitor.report()
+
+
+class CleanReq(BaseModel):
+    actions: List[str] = []
+
+
+@app.post("/api/storage/clean")
+def storage_clean(req: CleanReq):
+    return janitor.clean(req.actions)
+
+
+# --- API: YouTube packaging (SEO) ---------------------------------------------
+class PackageReq(BaseModel):
+    thumb_text: Optional[str] = None  # thumbnail headline (default: video title)
+
+
+@app.post("/api/projects/{pid}/package")
+def build_package(pid: str, req: PackageReq = PackageReq()):
+    """SEO kit: title options, description with chapters, tags + thumbnail.
+    Saved on the project (project.seo) so edits persist and uploads use them."""
+    try:
+        return packaging.build(pid, req.thumb_text)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
+@app.put("/api/projects/{pid}/seo")
+def put_seo(pid: str, patch: dict):
+    """Persist user edits to the SEO package (title/description/tags…)."""
+    p = projects.get_project(pid)
+    if not p:
+        raise HTTPException(status_code=404, detail="project not found")
+    p["seo"] = {**(p.get("seo") or {}), **(patch or {})}
+    projects.save_project(p)
+    return p["seo"]
+
+
+# --- API: local script writer (topic in → imported project out) ---------------
+@app.get("/api/writer/status")
+def writer_status():
+    return writer.status()
+
+
+class WriteReq(BaseModel):
+    topic: Optional[str] = None
+
+
+@app.post("/api/channels/{cid}/write")
+def write_script(cid: str, req: WriteReq = WriteReq()):
+    """Write this channel's next script with a LOCAL model and import it."""
+    try:
+        return {"job_id": writer.submit_write(cid, req.topic)}
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
+# --- API: Shorts cutter --------------------------------------------------------
+class ShortsReq(BaseModel):
+    count: int = 2                    # hook + payoff (3 adds a mid-peak)
+    max_sec: float = 35.0
+
+
+@app.post("/api/projects/{pid}/shorts")
+def cut_shorts(pid: str, req: ShortsReq = ShortsReq()):
+    """Cut vertical 9:16 Shorts (hook/payoff) from the assembled timeline."""
+    try:
+        return {"job_id": shorts.submit_shorts(pid, req.dict())}
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
+# --- API: YouTube upload (per-channel OAuth) -----------------------------------
+@app.get("/api/channels/{cid}/youtube/auth_url")
+def youtube_auth_url(cid: str):
+    try:
+        return {"url": youtube.auth_url(cid)}
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
+@app.get("/api/youtube/oauth/callback")
+def youtube_oauth_callback(state: str = "", code: str = "", error: str = ""):
+    if error or not code:
+        return HTMLResponse(f"<h3>YouTube connection failed: {error or 'no code'}</h3>"
+                            "<p>Close this tab and try again.</p>", status_code=400)
+    try:
+        youtube.finish_oauth(state, code)
+    except Exception as exc:  # noqa: BLE001
+        return HTMLResponse(f"<h3>Token exchange failed</h3><pre>{exc}</pre>",
+                            status_code=400)
+    return HTMLResponse("<h3>✓ Channel connected to YouTube.</h3>"
+                        "<p>You can close this tab and go back to AAAFlow.</p>")
+
+
+class UploadReq(BaseModel):
+    file: Optional[str] = None        # project-relative mp4 (default: newest final)
+    title: Optional[str] = None
+    description: Optional[str] = None
+    tags: Optional[List[str]] = None
+    privacy: Optional[str] = None     # private (default) | unlisted | public
+    thumbnail: bool = True
+
+
+@app.post("/api/projects/{pid}/upload")
+def upload_to_youtube(pid: str, req: UploadReq = UploadReq()):
+    """Upload a render to the project's channel YouTube account (job)."""
+    try:
+        return {"job_id": youtube.submit_upload(pid, req.dict(exclude_none=True))}
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
 
 
 @app.get("/api/storyboard/template")

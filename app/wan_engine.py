@@ -73,7 +73,7 @@ class WanEngine:
                                "batch_size": 1, "start_image": ["img", 0]}},
         }
         src_h, src_l = "unet_h", "unet_l"
-        if use_lora:                      # fast profile: 4-step lightning distill
+        if use_lora:                      # balanced/fast: 4-step lightning distill
             wf["lora_h"] = {"class_type": "LoraLoaderModelOnly",
                             "inputs": {"model": ["unet_h", 0], "lora_name": w["lora_high"],
                                        "strength_model": float(w["lora_strength"])}}
@@ -81,6 +81,25 @@ class WanEngine:
                             "inputs": {"model": ["unet_l", 0], "lora_name": w["lora_low"],
                                        "strength_model": float(w["lora_strength"])}}
             src_h, src_l = "lora_h", "lora_l"
+        # Optional extra LoRAs (e.g. a HighRes-Fix anti-melt patch): drop the
+        # file in ComfyUI models/loras and list it in config.WAN["extra_loras"]
+        # as {"file": name, "strength": 1.0, "experts": "both"|"high"|"low"}.
+        for i, xl in enumerate(w.get("extra_loras") or []):
+            name = xl.get("file")
+            if not name:
+                continue
+            strength = float(xl.get("strength", 1.0))
+            experts = xl.get("experts", "both")
+            if experts in ("both", "high"):
+                wf[f"xlora_h{i}"] = {"class_type": "LoraLoaderModelOnly",
+                                     "inputs": {"model": [src_h, 0], "lora_name": name,
+                                                "strength_model": strength}}
+                src_h = f"xlora_h{i}"
+            if experts in ("both", "low"):
+                wf[f"xlora_l{i}"] = {"class_type": "LoraLoaderModelOnly",
+                                     "inputs": {"model": [src_l, 0], "lora_name": name,
+                                                "strength_model": strength}}
+                src_l = f"xlora_l{i}"
         wf.update({
             "msm_h": {"class_type": "ModelSamplingSD3",
                       "inputs": {"model": [src_h, 0], "shift": float(w["shift"])}},

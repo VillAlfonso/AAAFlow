@@ -82,17 +82,31 @@ def _apply_engines(settings: Dict, engines: Optional[Dict]) -> Dict:
         an["quality"] = e["quality"]              # "max" | "fast"
     if e.get("preset"):
         settings["assemble"] = {**settings.get("assemble", {}), "preset": e["preset"]}
+    if e.get("authoring"):
+        settings["authoring"] = e["authoring"]    # "pro" | "assisted"
     return settings
 
 
 def create_project(raw_json: Dict, name: Optional[str] = None,
-                   engines: Optional[Dict] = None) -> Dict:
+                   engines: Optional[Dict] = None,
+                   channel: Optional[str] = None) -> Dict:
+    # Channel inheritance: the channel's defaults (engines, preset, voice, art
+    # direction, authoring mode) are the base; explicit creation-time choices
+    # win over them; the storyboard's own fields win over everything.
+    from . import autodirect, channels
+    ch = channels.get(channel)
+    ch_defaults = (ch or {}).get("defaults") or {}
+    engines = {**channels.default_engines(ch), **{k: v for k, v in (engines or {}).items() if v}} \
+        if ch else (engines or {})
+
     # Auto-direction: whatever wrote this storyboard (a strong model, a weak
     # one, or a human sketch), every directing field is filled deterministically
     # before parsing — undirected videos can't happen. Author-provided fields
     # are never overwritten; the report says exactly what was filled/flagged.
-    from . import autodirect
-    directed, direction = autodirect.direct(raw_json)
+    directed, direction = autodirect.direct(
+        raw_json,
+        default_style=ch_defaults.get("style_suffix"),
+        strict=(engines.get("authoring") == "assisted"))
     parsed = parse_storyboard(directed)        # raises ValueError on bad input
     pid = storage.new_id()
     d = ensure_dirs(pid)
@@ -100,14 +114,31 @@ def create_project(raw_json: Dict, name: Optional[str] = None,
         json.dumps(raw_json, ensure_ascii=False, indent=2), encoding="utf-8")
 
     video = parsed["video"]
+    if ch_defaults.get("negative_style") and not (video.get("global_negative_prompt") or "").strip():
+        video["global_negative_prompt"] = ch_defaults["negative_style"]
     title = (name or video.get("title") or f"Project {pid[:6]}").strip()
+    settings = _apply_engines(default_project_settings(), engines)
+    if ch:
+        v = settings.setdefault("voice", {})
+        if ch_defaults.get("voice"):
+            v["speaker"] = ch_defaults["voice"]
+        if ch_defaults.get("voice_id"):      # channel-owned cloned voice (Voice Lab)
+            v["mode"] = "clone"
+            v["voice_id"] = ch_defaults["voice_id"]
+        if ch_defaults.get("voice_instruct") and not (v.get("instruct") or "").strip():
+            v["instruct"] = ch_defaults["voice_instruct"]
+        if ch_defaults.get("language"):
+            v["language"] = ch_defaults["language"]
+        if ch_defaults.get("music_vibe"):
+            settings["music_vibe"] = ch_defaults["music_vibe"]
     project = {
         "id": pid,
         "name": title,
         "created": time.time(),
         "updated": time.time(),
+        "channel": (ch or {}).get("id"),
         "video": video,
-        "settings": _apply_engines(default_project_settings(), engines),
+        "settings": settings,
         "scenes": parsed["scenes"],
         "characters": parsed.get("characters", []),
         "direction_report": direction,
@@ -115,6 +146,8 @@ def create_project(raw_json: Dict, name: Optional[str] = None,
         "renders": [],
     }
     save_project(project)
+    if ch:
+        channels.note_project(ch["id"], pid)
     return project
 
 
@@ -155,6 +188,7 @@ def summarize(p: Dict) -> Dict:
     return {
         "id": p["id"], "name": p.get("name"),
         "created": p.get("created"), "updated": p.get("updated"),
+        "channel": p.get("channel"),
         "scenes": n, "audio_done": audio_done, "image_done": image_done,
         "video_done": video_done,
         "renders": len(p.get("renders", [])),

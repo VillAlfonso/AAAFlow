@@ -6,14 +6,16 @@
 creator — writing, pacing, art direction, editing, sound. If a viewer (or a
 platform) can tell it's AI-generated, that's a failure.
 
-**QUALITY OVER EVERYTHING (user rule, 2026-07-03).** Render time is explicitly
-not a concern on this machine. Default to the highest-quality path everywhere:
-Wan "max" profile (20 steps, native 720p, no speed LoRAs), enhance chain on,
-CRF 17 final encodes, Real-ESRGAN-sharpened stills. Fast/draft profiles exist
-only for previews and must be opted into. A **"balanced"** Wan profile (4-step
-lightx2v at native 720p + enhance; ~3-4 min/scene vs ~20 for max) exists for
-volume channels — user-selectable at creation/channel level, never silently
-substituted for max.
+**QUALITY, THEN SPEED (user rules, 2026-07-03).** Original mandate: quality
+over everything. Amended same day after validating results ("this wan model
+is actually doing great… If theres any way to make the production of videos
+faster please do everything you can"): **"balanced" is the production
+default** — Wan 4-step lightx2v at NATIVE 720p + enhance (~3-4 min/scene),
+visually ≈ max on flat art. "max" (20 steps, no speed LoRAs, ~20 min/scene)
+is the opt-in flagship profile — never silently substituted either way.
+Still always on: enhance sharpening (interpolation OFF — it ghosts), NVENC
+cq19 final encodes (x264 crf17 fallback), Real-ESRGAN-sharpened stills.
+Never trade visible quality for speed without the user's sign-off.
 
 ## Design principle: the SYSTEM carries the intelligence
 The pipeline must produce a competent, human-looking video even when the

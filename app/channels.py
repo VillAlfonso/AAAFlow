@@ -38,7 +38,7 @@ SEED_CHANNELS: List[Dict] = [
                          "catalog: every famous con is a ready-made script."),
         "cadence": "2 videos / week",
         "defaults": {
-            "image_model": "krea2", "animate_engine": "wan", "quality": "max",
+            "image_model": "krea2", "animate_engine": "wan", "quality": "balanced",
             "preset": "cinematic", "authoring": "pro",
             "voice": "Ryan", "language": "English",
             "voice_instruct": ("Speak like a seasoned documentary narrator telling a "
@@ -82,7 +82,7 @@ SEED_CHANNELS: List[Dict] = [
                          "true-crime CTR with finance advertiser rates."),
         "cadence": "1-2 videos / week",
         "defaults": {
-            "image_model": "krea2", "animate_engine": "wan", "quality": "max",
+            "image_model": "krea2", "animate_engine": "wan", "quality": "balanced",
             "preset": "parallax-slides", "authoring": "pro",
             "voice": "Aiden", "language": "English",
             "voice_instruct": ("Calm, analytical, slightly ominous - a financial "
@@ -166,7 +166,7 @@ SEED_CHANNELS: List[Dict] = [
                          "($10-20) and an inexhaustible topic list."),
         "cadence": "1 video / week",
         "defaults": {
-            "image_model": "krea2", "animate_engine": "wan", "quality": "max",
+            "image_model": "krea2", "animate_engine": "wan", "quality": "balanced",
             "preset": "cinematic", "authoring": "pro",
             "voice": "Ryan", "language": "English",
             "voice_instruct": ("A sharp, witty eulogy - respectful of the empire, "

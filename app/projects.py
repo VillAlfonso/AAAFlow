@@ -62,8 +62,10 @@ def default_project_settings() -> Dict:
         "image": dict(s.get("image", {})),
         "sync": dict(s.get("sync", {})),
         "assemble": dict(s.get("assemble", {})),
-        # QUALITY OVER EVERYTHING (user rule): Wan 2.2 max profile by default.
-        "animate": {"engine": "wan", "quality": "max", "enhance": True},
+        # Balanced is the validated production default (user, 2026-07-03:
+        # "make production faster" after confirming balanced looks great);
+        # max is the opt-in flagship profile.
+        "animate": {"engine": "wan", "quality": "balanced", "enhance": True},
         "music": None,        # background music bed {file, id, prompt, volume, fade} or None
     }
 
@@ -74,7 +76,7 @@ def _apply_engines(settings: Dict, engines: Optional[Dict]) -> Dict:
     e = engines or {}
     if e.get("image_model"):
         settings["image"] = {**settings.get("image", {}), "model": e["image_model"]}
-    an = settings.setdefault("animate", {"engine": "wan", "quality": "max",
+    an = settings.setdefault("animate", {"engine": "wan", "quality": "balanced",
                                          "enhance": True})
     if e.get("animate_engine"):
         an["engine"] = e["animate_engine"]        # "wan" | "none"

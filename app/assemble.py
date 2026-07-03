@@ -401,13 +401,27 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
     out_rel = f"video/{out_name}.mp4"
     out_abs = pdir / out_rel
     out_abs.parent.mkdir(parents=True, exist_ok=True)
-    # QUALITY OVER EVERYTHING: near-lossless encode; flat art shows crf-23
-    # blocking, and render time is explicitly not a concern on this machine.
-    final.write_videofile(
-        str(out_abs), fps=fps, codec="libx264", audio_codec="aac",
-        preset="slow", threads=os.cpu_count() or 4, logger=None,
-        ffmpeg_params=["-pix_fmt", "yuv420p", "-crf", "17"],
-    )
+    # Near-lossless encode, GPU-first (user speed mandate 2026-07-03): NVENC
+    # cq19 is visually equivalent to x264 crf17 on flat art at ~2-3x the
+    # speed; classic x264 (medium+crf17) is the automatic fallback.
+    encoder = str(asm.get("encoder", "nvenc")).lower()
+    if encoder == "nvenc":
+        try:
+            final.write_videofile(
+                str(out_abs), fps=fps, codec="h264_nvenc", audio_codec="aac",
+                preset="p6", threads=os.cpu_count() or 4, logger=None,
+                ffmpeg_params=["-pix_fmt", "yuv420p", "-rc", "vbr",
+                               "-cq", "19", "-b:v", "0"],
+            )
+        except Exception as exc:  # noqa: BLE001 — no NVENC → CPU fallback
+            print(f"[assemble] NVENC failed ({exc}); falling back to x264")
+            encoder = "x264"
+    if encoder != "nvenc":
+        final.write_videofile(
+            str(out_abs), fps=fps, codec="libx264", audio_codec="aac",
+            preset="medium", threads=os.cpu_count() or 4, logger=None,
+            ffmpeg_params=["-pix_fmt", "yuv420p", "-crf", "17"],
+        )
     try:
         final.close()
         for c in clips:

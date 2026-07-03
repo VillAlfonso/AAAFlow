@@ -1,16 +1,15 @@
-"""Character bible — consistent recurring characters across a video (RAG).
+"""Character bible — consistent recurring characters across a video.
 
 Each project keeps a list of characters (seeded from the storyboard's
 ``character_bible`` or added by hand). For each one we generate a **reference
-sheet**: an anchor (front, neutral) plus angle + expression variations, every
-variation conditioned on the anchor through IP-Adapter so the whole sheet stays
-the *same* character. At scene-render time, when a scene's ``characters`` name
-someone in the bible, their sheet (preferring the expression the scene calls for)
-is fed to IP-Adapter alongside the style refs — so the character shows up
-on-model inside that scene's scenario.
+sheet**: an anchor (front, neutral) plus angle + expression variations.
 
-Rides the ``cartoon-rag`` SDXL + IP-Adapter path (the app's reference-RAG image
-model); character work forces that model on so references actually condition.
+Sheets render on **krea2 via ComfyUI** (the app's only image model since
+2026-07-03). Identity holds the krea2 way: one fixed, detailed descriptor in
+every prompt + one seed family per character + krea2's very consistent flat
+style — the same doctrine scene renders use (character looks come from the
+bible descriptors merged into scene prompts by scenes.build_image_prompt).
+The old SDXL + IP-Adapter anchor-conditioning path went with cartoon-rag.
 """
 from __future__ import annotations
 
@@ -18,8 +17,8 @@ import random
 import time
 from typing import Callable, Dict, List, Optional
 
-from . import config, jobs, projects, storage, style_refs
-from .image_engine import image_engine
+from . import config, jobs, projects, storage
+from .comfy_engine import comfy_engine
 from .scenes import _slug, normalize_character
 
 ProgressFn = Callable[[str, float], None]
@@ -142,50 +141,42 @@ def submit_character_sheet(pid: str, cid: str, opts: Optional[Dict] = None) -> s
     opts = dict(opts or {})
 
     def task(progress: ProgressFn) -> Dict:
-        # Character consistency rides the cartoon-rag SDXL + IP-Adapter path.
-        settings = storage.get_settings()
-        storage.save_settings({"image": {**settings.get("image", {}), "model": "cartoon-rag"}})
-        mdef = config.IMAGE_BASES["cartoon-rag"]
-        style = config.CARTOON_STYLE
+        # krea2 (ComfyUI): identity = fixed descriptor + one seed family +
+        # krea2's consistent flat style. The project's own art direction leads.
+        mdef = config.IMAGE_BASES["krea2"]
 
         proj = projects.get_project(pid)
         c = get_character(proj, cid)
         c["status"] = "generating"
         projects.save_project(proj)
+        style = ((proj.get("video") or {}).get("global_style_suffix")
+                 or "").strip() or config.KREA2_STYLE
 
         pdir = projects.project_dir(pid)
         (pdir / "characters").mkdir(parents=True, exist_ok=True)
         base = ", ".join(p for p in [c.get("name"), c.get("description"), c.get("palette")] if p)
 
-        progress("Loading cartoon model + IP-Adapter…", 0.03)
-        image_engine.get_pipeline(progress=lambda s, f: progress(s, 0.03 + 0.12 * f))
+        progress("Starting ComfyUI / krea2…", 0.03)
+        comfy_engine.ensure_running(progress=lambda s, f: progress(s, 0.03 + 0.12 * f))
 
-        style_anchor = style_refs.retrieve(None, k=2)        # the channel's look
         seed0 = int(opts.get("seed", -1))
         if seed0 < 0:
             seed0 = random.randint(0, 2**31 - 1)
 
         shots = SHEET_SHOTS
         sheet: List[Dict] = []
-        anchor_path: Optional[str] = None
         n = len(shots)
         for i, (label, frag, kind, (w, h)) in enumerate(shots):
             progress(f"Drawing {c['name']} · {label} ({i + 1}/{n})", 0.15 + 0.8 * i / n)
             prompt = (f"{base}. {frag}. single character, full character reference, "
                       f"plain solid white background. {style}")
-            if i == 0:
-                refs, ip = style_anchor, 0.55
-            else:
-                refs = ([anchor_path] if anchor_path else []) + style_anchor[:1]
-                ip = float(opts.get("identity", 0.72))      # anchor drives identity
-            img = image_engine.generate(
+            img = comfy_engine.generate(
                 prompt, _SHEET_NEG, width=w, height=h,
                 steps=int(mdef["steps"]), guidance=float(mdef["guidance"]),
-                seed=seed0 + i, ref_images=refs, ip_scale=ip)
+                seed=seed0 + i, mdef=mdef)
             rel = f"characters/{cid}_{label}.png"
             img.save(str(pdir / rel))
             if i == 0:
-                anchor_path = str(pdir / rel)
                 c["anchor"] = rel
             sheet.append({"file": rel, "label": label, "kind": kind})
 

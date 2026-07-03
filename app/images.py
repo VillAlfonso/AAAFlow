@@ -73,6 +73,13 @@ def submit_images(pid: str, image_cfg: Dict, scope: str = "missing",
     if not project:
         raise ValueError("Project not found.")
     image_cfg = dict(image_cfg or {})
+    # Normalize the model up front: absent → default; a model that no longer
+    # exists (removed bases, deleted imports) → default. Downstream (dims,
+    # mdef, engine branch) all key off image_cfg["model"].
+    mk = image_cfg.get("model") or config.DEFAULT_IMAGE_MODEL
+    if mk not in config.IMAGE_BASES and not storage.get_image_model(mk):
+        mk = config.DEFAULT_IMAGE_MODEL
+    image_cfg["model"] = mk
     video = project.get("video", {})
     targets = _targets(project["scenes"], video, scope, scene_id)
     if not targets:

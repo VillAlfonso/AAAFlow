@@ -2,7 +2,9 @@
 
 The intelligence a video needs to LOOK edited (transition variety, stinger
 placement, hero-scene selection, shot variety, the no-text rule, TTS-safe
-punctuation) lives HERE, in code, not in whichever LLM wrote the storyboard.
+punctuation) lives HERE — the WHICH-effect-WHEN choices come from the editable
+``app/grammar.py`` dictionary (``data/effects_dictionary.json``), not whichever
+LLM wrote the storyboard.
 A minimal storyboard — title + scenes with narration and an image subject —
 comes out the other side with every directing field filled. Fields the author
 DID provide are never overwritten, so a strong model (or a human) can still
@@ -16,34 +18,14 @@ from __future__ import annotations
 import re
 from typing import Dict, List, Tuple
 
-from . import sfx
+from . import grammar, sfx
 from .scenes import estimate_duration
 
 HOOK_SECONDS = 30.0          # the window that must carry the densest editing
 
-# Transition rotations (never two identical in a row). Hook = punchy set.
-_HOOK_TRANSITIONS = ["smash cut", "whip-pan right", "punch-in", "hard cut",
-                     "whip-pan left", "flash cut"]
-_BODY_TRANSITIONS = ["hard cut", "push-in", "crossfade", "whip-pan right",
-                     "hard cut", "pull-back", "fade"]
-
-# Shot rotation → drives parallax camera-move variety downstream.
-_SHOTS = ["wide establishing", "medium", "close-up", "low angle", "macro detail",
-          "three-quarter medium"]
-
-# keyword → audio_cue (cue text is matched against the SFX library tags later,
-# so these stay valid even when the library grows).
-_CUE_RULES: List[Tuple[Tuple[str, ...], str]] = [
-    (("cash", "money", "bill", "paid", "bribe", "fortune", "price", "sold",
-      "bought", "reward"), "cash register ding"),
-    (("reveal", "secret", "hidden", "trick", "twist", "actually", "truth"),
-     "shimmering riser"),
-    (("crash", "arrest", "caught", "busted", "slam", "fell", "collapse",
-      "boom", "explode"), "deep impact boom"),
-    (("ran", "fled", "escape", "train", "chase", "vanish", "jump", "climb",
-      "rush", "race"), "quick whoosh"),
-    (("pop", "tiny", "small", "appear"), "pop"),
-]
+# Transition rotations, shot variety and keyword→cue mappings all live in the
+# editable grammar dictionary now (app/grammar.py -> data/effects_dictionary.json)
+# so "when to use which effect" is one JSON, shared with the audio scorer.
 
 
 def _word_count(t: str) -> int:
@@ -51,11 +33,7 @@ def _word_count(t: str) -> int:
 
 
 def _pick_cue(text: str) -> str:
-    low = (text or "").lower()
-    for keys, cue in _CUE_RULES:
-        if any(k in low for k in keys):
-            return cue
-    return ""
+    return grammar.pick_cue(text)
 
 
 # --- assisted mode (small-model authoring, e.g. Haiku) -----------------------
@@ -146,13 +124,17 @@ def _assist(scenes: List[Dict], video: Dict, fixes: List[str]) -> List[Dict]:
 
 
 def direct(raw: Dict, *, default_style: str | None = None,
-           strict: bool = False) -> Tuple[Dict, Dict]:
+           strict: bool = False, coverage: str = "heroes") -> Tuple[Dict, Dict]:
     """Fill every empty directing field; return (storyboard, report).
 
     ``default_style`` (usually the project's channel art direction) wins over
     the built-in flat-cartoon fallback when the storyboard declares no style.
     ``strict`` enables assisted mode: structural rewrites for weak-model
     scripts (hook trimming, long-scene splitting).
+    ``coverage`` decides which scenes get flagged for Wan animation:
+    "heroes" (budgeted — every scene still cuts to a fresh moving visual via
+    parallax/Ken Burns), "all" (every scene gets a real clip; ~3.5 min GPU per
+    scene at balanced), or "none".
     """
     sb = dict(raw or {})
     video = dict(sb.get("video") or {})
@@ -183,11 +165,21 @@ def direct(raw: Dict, *, default_style: str | None = None,
         t += estimate_duration(s.get("narration") or "")
 
     last_transition = ""
-    hero_budget = max(3, min(10, len(scenes) // 4))
-    # hero scenes get motion: first scene, then the longest scenes spread out
-    by_len = sorted(range(len(scenes)),
-                    key=lambda i: -_word_count(scenes[i].get("narration") or ""))
-    heroes = {0} | set(by_len[: hero_budget - 1])
+    # animation coverage: "all" = a real clip on every scene (viewer-retention
+    # maximalist — costly), "heroes" = budgeted (dense for short videos, grows
+    # slowly for long ones), "none" = parallax/Ken Burns carry all motion.
+    ns = len(scenes)
+    if coverage == "all":
+        heroes = set(range(ns))
+    elif coverage == "none":
+        heroes = set()
+    else:
+        hero_budget = (max(3, min(10, ns // 4)) if ns <= 60
+                       else min(16, 10 + (ns - 60) // 30))
+        # hero scenes get motion: scene 1, then the longest scenes spread out
+        by_len = sorted(range(ns),
+                        key=lambda i: -_word_count(scenes[i].get("narration") or ""))
+        heroes = {0} | set(by_len[: hero_budget - 1])
 
     for i, s in enumerate(scenes):
         sid = s.get("id", i + 1)
@@ -213,11 +205,16 @@ def direct(raw: Dict, *, default_style: str | None = None,
                 warnings.append(f"scene {sid}: image_prompt synthesized from "
                                 f"narration — a real prompt would look better")
 
+        beat = grammar.beat_of(f"{narr} {s.get('image_prompt')}")
         if not (s.get("transition") or "").strip():
-            cycle = _HOOK_TRANSITIONS if i in hook_idx else _BODY_TRANSITIONS
-            pick = cycle[i % len(cycle)]
-            if pick == last_transition:
-                pick = cycle[(i + 1) % len(cycle)]
+            # A detected story beat picks its signature cut (reveal→flash,
+            # impact→smash…); otherwise rotate the hook/body set, never repeating.
+            pick = grammar.transition_for_beat(beat) if beat else ""
+            if not pick or pick == last_transition:
+                cycle = grammar.transitions(i in hook_idx)
+                pick = cycle[i % len(cycle)]
+                if pick == last_transition:
+                    pick = cycle[(i + 1) % len(cycle)]
             s["transition"] = pick
             fixes.append(f"scene {sid}: transition -> {pick}")
         last_transition = s["transition"]
@@ -231,7 +228,8 @@ def direct(raw: Dict, *, default_style: str | None = None,
                 fixes.append(f"scene {sid}: audio_cue -> {cue}")
 
         if not (s.get("shot") or "").strip():
-            s["shot"] = _SHOTS[i % len(_SHOTS)]
+            shots = grammar.shots()
+            s["shot"] = shots[i % len(shots)]
 
         if not (s.get("motion_type") or "").strip() and i in heroes:
             s["motion_type"] = "ambient"
@@ -254,6 +252,11 @@ def direct(raw: Dict, *, default_style: str | None = None,
             stats = {"scenes": len(scenes), "words": total,
                      "est_runtime_sec": round(est, 1),
                      "hook_scenes": len(hook_idx)}
+            if total > 650:
+                warnings.append(f"long script ({total} words): one-take TTS can "
+                                f"drift past ~5 min — spot-check the QA transcript "
+                                f"extra carefully (chapter takes are the next fix "
+                                f"if it drifts)")
         else:
             stats = {"scenes": len(scenes), "words": 0}
             warnings.append("no narration anywhere — nothing to voice")

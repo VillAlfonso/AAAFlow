@@ -21,7 +21,8 @@ import threading
 import time
 from typing import Dict, Optional
 
-from . import animate, assemble, config, effects, images, jobs, music, projects, storage, voiceover
+from . import (animate, assemble, config, effects, images, jobs, projects,
+               score, storage, voiceover)
 
 _state: Dict[str, Dict] = {}
 _lock = threading.Lock()
@@ -47,9 +48,10 @@ def default_plan(project: Dict) -> Dict:
     return {
         "voice": "skip" if project.get("narration") else "onetake",
         "images": True,
-        # channel music_vibe + no bed set yet + ACE installed → generate one
-        "music": bool(settings.get("music_vibe")) and not settings.get("music")
-                 and config.music_env_ready() and config.music_model_ready(),
+        # The scorer always runs: it fits a mood-matched music bed (Jamendo lib
+        # -> ACE-Step -> existing) AND fills/fetches real SFX for every beat.
+        # Degrades gracefully (no keys => generation + procedural stingers).
+        "score": True,
         "animate": {"scope": "missing"} if (uses_clips and engine != "none") else False,
         "assemble": {},
     }
@@ -69,8 +71,8 @@ def submit_produce(pid: str, plan: Optional[Dict] = None) -> Dict:
         stages.append("voice")
     if plan.get("images"):
         stages.append("images")
-    if plan.get("music"):
-        stages.append("music")      # before animate so the ACE sidecar can be freed
+    if plan.get("score"):
+        stages.append("score")      # before animate so the ACE sidecar can be freed
     if plan.get("animate"):
         stages.append("animate")
     if plan.get("assemble") is not False:
@@ -92,11 +94,8 @@ def submit_produce(pid: str, plan: Optional[Dict] = None) -> Dict:
         if name == "images":
             icfg = dict(proj["settings"].get("image") or {})
             return images.submit_images(pid, icfg, scope="missing")
-        if name == "music":
-            vibe = (proj["settings"].get("music_vibe") or "").strip()
-            return music.submit_music({
-                "prompt": vibe + ", instrumental background bed, loopable, "
-                                 "no vocals", "seconds": 75, "kind": "bgm"})
+        if name == "score":
+            return score.submit_score(pid)
         if name == "animate":
             aopts = dict(plan["animate"]) if isinstance(plan["animate"], dict) else {}
             scope = aopts.pop("scope", "missing")
@@ -123,19 +122,6 @@ def submit_produce(pid: str, plan: Optional[Dict] = None) -> Dict:
         except Exception:  # noqa: BLE001 — best-effort
             pass
 
-    def _attach_music(jid: str):
-        """Set the generated bed on the project (ducked, low, faded)."""
-        j = jobs.get_job(jid) or {}
-        files = (j.get("result") or {}).get("files") or {}
-        f = files.get("wav") or next(iter(files.values()), None)
-        if not f:
-            return
-        proj = projects.get_project(pid)
-        proj["settings"]["music"] = {"file": f, "volume": 0.16, "duck": True,
-                                     "fade": 1.5,
-                                     "prompt": proj["settings"].get("music_vibe")}
-        projects.save_project(proj)
-
     def _run():
         try:
             for i, name in enumerate(stages):
@@ -160,9 +146,8 @@ def submit_produce(pid: str, plan: Optional[Dict] = None) -> Dict:
                          progress=j.get("progress"))
                     if j["status"] == "done":
                         entry.update(status="done")
-                        if name == "music":
-                            _attach_music(jid)
-                            _kill_ace_sidecar()
+                        if name == "score":
+                            _kill_ace_sidecar()   # free VRAM if ACE-Step generated a bed
                         if name == "assemble":
                             _set(pid, result=j.get("result"))
                         break

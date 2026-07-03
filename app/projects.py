@@ -1,16 +1,18 @@
 """Projects: an imported storyboard + per-scene pipeline state, on disk.
 
-Layout per project::
+Layout per project (2026-07-03 re-architecture: projects live INSIDE their
+channel's folder; data/projects/ remains the home for channel-less ones)::
 
-    data/projects/<pid>/
+    data/channels/<cid>/projects/<pid>/     (or data/projects/<pid>/ standalone)
         project.json     normalized project (video meta, settings, scenes, renders)
         source.json      the original uploaded storyboard JSON
         audio/scene_0001.wav ...
         images/scene_0001.png ...
         video/final_*.mp4 ...
 
-Asset paths stored on scenes are *relative* to the project dir, so the SPA can
-fetch them at /projects/<pid>/<relpath> and a future move can't break them.
+Asset paths stored on scenes are *relative* to the project dir, and the SPA
+fetches them at /projects/<pid>/<relpath> — project_dir() resolves the pid
+across every channel folder, so URLs and stored paths never break on a move.
 """
 from __future__ import annotations
 
@@ -25,7 +27,35 @@ from .scenes import parse_storyboard
 
 
 # --- paths -----------------------------------------------------------------
+# pid -> resolved project dir. Everything (pipeline stages, asset URLs, jobs)
+# goes through project_dir(), so a project's physical home (which channel
+# folder it sits in) is looked up exactly once per process.
+_DIR_CACHE: Dict[str, Path] = {}
+
+
+def _project_roots() -> List[Path]:
+    """Every directory that may hold project folders: each channel's
+    projects/, then the legacy/standalone data/projects."""
+    roots: List[Path] = []
+    if config.CHANNELS_DIR.exists():
+        roots.extend(d / "projects" for d in sorted(config.CHANNELS_DIR.iterdir())
+                     if (d / "projects").is_dir())
+    roots.append(config.PROJECTS_DIR)
+    return roots
+
+
 def project_dir(pid: str) -> Path:
+    # Trust the cached home while the directory exists — during creation the
+    # folder is homed (and mkdir'd) before project.json is first written.
+    cached = _DIR_CACHE.get(pid)
+    if cached is not None and cached.exists():
+        return cached
+    for root in _project_roots():
+        cand = root / pid
+        if (cand / "project.json").exists():
+            _DIR_CACHE[pid] = cand
+            return cand
+    # Unknown pid: legacy location (missing project.json reads as "not found").
     return config.PROJECTS_DIR / pid
 
 
@@ -33,10 +63,19 @@ def _project_file(pid: str) -> Path:
     return project_dir(pid) / "project.json"
 
 
-def ensure_dirs(pid: str) -> Path:
+def ensure_dirs(pid: str, channel: Optional[str] = None) -> Path:
+    """Create (or find) the project folder. A brand-new pid is homed in its
+    channel's projects/ folder; an existing one stays where it resolves."""
     d = project_dir(pid)
+    if channel and not (d / "project.json").exists():
+        from . import channels
+        try:
+            d = channels.projects_root(channel) / pid
+        except ValueError:
+            d = config.PROJECTS_DIR / pid
     for sub in ("audio", "images", "video"):
         (d / sub).mkdir(parents=True, exist_ok=True)
+    _DIR_CACHE[pid] = d
     return d
 
 
@@ -86,6 +125,8 @@ def _apply_engines(settings: Dict, engines: Optional[Dict]) -> Dict:
         settings["assemble"] = {**settings.get("assemble", {}), "preset": e["preset"]}
     if e.get("authoring"):
         settings["authoring"] = e["authoring"]    # "pro" | "assisted"
+    if e.get("coverage"):
+        an["coverage"] = e["coverage"]            # "heroes" | "all" | "none"
     return settings
 
 
@@ -108,10 +149,11 @@ def create_project(raw_json: Dict, name: Optional[str] = None,
     directed, direction = autodirect.direct(
         raw_json,
         default_style=ch_defaults.get("style_suffix"),
-        strict=(engines.get("authoring") == "assisted"))
+        strict=(engines.get("authoring") == "assisted"),
+        coverage=(engines.get("coverage") or "heroes"))
     parsed = parse_storyboard(directed)        # raises ValueError on bad input
     pid = storage.new_id()
-    d = ensure_dirs(pid)
+    d = ensure_dirs(pid, channel=(ch or {}).get("id"))
     (d / "source.json").write_text(
         json.dumps(raw_json, ensure_ascii=False, indent=2), encoding="utf-8")
 
@@ -167,16 +209,21 @@ def get_project(pid: str) -> Optional[Dict]:
     return storage.read_json(f, None)
 
 
-def list_projects() -> List[Dict]:
+def list_projects(channel: Optional[str] = None) -> List[Dict]:
     out: List[Dict] = []
-    if not config.PROJECTS_DIR.exists():
-        return out
-    dirs = [p for p in config.PROJECTS_DIR.iterdir() if (p / "project.json").exists()]
+    dirs: List[Path] = []
+    for root in _project_roots():
+        if root.exists():
+            dirs.extend(p for p in root.iterdir() if (p / "project.json").exists())
     dirs.sort(key=lambda p: (p / "project.json").stat().st_mtime, reverse=True)
     for d in dirs:
         p = storage.read_json(d / "project.json", None)
-        if p:
-            out.append(summarize(p))
+        if not p:
+            continue
+        _DIR_CACHE[p["id"]] = d
+        if channel and p.get("channel") != channel:
+            continue
+        out.append(summarize(p))
     return out
 
 
@@ -202,6 +249,7 @@ def summarize(p: Dict) -> Dict:
 
 def delete_project(pid: str) -> bool:
     d = project_dir(pid)
+    _DIR_CACHE.pop(pid, None)
     if d.exists():
         shutil.rmtree(d, ignore_errors=True)
         return True

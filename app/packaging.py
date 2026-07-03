@@ -135,6 +135,11 @@ def build(pid: str, thumb_text: Optional[str] = None) -> Dict:
         niche_word = (_words(ch.get("niche") or "story") or ["story"])[0]
         desc_lines += [f"New {niche_word} stories every week — subscribe so the "
                        f"next one finds you.", ""]
+    # Auto-attribution: any CC-licensed music/SFX the scorer used must be credited
+    # here (CC0 needs none, but the scorer only lists what actually requires it).
+    credits = ((p.get("audio_plan") or {}).get("attribution")) or []
+    if credits:
+        desc_lines += ["Credits:"] + credits + [""]
     desc_lines += [" ".join(hashtags)]
     description = "\n".join(desc_lines).strip()
 

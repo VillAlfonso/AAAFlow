@@ -12,18 +12,27 @@ import shutil
 from pathlib import Path
 from typing import Dict, List
 
-from . import config
+from . import config, projects
 
 # Directories worth showing in the "where the disk went" table.
 _OVERVIEW = [
     ("ComfyUI model weights", config.COMFY_DIR / "ComfyUI" / "models"),
     ("HF model cache (TTS/whisper/depth)", config.MODELS_DIR),
     ("ACE-Step (music engine)", config.ACE_DIR),
-    ("Projects", config.PROJECTS_DIR),
+    ("Channels (projects + UIs)", config.CHANNELS_DIR),
+    ("Standalone projects", config.PROJECTS_DIR),
+    ("Deleted channels (data/trash)", config.TRASH_DIR),
     ("Music library", config.MUSIC_DIR),
     ("Python env", config.BASE_DIR / ".venv"),
     ("LoRA trainer (musubi)", config.BASE_DIR / "trainers"),
 ]
+
+
+def _project_dirs():
+    """Every project folder across all channels + the legacy flat dir."""
+    for root in projects._project_roots():
+        if root.exists():
+            yield from (p for p in root.iterdir() if (p / "project.json").exists())
 
 
 def _size(path: Path) -> int:
@@ -50,7 +59,7 @@ def _gb(n: int) -> float:
 def _old_renders() -> List[Path]:
     """Every final_*.mp4 except the newest one per project."""
     out: List[Path] = []
-    for proj in config.PROJECTS_DIR.iterdir() if config.PROJECTS_DIR.exists() else []:
+    for proj in _project_dirs():
         finals = sorted((proj / "video").glob("final_*.mp4"),
                         key=lambda f: f.stat().st_mtime, reverse=True)
         out.extend(finals[1:])
@@ -59,14 +68,14 @@ def _old_renders() -> List[Path]:
 
 def _parallax_cache() -> List[Path]:
     out: List[Path] = []
-    for proj in config.PROJECTS_DIR.iterdir() if config.PROJECTS_DIR.exists() else []:
+    for proj in _project_dirs():
         out.extend((proj / "video").glob("scene_*_plx_*.mp4"))
     return out
 
 
 def _upscale_cache() -> List[Path]:
     out: List[Path] = []
-    for proj in config.PROJECTS_DIR.iterdir() if config.PROJECTS_DIR.exists() else []:
+    for proj in _project_dirs():
         out.extend((proj / "images").glob("*_up2x.png"))
     return out
 
@@ -93,8 +102,9 @@ def _pycache() -> List[Path]:
 
 def _moviepy_temp() -> List[Path]:
     out = list(config.BASE_DIR.glob("*TEMP_MPY*"))
-    if config.PROJECTS_DIR.exists():
-        out.extend(config.PROJECTS_DIR.rglob("*TEMP_MPY*"))
+    for root in (config.PROJECTS_DIR, config.CHANNELS_DIR):
+        if root.exists():
+            out.extend(root.rglob("*TEMP_MPY*"))
     return out
 
 

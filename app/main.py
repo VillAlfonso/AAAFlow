@@ -7,14 +7,16 @@ from pathlib import Path
 from typing import List, Optional
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
-from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
+from fastapi.responses import (FileResponse, HTMLResponse, JSONResponse,
+                               RedirectResponse)
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from . import (animate, assemble, captions, channels, characters, config,
-               effects, humanize, images, janitor, jobs, music, packaging,
-               produce, projects, scenes, service, sfx, shorts, storage,
-               style_refs, training, transcribe, voiceover, writer, youtube)
+from . import (animate, assemble, audiolib, captions, channels, characters,
+               config, effects, grammar, humanize, images, janitor, jobs, music,
+               packaging, produce, projects, scenes, score, service, sfx,
+               shorts, storage, style_refs, training, transcribe, voiceover,
+               writer, youtube)
 from .audio import ffmpeg_ok
 from .engine import engine
 from .image_engine import image_engine
@@ -130,6 +132,7 @@ def bootstrap():
         "voices": _voices_payload(),
         "history": storage.get_history(),
         "projects": projects.list_projects(),
+        "channels": channels.load(),
         "image_models": _image_models_payload(),
     }
 
@@ -367,8 +370,8 @@ def comfy_loras():
 
 
 @app.get("/api/projects")
-def get_projects():
-    return {"projects": projects.list_projects()}
+def get_projects(channel: Optional[str] = None):
+    return {"projects": projects.list_projects(channel)}
 
 
 @app.post("/api/projects")
@@ -449,8 +452,17 @@ def upsert_channel(channel: dict):
         raise HTTPException(status_code=400, detail=str(exc))
 
 
+@app.get("/api/channels/{cid}")
+def get_channel(cid: str):
+    ch = channels.get(cid)
+    if not ch:
+        raise HTTPException(status_code=404, detail="channel not found")
+    return {"channel": ch}
+
+
 @app.delete("/api/channels/{cid}")
 def delete_channel(cid: str):
+    """Moves the whole channel folder (projects included) to data/trash."""
     return {"deleted": channels.remove(cid)}
 
 
@@ -463,6 +475,38 @@ def channel_authoring_prompt(cid: str, topic: Optional[str] = None):
     if not ch:
         raise HTTPException(status_code=404, detail="channel not found")
     return {"prompt": channels.authoring_prompt(ch, topic)}
+
+
+# --- API: royalty-free audio libraries + scorer ------------------------------
+@app.get("/api/audio/status")
+def audio_status():
+    """Which providers have keys + how many tracks/SFX are cached."""
+    return audiolib.status()
+
+
+class AudioSearchReq(BaseModel):
+    kind: str = "music"               # "music" | "sfx"
+    query: str
+    seconds: float = 60.0             # music: minimum bed length
+    limit: int = 12
+
+
+@app.post("/api/audio/search")
+def audio_search(req: AudioSearchReq):
+    """Browse the library (no download) — Jamendo beds or Freesound SFX."""
+    if req.kind == "sfx":
+        return {"results": audiolib.search_sfx(req.query, limit=req.limit)}
+    return {"results": audiolib.search_music(req.query, seconds=req.seconds,
+                                             limit=req.limit)}
+
+
+@app.post("/api/projects/{pid}/score")
+def score_project(pid: str):
+    """Auto-score: mood-matched bed + real SFX for every beat (background job)."""
+    try:
+        return {"job_id": score.submit_score(pid)}
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
 
 
 # --- API: storage janitor ----------------------------------------------------
@@ -671,6 +715,27 @@ def produce_status(pid: str):
     if st is None:
         raise HTTPException(status_code=404, detail="no production for this project")
     return st
+
+
+# --- API: effects grammar (the WHEN→WHICH-effect dictionary) ------------------
+@app.get("/api/effects_dictionary")
+def get_effects_dictionary():
+    """The editable cinematic grammar: which SFX/transition/shot/mood for which
+    narration beat. autodirect + the audio scorer read this on every video."""
+    return grammar.dictionary()
+
+
+@app.put("/api/effects_dictionary")
+def put_effects_dictionary(patch: dict):
+    try:
+        return grammar.save(patch or {})
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
+@app.post("/api/effects_dictionary/reset")
+def reset_effects_dictionary():
+    return grammar.reset()
 
 
 @app.get("/api/effects_presets")
@@ -1130,15 +1195,60 @@ def download(name: str):
     return FileResponse(str(path), filename=name)
 
 
+def _contained(base: Path, rel: str) -> Path:
+    """base/rel, refusing path traversal; 404 when the file doesn't exist."""
+    f = (base / rel).resolve()
+    try:
+        f.relative_to(base.resolve())
+    except ValueError:
+        raise HTTPException(status_code=404, detail="not found")
+    if not f.is_file():
+        raise HTTPException(status_code=404, detail="not found")
+    return f
+
+
+# Project assets by pid, wherever the project physically lives (its channel's
+# folder or legacy data/projects) — the /projects/<pid>/<rel> URLs the SPA and
+# stored scene paths use keep working across moves between channels.
+@app.get("/projects/{pid}/{rel:path}")
+def project_asset(pid: str, rel: str):
+    base = projects.project_dir(pid)
+    if not (base / "project.json").exists():
+        raise HTTPException(status_code=404, detail="project not found")
+    return FileResponse(str(_contained(base, rel)))
+
+
+# Per-channel custom UI: data/channels/<cid>/ui/. index.html = full takeover
+# (each channel can look completely different); no index yet -> the studio SPA
+# scoped to that channel. theme.css/assets are fetched from the same folder.
+@app.get("/ch/{cid}")
+@app.get("/ch/{cid}/")
+def channel_ui_index(cid: str):
+    if not channels.get(cid):
+        raise HTTPException(status_code=404, detail="channel not found")
+    idx = channels.ui_dir(cid) / "index.html"
+    if idx.is_file():
+        return FileResponse(str(idx))
+    return RedirectResponse(url=f"/#/ch/{cid}")
+
+
+@app.get("/ch/{cid}/{rel:path}")
+def channel_ui_asset(cid: str, rel: str):
+    try:
+        base = channels.ui_dir(cid)
+    except ValueError:
+        raise HTTPException(status_code=404, detail="not found")
+    return FileResponse(str(_contained(base, rel)))
+
+
 @app.exception_handler(HTTPException)
 async def _http_exc(request, exc: HTTPException):
     return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
 
 
-# Generated audio + per-project assets (inline playback), then the SPA.
-# Mounted last so /api wins; /projects + /audio win over the SPA catch-all.
+# Generated audio + shared asset dirs (inline playback), then the SPA.
+# Mounted last so /api and the /projects/{pid} + /ch/{cid} routes win.
 app.mount("/audio", StaticFiles(directory=str(config.OUTPUTS_DIR)), name="audio")
-app.mount("/projects", StaticFiles(directory=str(config.PROJECTS_DIR)), name="projects")
 app.mount("/style_refs", StaticFiles(directory=str(config.STYLE_REFS_DIR)), name="style_refs")
 app.mount("/music", StaticFiles(directory=str(config.MUSIC_DIR)), name="music")
 app.mount("/", StaticFiles(directory=str(config.WEB_DIR), html=True), name="web")

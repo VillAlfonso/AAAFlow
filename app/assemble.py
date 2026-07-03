@@ -17,6 +17,8 @@ editor's session.
 from __future__ import annotations
 
 import os
+import shutil
+import subprocess
 import time
 from pathlib import Path
 from typing import Callable, Dict, List, Optional
@@ -319,8 +321,59 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
                 pass
         return bg
 
+    # Long timelines render in PARTS: each ~seg_limit scenes is composed,
+    # hardware-encoded video-only, then all parts are stitched losslessly and
+    # the one-pass audio mix is muxed on. Compositing a 15-minute video as a
+    # single moviepy object would take hours and blow RAM; parts keep memory
+    # flat and make long (11-20 min) videos practical.
+    seg_limit = int(asm.get("segment_scenes", 24))
+    segmented = n > int(asm.get("segment_threshold", 40))
+    encoder = str(asm.get("encoder", "nvenc")).lower()
+    work: Optional[Path] = None
+    parts: List[Path] = []
+    if segmented:
+        import tempfile as _tf
+        (pdir / "video").mkdir(parents=True, exist_ok=True)
+        work = Path(_tf.mkdtemp(prefix="aaaflow_seg_", dir=str(pdir / "video")))
+
+    def _write_video(vclip, path, *, with_sound=False):
+        nonlocal encoder
+        kw = dict(fps=fps, threads=os.cpu_count() or 4, logger=None)
+        akw = dict(audio_codec="aac") if with_sound else dict(audio=False)
+        if encoder == "nvenc":
+            try:
+                vclip.write_videofile(
+                    str(path), codec="h264_nvenc", preset="p6",
+                    ffmpeg_params=["-pix_fmt", "yuv420p", "-rc", "vbr",
+                                   "-cq", "19", "-b:v", "0"], **kw, **akw)
+                return
+            except Exception as exc:  # noqa: BLE001 — no NVENC → CPU fallback
+                print(f"[assemble] NVENC failed ({exc}); falling back to x264")
+                encoder = "x264"
+        vclip.write_videofile(
+            str(path), codec="libx264", preset="medium",
+            ffmpeg_params=["-pix_fmt", "yuv420p", "-crf", "17"], **kw, **akw)
+
+    def _flush_segment():
+        nonlocal clips
+        if not clips:
+            return
+        part = work / f"part_{len(parts):04d}.mp4"
+        seg = concatenate_videoclips(clips, method="compose")
+        _write_video(seg, part)
+        try:
+            seg.close()
+            for c in clips:
+                c.close()
+        except Exception:  # noqa: BLE001
+            pass
+        parts.append(part)
+        clips = []
+
+    durs_sum = 0.0
     for i, s in enumerate(scenes):
-        progress(f"Composing scene {s['id']} ({i + 1}/{n})", 0.04 + 0.60 * i / max(n, 1))
+        progress(f"Composing scene {s['id']} ({i + 1}/{n})",
+                 0.04 + (0.56 if segmented else 0.60) * i / max(n, 1))
         dur = float(rows.get(str(s["id"]), {}).get("dur") or s.get("planned_dur") or 2.0)
         v = visual(s, dur, i)
         if do_transitions:
@@ -328,13 +381,22 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
             v = transitions.apply_transition(v, kind, dur=dur, W=W, H=H,
                                              raw=s.get("transition") or "")
         clips.append(v)
+        durs_sum += dur
+        if segmented and len(clips) >= seg_limit:
+            progress(f"Encoding part {len(parts) + 1}", 0.04 + 0.56 * i / max(n, 1))
+            _flush_segment()
 
     progress("Mixing audio", 0.66)
     # Per-scene transitions are self-contained entrances, so clips join cleanly.
-    final = concatenate_videoclips(clips, method="compose")
+    if segmented:
+        _flush_segment()
+        final = None
+        total_dur = durs_sum
+    else:
+        final = concatenate_videoclips(clips, method="compose")
+        total_dur = float(final.duration)
 
     # --- one audio session: narration + ducked bed + SFX + limiter ----------
-    total_dur = float(final.duration)
     N = max(1, int(total_dur * SR))
     mix = np.zeros((N, 2), dtype=np.float32)
 
@@ -393,41 +455,49 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
     peak = float(np.max(np.abs(mix)))
     if peak > 0.985:                           # keep the sum out of clipping
         mix *= 0.985 / peak
-    if peak > 0.0:
-        final = final.with_audio(AudioArrayClip(mix, fps=SR))
     progress("Encoding video", 0.74)
 
     out_name = (asm.get("out_name") or f"final_{time.strftime('%Y%m%d_%H%M%S')}")
     out_rel = f"video/{out_name}.mp4"
     out_abs = pdir / out_rel
     out_abs.parent.mkdir(parents=True, exist_ok=True)
-    # Near-lossless encode, GPU-first (user speed mandate 2026-07-03): NVENC
-    # cq19 is visually equivalent to x264 crf17 on flat art at ~2-3x the
-    # speed; classic x264 (medium+crf17) is the automatic fallback.
-    encoder = str(asm.get("encoder", "nvenc")).lower()
-    if encoder == "nvenc":
+    # Near-lossless, GPU-first encode (user speed mandate 2026-07-03): NVENC
+    # cq19 ≈ x264 crf17 on flat art at ~2-3x speed; x264 is the auto-fallback.
+    if segmented:
+        # lossless stitch of the already-encoded parts + one audio mux pass
+        listf = work / "parts.txt"
+        listf.write_text("".join(f"file '{p.as_posix()}'\n" for p in parts),
+                         encoding="utf-8")
+        silent = work / "silent.mp4"
+        r = subprocess.run([config.FFMPEG, "-y", "-v", "error", "-f", "concat",
+                            "-safe", "0", "-i", str(listf), "-c", "copy",
+                            str(silent)], capture_output=True, text=True)
+        if r.returncode != 0:
+            raise RuntimeError(f"part stitch failed: {(r.stderr or '')[-300:]}")
+        if peak > 0.0:
+            import soundfile as sf
+            wavf = work / "mix.wav"
+            sf.write(str(wavf), mix, SR)
+            progress("Muxing audio", 0.9)
+            r = subprocess.run([config.FFMPEG, "-y", "-v", "error", "-i",
+                                str(silent), "-i", str(wavf), "-c:v", "copy",
+                                "-c:a", "aac", "-b:a", "192k", "-shortest",
+                                str(out_abs)], capture_output=True, text=True)
+            if r.returncode != 0:
+                raise RuntimeError(f"audio mux failed: {(r.stderr or '')[-300:]}")
+        else:
+            shutil.move(str(silent), str(out_abs))
+        shutil.rmtree(work, ignore_errors=True)
+    else:
+        if peak > 0.0:
+            final = final.with_audio(AudioArrayClip(mix, fps=SR))
+        _write_video(final, out_abs, with_sound=(peak > 0.0))
         try:
-            final.write_videofile(
-                str(out_abs), fps=fps, codec="h264_nvenc", audio_codec="aac",
-                preset="p6", threads=os.cpu_count() or 4, logger=None,
-                ffmpeg_params=["-pix_fmt", "yuv420p", "-rc", "vbr",
-                               "-cq", "19", "-b:v", "0"],
-            )
-        except Exception as exc:  # noqa: BLE001 — no NVENC → CPU fallback
-            print(f"[assemble] NVENC failed ({exc}); falling back to x264")
-            encoder = "x264"
-    if encoder != "nvenc":
-        final.write_videofile(
-            str(out_abs), fps=fps, codec="libx264", audio_codec="aac",
-            preset="medium", threads=os.cpu_count() or 4, logger=None,
-            ffmpeg_params=["-pix_fmt", "yuv420p", "-crf", "17"],
-        )
-    try:
-        final.close()
-        for c in clips:
-            c.close()
-    except Exception:
-        pass
+            final.close()
+            for c in clips:
+                c.close()
+        except Exception:
+            pass
 
     return {"rel": out_rel, "duration": round(total_dur, 2),
             "width": W, "height": H, "fps": fps, "scenes": n,

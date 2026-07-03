@@ -17,16 +17,20 @@ WEB_DIR = BASE_DIR / "web"
 DATA_DIR = BASE_DIR / "data"
 OUTPUTS_DIR = DATA_DIR / "outputs"                          # generated audio
 REFS_DIR = DATA_DIR / "refs"                               # uploaded clone samples
-PROJECTS_DIR = DATA_DIR / "projects"                       # one folder per imported storyboard
+PROJECTS_DIR = DATA_DIR / "projects"                       # legacy/standalone projects (channel projects live in CHANNELS_DIR)
+CHANNELS_DIR = DATA_DIR / "channels"                       # one folder per channel: channel.json + projects/ + ui/
+TRASH_DIR = DATA_DIR / "trash"                             # deleted channels get moved here, never rm'd
 MODELS_DIR = BASE_DIR / "models"                          # HF weight cache (TTS + diffusion)
 DIFFUSION_DIR = MODELS_DIR / "diffusion"                  # imported image checkpoints (.safetensors)
 LORAS_DIR = MODELS_DIR / "loras"                          # imported / downloaded LoRAs
 TRAINING_DIR = BASE_DIR / "training"                      # LoRA datasets: <base>/<name>/dataset
 TRAINING_RUNS_DIR = DATA_DIR / "training_runs"            # per-run training logs
 STYLE_REFS_DIR = DATA_DIR / "style_refs"                  # cartoon style reference pack (RAG)
+AUDIO_LIB_DIR = DATA_DIR / "audio_library"                # downloaded royalty-free music beds + SFX (Jamendo/Freesound) + ledger
 
-for _d in (DATA_DIR, OUTPUTS_DIR, REFS_DIR, PROJECTS_DIR, MODELS_DIR,
-           DIFFUSION_DIR, LORAS_DIR, TRAINING_DIR, TRAINING_RUNS_DIR, STYLE_REFS_DIR):
+for _d in (DATA_DIR, OUTPUTS_DIR, REFS_DIR, PROJECTS_DIR, CHANNELS_DIR, MODELS_DIR,
+           DIFFUSION_DIR, LORAS_DIR, TRAINING_DIR, TRAINING_RUNS_DIR, STYLE_REFS_DIR,
+           AUDIO_LIB_DIR):
     _d.mkdir(parents=True, exist_ok=True)
 
 # Keep model weights local to the project and use the fast downloader.
@@ -41,7 +45,7 @@ CUSTOM_VOICES_FILE = DATA_DIR / "voices_custom.json"
 IMAGE_MODELS_FILE = DATA_DIR / "image_models.json"         # registry of imported checkpoints/LoRAs
 MUSIC_LIBRARY_FILE = DATA_DIR / "music_library.json"       # generated background music / SFX clips
 EFFECTS_PRESETS_FILE = DATA_DIR / "effects_presets.json"   # reusable editing-style presets
-CHANNELS_FILE = DATA_DIR / "channels.json"                 # multi-channel registry (per-channel defaults)
+CHANNELS_FILE = DATA_DIR / "channels.json"                 # LEGACY single-file registry (migrated into CHANNELS_DIR on load)
 SFX_LIB_DIR = DATA_DIR / "sfx_library"                     # editing stinger wavs (tagged)
 SFX_LIBRARY_FILE = DATA_DIR / "sfx_library.json"           # manifest for the stinger library
 
@@ -61,21 +65,12 @@ MODEL_REPOS = {
     },
 }
 
-# --- image models (local via diffusers) ------------------------------------
-# Built-in bases span two families:
-#   "sd"   — Stable Diffusion (1.5): small (~2 GB), what this storyboard JSON was
-#            authored for, supports negative prompts, best stick-figure LoRAs.
-#   "flux" — FLUX.1 (schnell ungated / dev gated): higher fidelity but ~16 GB to
-#            download (transformer GGUF + T5), heavier on a slow connection.
-# Imported .safetensors checkpoints are added to this set at runtime.
+# --- image models -----------------------------------------------------------
+# krea2 (ComfyUI) is THE image engine — the only built-in (user decision
+# 2026-07-03: legacy cartoon-rag/SD15/FLUX options removed so nothing can
+# re-download multi-GB weights; the diffusers engine remains only for user-
+# imported .safetensors checkpoints, which are added to this set at runtime).
 IMAGE_BASES = {
-    "cartoon-rag": {
-        "label": "Cartoon (SDXL + reference RAG · local, no ComfyUI)", "type": "sdxl",
-        "repo": "stabilityai/stable-diffusion-xl-base-1.0",
-        "ip_adapter": True,          # IP-Adapter style transfer from the reference pack
-        "steps": 30, "guidance": 6.0, "width": 1024, "height": 576,
-        "gated": False, "size": "~7 GB", "negative": True,
-    },
     "krea2": {
         "label": "Krea-2 Turbo · flat cartoon (local · ComfyUI)", "type": "comfyui",
         "unet": "krea2_turbo_fp8_scaled.safetensors",
@@ -84,35 +79,13 @@ IMAGE_BASES = {
         "steps": 8, "guidance": 1.0, "width": 1280, "height": 720,
         "gated": False, "size": "local", "negative": False,
     },
-    "sd15-dreamshaper": {
-        "label": "SD 1.5 · DreamShaper 8", "type": "sd",
-        "repo": "Lykon/dreamshaper-8",
-        "steps": 26, "guidance": 7.0, "width": 896, "height": 512,
-        "gated": False, "size": "~2 GB", "negative": True,
-    },
-    "flux-schnell": {
-        "label": "FLUX.1 schnell (GGUF)", "type": "flux",
-        "repo": "black-forest-labs/FLUX.1-schnell",
-        "steps": 4, "guidance": 0.0, "width": 1344, "height": 768,
-        "gated": False, "size": "~16 GB", "negative": False,
-    },
-    "flux-dev": {
-        "label": "FLUX.1 dev (gated — needs HF token)", "type": "flux",
-        "repo": "black-forest-labs/FLUX.1-dev",
-        "steps": 24, "guidance": 3.5, "width": 1344, "height": 768,
-        "gated": True, "size": "~16 GB", "negative": False,
-    },
 }
-# krea2 (ComfyUI) is THE production image engine — every channel defaults to it.
-# cartoon-rag/SD/FLUX stay selectable via diffusers, but their weights were
-# purged 2026-07-03 to reclaim disk; first use auto-re-downloads them.
 DEFAULT_IMAGE_MODEL = "krea2"
 
 # --- cartoon style via reference RAG (IP-Adapter, no ComfyUI) ----------------
-# The reference pack lives in data/style_refs/ (seed it from your krea2 cartoon
-# renders). At generation time the top-k references are fed to IP-Adapter in
-# *style-transfer* mode so SDXL reproduces the flat-cartoon look without copying
-# composition — the standalone replacement for krea2's baked-in style.
+# LEGACY (cartoon-rag was removed from IMAGE_BASES 2026-07-03): kept only so
+# style_refs.py / image_engine.py stay importable; nothing reaches this path
+# unless a user-imported SDXL checkpoint asks for references again.
 IP_ADAPTER = {
     "repo": "h94/IP-Adapter",
     "subfolder": "sdxl_models",
@@ -369,15 +342,15 @@ DEFAULT_SETTINGS = {
         "repetition_penalty": 1.05,
         "max_new_tokens": 4096,
     },
-    # --- image generation (krea2 via ComfyUI is the production default) ----
+    # --- image generation (krea2 via ComfyUI is THE image model) -----------
     "image": {
         "model": "krea2",            # key into IMAGE_BASES or an imported checkpoint id
         "style": None,               # optional style preset; None = model/storyboard default
-        "use_refs": True,            # cartoon-rag: condition on the style reference pack
-        "ip_scale": 0.7,             # IP-Adapter style strength (cartoon-rag)
-        "offload": "model",          # FLUX only: "model" | "sequential" | "none"
-        "quantize": "gguf",          # FLUX only: "gguf" (small) | "fp8" | "none"
-        "gguf_quant": "Q4_K_S",      # FLUX GGUF level: Q4_K_S | Q5_K_S | Q8_0
+        "use_refs": True,            # legacy (imported SDXL + reference pack only)
+        "ip_scale": 0.7,             # legacy IP-Adapter style strength
+        "offload": "model",          # legacy diffusers knobs (imported checkpoints)
+        "quantize": "gguf",
+        "gguf_quant": "Q4_K_S",
         "steps": None,               # None = use the model's default
         "guidance": None,
         "width": None,
@@ -387,6 +360,20 @@ DEFAULT_SETTINGS = {
         "default_lora_weight": 0.95,
         "loras": [],                 # [{"id":..,"weight":..}] extra imported LoRAs
         "civitai_token": "",         # optional, only if pulling a LoRA from Civitai
+    },
+    # --- royalty-free audio libraries (music beds + SFX, auto-scored) ------
+    # Free API keys the user pastes in Settings · Audio (each has a free tier):
+    #   jamendo_client_id  -> devportal.jamendo.com  (music beds, CC-licensed)
+    #   freesound_token    -> freesound.org/apiv2/apply (SFX, CC0 preferred)
+    # Empty keys => the scorer falls back to local ACE-Step generation +
+    # procedural stingers, so production never depends on the network.
+    "audio": {
+        "jamendo_client_id": "",
+        "freesound_token": "",
+        "prefer": "library",         # "library" (fetch real tracks) | "generate" (ACE-Step only)
+        "attribution": True,         # auto-append a credits block to the video description
+        "sfx_from_freesound": True,  # pull real SFX for inferred cues (else procedural synth)
+        "music_license": "commercial",  # "commercial" = exclude Non-Commercial CC tracks
     },
     # --- voiceover <-> timeline sync --------------------------------------
     "sync": {

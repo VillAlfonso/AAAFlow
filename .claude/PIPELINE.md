@@ -3,19 +3,30 @@
 This is the process. CLAUDE.md carries the short version; this file explains
 *why* each step sits where it does, so nobody (human or Claude) re-orders it.
 
-## Channels first (multi-channel operation)
-Every video belongs to a **channel** (`data/channels.json`, `app/channels.py`)
-unless deliberately standalone. Inheritance chain at project creation:
+## Channels first (multi-channel operation; channel-first UI 2026-07-03)
+The app OPENS on a hub of channel cards; entering one scopes the whole studio
+UI to it (`#/hub` → `#/ch/<cid>` → `#/p/<pid>/<step>`). Every video belongs
+to a **channel**; each channel is a FOLDER `data/channels/<cid>/` with
+`channel.json`, `projects/<pid>/` (its videos physically live inside), and
+`ui/` for per-channel vibe-coded UIs: `ui.json` {"accent":"#hex"} tint,
+`theme.css` restyle, `index.html` full replacement served at `/ch/<cid>/`
+(same REST API). `projects.project_dir(pid)` resolves any pid across all
+channel folders (+ legacy `data/projects/`) — never hand-build project paths.
+Channel delete moves the folder to `data/trash/`. Migration 2026-07-03 merged
+the five seeds into channel "main" (originals in `merged_from` +
+`data/channels.legacy.json`).
+Inheritance chain at project creation:
 `channel.defaults` → creation-time picks → the storyboard's own fields (each
 later layer wins). Defaults cover: image_model, animate_engine, quality,
-preset, voice + voice_instruct + language, style_suffix (art direction),
-negative_style, music_vibe, authoring (pro|assisted). The channel also carries
-the writing brief + topic bank; `GET /api/channels/{cid}/authoring_prompt`
-composes storyboard_v3_prompt.md + that brief into one paste-ready prompt.
-Projects stamp `project.channel`; channel cards show their videos.
-API: GET/POST `/api/channels`, DELETE `/api/channels/{cid}`.
+preset, coverage, voice + voice_instruct + language, style_suffix (art
+direction), negative_style, music_vibe, authoring (pro|assisted). The channel
+also carries the writing brief + topic bank;
+`GET /api/channels/{cid}/authoring_prompt` composes storyboard_v3_prompt.md +
+that brief into one paste-ready prompt. Projects stamp `project.channel`.
+API: GET/POST `/api/channels`, GET/DELETE `/api/channels/{cid}`,
+`GET /api/projects?channel=<cid>`.
 Rule: a channel's look NEVER gets hardcoded into a pipeline stage — edit the
-registry instead.
+channel's folder instead.
 
 ## Why voice-first, one take
 Per-scene TTS = 28 independent generations. Each one picks its own energy, so
@@ -43,8 +54,14 @@ Practical rules learned in production:
    bible looks for named characters) + project global style, clause-deduped;
    people-clause stripped for people-less scenes. QA a sample; re-render
    individual scenes with `scope: "scene"`.
-4. **Music** (ACE-Step sidecar) → set on project with volume ~0.16, duck on.
-   Kill the sidecar process (port 8765) before LTX.
+4. **Score audio** (`app/score.py`, auto on every produce) — mood from channel
+   `music_vibe` + narration tone; fit ONE mood-matched instrumental bed (vol
+   ~0.16, duck on) + a real stinger on every beat. Bed sources: Jamendo library
+   (`app/audiolib.py`, commercial-safe CC) → ACE-Step generation → existing.
+   SFX: Freesound (CC0) fetched into `data/sfx_library/` → procedural synth.
+   Keys in `settings.audio` (Settings·Audio); keyless ⇒ ACE + procedural, never
+   blocks. Ledger `data/audio_library/ledger.json`; attribution auto-appended to
+   the SEO description. Kill the ACE sidecar (port 8765) after, before Wan.
 5. **Animate** (optional; only when the chosen preset uses "clips") —
    **Wan 2.2 14B** i2v (fp8 MoE experts via ComfyUI), ~3 s ambient clips on
    hero scenes flagged `motion_type: ambient`. Quality profiles in
@@ -74,16 +91,28 @@ voice(one-take when no narration) → images(missing) → animate(missing, only
 if preset uses clips) → assemble(preset). Status:
 `GET /api/projects/{pid}/produce`. Stages are idempotent — re-produce resumes.
 
+## The effects grammar (one dictionary, shared)
+`app/grammar.py` ↔ `data/effects_dictionary.json` (seeded on first load,
+`GET/PUT /api/effects_dictionary`, reset via `POST .../reset`; UI: Settings ·
+Effects grammar). The single source of truth for WHICH effect WHEN:
+`sfx_cues` (beat→keywords→cue), `transitions` (hook/body rotations +
+`by_beat` overrides: reveal→flash, impact→smash, money→punch-in, motion→whip),
+`shots` rotation, `music_moods` (tone→query). `beat_of`/`pick_cue`/`mood_for`/
+`transitions`/`shots`/`hero_beats` are the lookups. `autodirect` AND `score`
+both read it, so a new reflex = one JSON edit (or the `/add-effect` skill), no
+code. Every rule keeps a `why`.
+
 ## Auto-direction (weak-model proofing)
 `app/autodirect.py` runs inside `projects.create_project` on EVERY import (the
 report lands in `project.direction_report`) and via `POST /api/storyboard/lint`:
 - fixes TTS-unsafe narration endings (trailing comma → period; missing → period)
 - clears any `on_screen_text` (the no-burned-text rule is absolute)
-- fills empty `transition` from hook/body rotations (hook window = first 30 s
-  of estimated narration; punchy set there, varied set after)
-- fills empty `audio_cue` by keyword → library-tag mapping (hook cuts always
-  carry energy), warns on cues that match nothing
-- fills `shot` rotation (drives parallax camera-move variety)
+- fills empty `transition` — a detected beat picks its signature cut
+  (`grammar.transition_for_beat`), else the hook/body rotation (hook window =
+  first 30 s of estimated narration), never repeating
+- fills empty `audio_cue` via `grammar.pick_cue` (hook cuts always carry
+  energy), warns on cues that match nothing
+- fills `shot` from `grammar.shots()` (drives parallax camera-move variety)
 - flags hero scenes (`motion_type: ambient`): scene 1 + the longest scenes,
   budget ≈ scenes/4 capped at 10
 - falls back to the flat-cartoon house style when `global_style_suffix` is empty
@@ -134,10 +163,21 @@ kept at `data/outputs/writer_last.json`) → `create_project(channel=cid)` so
 the auto-director (assisted when the channel says so) directs it. The writer
 job serializes on the single job queue, so it never fights a render for VRAM.
 
-**Auto-music**: `produce` inserts a `music` stage (before animate) when the
-project has a channel `music_vibe`, no bed yet, and ACE is installed —
-generates a 75 s bed, attaches it (vol 0.16, duck, fade 1.5), then kills the
-ACE sidecar (port 8765) to free VRAM before Wan.
+**Auto-scoring** (`app/score.py` + `app/audiolib.py`): `produce` runs a `score`
+stage (before animate, always on). `audiolib` = stdlib-urllib clients for two
+free-tier libraries — **Jamendo** `api.jamendo.com/v3.0/tracks` (music; keep
+non-NC commercial CC; `fuzzytags`, `vocalinstrumental=instrumental`,
+`durationbetween`, popularity order) and **Freesound** `apiv2/search/text`
+(SFX; prefer `license:"Creative Commons 0"`; download the free HQ-preview mp3 —
+original download needs OAuth2, preview needs only the token). Downloads are
+transcoded to wav (beds→`data/music/`, SFX→`data/sfx_library/` tagged by cue)
+and logged to `data/audio_library/ledger.json`. `score` derives mood, picks one
+bed (Jamendo→ACE-Step→existing), fills every empty `audio_cue` and fetches a
+real CC sound for each distinct cue, writes `project.audio_plan`, and collects
+CC-BY attribution → `packaging.build` appends a Credits block to the
+description. Keys: `settings.audio.{jamendo_client_id,freesound_token}` (free,
+pasted in Settings·Audio); keyless ⇒ ACE + procedural synths. Kill the ACE
+sidecar (8765) after, before Wan.
 
 ## Libraries that persist across videos
 - `data/effects_presets.json` — editing styles (cinematic / parallax-slides /

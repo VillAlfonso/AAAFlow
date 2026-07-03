@@ -71,16 +71,21 @@ const state = {
   status: {}, settings: {}, voices: { builtin: [], custom: [], languages: [] },
   imageModels: { builtin: [], imported: [], default: "krea2" },
   projects: [], history: [], channels: [],
-  createChannel: null,          // set by a Channels-page "New video" click
-  currentPid: null, project: null, page: "projects",
+  channel: null,                // the channel workspace you're inside (null = hub)
+  currentPid: null, project: null, page: "hub",
 };
 
-/* ---------- nav (ordered like the real production flow) ---------- */
-const NAV = [
-  { id: "channels", label: "Channels", icon: "i-channels" },
-  { id: "projects", label: "Projects", icon: "i-projects" },
-  { sep: true },
-  // per-project pipeline, in the canonical order: script → voice → look → picture → motion → edit → check
+/* ---------- nav ----------
+   Two contexts: the HUB (pick a channel, shared tools) and a CHANNEL WORKSPACE
+   (that channel's videos + the numbered pipeline, ordered like production). */
+const TOOL_NAV = [
+  { id: "transcribe", label: "Script → JSON", icon: "i-clock" },
+  { id: "voices", label: "Voice Lab", icon: "i-voices" },
+  { id: "history", label: "History", icon: "i-history" },
+  { id: "training", label: "Training", icon: "i-wand" },
+  { id: "settings", label: "Settings · Storage", icon: "i-settings" },
+];
+const STEP_NAV = [
   { id: "storyboard", label: "1 · Script", icon: "i-storyboard", proj: true },
   { id: "voiceover", label: "2 · Voice", icon: "i-voice", proj: true },
   { id: "characters", label: "3 · Characters", icon: "i-voices", proj: true },
@@ -89,34 +94,58 @@ const NAV = [
   { id: "assemble", label: "6 · Assemble", icon: "i-assemble", proj: true },
   { id: "preview", label: "7 · Preview", icon: "i-preview", proj: true },
   { id: "publish", label: "8 · Publish", icon: "i-download", proj: true },
-  { sep: true },
-  { id: "transcribe", label: "Script → JSON", icon: "i-clock" },
-  { id: "voices", label: "Voice Lab", icon: "i-voices" },
-  { id: "history", label: "History", icon: "i-history" },
-  { id: "training", label: "Training", icon: "i-wand" },
-  { id: "settings", label: "Settings · Storage", icon: "i-settings" },
 ];
-// Project-scoped nav uses the open project, else the most-recently-updated one,
-// so the Storyboard/Voiceover/Images/... links work straight from the Projects list.
+function navItems() {
+  if (!state.channel) return [
+    { id: "hub", label: "Channels", icon: "i-channels" },
+    { sep: true }, ...TOOL_NAV,
+  ];
+  return [
+    { id: "hub", label: "All channels", icon: "i-back" },
+    { id: "projects", label: "Videos", icon: "i-projects" },
+    { id: "chsetup", label: "Channel setup", icon: "i-settings",
+      action: () => editChannelModal(state.channel) },
+    { sep: true }, ...STEP_NAV,
+    { sep: true }, ...TOOL_NAV,
+  ];
+}
+// Project-scoped nav uses the open project (if it belongs to this channel),
+// else the channel's most-recently-updated one.
 function effectivePid() {
-  if (state.currentPid) return state.currentPid;
-  const ps = state.projects || [];
+  const cid = state.channel && state.channel.id;
+  const mine = p => !cid || p.channel === cid;
+  if (state.currentPid) {
+    const cur = (state.projects || []).find(p => p.id === state.currentPid);
+    if (!cur || mine(cur)) return state.currentPid;
+  }
+  const ps = (state.projects || []).filter(mine);
   if (!ps.length) return null;
   return ps.slice().sort((a, b) => (b.updated || 0) - (a.updated || 0))[0].id;
 }
 function routeFor(item) {
   if (item.proj) { const pid = effectivePid(); return pid ? `#/p/${pid}/${item.id}` : null; }
+  if (item.id === "hub") return "#/hub";
+  if (item.id === "projects" && state.channel) return `#/ch/${state.channel.id}`;
   return `#/${item.id}`;
 }
 function renderNav() {
   const nav = $("#nav"); nav.innerHTML = "";
-  NAV.forEach(item => {
+  if (state.channel) {
+    const c = state.channel;
+    const head = el("div", "rail-channel");
+    if ((c.ui || {}).accent) head.style.setProperty("--ch-accent", c.ui.accent);
+    head.innerHTML = `<span class="nm">${esc(c.name)}</span><span class="nn">${esc(c.niche || "")}</span>`;
+    head.onclick = () => { location.hash = `#/ch/${c.id}`; };
+    nav.appendChild(head);
+  }
+  navItems().forEach(item => {
     if (item.sep) { nav.appendChild(el("div", "nav-sep")); return; }
     const disabled = item.proj && !effectivePid();
     const active = state.page === item.id;
     const b = el("button", "nav-item" + (active ? " is-active" : ""),
       `${icon(item.icon)}<span>${item.label}</span>`);
     if (disabled) b.disabled = true;
+    else if (item.action) b.onclick = item.action;
     else b.onclick = () => { location.hash = routeFor(item); };
     nav.appendChild(b);
   });
@@ -147,26 +176,68 @@ function renderChips() {
 const assetUrl = (rel, bust) => rel ? `/projects/${state.currentPid}/${rel}${bust ? "?t=" + bust : ""}` : "";
 
 /* ============================================================
-   ROUTER
+   ROUTER — #/hub · #/ch/<cid>[/page] · #/p/<pid>/<page> · #/<tool>
    ============================================================ */
 function parseHash() {
   const h = location.hash.replace(/^#\/?/, "");
   const parts = h.split("/").filter(Boolean);
-  if (parts[0] === "p" && parts[1]) return { page: parts[2] || "storyboard", pid: parts[1] };
-  return { page: parts[0] || "projects", pid: null };
+  if (parts[0] === "p" && parts[1]) return { page: parts[2] || "storyboard", pid: parts[1], cid: null };
+  if (parts[0] === "ch" && parts[1]) return { page: parts[2] || "projects", pid: null, cid: parts[1] };
+  // Legacy links: "#/projects" means "this channel's videos" when inside one.
+  if (parts[0] === "projects" || parts[0] === "channels" || !parts[0])
+    return state.channel ? { page: "projects", pid: null, cid: state.channel.id }
+                         : { page: "hub", pid: null, cid: null };
+  return { page: parts[0], pid: null, cid: null };
 }
 async function loadProject(pid) {
   try { state.project = await api.get(`/api/projects/${pid}`); state.currentPid = pid; }
-  catch (e) { toast(e.message, "err"); state.project = null; state.currentPid = null; location.hash = "#/projects"; }
+  catch (e) { toast(e.message, "err"); state.project = null; state.currentPid = null; location.hash = "#/hub"; }
 }
+/* Channel context + theming: entering a channel tints the studio with its
+   accent and loads its ui/theme.css (vibe-code data/channels/<id>/ui/ freely). */
+function applyChannelTheme(ch) {
+  const root = document.documentElement;
+  const ui = (ch && ch.ui) || {};
+  const set = (k, v) => v ? root.style.setProperty(k, v) : root.style.removeProperty(k);
+  set("--accent", ui.accent); set("--accent-deep", ui.accent_deep || ui.accent);
+  set("--accent-2", ui.accent2);
+  let link = document.getElementById("chThemeCss");
+  if (ch && ui.theme_css) {
+    if (!link) {
+      link = document.createElement("link");
+      link.id = "chThemeCss"; link.rel = "stylesheet";
+      document.head.appendChild(link);
+    }
+    const href = `/ch/${ch.id}/theme.css`;
+    if (link.getAttribute("href") !== href) link.href = href;
+  } else if (link) link.remove();
+}
+async function setChannel(cid) {
+  if (!cid) { state.channel = null; applyChannelTheme(null); return true; }
+  let ch = (state.channels || []).find(c => c.id === cid);
+  if (!ch) {
+    try { state.channels = (await api.get("/api/channels")).channels || []; } catch (e) { }
+    ch = (state.channels || []).find(c => c.id === cid);
+  }
+  state.channel = ch || null;
+  applyChannelTheme(state.channel);
+  return !!ch;
+}
+const TOOL_PAGES = new Set(["transcribe", "voices", "history", "training", "settings"]);
 async function render() {
-  const { page, pid } = parseHash();
+  const { page, pid, cid } = parseHash();
   state.page = page;
   if (pid && (!state.project || state.project.id !== pid)) await loadProject(pid);
-  if (!pid && page === "projects") { /* keep currentPid sticky for nav */ }
+  // Resolve the channel context: project pages follow the project's channel,
+  // #/ch/ routes follow the URL, tools keep whatever context you were in.
+  if (pid) await setChannel(state.project ? state.project.channel : null);
+  else if (cid) {
+    if (!await setChannel(cid)) { toast("Channel not found", "err"); location.hash = "#/hub"; return; }
+  }
+  else if (!TOOL_PAGES.has(page)) await setChannel(null);
   renderNav(); renderChips();
   const host = $("#views"); host.innerHTML = "";
-  const fn = Pages[page] || Pages.projects;
+  const fn = Pages[page] || Pages.hub;
   try { await fn(host); } catch (e) { host.appendChild(el("div", "card", `<p class="muted">${esc(e.message)}</p>`)); }
 }
 window.addEventListener("hashchange", render);
@@ -200,12 +271,17 @@ function stepper(active) {
    PAGE: PROJECTS  (import + list)
    ============================================================ */
 async function renderProjects(host) {
-  topbar("Projects", "Import a storyboard JSON — a channel fills in the look, voice and pipeline defaults.");
-  const [projData, history, chData] = await Promise.all([
-    api.get("/api/projects"), api.get("/api/history").catch(() => []),
-    api.get("/api/channels").catch(() => ({ channels: [] }))]);
+  const ch = state.channel;
+  if (!ch) { location.hash = "#/hub"; return; }   // videos always live in a channel
+  topbar(ch.name, "This channel's videos — import a storyboard, or write one with AI; the channel fills in the look, voice and pipeline defaults.",
+    `<button class="btn btn-ghost" id="tbWrite">${icon("i-wand")} Write with AI</button>
+     <button class="btn btn-ghost" id="tbPrompt">${icon("i-edit")} Script prompt</button>`);
+  const [projData, history] = await Promise.all([
+    api.get(`/api/projects?channel=${encodeURIComponent(ch.id)}`),
+    api.get("/api/history").catch(() => [])]);
   state.projects = projData.projects;
-  state.channels = chData.channels || [];
+  $("#tbWrite").onclick = () => writeWithAI(ch);
+  $("#tbPrompt").onclick = () => copyScriptPrompt(ch);
 
   const page = el("div", "page");
 
@@ -241,22 +317,17 @@ async function renderProjects(host) {
       </div>
     </div>
     <div class="grid3" style="margin-top:14px">
-      <div class="field"><label>Channel <span class="hint">(fills every default below)</span></label><select id="pChannel">
-        <option value="">— standalone (no channel) —</option>
-        ${state.channels.map(c => `<option value="${esc(c.id)}">${esc(c.name)}</option>`).join("")}
-      </select></div>
+      <div class="field"><label>Channel</label><input value="${esc(ch.name)}" disabled title="Videos imported here belong to this channel and inherit its defaults"/></div>
       <div class="field"><label>Script author</label><select id="pAuthoring">
-        <option value="">Channel default</option>
+        <option value="">Channel default (${esc((ch.defaults || {}).authoring || "pro")})</option>
         <option value="pro">Pro script — trust the writing</option>
         <option value="assisted">Assisted — small-model script (Haiku etc.), director may rewrite</option>
       </select></div>
-      <div class="field"><label>&nbsp;</label><button class="btn btn-ghost" id="pChPrompt" title="Copy the selected channel's script-writing prompt (spec + brief + topics)">${icon("i-edit")} Copy script prompt</button></div>
+      <div class="field"><label>&nbsp;</label><span class="muted" style="font-size:11.5px;line-height:1.5">Engine picks below start at the channel's defaults — override per video if needed.</span></div>
     </div>
     <div class="grid3" style="margin-top:6px">
       <div class="field"><label>Image model</label><select id="pEngImg">
         <option value="krea2">Krea-2 Turbo (ComfyUI)</option>
-        <option value="cartoon-rag">SDXL + reference RAG</option>
-        <option value="flux-schnell">FLUX.1 schnell</option>
       </select></div>
       <div class="field"><label>Animation</label><select id="pEngAnim">
         <option value="wan">Wan 2.2 14B (max — ~20 min/scene)</option>
@@ -269,6 +340,12 @@ async function renderProjects(host) {
         <option value="parallax-slides">Parallax slides</option>
         <option value="dynamic-slides">Dynamic slides</option>
         <option value="simple-slides">Simple slides</option>
+      </select></div>
+      <div class="field"><label>Animate scenes <span class="hint">(every phrase always cuts to a fresh moving visual — this picks which get real clips)</span></label><select id="pEngCoverage">
+        <option value="">Channel default</option>
+        <option value="heroes">Hero scenes (budgeted — recommended)</option>
+        <option value="all">Every scene (~3.5 min GPU each at balanced)</option>
+        <option value="none">None (parallax carries all motion)</option>
       </select></div>
     </div>
     <div class="field" id="pVoiceoverWrap" style="margin-top:6px;display:none">
@@ -286,37 +363,20 @@ async function renderProjects(host) {
       quality: anim === "wan-fast" ? "fast" : (anim === "wan-balanced" ? "balanced" : "max"),
       preset: $("#pEngPreset", page).value,
       authoring: $("#pAuthoring", page).value || null,
+      coverage: $("#pEngCoverage", page).value || null,
     };
   };
-  window._projChannel = () => $("#pChannel", page).value || null;
+  window._projChannel = () => ch.id;
 
-  // picking a channel mirrors its defaults into the selects (still overridable)
-  const chSel = $("#pChannel", page);
-  chSel.onchange = () => {
-    const c = state.channels.find(x => x.id === chSel.value);
-    if (!c) return;
-    const d = c.defaults || {};
+  // the import selects start at the channel's defaults (still overridable)
+  {
+    const d = ch.defaults || {};
     if (d.image_model) $("#pEngImg", page).value = d.image_model;
     $("#pEngAnim", page).value = d.animate_engine === "none" ? "none"
       : (d.quality === "fast" ? "wan-fast" : (d.quality === "balanced" ? "wan-balanced" : "wan"));
     if (d.preset) $("#pEngPreset", page).value = d.preset;
-  };
-  if (state.createChannel) {           // arrived via a Channels-page "New video"
-    chSel.value = state.createChannel; state.createChannel = null;
-    chSel.onchange();
-    $("#pText", page).focus();
+    $("#pEngCoverage", page).value = d.coverage || "";
   }
-  $("#pChPrompt", page).onclick = async () => {
-    const cid = chSel.value;
-    if (!cid) return toast("Pick a channel first — the prompt carries its brief and topic bank.", "err");
-    const topic = window.prompt("Topic for this video (blank = include the channel's topic bank):", "");
-    if (topic === null) return;
-    try {
-      const { prompt } = await api.get(`/api/channels/${cid}/authoring_prompt${topic.trim() ? "?topic=" + encodeURIComponent(topic.trim()) : ""}`);
-      await navigator.clipboard.writeText(prompt);
-      toast("Script prompt copied — paste it into any model, then import the JSON it returns here.");
-    } catch (e) { toast(e.message, "err"); }
-  };
 
   // list
   const listWrap = el("div", "card");
@@ -417,7 +477,7 @@ function projectCard(p) {
   c.innerHTML = `
     <button class="btn-icon del" title="Delete">${icon("i-trash")}</button>
     <h3>${esc(p.name)}</h3>
-    <div class="meta">${p.channel ? `<span class="chip chip-on">${esc((state.channels.find(c => c.id === p.channel) || { name: p.channel }).name)}</span>` : ""}<span>${p.scenes} scenes</span>${p.target_runtime ? `<span>${esc(p.target_runtime)}</span>` : ""}<span>${fmtAgo(p.updated)}</span></div>
+    <div class="meta"><span>${p.scenes} scenes</span>${p.target_runtime ? `<span>${esc(p.target_runtime)}</span>` : ""}<span>${fmtAgo(p.updated)}</span></div>
     <div class="pbars">
       <div class="pbar">${icon("i-voice")}<div class="track"><div class="fill audio" style="width:${aPct}%"></div></div><span>${p.audio_done}/${p.scenes}</span></div>
       <div class="pbar">${icon("i-image")}<div class="track"><div class="fill image" style="width:${iPct}%"></div></div><span>${p.image_done}/${p.scenes}</span></div>
@@ -916,7 +976,7 @@ async function renderImages(host) {
      <button class="btn btn-primary" onclick="location.hash='#/p/${p.id}/assemble'">${icon("i-assemble")} Assemble →</button>`);
   const page = el("div", "page page-wide"); page.innerHTML = stepper("images");
 
-  const cfg = Object.assign({ model: "cartoon-rag", steps: null, guidance: null, width: null, height: null, seed: -1, use_default_lora: true, default_lora_weight: 0.95, gguf_quant: "Q4_K_S", loras: [], use_refs: true, ip_scale: 0.7, comfy_lora: null }, state.settings.image || {}, p.settings.image || {});
+  const cfg = Object.assign({ model: "krea2", steps: null, guidance: null, width: null, height: null, seed: -1, use_default_lora: true, default_lora_weight: 0.95, gguf_quant: "Q4_K_S", loras: [], use_refs: true, ip_scale: 0.7, comfy_lora: null }, state.settings.image || {}, p.settings.image || {});
   cfg.loras = (cfg.loras || []).slice();
 
   const builtin = state.imageModels.builtin || [];
@@ -924,6 +984,7 @@ async function renderImages(host) {
   const importedLora = (state.imageModels.imported || []).filter(m => m.kind === "lora");
   const bmap = {}; builtin.forEach(m => bmap[m.id] = m);
   importedCk.forEach(m => bmap[m.id] = { ...m, type: m.type || m.base_type || "sd" });
+  if (!bmap[cfg.model]) cfg.model = "krea2";   // settings may still name a removed model
   const mdef = () => bmap[cfg.model] || { type: "sd", steps: 26, guidance: 7, width: 896, height: 512 };
   const isFlux = () => mdef().type === "flux";
   const dflt = (k, d) => { const v = cfg[k]; return (v === null || v === undefined || v === "") ? (mdef()[k] != null ? mdef()[k] : d) : v; };
@@ -931,7 +992,7 @@ async function renderImages(host) {
   const mcard = el("div", "card");
   mcard.innerHTML = `
     <div class="spread"><h2 class="mb0">Model</h2><span class="badge teal" id="imLoaded"></span></div>
-    <p class="desc">Default is <b>Krea-2 Turbo</b> — local, rendered through ComfyUI (no download). The look now comes from the <b>Global prompts</b> card below, not a baked-in style. <b>SD&nbsp;1.5</b> / <b>FLUX</b> remain available via the in-app diffusers engine.</p>
+    <p class="desc"><b>Krea-2 Turbo</b> is the image engine — local, rendered through ComfyUI, nothing to download. The look comes from the <b>Global prompts</b> card below, not a baked-in style. (Legacy SD/SDXL/FLUX options were removed 2026-07-03; import your own .safetensors checkpoint if you ever need another base.)</p>
     <div class="grid2">
       <div class="field"><label>Base model</label><select id="imModel">
         ${builtin.map(m => `<option value="${m.id}" ${cfg.model === m.id ? "selected" : ""}>${esc(m.label)}${m.size ? " · " + esc(m.size) : ""}${m.gated ? " · gated" : ""}</option>`).join("")}
@@ -1542,10 +1603,45 @@ async function renderAssemble(host) {
     <div id="asRun" style="margin-top:16px"></div>`;
   page.appendChild(card);
 
+  // --- audio scoring (runs inside Produce automatically; here on demand) ---
+  const scard = el("div", "card"); scard.style.marginTop = "16px";
+  scard.innerHTML = `<div class="spread"><h2 class="mb0">Soundtrack</h2>
+      <button class="btn btn-ghost btn-sm" id="asScore" title="Pick a mood-matched music bed and a real sound effect for every beat">${icon("i-wand")} Score audio</button></div>
+    <p class="desc">Auto-scored on Produce: a mood-matched instrumental bed (Jamendo → ACE-Step) ducked under the narration, plus a real sound effect on each beat (Freesound → procedural). Add free keys in <a href="#/settings">Settings · Audio</a>.</p>
+    <div id="asPlan"></div>`;
+  page.appendChild(scard);
+
   const rcard = el("div", "card"); rcard.style.marginTop = "16px";
   rcard.innerHTML = `<div class="section-title">Renders</div><div id="asRenders"></div>`;
   page.appendChild(rcard);
   host.appendChild(page);
+
+  function drawPlan() {
+    const pl = state.project.audio_plan;
+    const wrap = $("#asPlan", page);
+    if (!pl) { wrap.innerHTML = `<div class="muted" style="font-size:13px">Not scored yet — runs automatically on Produce, or click Score audio.</div>`; return; }
+    const bed = pl.bed || {};
+    const fetched = (pl.sfx || []).filter(r => r.source === "freesound").length;
+    wrap.innerHTML = `
+      <div class="row" style="gap:6px;flex-wrap:wrap;margin-bottom:8px">
+        <span class="badge gold">mood: ${esc(pl.mood || "—")}</span>
+        <span class="badge ${bed.source === "none" ? "warn" : "good"}">bed: ${esc(bed.title || bed.source || "none")}${bed.source ? " · " + esc(bed.source) : ""}</span>
+        <span class="badge">${(pl.sfx || []).length} SFX cues · ${fetched} from Freesound</span>
+      </div>
+      ${(pl.attribution || []).length ? `<div class="muted mono" style="font-size:11px;line-height:1.6">Credits (auto-added to description):<br>${pl.attribution.map(esc).join("<br>")}</div>` : `<div class="muted" style="font-size:12px">No attribution needed (CC0 / generated).</div>`}`;
+  }
+  drawPlan();
+  $("#asScore", page).onclick = async () => {
+    const btn = $("#asScore", page); const old = btn.innerHTML;
+    btn.disabled = true; btn.innerHTML = `<div class="spinner" style="width:14px;height:14px"></div> scoring…`;
+    try {
+      const { job_id } = await api.post(`/api/projects/${p.id}/score`);
+      const res = await pollJob(job_id, j => { btn.innerHTML = `<div class="spinner" style="width:14px;height:14px"></div> ${esc(j.stage || "scoring")}…`; });
+      await loadProject(p.id); drawPlan();
+      toast(`Scored · ${res.mood} · bed: ${res.bed_title || res.bed}${res.sfx ? " · " + res.sfx.fetched + " SFX" : ""}`);
+    } catch (e) { toast(e.message, "err"); }
+    finally { btn.disabled = false; btn.innerHTML = old; }
+  };
 
   $("#asRes", page).onchange = e => { const [w, h] = e.target.value.split("x").map(Number); opts.width = w; opts.height = h; };
   $("#asFps", page).onchange = e => opts.fps = +e.target.value;
@@ -2068,6 +2164,64 @@ async function renderSettings(host) {
     </div>`;
   page.appendChild(syncC);
 
+  // --- royalty-free audio libraries (Jamendo beds + Freesound SFX) ---
+  const au = s.audio || {};
+  const audioC = el("div", "card"); audioC.style.marginTop = "16px";
+  audioC.innerHTML = `<div class="section-title">Audio libraries · auto-scoring</div>
+    <p class="desc">Every produced video is <b>auto-scored</b>: a mood-matched instrumental bed + a real sound effect on each beat, ducked under the narration. Paste these <b>free</b> API keys to pull real royalty-free tracks; leave them blank and the scorer falls back to local ACE-Step generation + procedural stingers (still automatic). Credits for any attribution-required track are added to the video description automatically.</p>
+    <div class="row" id="auStatus" style="gap:6px;margin-bottom:12px"></div>
+    <div class="grid2">
+      <div class="field"><label>Jamendo client ID <span class="hint">— music beds · <a href="https://devportal.jamendo.com/" target="_blank">devportal.jamendo.com</a></span></label><input type="password" id="auJam" value="${esc(au.jamendo_client_id || "")}" placeholder="free client_id"/></div>
+      <div class="field"><label>Freesound API token <span class="hint">— SFX · <a href="https://freesound.org/apiv2/apply/" target="_blank">freesound.org/apiv2/apply</a></span></label><input type="password" id="auFree" value="${esc(au.freesound_token || "")}" placeholder="free token"/></div>
+    </div>
+    <div class="grid3">
+      <div class="field"><label>Bed source</label><select id="auPrefer">
+        <option value="library" ${au.prefer !== "generate" ? "selected" : ""}>Library first (real tracks)</option>
+        <option value="generate" ${au.prefer === "generate" ? "selected" : ""}>Generate only (ACE-Step)</option></select></div>
+      <div class="field"><label>Music license</label><select id="auLic">
+        <option value="commercial" ${au.music_license !== "any" ? "selected" : ""}>Commercial-safe (no NC)</option>
+        <option value="any" ${au.music_license === "any" ? "selected" : ""}>Any Creative Commons</option></select></div>
+      <div class="field" style="justify-content:flex-end"><label>&nbsp;</label>
+        <label class="switch"><input type="checkbox" id="auAttr" ${au.attribution !== false ? "checked" : ""}/><span class="track"></span> Auto-credit in description</label></div>
+    </div>
+    <label class="switch" style="margin-top:4px"><input type="checkbox" id="auSfx" ${au.sfx_from_freesound !== false ? "checked" : ""}/><span class="track"></span> Fetch real SFX from Freesound (else procedural synths)</label>`;
+  page.appendChild(audioC);
+  (async () => {
+    try {
+      const a = await api.get("/api/audio/status");
+      $("#auStatus", audioC).innerHTML =
+        `<span class="badge ${a.jamendo ? "good" : "warn"}">Jamendo ${a.jamendo ? "connected" : "no key"}</span>
+         <span class="badge ${a.freesound ? "good" : "warn"}">Freesound ${a.freesound ? "connected" : "no key"}</span>
+         <span class="badge">${a.cache.music} beds · ${a.cache.sfx} SFX cached</span>`;
+    } catch (e) { }
+  })();
+
+  // --- effects grammar (the WHEN→WHICH-effect dictionary) ---
+  const gramC = el("div", "card"); gramC.style.marginTop = "16px";
+  gramC.innerHTML = `<div class="spread"><h2 class="mb0">Effects grammar</h2>
+      <div class="row"><button class="btn btn-ghost btn-sm" id="grReset">Reset to defaults</button>
+        <button class="btn btn-primary btn-sm" id="grSave">${icon("i-check")} Save grammar</button></div></div>
+    <p class="desc">The one dictionary that decides <b>when to use which effect</b> — the SFX stinger for a narration beat, the transition to cut on (reveals flash, impacts smash), the shot rotation, and the music mood. The auto-director and the audio scorer both read this on every video, so teaching the system a new reflex is a one-file edit. <span class="mono" style="font-size:11px">data/effects_dictionary.json</span></p>
+    <div id="grBody" class="muted">Loading…</div>`;
+  page.appendChild(gramC);
+  (async () => {
+    let grData = {};
+    try { grData = await api.get("/api/effects_dictionary"); } catch (e) { }
+    $("#grBody", gramC).innerHTML = `<textarea id="grJson" spellcheck="false" style="width:100%;min-height:280px;font-family:var(--font-mono);font-size:11.5px">${esc(JSON.stringify(grData, null, 2))}</textarea>
+      <div class="muted mono" id="grMsg" style="font-size:11px;margin-top:6px"></div>`;
+    $("#grSave", gramC).onclick = async () => {
+      const msg = $("#grMsg", gramC);
+      let obj; try { obj = JSON.parse($("#grJson", gramC).value); } catch (e) { return toast("Invalid JSON: " + e.message, "err"); }
+      try { const r = await api.put("/api/effects_dictionary", obj); $("#grJson", gramC).value = JSON.stringify(r, null, 2); msg.textContent = "saved ✓ — applies to the next video"; toast("Effects grammar saved"); }
+      catch (e) { toast(e.message, "err"); }
+    };
+    $("#grReset", gramC).onclick = async () => {
+      if (!(await confirmModal("Reset effects grammar?", "Restore the built-in SFX/transition/mood defaults — your edits are discarded.", "Reset"))) return;
+      try { const r = await api.post("/api/effects_dictionary/reset", {}); $("#grJson", gramC).value = JSON.stringify(r, null, 2); toast("Grammar reset to defaults"); }
+      catch (e) { toast(e.message, "err"); }
+    };
+  })();
+
   const store = el("div", "card"); store.style.marginTop = "16px";
   store.innerHTML = `<div class="section-title">Storage</div>
     <div class="muted" style="font-size:12px;line-height:1.5">Scan measures the model folders and finds safely-deletable leftovers
@@ -2121,6 +2275,12 @@ async function renderSettings(host) {
       paragraph_gap_ms: +$("#sePGap", page).value, loudnorm: $("#seLoud", page).checked,
       image: { model: $("#seModel", page).value, offload: $("#seOff", page).value, gguf_quant: $("#seQ", page).value, civitai_token: $("#seCivit", page).value },
       sync: { min_hold_sec: +$("#seHold", page).value, lead_in_ms: +$("#seLead", page).value, tail_ms: +$("#seTail", page).value },
+      audio: {
+        jamendo_client_id: $("#auJam", page).value.trim(),
+        freesound_token: $("#auFree", page).value.trim(),
+        prefer: $("#auPrefer", page).value, music_license: $("#auLic", page).value,
+        attribution: $("#auAttr", page).checked, sfx_from_freesound: $("#auSfx", page).checked,
+      },
     };
     try { state.settings = await api.put("/api/settings", patch); toast("Settings saved"); renderChips(); }
     catch (e) { toast(e.message, "err"); }
@@ -2689,79 +2849,100 @@ async function renderCharacters(host) {
 /* ============================================================
    PAGE: CHANNELS  (multi-channel identities + per-channel defaults)
    ============================================================ */
-async function renderChannels(host) {
-  topbar("Channels", "Each channel remembers its niche, art direction, narrator, editing preset and authoring mode — new videos inherit all of it.",
-    `<button class="btn btn-primary" id="chNew">${icon("i-plus")} New channel</button>`);
+/* ============================================================
+   PAGE: HUB — the front door. A dashboard of channels; click one
+   to enter its studio (the whole classic UI, scoped to it).
+   ============================================================ */
+async function writeWithAI(c) {
+  const topic = window.prompt(`Topic for the next ${c.name} video (blank = the model picks from the topic bank):`, "");
+  if (topic === null) return;
+  try {
+    const st = await api.get("/api/writer/status").catch(() => ({}));
+    if (!st.ollama && !st.local_model_cached)
+      toast("First run downloads the local writer model (~8 GB) — this one will take a while.");
+    const { job_id } = await api.post(`/api/channels/${c.id}/write`, { topic: topic.trim() || null });
+    toast("Writing the script locally…");
+    const res = await pollJob(job_id);
+    toast(`Script imported: “${res.name}” · ${res.scenes} scenes${res.mode === "assisted" ? " · assisted fixes applied" : ""}`);
+    location.hash = `#/p/${res.project_id}/storyboard`;
+  } catch (e) { toast(e.message, "err"); }
+}
+async function copyScriptPrompt(c) {
+  const topic = window.prompt(`Topic for the next ${c.name} video (blank = include the topic bank):`, "");
+  if (topic === null) return;
+  try {
+    const { prompt } = await api.get(`/api/channels/${c.id}/authoring_prompt${topic.trim() ? "?topic=" + encodeURIComponent(topic.trim()) : ""}`);
+    await navigator.clipboard.writeText(prompt);
+    toast("Script prompt copied — paste it into any model, then import its JSON on the channel's Videos page.");
+  } catch (e) { toast(e.message, "err"); }
+}
+
+async function renderHub(host) {
+  topbar("AAAFlow Studio", "Pick a channel — everything inside is that channel's own studio. The tools (TTS, krea2, Wan, music) are shared.");
   const [chData, projData] = await Promise.all([
     api.get("/api/channels"), api.get("/api/projects").catch(() => ({ projects: [] }))]);
   state.channels = chData.channels || [];
   state.projects = projData.projects || [];
-  const page = el("div", "page page-wide");
-  const grid = el("div", "proj-grid");
-  state.channels.forEach(c => grid.appendChild(channelCard(c)));
-  if (!state.channels.length) {
-    grid.appendChild(el("div", "empty", `${icon("i-channels")}<h3>No channels</h3><p>Create one to give your videos a persistent identity.</p>`));
-  }
+  const page = el("div", "page hub");
+  const grid = el("div", "hub-grid");
+  state.channels.forEach(c => grid.appendChild(hubCard(c)));
+  const add = el("div", "hub-add",
+    `<div style="text-align:center">${icon("i-plus")}<b style="display:block;font-size:15px">New channel</b>
+     <span style="font-size:12px">its own niche, look, voice, uploads — and UI</span></div>`);
+  add.onclick = () => editChannelModal(null);
+  add.title = "Create a channel";
+  grid.appendChild(add);
   page.appendChild(grid);
+
+  const tools = el("div", "hub-tools",
+    TOOL_NAV.map(t => `<button class="btn btn-ghost btn-sm" data-t="${t.id}">${icon(t.icon)} ${t.label}</button>`).join(""));
+  tools.querySelectorAll("button").forEach(b => b.onclick = () => { location.hash = "#/" + b.dataset.t; });
+  page.appendChild(tools);
   host.appendChild(page);
-  $("#chNew").onclick = () => editChannelModal(null);
 }
 
-function channelCard(c) {
+function hubCard(c) {
   const d = c.defaults || {};
+  const ui = c.ui || {};
   const vids = (state.projects || []).filter(p => p.channel === c.id);
-  const card = el("div", "proj-card");
-  card.style.cursor = "default";
+  const last = vids.slice().sort((a, b) => (b.updated || 0) - (a.updated || 0))[0];
+  const yt = (c.youtube || {}).refresh_token;
+  const card = el("div", "hub-card");
+  if (ui.accent) card.style.setProperty("--ch-accent", ui.accent);
   card.innerHTML = `
-    <button class="btn-icon del chDel" title="Delete channel">${icon("i-trash")}</button>
+    <button class="btn-icon del chDel" title="Delete channel (moved to data/trash, projects included)">${icon("i-trash")}</button>
     <h3>${esc(c.name)}</h3>
-    <div class="meta"><span>${esc(c.niche || "")}</span></div>
-    <div class="muted" style="font-style:italic;font-size:12px;margin:2px 0 8px">“${esc(c.tagline || "")}”</div>
-    <div class="row" style="gap:6px;flex-wrap:wrap;margin-bottom:8px">
+    <div class="tag">“${esc(c.tagline || "")}”</div>
+    <div class="muted" style="font-size:12px;line-height:1.5;margin-bottom:10px">${esc(c.niche || "")}</div>
+    <div class="row" style="gap:6px;flex-wrap:wrap">
       <span class="chip">${esc(d.preset || "cinematic")}</span>
-      <span class="chip">${d.animate_engine === "none" ? "no video model" : "Wan · " + esc(d.quality || "max")}</span>
+      <span class="chip">${d.animate_engine === "none" ? "no video model" : "Wan · " + esc(d.quality || "balanced")}</span>
       <span class="chip">${esc(d.voice || "Ryan")}</span>
-      <span class="chip ${d.authoring === "assisted" ? "chip-on" : ""}">${d.authoring === "assisted" ? "assisted scripts" : "pro scripts"}</span>
-      <span class="chip">${esc(c.cadence || "")}</span>
+      <span class="chip ${d.authoring === "assisted" ? "chip-on" : ""}">${d.authoring === "assisted" ? "assisted" : "pro"} scripts</span>
+      ${ui.custom_index ? `<span class="chip chip-on" title="data/channels/${esc(c.id)}/ui/index.html">custom UI</span>` : ""}
+      ${yt ? `<span class="chip chip-on">YouTube ✓</span>` : ""}
     </div>
-    <div class="muted" style="font-size:11.5px;line-height:1.55;margin-bottom:8px">${esc(c.why_it_earns || "")}</div>
-    <div class="meta" style="margin-bottom:10px"><span>${vids.length ? vids.length + " video" + (vids.length > 1 ? "s" : "") : "no videos yet"}</span>
-      ${vids.slice(0, 2).map(v => `<a href="#/p/${v.id}/storyboard" onclick="event.stopPropagation()">${esc(v.name)}</a>`).join("")}</div>
+    <div class="stats">
+      <span>${vids.length} video${vids.length === 1 ? "" : "s"}</span>
+      ${last ? `<span>last: ${esc(last.name).slice(0, 26)} · ${fmtAgo(last.updated)}</span>` : "<span>nothing produced yet</span>"}
+    </div>
     <div class="row" style="gap:8px;flex-wrap:wrap">
-      <button class="btn btn-primary btn-sm chNewVid">${icon("i-plus")} New video</button>
-      <button class="btn btn-ghost btn-sm chWrite" title="Write the next script with the LOCAL model and import it as a project">${icon("i-wand")} Write with AI</button>
-      <button class="btn btn-ghost btn-sm chPrompt" title="Copy the script-writing prompt (spec + channel brief + topic bank)">${icon("i-edit")} Script prompt</button>
-      <button class="btn btn-ghost btn-sm chEdit">${icon("i-settings")} Edit</button>
+      <button class="btn btn-primary btn-sm chEnter">${icon("i-play")} Enter studio</button>
+      <button class="btn btn-ghost btn-sm chWrite" title="Write the next script with the LOCAL model and import it">${icon("i-wand")} Write with AI</button>
+      <button class="btn btn-ghost btn-sm chEdit" title="Channel setup">${icon("i-settings")}</button>
     </div>`;
-  $(".chNewVid", card).onclick = () => { state.createChannel = c.id; location.hash = "#/projects"; };
-  $(".chWrite", card).onclick = async () => {
-    const topic = window.prompt(`Topic for the next ${c.name} video (blank = the model picks from the topic bank):`, "");
-    if (topic === null) return;
-    try {
-      const st = await api.get("/api/writer/status").catch(() => ({}));
-      if (!st.ollama && !st.local_model_cached)
-        toast("First run downloads the local writer model (~8 GB) — this one will take a while.");
-      const { job_id } = await api.post(`/api/channels/${c.id}/write`, { topic: topic.trim() || null });
-      toast("Writing the script locally…");
-      const res = await pollJob(job_id);
-      toast(`Script imported: “${res.name}” · ${res.scenes} scenes${res.mode === "assisted" ? " · assisted fixes applied" : ""}`);
-      location.hash = `#/p/${res.project_id}/storyboard`;
-    } catch (e) { toast(e.message, "err"); }
+  const enter = () => {
+    if (ui.custom_index) location.href = `/ch/${c.id}/`;   // this channel brought its own UI
+    else location.hash = `#/ch/${c.id}`;
   };
-  $(".chPrompt", card).onclick = async () => {
-    const topic = window.prompt(`Topic for the next ${c.name} video (blank = include the topic bank):`, "");
-    if (topic === null) return;
-    try {
-      const { prompt } = await api.get(`/api/channels/${c.id}/authoring_prompt${topic.trim() ? "?topic=" + encodeURIComponent(topic.trim()) : ""}`);
-      await navigator.clipboard.writeText(prompt);
-      toast("Script prompt copied — paste it into any model, then import its JSON on the Projects page.");
-    } catch (e) { toast(e.message, "err"); }
-  };
+  card.onclick = e => { if (e.target.closest("button")) return; enter(); };
+  $(".chEnter", card).onclick = enter;
+  $(".chWrite", card).onclick = () => writeWithAI(c);
   $(".chEdit", card).onclick = () => editChannelModal(c);
   $(".chDel", card).onclick = async (e) => {
     e.stopPropagation();
-    if (await confirmModal("Delete channel?", `“${esc(c.name)}” is removed from the registry — its projects are kept.`, "Delete")) {
-      try { await api.del(`/api/channels/${c.id}`); toast("Channel deleted"); render(); }
+    if (await confirmModal("Delete channel?", `“${esc(c.name)}” and its projects are moved to data/trash (not destroyed — restore by moving the folder back).`, "Delete")) {
+      try { await api.del(`/api/channels/${c.id}`); toast("Channel moved to data/trash"); render(); }
       catch (err) { toast(err.message, "err"); }
     }
   };
@@ -2809,8 +2990,15 @@ async function editChannelModal(c) {
           </select>`)}
         ${F("Music vibe", `<input id="ceMusic" value="${esc(d.music_vibe || "")}" placeholder="e.g. smoky noir jazz, slow tension"/>`)}
         ${F("Image model", `<select id="ceImg">
-            <option value="krea2" ${(d.image_model || "krea2") === "krea2" ? "selected" : ""}>Krea-2 Turbo (ComfyUI)</option>
-            <option value="cartoon-rag" ${d.image_model === "cartoon-rag" ? "selected" : ""}>SDXL + reference RAG</option></select>`)}
+            <option value="krea2" selected>Krea-2 Turbo (ComfyUI)</option></select>`)}
+      </div>
+      <div class="grid3">
+        ${F("Animate scenes", `<select id="ceCoverage">
+            <option value="heroes" ${(d.coverage || "heroes") === "heroes" ? "selected" : ""}>Hero scenes (budgeted)</option>
+            <option value="all" ${d.coverage === "all" ? "selected" : ""}>Every scene (costly)</option>
+            <option value="none" ${d.coverage === "none" ? "selected" : ""}>None — parallax only</option></select>`)}
+        ${F("Language", `<input id="ceLang" value="${esc(d.language || "English")}"/>`)}
+        <div class="field"><label>&nbsp;</label><span class="muted" style="font-size:11px;line-height:1.4">Every phrase always cuts to a fresh moving visual; coverage picks which scenes also get real Wan clips.</span></div>
       </div>
       ${F("Voice delivery (instruct)", `<input id="ceInstruct" value="${esc(d.voice_instruct || "")}" placeholder="how the narrator should read"/>`)}
       ${F("Art direction (style suffix — the channel's look on every image)",
@@ -2830,6 +3018,11 @@ async function editChannelModal(c) {
         ${F("Client secret", `<input id="ceYtSecret" type="password" value="${esc(yt.client_secret || "")}"/>`)}
         ${F("Default privacy", `<select id="ceYtPriv">${["private", "unlisted", "public"].map(v => `<option ${(yt.privacy || "private") === v ? "selected" : ""}>${v}</option>`).join("")}</select>`)}
       </div>
+      ${isNew ? "" : `<div class="section-title" style="margin-top:10px">This channel's own UI (vibe-code it)</div>
+      <div class="muted mono" style="font-size:11px;line-height:1.6">
+        data/channels/${esc(c.id)}/ui/ — <b>ui.json</b> {"accent":"#e6a94b"} tints this studio ·
+        <b>theme.css</b> restyles it · <b>index.html</b> replaces it entirely (served at /ch/${esc(c.id)}/,
+        same REST API underneath).</div>`}
     </div>
     <div class="row row-end" style="margin-top:14px;gap:8px">
       <button class="btn btn-ghost btn-sm" id="ceRaw">Raw JSON</button>
@@ -2862,17 +3055,32 @@ async function editChannelModal(c) {
         animate_engine: anim === "none" ? "none" : "wan",
         quality: anim === "wan-fast" ? "fast" : (anim === "wan-balanced" ? "balanced" : "max"),
         preset: v("#cePreset"), authoring: v("#ceAuthoring"),
+        coverage: v("#ceCoverage"),
         voice: voice.startsWith("spk:") ? voice.slice(4) : (c.defaults || {}).voice || "Ryan",
         voice_id: voice.startsWith("clone:") ? voice.slice(6) : null,
         voice_instruct: v("#ceInstruct").trim(),
         style_suffix: v("#ceStyle").trim(), negative_style: v("#ceNeg").trim(),
-        music_vibe: v("#ceMusic").trim(), language: (c.defaults || {}).language || "English",
+        music_vibe: v("#ceMusic").trim(),
+        language: v("#ceLang").trim() || "English",
       },
       youtube: { client_id: v("#ceYtId").trim(), client_secret: v("#ceYtSecret").trim(),
                  privacy: v("#ceYtPriv") },
     };
     if (!obj.name) return toast("Give the channel a name.", "err");
-    try { await api.post("/api/channels", obj); closeModal(); toast("Channel saved"); render(); }
+    try {
+      const res = await api.post("/api/channels", obj);
+      closeModal(); toast("Channel saved");
+      try { state.channels = (await api.get("/api/channels")).channels || state.channels; } catch (e2) { }
+      const saved = res.channel || {};
+      if (isNew && saved.id) location.hash = `#/ch/${saved.id}`;   // straight into the new studio
+      else {
+        if (state.channel && state.channel.id === saved.id) {      // live-refresh the workspace
+          state.channel = state.channels.find(x => x.id === saved.id) || saved;
+          applyChannelTheme(state.channel);
+        }
+        render();
+      }
+    }
     catch (e) { toast(e.message, "err"); }
   };
 }
@@ -3031,7 +3239,7 @@ async function renderPublish(host) {
 }
 
 const Pages = {
-  channels: renderChannels,
+  hub: renderHub,
   projects: renderProjects, storyboard: renderStoryboard, characters: renderCharacters,
   voiceover: renderVoiceover, images: renderImages, animate: renderAnimate,
   assemble: renderAssemble, preview: renderPreview, publish: renderPublish,
@@ -3041,17 +3249,18 @@ const Pages = {
 };
 
 /* ============================================================
-   BOOT
+   BOOT — land on the channel hub
    ============================================================ */
 (async function boot() {
   try {
     const b = await api.get("/api/bootstrap");
     state.status = b.status || {}; state.settings = b.settings || {};
     state.voices = b.voices || state.voices; state.history = b.history || [];
-    state.projects = b.projects || []; state.imageModels = b.image_models || state.imageModels;
+    state.projects = b.projects || []; state.channels = b.channels || [];
+    state.imageModels = b.image_models || state.imageModels;
   } catch (e) { toast("Could not reach the server: " + e.message, "err"); }
   // Setting the hash fires `hashchange` → render(); only render() directly when
   // the hash is already set (no hashchange will fire). Calling both double-renders.
-  if (!location.hash) location.hash = "#/projects";
+  if (!location.hash) location.hash = "#/hub";
   else render();
 })();

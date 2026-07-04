@@ -26,23 +26,56 @@ from .wan_engine import wan_engine
 
 ProgressFn = Callable[[str, float], None]
 
-# The six universal brand slots. `{niche}` is filled from the channel; the
-# channel's style_suffix is appended to every one. Seeds are a fixed family so
-# results are reproducible; a per-run offset gives fresh variations.
+# The universal brand-impression slots — the CORE VIBE of a channel, grouped so
+# it reads like a channel bible: Identity · Characters · Thumbnail models ·
+# Ambiance. `{niche}` is filled from the channel; the channel's style_suffix is
+# appended to every one (so each channel's impression is EXCLUSIVE — never shared
+# or similar). Seeds are a fixed family for reproducibility; a per-run offset
+# gives fresh variations. (label, group) live in `_SLOT_META`.
 _SLOTS: List[Tuple[str, str, int, int, int]] = [
+    # — Identity —
     ("profile", "a single bold iconic channel emblem or mascot logo mark, centered "
                 "medallion, minimal, symmetrical, high contrast, plain dark background", 1024, 1024, 1313),
     ("banner", "a wide panoramic cinematic establishing hero image for a channel about {niche}, "
                "deep empty center with room for the channel name, atmospheric, no readable text", 1280, 720, 2020),
     ("thumbnail", "one striking hero subject for a video about {niche}, dramatic lighting, bold and "
                   "clickable, high contrast, large empty space in the upper-left for a title", 1280, 720, 7777),
-    ("scene_wide", "a cinematic wide establishing shot for a story about {niche}, atmospheric depth, "
-                   "no readable text", 1280, 720, 4001),
-    ("scene_detail", "a dramatic extreme close-up of a single meaningful object from a story about "
-                     "{niche}, shallow focus, moody", 1280, 720, 4002),
-    ("scene_moment", "a moody representative mid-shot capturing the feeling of a story about {niche}, "
-                     "cinematic", 1280, 720, 4003),
+    # — Characters (how the recurring cast LOOKS — the most important vibe anchor) —
+    ("host", "a full-body character reference of the channel's recurring on-screen host/narrator for a "
+             "show about {niche}, a distinctive memorable protagonist with a strong silhouette and signature "
+             "costume, confident signature pose, single spotlight, plain backdrop, character sheet", 1024, 1280, 5150),
+    ("character", "a haunting character portrait of a recurring figure from the world of {niche}, expressive "
+                  "face, in-world costume, dramatic key light, emotive, character sheet", 1024, 1280, 5151),
+    # — Thumbnail models (the click templates every video reuses) —
+    ("thumb_face", "a bold YouTube thumbnail template for a video about {niche}: one intense reacting face in "
+                   "the dark, extreme close-up, dramatic rim light, huge clean negative space on one side for a "
+                   "big title, ultra high contrast, clickable", 1280, 720, 8801),
+    ("thumb_reveal", "a bold YouTube thumbnail template for a video about {niche}: a single mysterious subject "
+                     "about to be revealed under a hard spotlight, deep shadow, empty upper space for a title, "
+                     "high contrast, clickable", 1280, 720, 8802),
+    # — Ambiance (the feel/color/light of a typical scene; no people → no phantoms) —
+    ("ambiance_wide", "a cinematic wide establishing shot that sets the mood of a story about {niche}, "
+                      "atmospheric depth, deserted, no people, no readable text", 1280, 720, 4001),
+    ("ambiance_detail", "a dramatic extreme close-up of a single meaningful object from a story about {niche}, "
+                        "shallow focus, moody, no people", 1280, 720, 4002),
+    ("ambiance_moment", "a moody mid-shot capturing the emotional feeling of a story about {niche}, cinematic "
+                        "light and color, no readable text", 1280, 720, 4003),
 ]
+
+# key -> (human label, group). Groups order the impression view.
+_SLOT_META: Dict[str, Tuple[str, str]] = {
+    "profile": ("Profile picture", "Identity"),
+    "banner": ("Channel banner", "Identity"),
+    "thumbnail": ("Signature thumbnail", "Identity"),
+    "host": ("Host / narrator", "Characters"),
+    "character": ("Recurring character", "Characters"),
+    "thumb_face": ("Thumbnail model · reaction", "Thumbnail models"),
+    "thumb_reveal": ("Thumbnail model · reveal", "Thumbnail models"),
+    "ambiance_wide": ("Ambiance · wide", "Ambiance"),
+    "ambiance_detail": ("Ambiance · detail", "Ambiance"),
+    "ambiance_moment": ("Ambiance · moment", "Ambiance"),
+}
+_GROUP_ORDER = ["Identity", "Characters", "Thumbnail models", "Ambiance", "Other"]
 
 
 def brand_dir(cid: str) -> Path:
@@ -107,17 +140,31 @@ def brand_video_dir(cid: str) -> Path:
     return brand_dir(cid) / "video"
 
 
+def _slot_meta(stem: str) -> Tuple[str, str]:
+    return _SLOT_META.get(stem, (stem.replace("_", " ").title(), "Other"))
+
+
 def assets(cid: str) -> List[Dict]:
-    """Every brand still PNG present (any generator), profile/banner/thumbnail first."""
+    """Every brand still PNG present (any generator), grouped + ordered as the
+    channel impression (Identity · Characters · Thumbnail models · Ambiance)."""
     bd = brand_dir(cid)
     if not bd.exists():
         return []
-    order = {k: i for i, k in enumerate(["profile", "banner", "thumbnail"])}
+    slot_order = {k: i for i, (k, *_rest) in enumerate(_SLOTS)}
     files = [p for p in bd.glob("*.png") if p.is_file()]
-    files.sort(key=lambda p: (order.get(p.stem, 99), p.stem))
-    return [{"key": p.stem, "kind": "image",
-             "url": f"/channels/{cid}/brand/{p.name}?t={int(p.stat().st_mtime)}"}
-            for p in files]
+
+    def sort_key(p: Path):
+        _label, group = _slot_meta(p.stem)
+        gi = _GROUP_ORDER.index(group) if group in _GROUP_ORDER else len(_GROUP_ORDER)
+        return (gi, slot_order.get(p.stem, 99), p.stem)
+
+    files.sort(key=sort_key)
+    out = []
+    for p in files:
+        label, group = _slot_meta(p.stem)
+        out.append({"key": p.stem, "kind": "image", "label": label, "group": group,
+                    "url": f"/channels/{cid}/brand/{p.name}?t={int(p.stat().st_mtime)}"})
+    return out
 
 
 def video_snippets(cid: str) -> List[Dict]:

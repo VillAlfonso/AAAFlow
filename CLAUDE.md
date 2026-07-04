@@ -46,11 +46,21 @@ motion/small) → the SFX stinger, the transition (reveals *flash*, impacts
 a new reflex is a one-JSON edit (or the `/add-effect` skill), never a code
 change. Every rule carries a `why` so it reads like a playbook.
 
-**"Make me a video" is a real entry point (user, 2026-07-04).** The user often
-just asks Claude to make a video with this app. The end-to-end playbook is the
-**`/make-video` skill** (`.claude/skills/make-video/`): pick channel → get/write
-script → lint → the director fills effects from the grammar dictionary →
-`produce` → QA the mp4 → SEO. `/add-effect` teaches the grammar a new reflex.
+**"Make me a video" is THE entry point (user, 2026-07-04, reaffirmed).** The
+user's chosen production method is now **Claude Code (set to Haiku) driving this
+system directly** to make videos — NOT the old `Script → JSON` UI flow (that was
+the previous way; it's demoted to a per-channel manual import, no longer how
+videos get generated). So the durable path is the **`/make-video` skill**
+(`.claude/skills/make-video/`): pick channel → get/write script → lint → the
+director fills effects from the grammar dictionary → `produce` → QA the mp4 →
+SEO. `/add-effect` teaches the grammar a new reflex. Keep the API + skills clean
+enough that a small model can run the whole pipeline.
+
+**Hub is channel-first; per-channel tools stay per-channel (user, 2026-07-04).**
+`Script → JSON` and `History` are per-channel exclusives — removed from the
+GLOBAL hub tool rail/footer (`HUB_TOOL_NAV`), shown only inside a channel
+workspace. History lives with its channel; **"main" holds the merged legacy
+history**. Never resurface them as app-wide tools.
 
 **Authoring modes (the "Haiku mode", 2026-07-03):** `settings.authoring` is
 `"pro"` (fill gaps only, never touch author text) or `"assisted"` (small-model
@@ -89,12 +99,19 @@ wins over everything. "Write with AI" / `POST /api/channels/{cid}/write`
 the channel's Videos page. Never bake a channel's look into code — it lives
 in the channel's folder.
 
-**Brand preview (`app/brandkit.py`, 2026-07-04).** A FIXED ComfyUI node graph
-for brainstorming a channel's niche + visual style: one krea2 workflow, shared
-UNET/CLIP/VAE loaders → six branded outputs (profile · banner · thumbnail · 3
-scene frames), the channel's `style_suffix` on every branch + its `niche`
-seeding the scenes. Hub card "Brand preview" / `POST /api/channels/{cid}/preview
-{seed_offset}` (job) saves the graph to
+**Channel impression (`app/brandkit.py`, 2026-07-04).** A FIXED ComfyUI node
+graph that renders a channel's whole CORE VIBE — the reference every future video
+must match. One krea2 workflow, shared UNET/CLIP/VAE loaders → **ten** branded
+outputs grouped as the impression (`_SLOTS`/`_SLOT_META`, `_GROUP_ORDER`):
+**Identity** (profile · banner · thumbnail) · **Characters** (host/narrator +
+recurring character — how the cast LOOKS, the top vibe anchor) · **Thumbnail
+models** (reaction + reveal click templates) · **Ambiance** (wide · detail ·
+moment, no-people to avoid phantoms). The channel's `style_suffix` is on every
+branch + its `niche` seeds them, so each channel's impression is EXCLUSIVE —
+never shared or similar to another's. The modal also shows an **Edit & sound
+grammar** panel (preset + transitions + SFX beats + music from the effects
+dictionary) so the moving/audio vibe is legible too. Hub card "Brand preview" /
+`POST /api/channels/{cid}/preview {seed_offset}` (job) saves the graph to
 `data/channels/<cid>/brand/graphs/channel_preview.json` + PNGs to `brand/`;
 `GET .../brand` returns `{assets, videos}`, served at `/channels/<cid>/brand/<f>`.
 Regenerate = new `seed_offset`; every output PNG embeds the graph (drag into

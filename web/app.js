@@ -85,6 +85,11 @@ const TOOL_NAV = [
   { id: "training", label: "Training", icon: "i-wand" },
   { id: "settings", label: "Settings · Storage", icon: "i-settings" },
 ];
+// The HUB shows only truly-global tools. Script → JSON and History are
+// per-channel exclusives (each channel has its own; history lives with its
+// channel — "main" holds the merged legacy), so they appear only inside a
+// channel workspace, never on the hub.
+const HUB_TOOL_NAV = TOOL_NAV.filter(t => !["transcribe", "history"].includes(t.id));
 const STEP_NAV = [
   { id: "storyboard", label: "1 · Script", icon: "i-storyboard", proj: true },
   { id: "voiceover", label: "2 · Voice", icon: "i-voice", proj: true },
@@ -98,7 +103,7 @@ const STEP_NAV = [
 function navItems() {
   if (!state.channel) return [
     { id: "hub", label: "Channels", icon: "i-channels" },
-    { sep: true }, ...TOOL_NAV,
+    { sep: true }, ...HUB_TOOL_NAV,
   ];
   return [
     { id: "hub", label: "All channels", icon: "i-back" },
@@ -2899,7 +2904,7 @@ async function renderHub(host) {
   page.appendChild(grid);
 
   const tools = el("div", "hub-tools",
-    TOOL_NAV.map(t => `<button class="btn btn-ghost btn-sm" data-t="${t.id}">${icon(t.icon)} ${t.label}</button>`).join(""));
+    HUB_TOOL_NAV.map(t => `<button class="btn btn-ghost btn-sm" data-t="${t.id}">${icon(t.icon)} ${t.label}</button>`).join(""));
   tools.querySelectorAll("button").forEach(b => b.onclick = () => { location.hash = "#/" + b.dataset.t; });
   page.appendChild(tools);
   host.appendChild(page);
@@ -2961,38 +2966,72 @@ function hubCard(c) {
 // The channel brand-preview studio: renders profile/banner/thumbnail + style
 // frames through the fixed krea2 node graph, with a Regenerate (new seed) button.
 async function brandPreviewModal(c) {
-  const LABELS = { profile: "Profile picture", banner: "Channel banner", thumbnail: "Thumbnail",
-    scene_wide: "Scene · wide", scene_detail: "Scene · detail", scene_moment: "Scene · moment",
-    style_musicbox: "Style frame", style_tent: "Style frame", style_ticket: "Style frame" };
+  const d = c.defaults || {};
   const card = openModal(`
-    <div class="modal-head"><h2 class="mb0">Brand preview — ${esc(c.name)}</h2>
+    <div class="modal-head"><h2 class="mb0">Channel impression — ${esc(c.name)}</h2>
       <button class="btn-icon" id="mClose">${icon("i-x")}</button></div>
-    <p class="desc" style="margin-top:-6px">One fixed krea2 ComfyUI graph → this channel's whole visual identity, so you can brainstorm a niche + style and see it. Its look comes from the channel's art direction; drag any output PNG into ComfyUI (127.0.0.1:8188) to edit the nodes. Graph: <span class="mono" style="font-size:11px">data/channels/${esc(c.id)}/brand/graphs/channel_preview.json</span></p>
-    <div class="row" style="margin-bottom:12px">
-      <button class="btn btn-primary" id="bpGen">${icon("i-wand")} Generate stills</button>
+    <p class="desc" style="margin-top:-6px">The core VIBE of this channel — its identity, characters, thumbnail models, ambiance and edit/sound grammar — rendered from one fixed krea2 node graph on <b>this channel's own</b> art direction (exclusive to it, never shared). Every video you build should give off this same feel. Drag any output PNG into ComfyUI (127.0.0.1:8188) to edit the nodes. Graph: <span class="mono" style="font-size:11px">data/channels/${esc(c.id)}/brand/graphs/channel_preview.json</span></p>
+    <div id="bpEditing"></div>
+    <div class="row" style="margin:12px 0">
+      <button class="btn btn-primary" id="bpGen">${icon("i-wand")} Generate impression</button>
       <button class="btn btn-ghost" id="bpRegen" title="Same graph, new seeds">${icon("i-refresh")} Regenerate (new seeds)</button>
-      <button class="btn btn-teal" id="bpSnip" title="Animate the profile + thumbnail into short Wan 2.2 motion snippets (~3-4 min each)">${icon("i-preview")} Video snippets</button>
+      <button class="btn btn-teal" id="bpSnip" title="Animate the identity stills into short Wan 2.2 motion snippets (~3-4 min each)">${icon("i-preview")} Video snippets</button>
       <span class="muted mono" id="bpMsg" style="font-size:12px"></span>
     </div>
     <div id="bpVids"></div>
-    <div class="media-grid" id="bpGrid"></div>`);
+    <div id="bpGroups"></div>`);
   $("#mClose", card).onclick = closeModal;
-  const grid = $("#bpGrid", card), vids = $("#bpVids", card);
+  const groupsEl = $("#bpGroups", card), vids = $("#bpVids", card), editEl = $("#bpEditing", card);
+  // Editing & sound grammar panel — the non-visual half of the impression.
+  (async () => {
+    let dict = {}; try { dict = await api.get("/api/effects_dictionary"); } catch (e) {}
+    const byBeat = (dict.transitions && dict.transitions.by_beat) || {};
+    const trans = Object.entries(byBeat).map(([b, t]) => `${b}→${(t.cut || t.transition || t.name || t)}`);
+    const sfx = (dict.sfx_cues || []).map(s => s.beat || s.name).filter(Boolean);
+    const moods = (dict.music_moods || []).map(m => m.mood || m.name).filter(Boolean);
+    const pill = (t) => `<span class="chip" style="font-size:11px">${esc(t)}</span>`;
+    editEl.innerHTML = `<div class="card" style="background:var(--panel-2);padding:12px 14px">
+      <div class="section-title" style="margin-bottom:8px">Edit &amp; sound grammar — the moving/audio vibe</div>
+      <div style="display:grid;gap:8px;font-size:12.5px">
+        <div><b>Editing preset</b> · ${pill(d.preset || "cinematic")} <span class="muted">motion + how scenes cut</span></div>
+        <div><b>Transitions</b> ${trans.length ? trans.map(pill).join(" ") : "<span class='muted'>grammar default</span>"}</div>
+        <div><b>Sound FX beats</b> ${sfx.length ? sfx.map(pill).join(" ") : "<span class='muted'>scored per beat</span>"}</div>
+        <div><b>Music</b> ${pill(d.music_vibe || "channel vibe")} ${moods.slice(0,5).map(pill).join(" ")}</div>
+      </div>
+      <div class="muted" style="font-size:11px;margin-top:8px">Editable in Settings · Effects grammar — the same dictionary the director + scorer read for every video.</div>
+    </div>`;
+  })();
   function draw(assets, videos) {
     vids.innerHTML = "";
-    (videos || []).forEach(v => {
-      const cell = el("div", "card"); cell.style.cssText = "background:var(--panel-2);margin-bottom:12px;padding:12px";
-      cell.innerHTML = `<div class="section-title" style="margin-bottom:8px">${esc(LABELS[v.key] || v.key)} · motion snippet</div>
-        <video controls loop muted preload="metadata" style="width:100%;max-width:520px;border-radius:10px;background:#000" src="${v.url}"></video>`;
-      vids.appendChild(cell);
-    });
-    if (!assets || !assets.length) { grid.innerHTML = `<div class="muted" style="font-size:13px">No stills yet — click Generate (≈4–5 min for all six on the GPU).</div>`; return; }
-    grid.innerHTML = "";
-    assets.forEach(a => {
-      const cell = el("div", "media-card");
-      cell.innerHTML = `<div class="frame" style="aspect-ratio:${a.key === "profile" ? "1/1" : "16/9"}"><img src="${a.url}" loading="lazy"/></div>
-        <div class="cap"><div class="t">${esc(LABELS[a.key] || a.key)}</div><a class="btn-icon" href="${a.url}" download title="Download">${icon("i-download")}</a></div>`;
-      grid.appendChild(cell);
+    if (videos && videos.length) {
+      const sec = el("div", "");
+      sec.innerHTML = `<div class="section-title" style="margin:6px 0 8px">Motion snippets — the identity in motion</div>`;
+      const row = el("div", ""); row.style.cssText = "display:flex;gap:12px;flex-wrap:wrap;margin-bottom:8px";
+      videos.forEach(v => {
+        const cell = el("div", ""); cell.style.cssText = "flex:1 1 300px;max-width:420px";
+        cell.innerHTML = `<video controls loop muted preload="metadata" style="width:100%;border-radius:10px;background:#000" src="${v.url}"></video>
+          <div class="muted" style="font-size:11px;margin-top:4px">${esc(v.key)}</div>`;
+        row.appendChild(cell);
+      });
+      sec.appendChild(row); vids.appendChild(sec);
+    }
+    groupsEl.innerHTML = "";
+    if (!assets || !assets.length) { groupsEl.innerHTML = `<div class="muted" style="font-size:13px">No impression yet — click Generate (≈5–6 min for all ten frames on the GPU).</div>`; return; }
+    const order = ["Identity", "Characters", "Thumbnail models", "Ambiance", "Other"];
+    const groups = {};
+    assets.forEach(a => { (groups[a.group || "Other"] = groups[a.group || "Other"] || []).push(a); });
+    order.filter(g => groups[g]).forEach(g => {
+      const sec = el("div", ""); sec.style.marginBottom = "14px";
+      sec.innerHTML = `<div class="section-title" style="margin-bottom:8px">${esc(g)}</div>`;
+      const grid = el("div", "media-grid");
+      groups[g].forEach(a => {
+        const cell = el("div", "media-card");
+        const ar = a.key === "profile" ? "1/1" : (a.group === "Characters" ? "4/5" : "16/9");
+        cell.innerHTML = `<div class="frame" style="aspect-ratio:${ar}"><img src="${a.url}" loading="lazy"/></div>
+          <div class="cap"><div class="t">${esc(a.label || a.key)}</div><a class="btn-icon" href="${a.url}" download title="Download">${icon("i-download")}</a></div>`;
+        grid.appendChild(cell);
+      });
+      sec.appendChild(grid); groupsEl.appendChild(sec);
     });
   }
   try { const b = await api.get(`/api/channels/${c.id}/brand`); draw(b.assets, b.videos); } catch (e) { draw([], []); }

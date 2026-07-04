@@ -12,11 +12,18 @@ description: >
 
 The user runs this app to turn a script into a finished, human-looking YouTube
 video, fully locally. When they ask you to "make a video", drive the app's REST
-API (base `http://127.0.0.1:8000`). Read `C:\AAAFlow\CLAUDE.md` and
-`C:\AAAFlow\.claude\PIPELINE.md` for the non-negotiables; this is the operating
-checklist.
+API (base `http://127.0.0.1:8000`).
 
-## 0. Preflight
+## 0. Read the playbook FIRST (do not skip)
+**Read `C:\AAAFlow\VIDEO_PLAYBOOK.md` in full before doing anything else.** It is
+the pre-flight brief — it carries the summarized essence of every guiding doc in
+this repo plus the **research algorithm** and the **script algorithm** that make
+the difference between "a video" and one worth watching, and the full map of what
+the system can do (scored sound, grammar transitions, krea images, parallax
+zoom/pan/dolly motion, coverage, auto-edit). `CLAUDE.md` and
+`.claude/PIPELINE.md` hold the deeper rules; the playbook points you to them.
+
+## 0b. Preflight
 - Make sure the server is up: `GET /api/status` (200). If not, start it (see
   CLAUDE.md · Operational rules) and log to a fresh `data/serverN.log`. **Never
   restart while a job runs.** ComfyUI auto-starts on the first render.

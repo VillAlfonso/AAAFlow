@@ -12,10 +12,10 @@ from fastapi.responses import (FileResponse, HTMLResponse, JSONResponse,
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from . import (animate, assemble, audiolib, captions, channels, characters,
-               config, effects, grammar, humanize, images, janitor, jobs, music,
-               packaging, produce, projects, scenes, score, service, sfx,
-               shorts, storage, style_refs, training, transcribe, voiceover,
+from . import (animate, assemble, audiolib, brandkit, captions, channels,
+               characters, config, effects, grammar, humanize, images, janitor,
+               jobs, music, packaging, produce, projects, scenes, score, service,
+               sfx, shorts, storage, style_refs, training, transcribe, voiceover,
                writer, youtube)
 from .audio import ffmpeg_ok
 from .engine import engine
@@ -464,6 +464,45 @@ def get_channel(cid: str):
 def delete_channel(cid: str):
     """Moves the whole channel folder (projects included) to data/trash."""
     return {"deleted": channels.remove(cid)}
+
+
+@app.get("/api/channels/{cid}/brand")
+def get_channel_brand(cid: str):
+    """The channel's YouTube identity kit: brand stills + Wan video snippets."""
+    if not channels.get(cid):
+        raise HTTPException(status_code=404, detail="channel not found")
+    ident = brandkit.identity(cid)
+    return {"assets": ident["stills"], "videos": ident["videos"]}
+
+
+class BrandPreviewReq(BaseModel):
+    seed_offset: int = 0              # bump to regenerate fresh variations
+
+
+@app.post("/api/channels/{cid}/preview")
+def gen_channel_brand(cid: str, req: BrandPreviewReq = BrandPreviewReq()):
+    """Render a channel's brand stills via the fixed krea2 node graph (job).
+    The graph is saved to data/channels/<cid>/brand/graphs/channel_preview.json."""
+    try:
+        return {"job_id": brandkit.submit_preview(cid, req.seed_offset)}
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
+class SnippetsReq(BaseModel):
+    keys: Optional[List[str]] = None  # which stills to animate (default profile+thumbnail)
+    seconds: float = 3.0
+    quality: str = "balanced"
+
+
+@app.post("/api/channels/{cid}/snippets")
+def gen_channel_snippets(cid: str, req: SnippetsReq = SnippetsReq()):
+    """Animate brand stills into short Wan 2.2 motion snippets — the moving half
+    of the YouTube identity (logo sting, teaser). ~3-4 min per clip (job)."""
+    try:
+        return {"job_id": brandkit.submit_snippets(cid, req.keys, req.seconds, req.quality)}
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
 
 
 @app.get("/api/channels/{cid}/authoring_prompt")
@@ -1236,6 +1275,16 @@ def channel_ui_index(cid: str):
 def channel_ui_asset(cid: str, rel: str):
     try:
         base = channels.ui_dir(cid)
+    except ValueError:
+        raise HTTPException(status_code=404, detail="not found")
+    return FileResponse(str(_contained(base, rel)))
+
+
+@app.get("/channels/{cid}/brand/{rel:path}")
+def channel_brand_asset(cid: str, rel: str):
+    """Serve a channel's generated brand-preview images."""
+    try:
+        base = brandkit.brand_dir(cid)
     except ValueError:
         raise HTTPException(status_code=404, detail="not found")
     return FileResponse(str(_contained(base, rel)))

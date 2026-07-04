@@ -1,5 +1,11 @@
 # AAAFlow Studio
 
+> **Making a video? Read `VIDEO_PLAYBOOK.md` first.** It's the all-in-one
+> pre-flight brief — the research algorithm, the script algorithm, the full
+> capability map (scored sound, grammar transitions, krea images, parallax
+> zoom/pan motion, auto-edit) and the quality bar, distilled from every doc
+> here. The `/make-video` skill loads it automatically.
+
 ## Mission
 **Type a script in → a finished YouTube video comes out.** Fully local, one machine
 (RTX 5060 Ti 16 GB), zero cloud. The output must look like it was made by a human
@@ -82,6 +88,32 @@ wins over everything. "Write with AI" / `POST /api/channels/{cid}/write`
 `GET /api/channels/{cid}/authoring_prompt?topic=...` live on the hub card and
 the channel's Videos page. Never bake a channel's look into code — it lives
 in the channel's folder.
+
+**Brand preview (`app/brandkit.py`, 2026-07-04).** A FIXED ComfyUI node graph
+for brainstorming a channel's niche + visual style: one krea2 workflow, shared
+UNET/CLIP/VAE loaders → six branded outputs (profile · banner · thumbnail · 3
+scene frames), the channel's `style_suffix` on every branch + its `niche`
+seeding the scenes. Hub card "Brand preview" / `POST /api/channels/{cid}/preview
+{seed_offset}` (job) saves the graph to
+`data/channels/<cid>/brand/graphs/channel_preview.json` + PNGs to `brand/`;
+`GET .../brand` returns `{assets, videos}`, served at `/channels/<cid>/brand/<f>`.
+Regenerate = new `seed_offset`; every output PNG embeds the graph (drag into
+ComfyUI :8188 to edit nodes). **This is the reusable YouTube-identity template**:
+the same fixed architecture fits any channel by reading its `style_suffix`/`niche`.
+The identity has a MOVING half too — `POST /api/channels/{cid}/snippets
+{keys?,seconds,quality}` animates chosen stills into short Wan 2.2 brand motion
+snippets (logo sting from `profile`, teaser from `thumbnail`) via the enhance
+chain (`brandkit.submit_snippets`, motion in `_SNIPPET_MOTION`); `GET .../brand`
+lists them under `videos`. BOTH node graphs persist to `brand/graphs/` —
+`channel_preview.json` (krea2 stills) + `snippet_<key>.json` (Wan i2v, saved via
+`wan_engine.animate(save_graph=…)`) — so the whole architecture (image AND video
+halves) is inspectable/re-runnable in ComfyUI. The stills graph outputs only
+`SaveImage` nodes by design; video is a SEPARATE Wan i2v graph that takes a
+finished still as `LoadImage` input. The ComfyUI **MCP** (`.mcp.json`) drives/inspects the
+same live :8188 instance — validated 2026-07-04 (health_check sees krea2 + both
+Wan i2v 14B fp8; the fixed graph validates clean). Example channel: **The
+Midnight Menagerie** (dark-carnival true-macabre, harlequin-noir, clownpierce
+clone voice) — full identity (6 stills + snippets) generated as the template.
 
 ## THE PIPELINE ORDER (non-negotiable — see .claude/PIPELINE.md for detail)
 Voice comes FIRST. Never voice a video scene-by-scene: independent per-scene TTS

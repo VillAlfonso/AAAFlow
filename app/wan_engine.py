@@ -15,6 +15,7 @@ Drives the same ComfyUI as krea2/LTX; returns mp4 bytes.
 """
 from __future__ import annotations
 
+import json
 import uuid
 from pathlib import Path
 from typing import Dict, Optional
@@ -134,7 +135,8 @@ class WanEngine:
     def animate(self, image_path: str, prompt: str, *, seconds: Optional[float] = None,
                 negative: Optional[str] = None, width: Optional[int] = None,
                 height: Optional[int] = None, fps: Optional[int] = None,
-                seed: int = 0, quality: Optional[str] = None, progress=None) -> bytes:
+                seed: int = 0, quality: Optional[str] = None, progress=None,
+                save_graph: Optional[Path] = None) -> bytes:
         if not config.wan_ready():
             raise RuntimeError("Wan 2.2 weights are missing — use “Download Wan 2.2” "
                                "on the Animate page.")
@@ -149,6 +151,12 @@ class WanEngine:
         in_name = self._upload(image_path)
         wf = self._workflow(prompt, negative, in_name=in_name, width=width, height=height,
                             length=length, fps=fps, seed=seed, profile=profile)
+        if save_graph is not None:                 # persist the i2v node graph for inspection
+            try:
+                p = Path(save_graph); p.parent.mkdir(parents=True, exist_ok=True)
+                p.write_text(json.dumps(wf, indent=2), encoding="utf-8")
+            except Exception:                      # graph-saving must never fail a render
+                pass
         infos = comfy_engine.run_workflow(
             wf, want=("images",), client_id=self._cid, timeout=5400,
             progress=progress, prange=(0.15, 0.95),

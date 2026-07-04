@@ -2879,10 +2879,14 @@ async function copyScriptPrompt(c) {
 
 async function renderHub(host) {
   topbar("AAAFlow Studio", "Pick a channel — everything inside is that channel's own studio. The tools (TTS, krea2, Wan, music) are shared.");
-  const [chData, projData] = await Promise.all([
-    api.get("/api/channels"), api.get("/api/projects").catch(() => ({ projects: [] }))]);
+  const [chData, projData, vData] = await Promise.all([
+    api.get("/api/channels"), api.get("/api/projects").catch(() => ({ projects: [] })),
+    api.get("/api/voices").catch(() => ({ custom: [] }))]);
   state.channels = chData.channels || [];
   state.projects = projData.projects || [];
+  // clone voice_id -> friendly name, so the card shows the actual (cloned) voice
+  state.voiceNames = {};
+  (vData.custom || []).forEach(v => { if (v.id) state.voiceNames[v.id] = v.name || v.id; });
   const page = el("div", "page hub");
   const grid = el("div", "hub-grid");
   state.channels.forEach(c => grid.appendChild(hubCard(c)));
@@ -2904,6 +2908,9 @@ async function renderHub(host) {
 function hubCard(c) {
   const d = c.defaults || {};
   const ui = c.ui || {};
+  // a cloned voice_id wins over the base preset name; resolve it to its label
+  const cloneName = d.voice_id ? ((state.voiceNames || {})[d.voice_id] || "cloned voice") : null;
+  const voiceLabel = cloneName || d.voice || "Ryan";
   const vids = (state.projects || []).filter(p => p.channel === c.id);
   const last = vids.slice().sort((a, b) => (b.updated || 0) - (a.updated || 0))[0];
   const yt = (c.youtube || {}).refresh_token;
@@ -2917,7 +2924,7 @@ function hubCard(c) {
     <div class="row" style="gap:6px;flex-wrap:wrap">
       <span class="chip">${esc(d.preset || "cinematic")}</span>
       <span class="chip">${d.animate_engine === "none" ? "no video model" : "Wan · " + esc(d.quality || "balanced")}</span>
-      <span class="chip">${esc(d.voice || "Ryan")}</span>
+      <span class="chip ${d.voice_id ? "chip-on" : ""}" title="${d.voice_id ? "cloned voice" + (d.voice ? " · base preset: " + esc(d.voice) : "") : "built-in voice"}">${esc(voiceLabel)}${d.voice_id ? " · cloned" : ""}</span>
       <span class="chip ${d.authoring === "assisted" ? "chip-on" : ""}">${d.authoring === "assisted" ? "assisted" : "pro"} scripts</span>
       ${ui.custom_index ? `<span class="chip chip-on" title="data/channels/${esc(c.id)}/ui/index.html">custom UI</span>` : ""}
       ${yt ? `<span class="chip chip-on">YouTube ✓</span>` : ""}
@@ -2928,6 +2935,7 @@ function hubCard(c) {
     </div>
     <div class="row" style="gap:8px;flex-wrap:wrap">
       <button class="btn btn-primary btn-sm chEnter">${icon("i-play")} Enter studio</button>
+      <button class="btn btn-ghost btn-sm chBrand" title="Render this channel's brand preview (profile, banner, thumbnail, style frames) via the fixed krea2 node graph">${icon("i-image")} Brand preview</button>
       <button class="btn btn-ghost btn-sm chWrite" title="Write the next script with the LOCAL model and import it">${icon("i-wand")} Write with AI</button>
       <button class="btn btn-ghost btn-sm chEdit" title="Channel setup">${icon("i-settings")}</button>
     </div>`;
@@ -2937,6 +2945,7 @@ function hubCard(c) {
   };
   card.onclick = e => { if (e.target.closest("button")) return; enter(); };
   $(".chEnter", card).onclick = enter;
+  $(".chBrand", card).onclick = () => brandPreviewModal(c);
   $(".chWrite", card).onclick = () => writeWithAI(c);
   $(".chEdit", card).onclick = () => editChannelModal(c);
   $(".chDel", card).onclick = async (e) => {
@@ -2947,6 +2956,70 @@ function hubCard(c) {
     }
   };
   return card;
+}
+
+// The channel brand-preview studio: renders profile/banner/thumbnail + style
+// frames through the fixed krea2 node graph, with a Regenerate (new seed) button.
+async function brandPreviewModal(c) {
+  const LABELS = { profile: "Profile picture", banner: "Channel banner", thumbnail: "Thumbnail",
+    scene_wide: "Scene · wide", scene_detail: "Scene · detail", scene_moment: "Scene · moment",
+    style_musicbox: "Style frame", style_tent: "Style frame", style_ticket: "Style frame" };
+  const card = openModal(`
+    <div class="modal-head"><h2 class="mb0">Brand preview — ${esc(c.name)}</h2>
+      <button class="btn-icon" id="mClose">${icon("i-x")}</button></div>
+    <p class="desc" style="margin-top:-6px">One fixed krea2 ComfyUI graph → this channel's whole visual identity, so you can brainstorm a niche + style and see it. Its look comes from the channel's art direction; drag any output PNG into ComfyUI (127.0.0.1:8188) to edit the nodes. Graph: <span class="mono" style="font-size:11px">data/channels/${esc(c.id)}/brand/graphs/channel_preview.json</span></p>
+    <div class="row" style="margin-bottom:12px">
+      <button class="btn btn-primary" id="bpGen">${icon("i-wand")} Generate stills</button>
+      <button class="btn btn-ghost" id="bpRegen" title="Same graph, new seeds">${icon("i-refresh")} Regenerate (new seeds)</button>
+      <button class="btn btn-teal" id="bpSnip" title="Animate the profile + thumbnail into short Wan 2.2 motion snippets (~3-4 min each)">${icon("i-preview")} Video snippets</button>
+      <span class="muted mono" id="bpMsg" style="font-size:12px"></span>
+    </div>
+    <div id="bpVids"></div>
+    <div class="media-grid" id="bpGrid"></div>`);
+  $("#mClose", card).onclick = closeModal;
+  const grid = $("#bpGrid", card), vids = $("#bpVids", card);
+  function draw(assets, videos) {
+    vids.innerHTML = "";
+    (videos || []).forEach(v => {
+      const cell = el("div", "card"); cell.style.cssText = "background:var(--panel-2);margin-bottom:12px;padding:12px";
+      cell.innerHTML = `<div class="section-title" style="margin-bottom:8px">${esc(LABELS[v.key] || v.key)} · motion snippet</div>
+        <video controls loop muted preload="metadata" style="width:100%;max-width:520px;border-radius:10px;background:#000" src="${v.url}"></video>`;
+      vids.appendChild(cell);
+    });
+    if (!assets || !assets.length) { grid.innerHTML = `<div class="muted" style="font-size:13px">No stills yet — click Generate (≈4–5 min for all six on the GPU).</div>`; return; }
+    grid.innerHTML = "";
+    assets.forEach(a => {
+      const cell = el("div", "media-card");
+      cell.innerHTML = `<div class="frame" style="aspect-ratio:${a.key === "profile" ? "1/1" : "16/9"}"><img src="${a.url}" loading="lazy"/></div>
+        <div class="cap"><div class="t">${esc(LABELS[a.key] || a.key)}</div><a class="btn-icon" href="${a.url}" download title="Download">${icon("i-download")}</a></div>`;
+      grid.appendChild(cell);
+    });
+  }
+  try { const b = await api.get(`/api/channels/${c.id}/brand`); draw(b.assets, b.videos); } catch (e) { draw([], []); }
+  const busy = on => { ["bpGen", "bpRegen", "bpSnip"].forEach(id => { const b = $("#" + id, card); if (b) b.disabled = on; }); };
+  async function run(seed_offset) {
+    const msg = $("#bpMsg", card); busy(true); msg.textContent = "starting ComfyUI / krea2…";
+    try {
+      const { job_id } = await api.post(`/api/channels/${c.id}/preview`, { seed_offset });
+      const res = await pollJob(job_id, j => { msg.textContent = (j.stage || "rendering") + (j.progress ? ` · ${Math.round(j.progress * 100)}%` : ""); });
+      msg.textContent = `done · ${res.count} stills`;
+      const b = await api.get(`/api/channels/${c.id}/brand`); draw(b.assets, b.videos); render();
+    } catch (e) { msg.textContent = ""; toast(e.message, "err"); }
+    finally { busy(false); }
+  }
+  async function snippets() {
+    const msg = $("#bpMsg", card); busy(true); msg.textContent = "starting Wan 2.2…";
+    try {
+      const { job_id } = await api.post(`/api/channels/${c.id}/snippets`, {});
+      await pollJob(job_id, j => { msg.textContent = (j.stage || "animating") + (j.progress ? ` · ${Math.round(j.progress * 100)}%` : ""); });
+      msg.textContent = "snippets ready";
+      const b = await api.get(`/api/channels/${c.id}/brand`); draw(b.assets, b.videos);
+    } catch (e) { msg.textContent = ""; toast(e.message, "err"); }
+    finally { busy(false); }
+  }
+  $("#bpGen", card).onclick = () => run(0);
+  $("#bpRegen", card).onclick = () => run(Math.floor(Math.random() * 100000));
+  $("#bpSnip", card).onclick = snippets;
 }
 
 async function editChannelModal(c) {

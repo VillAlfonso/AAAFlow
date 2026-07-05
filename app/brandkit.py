@@ -18,7 +18,7 @@ from __future__ import annotations
 import json
 import time
 from pathlib import Path
-from typing import Callable, Dict, List, Tuple
+from typing import Callable, Dict, List, Optional, Tuple
 
 from . import channels, config, enhance, jobs
 from .comfy_engine import comfy_engine
@@ -108,9 +108,11 @@ def _branch(base: int, subject: str, style: str, neg: str, w: int, h: int,
     }
 
 
-def build_graph(channel: Dict, seed_offset: int = 0) -> Tuple[Dict, Dict]:
-    """The fixed 6-output krea2 node architecture for this channel. Returns
-    (workflow, prefix→key map)."""
+def build_graph(channel: Dict, seed_offset: int = 0,
+                only: Optional[List[str]] = None) -> Tuple[Dict, Dict]:
+    """The fixed krea2 node architecture for this channel. Returns
+    (workflow, prefix→key map). ``only`` limits the branches (the channel
+    roulette renders a fast 5-slot subset instead of all ten)."""
     cid = channel["id"]
     d = channel.get("defaults") or {}
     style = (d.get("style_suffix") or "").strip() or config.KREA2_STYLE
@@ -129,6 +131,8 @@ def build_graph(channel: Dict, seed_offset: int = 0) -> Tuple[Dict, Dict]:
     prefix_map = {}
     base = 100
     for (key, tmpl, w, h, seed) in _SLOTS:
+        if only and key not in only:
+            continue
         subject = tmpl.format(niche=niche)
         wf.update(_branch(base, subject, style, neg, w, h, seed + seed_offset, key, cid))
         prefix_map[f"{cid}/{key}"] = key

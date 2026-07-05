@@ -31,7 +31,14 @@ you know what you want.
 
 ## The viral formula the script MUST follow (this is the important part)
 
-1. **Cold-open hook (scenes 1–8, ≈ first 30 s).**
+0. **The title opens a CURIOSITY GAP — never face value.** Write what makes
+   the viewer think "wait, what?", not what the video "is about".
+   BAD: "The Story of Victor Lustig", "The Dyatlov Pass Incident Explained".
+   GOOD: "He Sold the Eiffel Tower. Twice.", "Nine Hikers Walked In. The
+   Mountain Kept Them.", "They Lied About What Was in the Box".
+   Rules of thumb: a person is "he/she/they" not a name; withhold the noun the
+   video reveals; tension words (never, no one, wrong, hidden, until) earn
+   clicks; ≤ 60 characters; must still be TRUE — the payoff must pay it off.
    - Scene 1 narration: the single most absurd TRUE fact of the story,
      **≤ 12 words**. No greetings, no "today we're going to".
    - Hook scenes are SHORT: 6–12 words each. One idea per scene.

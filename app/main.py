@@ -1,6 +1,7 @@
 """FastAPI application: REST API + static SPA, bound to localhost."""
 from __future__ import annotations
 
+import re
 import threading
 import time
 from pathlib import Path
@@ -14,9 +15,9 @@ from pydantic import BaseModel
 
 from . import (animate, assemble, audiolib, brandkit, captions, channels,
                characters, config, effects, grammar, humanize, images, janitor,
-               jobs, music, packaging, produce, projects, scenes, score, service,
-               sfx, shorts, storage, style_refs, training, transcribe, voiceover,
-               writer, youtube)
+               jobs, music, packaging, produce, projects, roulette, scenes, score,
+               service, sfx, shorts, storage, style_refs, training, transcribe,
+               voiceover, writer, youtube)
 from .audio import ffmpeg_ok
 from .engine import engine
 from .image_engine import image_engine
@@ -505,6 +506,44 @@ def gen_channel_snippets(cid: str, req: SnippetsReq = SnippetsReq()):
         raise HTTPException(status_code=400, detail=str(exc))
 
 
+# --- API: channel roulette (randomize a whole channel concept) -----------------
+class RollReq(BaseModel):
+    hint: Optional[str] = None        # optional steer ("something about space")
+
+
+@app.get("/api/roulette")
+def roulette_rolls():
+    """Recent rolls (concept + identity stills), newest first."""
+    return {"rolls": roulette.list_rolls(), "writer": writer.status()}
+
+
+@app.post("/api/roulette/roll")
+def roulette_roll(req: RollReq = RollReq()):
+    """Invent one new channel concept with the local LLM and render its identity
+    stills through the fixed krea2 node graph (background job, ~2-3 min GPU)."""
+    return {"job_id": roulette.submit_roll(req.hint)}
+
+
+class AcceptRollReq(BaseModel):
+    id: Optional[str] = None          # override the suggested channel id
+    name: Optional[str] = None        # override the suggested channel name
+
+
+@app.post("/api/roulette/{rid}/accept")
+def roulette_accept(rid: str, req: AcceptRollReq = AcceptRollReq()):
+    """Keep a roll: creates the real channel folder + brand kit from it."""
+    try:
+        return roulette.accept(rid, req.id, req.name)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
+@app.delete("/api/roulette/{rid}")
+def roulette_discard(rid: str):
+    """Discard a roll (moved to data/trash/roulette, never destroyed)."""
+    return {"discarded": roulette.discard(rid)}
+
+
 @app.get("/api/channels/{cid}/authoring_prompt")
 def channel_authoring_prompt(cid: str, topic: Optional[str] = None):
     """Copy-paste script-writing prompt: the storyboard spec + this channel's
@@ -566,15 +605,17 @@ def storage_clean(req: CleanReq):
 
 # --- API: YouTube packaging (SEO) ---------------------------------------------
 class PackageReq(BaseModel):
-    thumb_text: Optional[str] = None  # thumbnail headline (default: video title)
+    thumb_text: Optional[str] = None      # thumbnail headline (default: from title)
+    thumb_template: Optional[str] = None  # spotlight|case-file|reveal|split|bar
 
 
 @app.post("/api/projects/{pid}/package")
 def build_package(pid: str, req: PackageReq = PackageReq()):
-    """SEO kit: title options, description with chapters, tags + thumbnail.
+    """SEO kit: curiosity-gap title options, description with chapters, tags +
+    mood-graded templated thumbnail (all variants in video/thumbs/).
     Saved on the project (project.seo) so edits persist and uploads use them."""
     try:
-        return packaging.build(pid, req.thumb_text)
+        return packaging.build(pid, req.thumb_text, req.thumb_template)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
 
@@ -1288,6 +1329,14 @@ def channel_brand_asset(cid: str, rel: str):
     except ValueError:
         raise HTTPException(status_code=404, detail="not found")
     return FileResponse(str(_contained(base, rel)))
+
+
+@app.get("/roulette/{rid}/{rel:path}")
+def roulette_asset(rid: str, rel: str):
+    """Serve a channel-roulette roll's identity stills."""
+    if not re.fullmatch(r"[0-9a-f]{8}", rid or ""):
+        raise HTTPException(status_code=404, detail="not found")
+    return FileResponse(str(_contained(roulette.ROULETTE_DIR / rid, rel)))
 
 
 @app.exception_handler(HTTPException)

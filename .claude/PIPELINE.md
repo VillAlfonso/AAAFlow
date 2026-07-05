@@ -130,14 +130,32 @@ fields; max 8 splits; scenes renumbered, thumbnail_scene remapped). Pro mode
 never touches author text beyond punctuation. Channel default or per-project.
 
 ## Publish (step 9: SEO → Shorts → Upload)
-**SEO** `POST /api/projects/{pid}/package {thumb_text?}` (`app/packaging.py`):
-2-3 title options, keyword-front-loaded description with chapters (every
-≥25 s), tags = title phrases + recurring narration bigrams + top words +
-channel `seo_keywords` pool (≤470 chars, video-specific terms lead → unique
-per video BY CONSTRUCTION), hashtags, thumbnail (hero frame, prefers
-`*_up2x.png`, gradient + stroked headline — allowed; only in-video text is
-banned). Saved to `project.seo`; `PUT .../seo` persists user edits; the
-uploader reads the edited copy. Writes `video/youtube_package.md` too.
+**SEO** `POST /api/projects/{pid}/package {thumb_text?, thumb_template?}`
+(`app/packaging.py`): **title options are CURIOSITY-GAP first (hard rule
+2026-07-05)** — the cold-open hook + a deterministic reframe of the subject
+("The Lie Behind X", "What Happened to X?", marker-picked from the narration)
+lead; the literal storyboard title is the fallback (it leads only if it
+already contains gap markers). Description with chapters (every ≥25 s), tags =
+title phrases + recurring narration bigrams + top words + channel
+`seo_keywords` pool (≤470 chars, video-specific terms lead → unique per video
+BY CONSTRUCTION), hashtags. Saved to `project.seo`; `PUT .../seo` persists
+user edits; the uploader reads the edited copy. Writes
+`video/youtube_package.md` too.
+
+**Thumbnails** (`app/thumbs.py`, hard rules 2026-07-05): 5 fixed reusable
+templates (spotlight · case-file · reveal · split · bar), ALL rendered to
+`video/thumbs/<tpl>.png` per package call + the chosen one copied to
+`thumbnail.png` (what the uploader sends). Text is REAL PIL typography
+(title fragment ≤5 words + a kicker tag) — never AI-drawn glyphs. **The
+EMOTION rule is baked in**: frame pick prefers expressive people on
+reveal/impact beats (`grammar.beat_of` + `scenes.scene_has_people`;
+author's `video.thumbnail_scene` still wins), and every composite gets a
+mood grade — `grammar.mood_for` (same mood the audio scorer hears) →
+tint/vignette/saturation + default kicker line from
+`data/thumb_templates.json` (`mood_grades`, editable, whys included; default
+kickers must be TRUE of any video in the mood). Channel pins its look in
+`channel.defaults.thumb {template, accent, kicker ("EXHIBIT No. {n}" — {n} =
+stable per-channel serial), font, kicker_font}`.
 
 **Shorts** `POST /api/projects/{pid}/shorts {count}` (`app/shorts.py`): picks
 hook (0 → boundary nearest 30 s) and payoff (last ~30 s from a boundary)
@@ -162,6 +180,23 @@ balanced-JSON extraction (one retry with the parse error fed back; raw draft
 kept at `data/outputs/writer_last.json`) → `create_project(channel=cid)` so
 the auto-director (assisted when the channel says so) directs it. The writer
 job serializes on the single job queue, so it never fights a render for VRAM.
+`writer.generate_json(prompt, progress)` is the shared LLM door (roulette
+uses it too).
+
+**Channel roulette** (`app/roulette.py`, 2026-07-05): hub card "🎲 Channel
+roulette" / `POST /api/roulette/roll {hint?}` (job). Python rolls inspiration
+dice (subject × aesthetic × tone from curated automation-friendly lists) →
+local LLM invents the full concept (name/niche/brief/style_suffix/voice
+instruct/music vibe/topic bank/example titles/SEO pool/accent/thumb template;
+`_sanitize` clamps everything, curated fallback concepts if no LLM) → the
+brandkit fixed krea2 graph renders a 5-slot identity (profile · banner ·
+thumbnail · host · ambiance; `build_graph(only=…)`). Rolls live in
+`data/roulette/<rid>/` (concept.json + PNGs + graph.json — drag a PNG into
+ComfyUI to remix). `GET /api/roulette` lists; `POST /api/roulette/{rid}/accept
+{id?,name?}` creates the real channel (defaults + brand stills + ui accent,
+authoring=assisted); `DELETE` moves the roll to `data/trash/roulette/`.
+LLM-invented topic banks are IDEAS, not facts — run the research algorithm
+before scripting from them.
 
 **Auto-scoring** (`app/score.py` + `app/audiolib.py`): `produce` runs a `score`
 stage (before animate, always on). `audiolib` = stdlib-urllib clients for two

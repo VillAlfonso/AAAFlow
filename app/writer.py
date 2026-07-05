@@ -125,6 +125,12 @@ def _write_once(prompt: str, progress) -> Tuple[Dict, str]:
     return _extract_json(raw), raw
 
 
+def generate_json(prompt: str, progress) -> Dict:
+    """One local-LLM JSON generation (Ollama else in-process transformers) —
+    shared by the script writer and the channel roulette."""
+    return _write_once(prompt, progress)[0]
+
+
 def submit_write(cid: str, topic: Optional[str] = None) -> str:
     """Job: channel prompt → local LLM → storyboard → imported project."""
     ch = channels.get(cid)

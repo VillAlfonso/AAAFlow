@@ -121,7 +121,18 @@ The identity has a MOVING half too — `POST /api/channels/{cid}/snippets
 {keys?,seconds,quality}` animates chosen stills into short Wan 2.2 brand motion
 snippets (logo sting from `profile`, teaser from `thumbnail`) via the enhance
 chain (`brandkit.submit_snippets`, motion in `_SNIPPET_MOTION`); `GET .../brand`
-lists them under `videos`. BOTH node graphs persist to `brand/graphs/` —
+lists them under `videos`.
+
+**Channel roulette (`app/roulette.py`, 2026-07-05).** Hub card "🎲 Channel
+roulette": one button rolls inspiration dice → the local LLM
+(`writer.generate_json`; curated fallbacks if none) invents a whole channel
+(niche, brief, art direction, voice, music, topic bank, example titles, SEO,
+accent, thumb template) → the brandkit graph renders a 5-slot identity to
+`data/roulette/<rid>/` (+ the node graph; PNGs drag into ComfyUI). Accept →
+real channel folder with brand kit + accent (authoring=assisted); discard →
+`data/trash/roulette/`. LLM topic banks are ideas, not facts — research
+before scripting. Menagerie voice retuned same day: calm flat-but-prosodic
+narrator + calm-dark-ambient `music_vibe` (ACE beds follow it). BOTH node graphs persist to `brand/graphs/` —
 `channel_preview.json` (krea2 stills) + `snippet_<key>.json` (Wan i2v, saved via
 `wan_engine.animate(save_graph=…)`) — so the whole architecture (image AND video
 halves) is inspectable/re-runnable in ComfyUI. The stills graph outputs only
@@ -195,6 +206,20 @@ get a TTS-drift lint warning; spot-check the one-take QA extra carefully.
 ## Hard rules
 - **NO on-screen text is ever burned into the video.** Narration + visuals
   carry it. (The assembler no longer composites captions at all.)
+- **Thumbnails carry EMOTION and use fixed templates (user rules, 2026-07-05).**
+  `app/thumbs.py` composites every thumbnail from 5 reusable templates
+  (spotlight/case-file/reveal/split/bar) with REAL typeset text — never
+  AI-drawn glyphs. The emotion rule is pipeline-enforced: frame pick prefers
+  expressive people on reveal/impact beats, and a mood grade
+  (`grammar.mood_for` — same mood the scorer hears) tints color/vignette and
+  picks the kicker line (`data/thumb_templates.json`, editable). Channels pin
+  template/accent/kicker in `defaults.thumb`. All variants land in
+  `video/thumbs/`; the chosen one is `thumbnail.png`.
+- **Titles open a CURIOSITY GAP, never face value (user rule, 2026-07-05).**
+  "He Sold the Eiffel Tower. Twice." not "The Story of Victor Lustig". Rule 0
+  in `storyboard_v3_prompt.md` (writers) + `packaging.build` leads its title
+  options with the hook + a deterministic curiosity reframe. Kickers/titles
+  must still be TRUE — the payoff pays off the promise.
 - **Every video ships WITH its SEO (user rule, 2026-07-03).** Whenever Claude
   makes a video, it must also build the SEO package — and it must be UNIQUE to
   that video and that channel's niche (video-specific phrases lead the tags;

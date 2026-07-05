@@ -2901,6 +2901,12 @@ async function renderHub(host) {
   add.onclick = () => editChannelModal(null);
   add.title = "Create a channel";
   grid.appendChild(add);
+  const roll = el("div", "hub-add",
+    `<div style="text-align:center"><span style="font-size:22px;display:block">🎲</span><b style="display:block;font-size:15px">Channel roulette</b>
+     <span style="font-size:12px">roll the dice — the local LLM + krea2 invent a whole channel</span></div>`);
+  roll.onclick = () => rouletteModal();
+  roll.title = "Randomize a whole new channel: concept, art direction, voice, topics + rendered identity";
+  grid.appendChild(roll);
   page.appendChild(grid);
 
   const tools = el("div", "hub-tools",
@@ -3059,6 +3065,100 @@ async function brandPreviewModal(c) {
   $("#bpGen", card).onclick = () => run(0);
   $("#bpRegen", card).onclick = () => run(Math.floor(Math.random() * 100000));
   $("#bpSnip", card).onclick = snippets;
+}
+
+// Channel roulette: one button → the local LLM invents a whole channel concept
+// and the fixed krea2 graph renders its identity. Keep it → a real channel.
+async function rouletteModal() {
+  const card = openModal(`
+    <div class="modal-head"><h2 class="mb0">🎲 Channel roulette</h2>
+      <button class="btn-icon" id="mClose">${icon("i-x")}</button></div>
+    <p class="desc" style="margin-top:-6px">One roll: the local LLM invents a whole channel — niche, art direction, narrator, music, topic bank, example titles — and the fixed krea2 node graph renders its identity stills (~2–3 min on the GPU). <b>Keep</b> a roll to create the channel with its brand kit; roll again for a different one. Every still embeds the node graph — drag one into ComfyUI (127.0.0.1:8188) to remix and re-queue it there.</p>
+    <div class="row" style="margin:10px 0;gap:8px">
+      <input id="rlHint" placeholder="optional hint — e.g. “something with stick figures” (blank = pure dice)" style="flex:1"/>
+      <button class="btn btn-primary" id="rlRoll">🎲 Roll a channel</button>
+    </div>
+    <div class="muted mono" id="rlMsg" style="font-size:12px;margin-bottom:8px"></div>
+    <div id="rlCurrent"></div>
+    <div class="section-title" style="margin:14px 0 8px">Rolls so far</div>
+    <div id="rlHistory"><span class="muted" style="font-size:12px">loading…</span></div>`);
+  $("#mClose", card).onclick = closeModal;
+  const cur = $("#rlCurrent", card), hist = $("#rlHistory", card), msg = $("#rlMsg", card);
+
+  function rollHTML(r, big) {
+    const c = r.concept || {};
+    const imgs = (r.assets || []).map(a =>
+      `<div class="frame" style="aspect-ratio:${a.key === "profile" ? "1/1" : (a.key === "host" ? "4/5" : "16/9")};flex:${a.key === "profile" ? "0 0 " + (big ? 110 : 72) + "px" : "1 1 " + (big ? 180 : 120) + "px"};max-width:${big ? 260 : 180}px"><img src="${a.url}" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:8px"/></div>`).join("");
+    const titles = (c.example_titles || []).slice(0, big ? 5 : 3).map(t => `<li>${esc(t)}</li>`).join("");
+    return `
+      <div style="border-left:3px solid ${esc(c.accent || "#e6a94b")};padding-left:12px">
+        <div class="row" style="justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap">
+          <h3 style="margin:0">${esc(c.name || "?")}</h3>
+          ${r.accepted ? `<span class="chip chip-on">kept → ${esc(r.accepted)}</span>` : ""}
+        </div>
+        <div class="tag">“${esc(c.tagline || "")}”</div>
+        <div class="muted" style="font-size:12px;line-height:1.5;margin:4px 0 8px">${esc(c.niche || "")}</div>
+        <div class="row" style="gap:6px;flex-wrap:wrap;margin-bottom:8px">
+          <span class="chip">${esc(c.voice || "Ryan")} · narrator</span>
+          <span class="chip">${esc(c.thumb_template || "spotlight")} thumbs</span>
+          <span class="chip" title="${esc(c.music_vibe || "")}">♪ ${esc((c.music_vibe || "").split(",")[0])}</span>
+          <span class="chip" title="${esc(c.video_types || "")}">${esc((c.video_types || "").slice(0, 42))}</span>
+        </div>
+        ${big && titles ? `<div style="font-size:12.5px;margin-bottom:8px"><b>Example videos:</b><ul style="margin:4px 0 0 18px;padding:0;line-height:1.6">${titles}</ul></div>` : ""}
+        <div class="row" style="gap:10px;flex-wrap:wrap;margin-bottom:10px">${imgs || `<span class="muted" style="font-size:12px">no stills rendered</span>`}</div>
+        <div class="row" style="gap:8px">
+          ${r.accepted ? "" : `<button class="btn btn-primary btn-sm rlKeep">✓ Keep — create this channel</button>
+          <button class="btn btn-ghost btn-sm rlDrop">${icon("i-trash")} Discard</button>`}
+        </div>
+      </div>`;
+  }
+
+  function wire(host, r, big) {
+    const div = el("div", "card");
+    div.style.cssText = "background:var(--panel-2);padding:14px;margin-bottom:10px";
+    div.innerHTML = rollHTML(r, big);
+    const keep = $(".rlKeep", div), drop = $(".rlDrop", div);
+    if (keep) keep.onclick = async () => {
+      keep.disabled = true;
+      try {
+        const res = await api.post(`/api/roulette/${r.rid}/accept`, {});
+        toast(`Channel “${res.channel.name}” created`);
+        closeModal(); render();
+      } catch (e) { keep.disabled = false; toast(e.message, "err"); }
+    };
+    if (drop) drop.onclick = async () => {
+      try { await api.del(`/api/roulette/${r.rid}`); div.remove(); } catch (e) { toast(e.message, "err"); }
+    };
+    host.appendChild(div);
+  }
+
+  async function refresh(latestRid) {
+    try {
+      const data = await api.get("/api/roulette");
+      const rolls = data.rolls || [];
+      cur.innerHTML = ""; hist.innerHTML = "";
+      const latest = latestRid ? rolls.find(r => r.rid === latestRid) : null;
+      if (latest) wire(cur, latest, true);
+      const rest = rolls.filter(r => !latest || r.rid !== latest.rid);
+      if (!rest.length) hist.innerHTML = `<span class="muted" style="font-size:12px">none yet — roll one.</span>`;
+      rest.forEach(r => wire(hist, r, false));
+      if (data.writer && !data.writer.ollama && !data.writer.local_model_cached)
+        msg.textContent = "note: no local LLM warm yet — first roll downloads the writer model (~8 GB) or uses a built-in concept";
+    } catch (e) { hist.innerHTML = `<span class="muted">${esc(e.message)}</span>`; }
+  }
+
+  $("#rlRoll", card).onclick = async () => {
+    const btn = $("#rlRoll", card); btn.disabled = true;
+    msg.textContent = "rolling…";
+    try {
+      const { job_id } = await api.post("/api/roulette/roll", { hint: $("#rlHint", card).value || null });
+      const res = await pollJob(job_id, j => { msg.textContent = (j.stage || "rolling") + (j.progress ? ` · ${Math.round(j.progress * 100)}%` : ""); });
+      msg.textContent = "";
+      await refresh(res.roll && res.roll.rid);
+    } catch (e) { msg.textContent = ""; toast(e.message, "err"); }
+    finally { btn.disabled = false; }
+  };
+  refresh();
 }
 
 async function editChannelModal(c) {

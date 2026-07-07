@@ -220,4 +220,4 @@ def submit_score(pid: str) -> str:
     def task(progress: ProgressFn) -> Dict:
         return score(pid, progress)
 
-    return jobs.submit("score", task)
+    return jobs.submit("score", task, pid=pid)

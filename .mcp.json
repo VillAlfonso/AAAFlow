@@ -6,6 +6,10 @@
       "env": {
         "COMFYUI_URL": "http://127.0.0.1:8188"
       }
+    },
+    "playwright": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@playwright/mcp@latest", "--headless"]
     }
   }
 }

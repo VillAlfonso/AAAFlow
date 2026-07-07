@@ -25,7 +25,7 @@ from typing import Callable, Dict, List, Optional
 
 import numpy as np
 
-from . import config, effects, jobs, projects, sfx, storage, transitions
+from . import config, effects, grammar, jobs, projects, sfx, storage, transitions
 
 ProgressFn = Callable[[str, float], None]
 
@@ -124,6 +124,72 @@ def _background_bed(music: Optional[Dict], total_dur: float) -> Optional[np.ndar
     return bed
 
 
+def _date_chip(clip, text: str, W: int, H: int):
+    """Typeset DATE STAMP — the one sanctioned on-screen text besides receipt
+    stills (user rule amendment 2026-07-05: dates/backstory jumps carry a small
+    date chip + click). Real fonts only; pops in low-left, fades out."""
+    try:
+        from moviepy import ColorClip, CompositeVideoClip, TextClip
+        from moviepy.video.fx import CrossFadeIn, CrossFadeOut
+
+        dur = min(2.6, max(1.2, float(clip.duration) - 0.5))
+        fs = int(H * 0.046)
+        font = next((f for f in ([r"C:\Windows\Fonts\georgiab.ttf"] + _FONTS)
+                     if Path(f).exists()), FONT)
+        x, y = int(W * 0.055), int(H * 0.82)
+        txt = (TextClip(font=font, text=text, font_size=fs, color="#e8e0cc",
+                        stroke_color="#0a0a10", stroke_width=max(2, fs // 14))
+               .with_duration(dur).with_start(0.25).with_position((x, y))
+               .with_effects([CrossFadeIn(0.16), CrossFadeOut(0.35)]))
+        bar = (ColorClip(size=(max(60, int(len(text) * fs * 0.58)), 4),
+                         color=(201, 162, 39))
+               .with_duration(dur).with_start(0.25)
+               .with_position((x, y + int(fs * 1.32)))
+               .with_effects([CrossFadeIn(0.16), CrossFadeOut(0.35)]))
+        return CompositeVideoClip([clip, txt, bar],
+                                  size=(W, H)).with_duration(clip.duration)
+    except Exception:  # noqa: BLE001
+        return clip
+
+
+def _emphasis_hits(scene: Dict, row: Optional[Dict], words, win_t0: float,
+                   cfg: Dict, idx: int, offset: int = 0) -> List[Dict]:
+    """Word-time-aligned micro-effect hits for a scene: find each emphasis
+    phrase's first spoken occurrence inside the scene's narration span and
+    return [{"t": sec_into_scene, "kind": ...}] (≤ max_per_scene, min gap)."""
+    phrases = scene.get("emphasis") or []
+    if not (phrases and row and words):
+        return []
+    t0, t1 = float(row["start"]) + win_t0, float(row["end"]) + win_t0
+    span = [(w, a) for (w, a, _b) in words if t0 - 0.05 <= a < t1]
+    if not span:
+        return []
+    import re as _re
+    beat = grammar.beat_of(scene.get("narration") or "")
+    kinds = cfg.get("effects") or ["zoom_bump"]
+    kind = (cfg.get("by_beat") or {}).get(beat) or kinds[(idx + offset) % len(kinds)]
+    max_n = max(1, int(cfg.get("max_per_scene", 1)))
+    gap = float(cfg.get("min_gap_s", 2.5))
+    hits: List[Dict] = []
+    last = -1e9
+    for phrase in phrases:
+        toks = _re.findall(r"[a-z0-9']+", str(phrase).lower())
+        if not toks:
+            continue
+        for j, (w, a) in enumerate(span):
+            if w != toks[0]:
+                continue
+            if all(j + k < len(span) and span[j + k][0] == toks[k]
+                   for k in range(min(len(toks), 3))):
+                if a - last >= gap:
+                    hits.append({"t": max(0.0, a - t0), "kind": kind})
+                    last = a
+                break
+        if len(hits) >= max_n:
+            break
+    return hits
+
+
 def _resample(wav: np.ndarray, sr: int, target: int) -> np.ndarray:
     if sr == target or wav.size == 0:
         return wav
@@ -144,6 +210,11 @@ def submit_assemble(pid: str, opts: Optional[Dict] = None) -> str:
 
     def task(progress: ProgressFn) -> Dict:
         out = _render(pid, opts or {}, progress)
+        if (opts or {}).get("preview"):
+            # Edit-page live preview: a real slice of the edit, but never
+            # listed in renders/history (it's a scratch look, not a cut).
+            return {"url": f"/projects/{pid}/{out['rel']}", "preview": True,
+                    "duration": out["duration"]}
         proj = projects.get_project(pid)
         render = {
             "id": storage.new_id(), "created": time.time(),
@@ -163,7 +234,7 @@ def submit_assemble(pid: str, opts: Optional[Dict] = None) -> str:
         })
         return {"render": render, "url": f"/projects/{pid}/{out['rel']}"}
 
-    return jobs.submit("assemble", task)
+    return jobs.submit("assemble", task, pid=pid)
 
 
 def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
@@ -180,6 +251,13 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
                if s in ("clips", "parallax", "stills")]
     plx_cfg = {**(preset.get("parallax") or {}), **(asm.get("parallax") or {})}
     kb_strength = float(asm.get("kb_strength", preset.get("kb_strength", 1.0)))
+    # the video's direction card bends camera energy + emphasis rotation
+    card = (project.get("video") or {}).get("direction_card") or {}
+    kb_strength *= float(card.get("kb_strength", 1.0) or 1.0)
+    emph_off = int(card.get("emphasis_offset", 0) or 0)
+    # video-wide film look (e.g. "vhs") — opts > preset; applied LAST per scene
+    film_filter = str(asm.get("filter", preset.get("filter", "")) or "").lower()
+    filter_cfg = (grammar.dictionary().get("filters") or {}).get(film_filter) or {}
     W = int(asm.get("width", 1920)); H = int(asm.get("height", 1080)); fps = int(asm.get("fps", 30))
     kb = bool(asm.get("ken_burns", preset.get("ken_burns", True)))
     do_transitions = bool(asm.get("transitions", preset.get("transitions", True)))
@@ -192,6 +270,17 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
     pdir = projects.project_dir(pid)
     narr = project.get("narration")           # one continuous voiceover track, if attached
     tl = projects.recompute_timeline(project)
+    # Whisper word timestamps of the one-take narration → word-level emphasis
+    emph_cfg = grammar.emphasis_cfg()
+    words: List = []
+    if narr and narr.get("words_file"):
+        raw_words = storage.read_json(pdir / narr["words_file"], None) or []
+        try:
+            words = [(str(w).lower(), float(a), float(b)) for w, a, b in raw_words]
+        except (TypeError, ValueError):
+            words = []
+    emph_events: List[float] = []             # absolute mix times for SFX ticks
+    chip_events: List[float] = []             # date-chip appearances → click SFX
     # Optional time window [t0, t1] — renders just that slice of the timeline
     # (the Shorts cutter uses this with a 9:16 size). Scene starts shift to 0.
     window = asm.get("window")
@@ -277,6 +366,21 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
 
     def visual(s, dur, idx):
         nonlocal with_images, with_videos, with_parallax
+        # receipt scenes (attached evidence screenshots) get the RECEIPT MOVE:
+        # floating card → word-synced zoom into the referenced region →
+        # animated marker highlight. They bypass Wan/parallax entirely.
+        if s.get("receipt") and s.get("image_file"):
+            rp = pdir / s["image_file"]
+            if rp.exists():
+                try:
+                    from . import receipts
+                    row = rows.get(str(s["id"]))
+                    ts = receipts.sync_time(s, row, words, win_t0)
+                    with_images += 1
+                    return receipts.render_receipt_clip(
+                        rp, dur, W=W, H=H, receipt=s["receipt"], sync_local=ts)
+                except Exception as exc:  # noqa: BLE001 — fall to normal chain
+                    print(f"[assemble] receipt move failed scene {s.get('id')}: {exc}")
         for src in list(sources) + ["stills"]:
             if src == "clips" and s.get("video_file"):
                 p = pdir / s["video_file"]
@@ -376,10 +480,24 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
                  0.04 + (0.56 if segmented else 0.60) * i / max(n, 1))
         dur = float(rows.get(str(s["id"]), {}).get("dur") or s.get("planned_dur") or 2.0)
         v = visual(s, dur, i)
+        if s.get("fx"):
+            v = transitions.apply_scene_fx(v, s["fx"], W=W, H=H)
         if do_transitions:
             kind = transitions.classify_transition(s.get("transition"))
             v = transitions.apply_transition(v, kind, dur=dur, W=W, H=H,
                                              raw=s.get("transition") or "")
+        row = rows.get(str(s["id"]))
+        hits = _emphasis_hits(s, row, words, win_t0, emph_cfg, i, offset=emph_off)
+        if hits:
+            v = transitions.apply_emphasis(v, hits, W=W, H=H)
+            emph_events += [float(row["start"]) + h["t"] for h in hits]
+        chip = (s.get("date_chip") or "").strip()
+        if chip and FONT:
+            v = _date_chip(v, chip, W, H)
+            if row is not None:
+                chip_events.append(float(row["start"]) + 0.25)
+        if film_filter:
+            v = transitions.apply_filter(v, film_filter, W=W, H=H, cfg=filter_cfg)
         clips.append(v)
         durs_sum += dur
         if segmented and len(clips) >= seg_limit:
@@ -452,6 +570,28 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
                 mix[off:end] += arr[: end - off] * vol
                 with_sfx += 1
 
+    # emphasis ticks: a tiny stinger exactly on each punched word
+    e_sfx = emph_cfg.get("sfx") or {}
+    if sfx_on and emph_events and e_sfx.get("cue"):
+        arr = sfx.render(str(e_sfx["cue"]))
+        if arr is not None:
+            ev = max(0.0, min(1.0, float(e_sfx.get("volume", 0.16))))
+            for tt in emph_events:
+                off = int(tt * SR)
+                end = min(N, off + len(arr))
+                if end > off:
+                    mix[off:end] += arr[: end - off] * ev
+
+    # date chips land with a little mechanical click (user, 2026-07-05)
+    if sfx_on and chip_events:
+        arr = sfx.render("ui click")
+        if arr is not None:
+            for tt in chip_events:
+                off = int(tt * SR)
+                end = min(N, off + len(arr))
+                if end > off:
+                    mix[off:end] += arr[: end - off] * 0.4
+
     peak = float(np.max(np.abs(mix)))
     if peak > 0.985:                           # keep the sum out of clipping
         mix *= 0.985 / peak
@@ -504,4 +644,4 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
             "preset": preset.get("id"), "sources": sources,
             "with_audio": with_audio, "with_images": with_images,
             "with_videos": with_videos, "with_parallax": with_parallax,
-            "with_sfx": with_sfx}
+            "with_sfx": with_sfx, "with_emphasis": len(emph_events)}

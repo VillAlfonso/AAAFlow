@@ -291,7 +291,9 @@ def get_scene(project: Dict, sid) -> Optional[Dict]:
 
 _EDITABLE = ("narration", "image_prompt", "on_screen_text", "text_anim",
              "transition", "visual", "audio_cue", "shot", "act",
-             "motion_prompt", "motion_type", "end_image_prompt")
+             "motion_prompt", "motion_type", "end_image_prompt",
+             "emphasis", "fx", "characters", "image_file", "image_locked",
+             "receipt", "date_chip")
 
 
 def update_scene(pid: str, sid, patch: Dict) -> Optional[Dict]:
@@ -312,6 +314,9 @@ def update_scene(pid: str, sid, patch: Dict) -> Optional[Dict]:
     # Editing motion invalidates any rendered clip (so the card flags a re-animate).
     if ("motion_prompt" in patch or "motion_type" in patch) and sc.get("video_file"):
         sc["status"]["video"] = "stale"
+    # Attaching a still directly (research receipts) marks the image ready.
+    if "image_file" in patch:
+        sc["status"]["image"] = "ready" if patch["image_file"] else "none"
     save_project(p)
     return sc
 

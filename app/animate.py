@@ -150,13 +150,22 @@ def submit_animate(pid: str, opts: Optional[Dict] = None, scope: str = "motion",
             mp = scenes.build_motion_prompt(sc, video, fallback=fallback)
             full_prompt = ". ".join(p.strip().strip(".") for p in
                                     (style_lead, mp, style_tail) if p.strip())
+            # Clip length follows the VOICE (user rule 2026-07-05): the clip
+            # runs as long as the scene is on screen, clamped to Wan's sweet
+            # range — past ~6 s the 14B model degrades and VRAM balloons, so
+            # longer scenes still end on the assembler's drifting hold.
+            sec = seconds
+            if sec in (None, "", 0):
+                sdur = float(sc.get("planned_dur") or 0) or None
+                sec = min(6.0, max(2.5, sdur)) if sdur else None
             lead = 0.1 + 0.85 * done / max(n, 1)
-            progress(f"Animating scene {sid} ({done + 1}/{n})", lead)
+            progress(f"Animating scene {sid} ({done + 1}/{n}, "
+                     f"{sec or w['default_seconds']:.0f}s)", lead)
 
             still = str(pdir / sc["image_file"])
             cb = lambda s, f, _l=lead: progress(s, _l)
             data = wan_engine.animate(still, full_prompt, negative=negative,
-                                      seconds=seconds, fps=fps, width=width,
+                                      seconds=sec, fps=fps, width=width,
                                       height=height, seed=seed, quality=quality,
                                       progress=cb)
 
@@ -177,7 +186,7 @@ def submit_animate(pid: str, opts: Optional[Dict] = None, scope: str = "motion",
             projects.set_scene_video(
                 proj, sid, rel,
                 {"engine": "wan", "quality": quality, "prompt": mp,
-                 "seconds": seconds or w["default_seconds"], "fps": fps,
+                 "seconds": sec or w["default_seconds"], "fps": fps,
                  "seed": seed, "enhanced": do_enhance})
             done += 1
             if done % 2 == 0:
@@ -194,4 +203,4 @@ def submit_animate(pid: str, opts: Optional[Dict] = None, scope: str = "motion",
                      if s.get("status", {}).get("video") == "ready")
         return {"done": done, "video_done": nready}
 
-    return jobs.submit("animate", task)
+    return jobs.submit("animate", task, pid=pid)

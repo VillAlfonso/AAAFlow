@@ -86,6 +86,16 @@ def normalize_scene(raw: Dict, index: int) -> Dict:
     scene["motion_prompt"] = raw.get("motion_prompt") or ""
     scene["characters"] = raw.get("characters") or []
     scene["visual_aid"] = raw.get("visual_aid")
+    # 2026-07-05 effects fields: word-level emphasis phrases, whole-scene fx,
+    # and the receipt lock (attached evidence stills regen must not repaint)
+    scene["emphasis"] = raw.get("emphasis") or []
+    scene["fx"] = raw.get("fx") or []
+    if raw.get("image_locked"):
+        scene["image_locked"] = True
+    if isinstance(raw.get("receipt"), dict):
+        scene["receipt"] = raw["receipt"]
+    if (raw.get("date_chip") or "").strip():
+        scene["date_chip"] = str(raw["date_chip"]).strip()
     scene["end_image_file"] = None    # end frame (krea2) for start->end animation
     scene["video_file"] = None        # animated clip (LTX-2)
     scene["transcript"] = None        # timed sentence blocks (Whisper, anchored to narration)

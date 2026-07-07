@@ -25,7 +25,7 @@ def _redirect_uri() -> str:
     return "http://127.0.0.1:8000" + config.YOUTUBE["redirect_path"]
 
 
-def auth_url(cid: str) -> str:
+def auth_url(cid: str, reconnect: bool = False) -> str:
     ch = channels.get(cid)
     yt = (ch or {}).get("youtube") or {}
     if not yt.get("client_id"):
@@ -203,4 +203,165 @@ def submit_upload(pid: str, opts: Optional[Dict] = None) -> str:
         projects.save_project(proj)
         return {"video_id": vid, "url": url, "privacy": privacy}
 
-    return jobs.submit("youtube_upload", task)
+    return jobs.submit("youtube_upload", task, pid=pid)
+
+
+# =====================================================================
+# In-app YouTube control center — manage a connected account's channel
+# WITHOUT a browser: list channels, edit branding/banner, edit videos.
+# (Creating a channel and setting the avatar are NOT in the API — those
+# stay one-time website steps; everything here is API-supported.)
+# =====================================================================
+
+def _yt_creds(cid: str) -> Dict:
+    ch = channels.get(cid)
+    yt = (ch or {}).get("youtube") or {}
+    if not (yt.get("client_id") and yt.get("refresh_token")):
+        raise ValueError("This channel isn't connected to YouTube yet — Connect first.")
+    return yt
+
+
+def _authed_json(yt: Dict, method: str, url: str, *, token: Optional[str] = None,
+                 params: Optional[Dict] = None, body: Optional[Dict] = None) -> Dict:
+    """One authenticated JSON call to the Data API. Returns parsed JSON ({} on 204)."""
+    token = token or _access_token(yt)
+    if params:
+        url = f"{url}?{urllib.parse.urlencode(params, doseq=True)}"
+    data = json.dumps(body).encode() if body is not None else None
+    headers = {"Authorization": f"Bearer {token}"}
+    if data is not None:
+        headers["Content-Type"] = "application/json; charset=UTF-8"
+    req = urllib.request.Request(url, data=data, method=method, headers=headers)
+    try:
+        with urllib.request.urlopen(req, timeout=60) as r:
+            raw = r.read()
+            return json.loads(raw) if raw else {}
+    except urllib.error.HTTPError as exc:
+        raise RuntimeError(_api_error(exc)) from exc
+
+
+def _strip_readonly_image(bs: Dict) -> None:
+    """channels.update rejects the computed banner*ImageUrl fields — keep only
+    the writable bannerExternalUrl so a branding round-trip doesn't 400."""
+    img = bs.get("image")
+    if isinstance(img, dict):
+        ext = img.get("bannerExternalUrl")
+        if ext:
+            bs["image"] = {"bannerExternalUrl": ext}
+        else:
+            bs.pop("image", None)
+
+
+def list_my_channels(cid: str) -> Dict:
+    """The YouTube channel(s) this account manages — id, title, avatar, banner,
+    description, keywords, stats. Read-only snapshot for the control center."""
+    yt = _yt_creds(cid)
+    api = config.YOUTUBE["api_url"]
+    data = _authed_json(yt, "GET", f"{api}/channels", params={
+        "part": "snippet,statistics,brandingSettings", "mine": "true", "maxResults": 50})
+    out = []
+    for it in data.get("items", []):
+        sn = it.get("snippet", {}) or {}
+        st = it.get("statistics", {}) or {}
+        bch = (it.get("brandingSettings", {}) or {}).get("channel", {}) or {}
+        img = (it.get("brandingSettings", {}) or {}).get("image", {}) or {}
+        thumbs = sn.get("thumbnails", {}) or {}
+        out.append({
+            "id": it["id"], "title": sn.get("title"),
+            "custom_url": sn.get("customUrl"),
+            "description": bch.get("description") or sn.get("description") or "",
+            "keywords": bch.get("keywords", ""), "country": bch.get("country", ""),
+            "avatar": (thumbs.get("high") or thumbs.get("medium")
+                       or thumbs.get("default") or {}).get("url"),
+            "banner": img.get("bannerExternalUrl"),
+            "subs": st.get("subscriberCount"), "views": st.get("viewCount"),
+            "videos": st.get("videoCount"),
+        })
+    return {"channels": out}
+
+
+def update_branding(cid: str, patch: Dict) -> Dict:
+    """Update description / keywords / country (channels.update brandingSettings).
+    Title is sent if provided but Google usually ignores API title edits — no
+    promise it sticks (rename on the website if it doesn't)."""
+    yt = _yt_creds(cid)
+    api = config.YOUTUBE["api_url"]
+    token = _access_token(yt)
+    cur = _authed_json(yt, "GET", f"{api}/channels", token=token,
+                       params={"part": "brandingSettings", "mine": "true"})
+    items = cur.get("items", [])
+    if not items:
+        raise ValueError("No channel found on this account.")
+    ch0 = items[0]
+    bs = ch0.get("brandingSettings", {}) or {}
+    _strip_readonly_image(bs)
+    bch = bs.setdefault("channel", {})
+    for k_in, k_api in (("description", "description"), ("keywords", "keywords"),
+                        ("country", "country"), ("title", "title"),
+                        ("default_language", "defaultLanguage")):
+        if patch.get(k_in) is not None:
+            bch[k_api] = patch[k_in]
+    _authed_json(yt, "PUT", f"{api}/channels", token=token,
+                 params={"part": "brandingSettings"},
+                 body={"id": ch0["id"], "brandingSettings": bs})
+    return {"updated": True, "channel_id": ch0["id"],
+            "title_note": "title edits via API are often ignored by Google"
+                          if patch.get("title") is not None else None}
+
+
+def set_banner(cid: str, image_bytes: bytes, content_type: str = "image/png") -> Dict:
+    """Upload + set the channel banner (channelBanners.insert then channels.update).
+    Best source: 2048x1152 px (the safe text area is ~1235x338)."""
+    yt = _yt_creds(cid)
+    token = _access_token(yt)
+    req = urllib.request.Request(
+        config.YOUTUBE["banner_url"], data=image_bytes, method="POST",
+        headers={"Authorization": f"Bearer {token}",
+                 "Content-Type": content_type or "image/png"})
+    try:
+        with urllib.request.urlopen(req, timeout=120) as r:
+            up = json.load(r)
+    except urllib.error.HTTPError as exc:
+        raise RuntimeError(_api_error(exc)) from exc
+    url = up.get("url")
+    if not url:
+        raise RuntimeError("Banner upload returned no url.")
+    api = config.YOUTUBE["api_url"]
+    cur = _authed_json(yt, "GET", f"{api}/channels", token=token,
+                       params={"part": "brandingSettings", "mine": "true"})
+    ch0 = cur["items"][0]
+    bs = ch0.get("brandingSettings", {}) or {}
+    _strip_readonly_image(bs)
+    bs.setdefault("image", {})["bannerExternalUrl"] = url
+    _authed_json(yt, "PUT", f"{api}/channels", token=token,
+                 params={"part": "brandingSettings"},
+                 body={"id": ch0["id"], "brandingSettings": bs})
+    return {"banner": url}
+
+
+def update_video(cid: str, video_id: str, patch: Dict) -> Dict:
+    """Edit an uploaded video's title/description/tags/privacy (videos.update).
+    Merges onto the current snippet+status (categoryId is required on update)."""
+    yt = _yt_creds(cid)
+    api = config.YOUTUBE["api_url"]
+    token = _access_token(yt)
+    cur = _authed_json(yt, "GET", f"{api}/videos", token=token,
+                       params={"part": "snippet,status", "id": video_id})
+    items = cur.get("items", [])
+    if not items:
+        raise ValueError("Video not found on this channel.")
+    v = items[0]
+    sn = v.get("snippet", {}) or {}
+    stt = v.get("status", {}) or {}
+    if patch.get("title") is not None:
+        sn["title"] = str(patch["title"])[:100]
+    if patch.get("description") is not None:
+        sn["description"] = str(patch["description"])[:5000]
+    if patch.get("tags") is not None:
+        sn["tags"] = list(patch["tags"])[:60]
+    if patch.get("privacy") is not None:
+        stt["privacyStatus"] = patch["privacy"]
+    _authed_json(yt, "PUT", f"{api}/videos", token=token,
+                 params={"part": "snippet,status"},
+                 body={"id": video_id, "snippet": sn, "status": stt})
+    return {"updated": True, "video_id": video_id, "privacy": stt.get("privacyStatus")}

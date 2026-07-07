@@ -34,10 +34,83 @@ function pollJob(id, onProgress) {
         const j = await api.get("/api/jobs/" + id);
         onProgress && onProgress(j);
         if (j.status === "done") { clearInterval(t); resolve(j.result || {}); }
+        else if (j.status === "cancelled") { clearInterval(t); reject(new Error("Cancelled")); }
         else if (j.status === "error") { clearInterval(t); reject(new Error(j.error || "Job failed")); }
       } catch (e) { clearInterval(t); reject(e); }
     }, 700);
   });
+}
+
+/* Reusable run panel: live progress bar + stage label + Cancel, for a single
+ * job OR the produce chain. Survives page switches/refresh via reconnectRun()
+ * (the server tracks the active job per project), so a build never looks dead.
+ * opts: { pid, jobId?, produce?, onDone? }  — jobId XOR produce. */
+function mountRun(runEl, opts) {
+  if (!runEl) return { stop() {} };
+  const pid = opts.pid;
+  runEl.innerHTML = `
+    <div class="run-panel">
+      <div class="spinner"></div>
+      <div style="flex:1">
+        <div class="lab" id="runStage">${opts.produce ? "Producing…" : "Starting…"}</div>
+        <div class="progress" style="margin-top:8px"><div class="bar" id="runBar"></div></div>
+      </div>
+      <button class="btn btn-sm btn-ghost" id="runCancel" style="color:#e5484d;border-color:#e5484d55">${icon("i-x")} Cancel</button>
+    </div>`;
+  let timer = null, stopped = false, cancelling = false;
+  const $s = () => $("#runStage", runEl), $b = () => $("#runBar", runEl);
+  const setProg = (stage, frac) => { const s = $s(); if (s && stage != null) s.textContent = stage; const b = $b(); if (b && frac != null) b.style.width = Math.round(frac * 100) + "%"; };
+  const stop = () => { stopped = true; if (timer) clearInterval(timer); timer = null; };
+  const finish = async (msg, kind, reload) => { stop(); if (reload) { try { await loadProject(pid); } catch (e) {} } runEl.innerHTML = ""; if (msg) toast(msg, kind); if (opts.onDone) opts.onDone(kind); };
+
+  $("#runCancel", runEl).onclick = async () => {
+    if (cancelling) return; cancelling = true;
+    const btn = $("#runCancel", runEl); if (btn) { btn.disabled = true; btn.textContent = "Cancelling…"; }
+    try {
+      const jid = opts.jobId || (await api.get(`/api/projects/${pid}/active_job`)).job?.id;
+      if (jid) await api.post(`/api/jobs/${jid}/cancel`);
+      await finish("Build cancelled", "err", true);
+    } catch (e) { toast(e.message, "err"); if (btn) { btn.disabled = false; btn.innerHTML = `${icon("i-x")} Cancel`; } cancelling = false; }
+  };
+
+  if (opts.produce) {
+    let misses = 0;
+    timer = setInterval(async () => {
+      if (stopped) return;
+      try {
+        const s = await api.get(`/api/projects/${pid}/produce`); misses = 0;
+        setProg(s.stage || s.status, s.progress);
+        if (s.status === "done") finish("Production finished ✓", "ok", true);
+        else if (s.status === "error") finish(s.error || "Production failed", "err", true);
+      } catch (e) { if (++misses > 5) finish("Lost track of the build", "err", true); }
+    }, 2000);
+  } else {
+    timer = setInterval(async () => {
+      if (stopped) return;
+      try {
+        const j = await api.get(`/api/jobs/${opts.jobId}`);
+        setProg(j.stage, j.progress);
+        if (j.status === "done") finish("Video assembled ✓", "ok", true);
+        else if (j.status === "cancelled") finish("Build cancelled", "err", true);
+        else if (j.status === "error") finish(j.error || "Build failed", "err", true);
+      } catch (e) { finish("Lost track of the job", "err", true); }
+    }, 700);
+  }
+  return { stop };
+}
+
+/* On page load, re-attach the run panel to whatever is already building for
+ * this project — produce chain first, then any single job (assemble/score/…). */
+async function reconnectRun(runEl, pid, onDone) {
+  if (!runEl) return;
+  try {
+    const s = await api.get(`/api/projects/${pid}/produce`);
+    if (s && s.status === "running") { mountRun(runEl, { pid, produce: true, onDone }); return; }
+  } catch (e) { /* 404 = no produce running */ }
+  try {
+    const { job } = await api.get(`/api/projects/${pid}/active_job`);
+    if (job) mountRun(runEl, { pid, jobId: job.id, onDone });
+  } catch (e) { }
 }
 
 /* ---------- toast / modal ---------- */
@@ -96,9 +169,10 @@ const STEP_NAV = [
   { id: "characters", label: "3 · Characters", icon: "i-voices", proj: true },
   { id: "images", label: "4 · Images", icon: "i-image", proj: true },
   { id: "animate", label: "5 · Animate", icon: "i-preview", proj: true },
-  { id: "assemble", label: "6 · Assemble", icon: "i-assemble", proj: true },
-  { id: "preview", label: "7 · Preview", icon: "i-preview", proj: true },
-  { id: "publish", label: "8 · Publish", icon: "i-download", proj: true },
+  { id: "edit", label: "6 · Edit", icon: "i-wand", proj: true },
+  { id: "assemble", label: "7 · Assemble", icon: "i-assemble", proj: true },
+  { id: "preview", label: "8 · Preview", icon: "i-preview", proj: true },
+  { id: "publish", label: "9 · Publish", icon: "i-download", proj: true },
 ];
 function navItems() {
   if (!state.channel) return [
@@ -261,6 +335,7 @@ const STEPS = [
   { id: "voiceover", label: "Voiceover" },
   { id: "images", label: "Images" },
   { id: "animate", label: "Animate" },
+  { id: "edit", label: "Edit" },
   { id: "assemble", label: "Assemble" },
   { id: "preview", label: "Preview" },
   { id: "publish", label: "Publish" },
@@ -1684,42 +1759,28 @@ async function renderAssemble(host) {
     });
   }
   drawRenders();
+  // reconnect to an in-flight build so it never looks dead after a page switch/refresh
+  reconnectRun($("#asRun", page), p.id, () => { drawRenders(); drawPlan(); renderNav(); });
 
   $("#asGo", page).onclick = async () => {
-    const runEl = $("#asRun", page);
-    runEl.innerHTML = `<div class="run-panel"><div class="spinner"></div><div style="flex:1"><div class="lab" id="asStage">Starting…</div><div class="progress" style="margin-top:8px"><div class="bar" id="asBar"></div></div></div></div>`;
+    if ($("#asRun .run-panel", page)) { toast("A build is already running — cancel it first", "err"); return; }
     try {
       await api.put(`/api/projects/${p.id}/settings`, { assemble: opts });
       const { job_id } = await api.post(`/api/projects/${p.id}/assemble`, { opts });
-      const res = await pollJob(job_id, j => { const s = $("#asStage", page); if (s) s.textContent = j.stage; const b = $("#asBar", page); if (b) b.style.width = Math.round((j.progress || 0) * 100) + "%"; });
-      await loadProject(p.id); runEl.innerHTML = "";
-      toast("Video assembled ✓"); drawRenders();
-    } catch (e) { runEl.innerHTML = ""; toast(e.message, "err"); }
+      mountRun($("#asRun", page), { pid: p.id, jobId: job_id, onDone: () => drawRenders() });
+    } catch (e) { toast(e.message, "err"); }
   };
 
-  // One click, whole pipeline: voice (one-take) → images → animate → assemble.
+  // One click, whole pipeline: voice (one-take) → images → animate → assemble → grade.
   $("#asProduce", page).onclick = async () => {
-    const runEl = $("#asRun", page);
-    runEl.innerHTML = `<div class="run-panel"><div class="spinner"></div><div style="flex:1"><div class="lab" id="asStage">Starting production…</div><div class="progress" style="margin-top:8px"><div class="bar" id="asBar"></div></div></div></div>`;
+    if ($("#asRun .run-panel", page)) { toast("Already running — cancel it first", "err"); return; }
     try {
       await api.put(`/api/projects/${p.id}/settings`, { assemble: opts });
       const plan = { assemble: opts };
       if ($("#asRevoice", page).checked) plan.voice = "onetake";
       await api.post(`/api/projects/${p.id}/produce`, { plan });
-      const st = await new Promise((resolve, reject) => {
-        const t = setInterval(async () => {
-          try {
-            const s = await api.get(`/api/projects/${p.id}/produce`);
-            const lab = $("#asStage", page); if (lab) lab.textContent = s.stage || s.status;
-            const b = $("#asBar", page); if (b && s.progress != null) b.style.width = Math.round(s.progress * 100) + "%";
-            if (s.status === "done") { clearInterval(t); resolve(s); }
-            else if (s.status === "error") { clearInterval(t); reject(new Error(s.error || "production failed")); }
-          } catch (e) { clearInterval(t); reject(e); }
-        }, 3000);
-      });
-      await loadProject(p.id); runEl.innerHTML = "";
-      toast("Production finished ✓"); drawRenders(); renderNav();
-    } catch (e) { runEl.innerHTML = ""; toast(e.message, "err"); }
+      mountRun($("#asRun", page), { pid: p.id, produce: true, onDone: () => { drawRenders(); renderNav(); } });
+    } catch (e) { toast(e.message, "err"); }
   };
 }
 async function renderPreview(host) {
@@ -2982,12 +3043,54 @@ async function brandPreviewModal(c) {
       <button class="btn btn-primary" id="bpGen">${icon("i-wand")} Generate impression</button>
       <button class="btn btn-ghost" id="bpRegen" title="Same graph, new seeds">${icon("i-refresh")} Regenerate (new seeds)</button>
       <button class="btn btn-teal" id="bpSnip" title="Animate the identity stills into short Wan 2.2 motion snippets (~3-4 min each)">${icon("i-preview")} Video snippets</button>
+      <button class="btn btn-ghost" id="bpArchBtn" title="See + edit the generator itself: every slot's prompt template (data/brandkit_slots.json)">🧬 Architecture</button>
+      <button class="btn btn-ghost" id="bpComfy" title="Export this channel's node graphs into ComfyUI's workflow library and open ComfyUI">${icon("i-image")} Open in ComfyUI</button>
       <span class="muted mono" id="bpMsg" style="font-size:12px"></span>
     </div>
+    <div id="bpArch" style="display:none"></div>
     <div id="bpVids"></div>
     <div id="bpGroups"></div>`);
   $("#mClose", card).onclick = closeModal;
   const groupsEl = $("#bpGroups", card), vids = $("#bpVids", card), editEl = $("#bpEditing", card);
+  // The generator itself, visible + editable: one card per slot with its prompt
+  // template. Saving rewrites data/brandkit_slots.json — every future
+  // impression (any channel) renders from the edited architecture.
+  const archEl = $("#bpArch", card);
+  let archLoaded = false;
+  async function loadArch() {
+    const { slots } = await api.get("/api/brandkit_slots");
+    archEl.innerHTML = `<div class="card" style="background:var(--panel-2);padding:12px 14px;margin-bottom:12px">
+      <div class="section-title" style="margin-bottom:4px">The channel generator — slot architecture</div>
+      <p class="muted" style="font-size:12px;margin:0 0 10px">One fixed krea2 graph renders every slot below. <code>{niche}</code> fills from the channel; its <i>style_suffix</i> is appended to every branch. Edits apply to ALL future impressions (global template) — per-channel flavor belongs in the channel's style/niche.</p>
+      <div id="bpSlots" style="display:grid;gap:8px">${slots.map((s, i) => `
+        <div style="display:grid;gap:3px">
+          <div style="font-size:12px"><b>${esc(s.label || s.key)}</b> <span class="muted">· ${esc(s.group || "")} · ${s.width}×${s.height} · seed ${s.seed}</span></div>
+          <textarea class="input bpSlotP" data-i="${i}" rows="2" style="font-size:12px">${esc(s.prompt || "")}</textarea>
+        </div>`).join("")}</div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn btn-primary btn-sm" id="bpArchSave">Save architecture</button>
+        <span class="muted" style="font-size:11px">saves to data/brandkit_slots.json · node-level edits: “Open in ComfyUI”</span>
+      </div></div>`;
+    $("#bpArchSave", archEl).onclick = async () => {
+      $$(".bpSlotP", archEl).forEach(t => { slots[+t.dataset.i].prompt = t.value.trim() || slots[+t.dataset.i].prompt; });
+      try { await api.put("/api/brandkit_slots", { slots }); toast("Architecture saved — future impressions use it"); }
+      catch (e) { toast(e.message, "err"); }
+    };
+    archLoaded = true;
+  }
+  $("#bpArchBtn", card).onclick = async () => {
+    const show = archEl.style.display === "none";
+    archEl.style.display = show ? "" : "none";
+    if (show && !archLoaded) { try { await loadArch(); } catch (e) { toast(e.message, "err"); } }
+  };
+  $("#bpComfy", card).onclick = async () => {
+    const msg = $("#bpMsg", card);
+    try {
+      const r = await api.post(`/api/channels/${c.id}/brand/comfy`, {});
+      msg.textContent = `${r.exported.length} graph(s) → ComfyUI sidebar · Workflows · AAAFlow`;
+      window.open(r.url || "http://127.0.0.1:8188", "_blank");
+    } catch (e) { toast(e.message, "err"); }
+  };
   // Editing & sound grammar panel — the non-visual half of the impression.
   (async () => {
     let dict = {}; try { dict = await api.get("/api/effects_dictionary"); } catch (e) {}
@@ -3221,15 +3324,26 @@ async function editChannelModal(c) {
       ${F("SEO keyword pool (comma-separated — mixed into every video's tags)",
         `<input id="ceSeo" value="${esc((c.seo_keywords || []).join(", "))}"/>`)}
       <div class="section-title" style="margin-top:10px">YouTube upload (this channel's own credentials)</div>
-      <div class="muted" style="font-size:11px;line-height:1.5;margin-bottom:8px">
-        Google Cloud Console → create an OAuth client, type <b>Desktop app</b>, enable the YouTube Data API v3 —
-        paste the client id/secret here, save, then Connect on the Publish page. Uploads default to <b>private</b>.
-        ${yt.refresh_token ? `<b style="color:var(--ok,#7cbf7c)">Connected ✓</b>` : "Not connected yet."}</div>
+      <details style="margin-bottom:8px"><summary style="cursor:pointer;font-size:12px">📖 Step-by-step: connect this channel in ~5 minutes (click to open)</summary>
+      <ol class="muted" style="font-size:11.5px;line-height:1.7;margin:8px 0 0 18px">
+        <li>Sign in with THIS channel's Google account, then create a project: <a href="https://console.cloud.google.com/projectcreate" target="_blank">console.cloud.google.com/projectcreate</a> (any name, e.g. "aaaflow-upload").</li>
+        <li>Enable the API: <a href="https://console.cloud.google.com/apis/library/youtube.googleapis.com" target="_blank">YouTube Data API v3</a> → <b>Enable</b>.</li>
+        <li>Consent screen: <a href="https://console.cloud.google.com/auth/branding" target="_blank">Google Auth Platform → Branding</a> → External → fill only App name + your email → Save. Then <a href="https://console.cloud.google.com/auth/audience" target="_blank">Audience</a> → <b>Add your own email as a Test user</b> (skips Google's review).</li>
+        <li>Credentials: <a href="https://console.cloud.google.com/apis/credentials/oauthclient" target="_blank">Create OAuth client ID</a> → Application type <b>Desktop app</b> → Create → copy the <b>Client ID</b> and <b>Client secret</b> into the boxes below → Save channel.</li>
+        <li>Publish page → <b>Connect</b> → a Google window opens → pick the channel's account → Allow ("unverified app" → Advanced → Continue is fine, you're the test user).</li>
+      </ol>
+      <div class="muted" style="font-size:11px;margin-top:6px">🔒 Keys are stored in <span class="mono">data/secrets/</span> which is <b>git-ignored</b> — they can never land on GitHub. Uploads always default to <b>private</b>; you publish manually on YouTube after review.</div>
+      </details>
+      <div class="row" style="gap:8px;align-items:center;margin-bottom:8px">
+        <span class="muted" style="font-size:11px">${(yt.refresh_token || yt.connected) ? `<b style="color:var(--ok,#7cbf7c)">Connected ✓</b>` : "Not connected yet."}</span>
+        ${((yt.refresh_token || yt.connected) || (yt.client_id && yt.client_secret)) ? `<button class="btn btn-ghost btn-sm" id="ceYtConnect" title="Save the channel first if you just pasted the keys">${icon("i-upload")} ${(yt.refresh_token || yt.connected) ? "Reconnect" : "Connect"}</button>` : ""}
+      </div>
       <div class="grid3">
         ${F("Client ID", `<input id="ceYtId" value="${esc(yt.client_id || "")}"/>`)}
         ${F("Client secret", `<input id="ceYtSecret" type="password" value="${esc(yt.client_secret || "")}"/>`)}
         ${F("Default privacy", `<select id="ceYtPriv">${["private", "unlisted", "public"].map(v => `<option ${(yt.privacy || "private") === v ? "selected" : ""}>${v}</option>`).join("")}</select>`)}
       </div>
+      <div id="ceYtHub" style="margin-top:12px"></div>
       ${isNew ? "" : `<div class="section-title" style="margin-top:10px">This channel's own UI (vibe-code it)</div>
       <div class="muted mono" style="font-size:11px;line-height:1.6">
         data/channels/${esc(c.id)}/ui/ — <b>ui.json</b> {"accent":"#e6a94b"} tints this studio ·
@@ -3240,6 +3354,65 @@ async function editChannelModal(c) {
       <button class="btn btn-ghost btn-sm" id="ceRaw">Raw JSON</button>
       <button class="btn btn-primary" id="ceSave">Save channel</button></div>`);
   $("#mClose", card).onclick = closeModal;
+
+  // Live YouTube control center — only when this channel is connected.
+  (async function loadYtHub() {
+    const hub = $("#ceYtHub", card); if (!hub) return;
+    if (!(yt.refresh_token || yt.connected)) return;   // not connected → hidden
+    hub.innerHTML = `<div class="muted" style="font-size:12px"><span class="spinner" style="width:13px;height:13px;display:inline-block;vertical-align:-2px"></span> Loading your channel live from YouTube…</div>`;
+    let data;
+    try { data = await api.get(`/api/channels/${c.id}/youtube/channels`); }
+    catch (e) { hub.innerHTML = `<div class="muted" style="font-size:12px;color:#e5484d">Couldn't reach YouTube: ${esc(e.message)}</div>`; return; }
+    const yc = (data.channels || [])[0];
+    if (!yc) { hub.innerHTML = `<div class="muted" style="font-size:12px">Connected, but no channel came back.</div>`; return; }
+    const n = x => (+x || 0).toLocaleString();
+    hub.innerHTML = `
+      <div class="card" style="background:var(--panel-2);padding:14px">
+        <div class="section-title">Manage on YouTube — live</div>
+        ${yc.banner ? `<img src="${esc(yc.banner)}" style="width:100%;border-radius:8px;margin-bottom:10px;max-height:120px;object-fit:cover" onerror="this.style.display='none'"/>` : ""}
+        <div class="row" style="gap:12px;align-items:center;margin-bottom:12px">
+          ${yc.avatar ? `<img src="${esc(yc.avatar)}" style="width:52px;height:52px;border-radius:50%" onerror="this.style.display='none'"/>` : ""}
+          <div><b>${esc(yc.title || "")}</b> ${yc.custom_url ? `<span class="muted mono" style="font-size:11px">${esc(yc.custom_url)}</span>` : ""}
+            <div class="muted" style="font-size:11.5px">${n(yc.subs)} subs · ${n(yc.videos)} videos · ${n(yc.views)} views</div></div>
+        </div>
+        ${F("Channel description", `<textarea id="ytDesc" style="min-height:60px">${esc(yc.description || "")}</textarea>`)}
+        ${F("Channel keywords (space-separated; \"quote multi-word\")", `<input id="ytKw" value="${esc(yc.keywords || "")}"/>`)}
+        <div class="row" style="gap:8px;margin-top:8px;flex-wrap:wrap">
+          <button class="btn btn-primary btn-sm" id="ytSaveBrand">Save to YouTube</button>
+          <label class="btn btn-ghost btn-sm" style="cursor:pointer">${icon("i-upload")} Change banner<input type="file" id="ytBanner" accept="image/*" hidden/></label>
+        </div>
+        <div class="muted" style="font-size:10.5px;margin-top:9px;line-height:1.6">⚠️ The <b>name</b> and <b>profile picture</b> can't be set through YouTube's API — Google only allows those on the website (one-time). Everything else here writes straight to your channel.</div>
+      </div>`;
+    $("#ytSaveBrand", hub).onclick = async () => {
+      const b = $("#ytSaveBrand", hub); b.disabled = true; b.textContent = "Saving…";
+      try {
+        await api.put(`/api/channels/${c.id}/youtube/branding`,
+          { description: $("#ytDesc", hub).value, keywords: $("#ytKw", hub).value });
+        toast("Channel updated on YouTube ✓");
+      } catch (e) { toast(e.message, "err"); }
+      finally { b.disabled = false; b.textContent = "Save to YouTube"; }
+    };
+    $("#ytBanner", hub).onchange = async e => {
+      const file = e.target.files[0]; if (!file) return;
+      const fd = new FormData(); fd.append("file", file);
+      toast("Uploading banner to YouTube…");
+      try {
+        const r = await fetch(`/api/channels/${c.id}/youtube/banner`, { method: "POST", body: fd });
+        if (!r.ok) throw new Error((await r.json().catch(() => ({}))).detail || "banner upload failed");
+        toast("Banner updated ✓"); loadYtHub();
+      } catch (err) { toast(err.message, "err"); }
+    };
+  })();
+
+  const ytConn = $("#ceYtConnect", card);
+  if (ytConn) ytConn.onclick = async () => {
+    try {
+      const { url } = await api.get(`/api/channels/${c.id}/youtube/auth_url`, { reconnect: true });
+      window.open(url, "_blank");
+      toast("Authorize in the Google tab, then reopen this editor to manage the channel.");
+    } catch (e) { toast(e.message + " — save the channel first if you just pasted the keys.", "err"); }
+  };
+
   $("#ceRaw", card).onclick = () => {
     closeModal();
     const raw = openModal(`
@@ -3300,6 +3473,91 @@ async function editChannelModal(c) {
 /* ============================================================
    PAGE: PUBLISH  (SEO + Shorts + YouTube upload)
    ============================================================ */
+// 6 · EDIT — the auto-editor (ffmpeg-led): every cut, sound, emphasis, chip,
+// scene FX and receipt in one legible plan, re-decidable with one click.
+async function renderEdit(host) {
+  const p = state.project;
+  topbar(p.name, "Edit · the auto-editor — the AI reads the script and places every effect; the ffmpeg/NVENC assembler executes them", []);
+  const card = (p.video || {}).direction_card || {};
+  const wrap = el("div", "");
+  wrap.innerHTML = `
+    <div class="card">
+      <div class="row" style="justify-content:space-between;align-items:center">
+        <div>
+          <div class="section-title">🪄 One-click auto-edit</div>
+          <p class="desc" style="margin:4px 0 0">Re-reads the whole script and re-decides every editing call from the <b>effects grammar</b> (Settings · Effects grammar): beat-matched transitions, SFX cues, shot rotation, word-level emphasis, letterbox/vignette moments, date chips (+click). Direction card: <b>${esc(card.id || "—")}</b>${card.hook_style ? ` <span class="muted">· ${esc(card.hook_style)}</span>` : ""}. Voice, script and images are never touched — press Assemble after to render the new edit.</p>
+        </div>
+        <button class="btn btn-primary" id="aeRun">${icon("i-wand")} Auto-edit</button>
+      </div>
+      <div class="muted mono" id="aeMsg" style="font-size:12px;margin-top:6px"></div>
+    </div>
+    <div class="card">
+      <div class="row" style="justify-content:space-between;align-items:center">
+        <div class="section-title" style="margin:0">Live preview — a real slice of the edit</div>
+        <div class="row" style="gap:8px">
+          <button class="btn btn-teal btn-sm" id="aePrevHook">▶ First 20 s (the hook)</button>
+          <span class="muted" style="font-size:11px">or press ▶ on any scene below</span>
+        </div>
+      </div>
+      <p class="desc" style="margin:6px 0 0">Rendered by the real assembler — cuts, word-synced emphasis, date chips + click, receipt moves and the film filter included. ~1–2 min per slice; queues behind any running GPU job.</p>
+      <div id="aePrevBox" style="display:none;margin-top:10px">
+        <video id="aePrevVid" controls style="width:100%;max-width:760px;border-radius:10px;background:#000"></video>
+        <div class="muted mono" id="aePrevInfo" style="font-size:11px;margin-top:4px"></div>
+      </div>
+    </div>
+    <div class="card"><div class="section-title">The edit plan — scene by scene</div>
+      <div style="overflow-x:auto"><table class="table" id="aeTable" style="font-size:12px"></table></div>
+    </div>`;
+  host.appendChild(wrap);
+  async function preview(sceneId) {
+    const msg = $("#aeMsg", wrap);
+    msg.textContent = sceneId ? `rendering preview around scene ${sceneId}…` : "rendering the hook preview…";
+    try {
+      const body = sceneId ? { scene: String(sceneId), seconds: 12 } : { t0: 0, seconds: 20 };
+      const { job_id, window: win } = await api.post(`/api/projects/${p.id}/edit_preview`, body);
+      await pollJob(job_id, j => { msg.textContent = (j.stage || "rendering") + (j.progress ? ` · ${Math.round(j.progress * 100)}%` : ""); });
+      const box = $("#aePrevBox", wrap), vid = $("#aePrevVid", wrap);
+      box.style.display = "";
+      vid.src = `/projects/${p.id}/video/edit_preview.mp4?t=${Date.now()}`;
+      $("#aePrevInfo", wrap).textContent = `window ${win[0]}s → ${win[1]}s · video/edit_preview.mp4`;
+      vid.play().catch(() => {});
+      msg.textContent = "";
+    } catch (e) { msg.textContent = ""; toast(e.message, "err"); }
+  }
+  $("#aePrevHook", wrap).onclick = () => preview(null);
+  function drawPlan() {
+    const rows = (state.project.scenes || []).map(s => {
+      const badges = [
+        s.transition ? `<span class="chip">${esc(s.transition)}</span>` : "",
+        (s.emphasis || []).length ? `<span class="chip" title="word-synced zoom/flash/shake + tick">✦ ${esc(String(s.emphasis[0]))}</span>` : "",
+        (s.fx || []).map(f => `<span class="chip">${esc(f)}</span>`).join(""),
+        s.date_chip ? `<span class="chip" title="typeset date stamp + click">📅 ${esc(s.date_chip)}</span>` : "",
+        s.receipt ? `<span class="chip" title="receipt move: float → word-synced zoom → highlight">🧾 receipt</span>` : "",
+        s.image_locked ? `<span class="chip">🔒</span>` : "",
+        s.audio_cue ? `<span class="chip muted">${esc(s.audio_cue)}</span>` : "",
+      ].join(" ");
+      return `<tr><td class="muted">${esc(String(s.id))}</td>
+        <td style="max-width:420px">${esc((s.narration || "").slice(0, 78))}${(s.narration || "").length > 78 ? "…" : ""}</td>
+        <td>${badges}</td>
+        <td><button class="btn-icon aePrevBtn" data-sid="${esc(String(s.id))}" title="Live-preview ~12 s of the real edit around this scene">▶</button></td></tr>`;
+    }).join("");
+    $("#aeTable", wrap).innerHTML = `<tr><th>#</th><th>line</th><th>the editor's calls</th><th></th></tr>${rows}`;
+    $$(".aePrevBtn", wrap).forEach(b => { b.onclick = () => preview(b.dataset.sid); });
+  }
+  drawPlan();
+  $("#aeRun", wrap).onclick = async () => {
+    const msg = $("#aeMsg", wrap);
+    msg.textContent = "re-reading the script…";
+    try {
+      const r = await api.post(`/api/projects/${p.id}/autoedit`, {});
+      state.project = (await api.get(`/api/projects/${p.id}`));
+      drawPlan();
+      msg.textContent = `done — ${r.fixes} calls placed across ${r.scenes} scenes (card: ${r.card})` + (r.warnings.length ? ` · ${r.warnings.length} warnings` : "");
+      toast("Auto-edit complete — Assemble to render it");
+    } catch (e) { msg.textContent = ""; toast(e.message, "err"); }
+  };
+}
+
 async function renderPublish(host) {
   const p = state.project; if (!p) { location.hash = "#/projects"; return; }
   topbar(p.name, "Publish · SEO package, Shorts, and the channel's YouTube upload",
@@ -3338,7 +3596,7 @@ async function renderPublish(host) {
         </div>
         <div>
           ${s.thumbnail ? `<img src="/projects/${p.id}/${s.thumbnail}?t=${Date.now()}" style="max-width:100%;border-radius:8px"/>` : `<div class="muted">no thumbnail (render images first)</div>`}
-          <div class="muted" style="font-size:11px;margin-top:6px">Also written: <span class="mono">video/youtube_package.md</span></div>
+          <div class="muted" style="font-size:11px;margin-top:6px">Also written: <span class="mono">video/youtube_package.md</span> · <a href="/projects/${p.id}/video/recipe.md" target="_blank">🧾 recipe.md</a> — the exact ingredients of this video (script · card · voice · edit · sound · sources)</div>
         </div>
       </div>`;
     $("#seoSave", seoCard).onclick = async () => {
@@ -3417,6 +3675,7 @@ async function renderPublish(host) {
       body = `<div class="row" style="gap:8px;align-items:center;flex-wrap:wrap">
           <span class="badge good">Connected ✓</span>
           <select id="ytPriv" style="width:auto">${["private", "unlisted", "public"].map(v => `<option ${(yt.privacy || "private") === v ? "selected" : ""}>${v}</option>`).join("")}</select>
+          <button class="btn btn-ghost btn-sm" id="ytConnect">${icon("i-upload")} Reconnect</button>
           <button class="btn btn-primary btn-sm" id="ytUpload">${icon("i-upload")} Upload newest final</button>
           <div class="muted" id="ytStage" style="font-size:12px"></div></div>
         <div class="muted" style="font-size:11px;margin-top:6px">Private by default — review on YouTube, publish there. Uses your saved SEO title/description/tags + thumbnail.</div>
@@ -3429,7 +3688,7 @@ async function renderPublish(host) {
     const editBtn = $("#ytEditCh", ytC); if (editBtn) editBtn.onclick = () => editChannelModal(ch);
     const conBtn = $("#ytConnect", ytC);
     if (conBtn) conBtn.onclick = async () => {
-      try { const { url } = await api.get(`/api/channels/${ch.id}/youtube/auth_url`); window.open(url, "_blank"); }
+      try { const { url } = await api.get(`/api/channels/${ch.id}/youtube/auth_url`, { reconnect: true }); window.open(url, "_blank"); }
       catch (e) { toast(e.message, "err"); }
     };
     const upBtn = $("#ytUpload", ytC);
@@ -3454,7 +3713,7 @@ const Pages = {
   hub: renderHub,
   projects: renderProjects, storyboard: renderStoryboard, characters: renderCharacters,
   voiceover: renderVoiceover, images: renderImages, animate: renderAnimate,
-  assemble: renderAssemble, preview: renderPreview, publish: renderPublish,
+  edit: renderEdit, assemble: renderAssemble, preview: renderPreview, publish: renderPublish,
   history: renderHistory,
   voices: renderVoiceLab, transcribe: renderTranscribe, training: renderTraining,
   settings: renderSettings,

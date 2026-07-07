@@ -1,0 +1,1510 @@
+- generic [active] [ref=e1]:
+  - link "Jump to content" [ref=e2] [cursor=pointer]:
+    - /url: "#bodyContent"
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - navigation "Site" [ref=e6]:
+        - generic "Main menu" [ref=e7]:
+          - button "Main menu" [ref=e8] [cursor=pointer]
+          - generic [ref=e11]: Main menu
+      - link "Wikipedia The Free Encyclopedia" [ref=e12] [cursor=pointer]:
+        - /url: /wiki/Main_Page
+        - generic [ref=e13]:
+          - img "Wikipedia" [ref=e14]
+          - img "The Free Encyclopedia" [ref=e15]
+    - generic [ref=e16]:
+      - search [ref=e17]:
+        - link "Search" [ref=e18] [cursor=pointer]:
+          - /url: /wiki/Special:Search
+          - generic [ref=e20]: Search
+      - navigation "Personal tools" [ref=e21]:
+        - generic [ref=e22]:
+          - navigation "Appearance" [ref=e23]:
+            - generic "Change the appearance of the page's font size, width, and color" [ref=e24]:
+              - button "Appearance" [ref=e25] [cursor=pointer]
+              - generic [ref=e28]: Appearance
+          - list [ref=e31]:
+            - listitem [ref=e32]:
+              - link "Donate" [ref=e33] [cursor=pointer]:
+                - /url: https://donate.wikimedia.org/?wmf_source=donate&wmf_medium=sidebar&wmf_campaign=en.wikipedia.org&uselang=en
+            - listitem [ref=e34]:
+              - link "Create account" [ref=e35] [cursor=pointer]:
+                - /url: /w/index.php?title=Special:CreateAccount&returnto=Sodder+children+disappearance
+            - listitem [ref=e36]:
+              - link "Log in" [ref=e37] [cursor=pointer]:
+                - /url: /w/index.php?title=Special:UserLogin&returnto=Sodder+children+disappearance
+  - generic [ref=e39]:
+    - main [ref=e41]:
+      - generic [ref=e42]:
+        - navigation "Contents" [ref=e43]:
+          - generic "Table of Contents" [ref=e44]:
+            - button "Toggle the table of contents" [ref=e45] [cursor=pointer]
+            - generic [ref=e48]: Toggle the table of contents
+        - heading "Sodder children disappearance" [level=1] [ref=e49]:
+          - generic [ref=e50]: Sodder children disappearance
+        - generic [ref=e51]:
+          - button "Go to an article in another language. Available in 14 languages" [ref=e52] [cursor=pointer]
+          - generic [ref=e55]: 14 languages
+      - generic [ref=e57]:
+        - navigation "Namespaces" [ref=e59]:
+          - list [ref=e62]:
+            - listitem [ref=e63]:
+              - link "Article" [ref=e64] [cursor=pointer]:
+                - /url: /wiki/Sodder_children_disappearance
+                - generic [ref=e65]: Article
+            - listitem [ref=e66]:
+              - link "Talk" [ref=e67] [cursor=pointer]:
+                - /url: /wiki/Talk:Sodder_children_disappearance
+                - generic [ref=e68]: Talk
+        - generic [ref=e69]:
+          - navigation "Views" [ref=e70]:
+            - list [ref=e73]:
+              - listitem [ref=e74]:
+                - link "Read" [ref=e75] [cursor=pointer]:
+                  - /url: /wiki/Sodder_children_disappearance
+                  - generic [ref=e76]: Read
+              - listitem [ref=e77]:
+                - link "Edit" [ref=e78] [cursor=pointer]:
+                  - /url: /w/index.php?title=Sodder_children_disappearance&action=edit
+                  - generic [ref=e79]: Edit
+              - listitem [ref=e80]:
+                - link "View history" [ref=e81] [cursor=pointer]:
+                  - /url: /w/index.php?title=Sodder_children_disappearance&action=history
+                  - generic [ref=e82]: View history
+          - navigation "Page tools" [ref=e83]:
+            - generic [ref=e84]:
+              - button "Tools" [ref=e85] [cursor=pointer]
+              - generic [ref=e88]: Tools
+      - generic "Sodder children disappearance" [ref=e89]:
+        - generic [ref=e90]:
+          - generic [ref=e94]:
+            - link "Coordinates" [ref=e95] [cursor=pointer]:
+              - /url: //en.wikipedia.org/wiki/Geographic_coordinate_system
+            - text: ":"
+            - generic [ref=e97]:
+              - img "Show location on an interactive map" [ref=e98] [cursor=pointer]
+              - link "38.0868°N 81.1107°W" [ref=e99] [cursor=pointer]:
+                - /url: https://geohack.toolforge.org/geohack.php?pagename=Sodder_children_disappearance&params=38.0868_N_81.1107_W_
+                - generic [ref=e100]: 38.0868°N 81.1107°W
+          - generic [ref=e101]: From Wikipedia, the free encyclopedia
+        - generic [ref=e103]:
+          - generic [ref=e104]:
+            - table "Sodder children disappearance" [ref=e105]:
+              - caption [ref=e106]: Sodder children disappearance
+              - rowgroup [ref=e107]:
+                - row "The billboard maintained by the Sodder family with pictures of the five children believed to be missing" [ref=e108]:
+                  - cell "The billboard maintained by the Sodder family with pictures of the five children believed to be missing" [ref=e109]:
+                    - link [ref=e111] [cursor=pointer]:
+                      - /url: //en.wikipedia.org/wiki/File:Sodder_family_billboard.jpg
+                      - img [ref=e112]
+                    - generic [ref=e113]: The billboard maintained by the Sodder family with pictures of the five children believed to be missing
+                - row "Map Show in full screen Wikimedia | © OpenStreetMap" [ref=e114]:
+                  - cell "Map Show in full screen Wikimedia | © OpenStreetMap" [ref=e115]:
+                    - link "Map Show in full screen Wikimedia | © OpenStreetMap" [ref=e116] [cursor=pointer]:
+                      - /url: "#/map/0"
+                      - img "Map" [ref=e117]
+                      - button "Show in full screen" [ref=e119]
+                      - generic [ref=e121]:
+                        - link "Wikimedia" [ref=e122]:
+                          - /url: https://foundation.wikimedia.org/wiki/Maps_Terms_of_Use
+                        - text: "| ©"
+                        - link "OpenStreetMap" [ref=e123]:
+                          - /url: https://www.openstreetmap.org/copyright
+                - row "Date December 24, 1945" [ref=e124]:
+                  - rowheader "Date" [ref=e125]
+                  - cell "December 24, 1945" [ref=e126]
+                - row "Duration Missing for 80 years, 6 months and 11 days" [ref=e127]:
+                  - rowheader "Duration" [ref=e128]
+                  - cell "Missing for 80 years, 6 months and 11 days" [ref=e129]:
+                    - link "Missing" [ref=e130] [cursor=pointer]:
+                      - /url: //en.wikipedia.org/wiki/Missing_person
+                    - text: for 80 years, 6 months and 11 days
+                - row "Location Fayetteville, West Virginia, U.S." [ref=e131]:
+                  - rowheader "Location" [ref=e132]
+                  - cell "Fayetteville, West Virginia, U.S." [ref=e133]:
+                    - list [ref=e135]:
+                      - listitem [ref=e136]:
+                        - link "Fayetteville, West Virginia" [ref=e137] [cursor=pointer]:
+                          - /url: //en.wikipedia.org/wiki/Fayetteville,_West_Virginia
+                        - text: ", U.S."
+                - row "Type Disappearance, house fire, possible arson, possible murder, possible kidnapping" [ref=e138]:
+                  - rowheader "Type" [ref=e139]
+                  - cell "Disappearance, house fire, possible arson, possible murder, possible kidnapping" [ref=e140]:
+                    - link "Disappearance" [ref=e141] [cursor=pointer]:
+                      - /url: //en.wikipedia.org/wiki/Missing_person
+                    - text: ","
+                    - link "house fire" [ref=e142] [cursor=pointer]:
+                      - /url: //en.wikipedia.org/wiki/Structure_fire
+                    - text: ", possible"
+                    - link "arson" [ref=e143] [cursor=pointer]:
+                      - /url: //en.wikipedia.org/wiki/Arson
+                    - text: ", possible"
+                    - link "murder" [ref=e144] [cursor=pointer]:
+                      - /url: //en.wikipedia.org/wiki/Child_murder
+                    - text: ", possible"
+                    - link "kidnapping" [ref=e145] [cursor=pointer]:
+                      - /url: //en.wikipedia.org/wiki/Child_abduction
+                - row "Cause Disputed" [ref=e146]:
+                  - rowheader "Cause" [ref=e147]
+                  - cell "Disputed" [ref=e148]
+                - row "Motive Possibly retaliation for George Sodder's statements against Fascist Italy[a]" [ref=e149]:
+                  - rowheader "Motive" [ref=e150]
+                  - cell "Possibly retaliation for George Sodder's statements against Fascist Italy[a]" [ref=e151]:
+                    - text: Possibly retaliation for George Sodder's statements against
+                    - link "Fascist Italy" [ref=e152] [cursor=pointer]:
+                      - /url: //en.wikipedia.org/wiki/Fascist_Italy
+                    - superscript [ref=e153]:
+                      - link "[a]" [ref=e154] [cursor=pointer]:
+                        - /url: "#cite_note-1"
+                        - generic: "[a]"
+                - row "Outcome Cold case" [ref=e155]:
+                  - rowheader "Outcome" [ref=e156]
+                  - cell "Cold case" [ref=e157]:
+                    - link "Cold case" [ref=e158] [cursor=pointer]:
+                      - /url: //en.wikipedia.org/wiki/Cold_case
+                - row "Deaths Death certificates issued by the state on December 30, 1945; findings disputed" [ref=e159]:
+                  - rowheader "Deaths" [ref=e160]
+                  - cell "Death certificates issued by the state on December 30, 1945; findings disputed" [ref=e161]:
+                    - link "Death certificates" [ref=e162] [cursor=pointer]:
+                      - /url: //en.wikipedia.org/wiki/Death_certificates
+                    - text: issued by
+                    - link "the state" [ref=e163] [cursor=pointer]:
+                      - /url: //en.wikipedia.org/wiki/West_Virginia
+                    - text: on December 30, 1945; findings disputed
+                - row "Missing Maurice Sodder (aged 14) Martha Lee Sodder (aged 12) Louis Sodder (aged 10) Jennie Irene Sodder (aged 8) Betty Dolly Sodder (aged 5)" [ref=e164]:
+                  - rowheader "Missing" [ref=e165]
+                  - cell "Maurice Sodder (aged 14) Martha Lee Sodder (aged 12) Louis Sodder (aged 10) Jennie Irene Sodder (aged 8) Betty Dolly Sodder (aged 5)" [ref=e166]:
+                    - list [ref=e168]:
+                      - listitem [ref=e169]: Maurice Sodder (aged 14)
+                      - listitem [ref=e170]: Martha Lee Sodder (aged 12)
+                      - listitem [ref=e171]: Louis Sodder (aged 10)
+                      - listitem [ref=e172]: Jennie Irene Sodder (aged 8)
+                      - listitem [ref=e173]: Betty Dolly Sodder (aged 5)
+                - row "Accused Sicilian Mafia" [ref=e174]:
+                  - rowheader "Accused" [ref=e175]
+                  - cell "Sicilian Mafia" [ref=e176]:
+                    - link "Sicilian Mafia" [ref=e177] [cursor=pointer]:
+                      - /url: //en.wikipedia.org/wiki/Sicilian_Mafia
+            - paragraph [ref=e178]:
+              - text: Early
+              - link "Christmas" [ref=e179] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Christmas
+              - text: morning, December 25, 1945, a fire destroyed the Sodder residence in
+              - link "Fayetteville, West Virginia" [ref=e180] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Fayetteville,_West_Virginia
+              - text: ", United States. At the time, it was occupied by George Sodder, his wife Jennie, and nine of their ten children. During the fire, George, Jennie, and four of the nine children escaped. The bodies of the other five children have never been found. The surviving Sodder family believed for the rest of their lives that the five missing children survived."
+              - superscript [ref=e181]:
+                - link "[1]" [ref=e182] [cursor=pointer]:
+                  - /url: "#cite_note-Smithsonian_story-2"
+                  - generic: "[1]"
+            - paragraph [ref=e183]:
+              - text: The Sodders never rebuilt the house, instead converting the site into a memorial garden to the lost children. In the 1950s, as they came to doubt that the children had perished, the family put up a billboard at the site along
+              - link "State Route 16" [ref=e184] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/West_Virginia_Route_16
+              - text: with pictures of the five, offering a reward for information that would bring closure to the case. It remained standing until shortly after Jennie Sodder's death in 1989.
+              - superscript [ref=e185]:
+                - link "[2]" [ref=e186] [cursor=pointer]:
+                  - /url: "#cite_note-NPR_story-3"
+                  - generic: "[2]"
+            - paragraph [ref=e187]:
+              - text: In support of their belief that the children survived, the Sodders had pointed to a number of unusual circumstances before and during the fire. George disputed the Fayetteville fire department's finding that the blaze was electrical in origin, noting that he had recently had the house rewired and inspected. George and his wife suspected
+              - link "arson" [ref=e188] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Arson
+              - text: ", leading to theories that the children had been taken by the"
+              - link "Sicilian Mafia" [ref=e189] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Sicilian_Mafia
+              - text: ", perhaps in retaliation for George's outspoken criticism of the"
+              - link "fascist government" [ref=e190] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Fascist_Italy_(1922-1943)
+              - text: of his native Italy.
+            - paragraph [ref=e191]:
+              - text: State and federal efforts to investigate the case further in the early 1950s yielded no new information. The family did, however, later receive what may have been a picture of one of the boys as an adult during the 1960s. Their last surviving daughter, Sylvia, along with their grandchildren, continued to publicize the case in the 21st century in the media and online.
+              - superscript [ref=e192]:
+                - link "[3]" [ref=e193] [cursor=pointer]:
+                  - /url: "#cite_note-Obit-4"
+                  - generic: "[3]"
+          - region "Background" [ref=e194]:
+            - generic [ref=e195]:
+              - heading "Background" [level=2] [ref=e196]
+              - generic [ref=e197]:
+                - link "edit":
+                  - /url: /w/index.php?title=Sodder_children_disappearance&action=edit&section=1
+            - paragraph [ref=e198]:
+              - text: George Sodder was born with the name Giorgio Soddu in
+              - link "Tula, Sardinia" [ref=e199] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Tula,_Sardinia
+              - text: ","
+              - link "Italy" [ref=e200] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Kingdom_of_Italy
+              - text: ", in 1895. He"
+              - link "immigrated to the United States" [ref=e201] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Italian_American#The_period_of_peak_immigration_(1890–1917)
+              - text: 13 years later, with an older brother who went back home as soon as both boys had cleared customs at
+              - link "Ellis Island" [ref=e202] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Ellis_Island
+              - text: . For the rest of his life, George, as he came to be known, would not talk much about why he had left his homeland.
+              - superscript [ref=e203]:
+                - link "[1]" [ref=e204] [cursor=pointer]:
+                  - /url: "#cite_note-Smithsonian_story-2"
+                  - generic: "[1]"
+            - paragraph [ref=e205]:
+              - text: Sodder eventually found work on the railroads in
+              - link "Pennsylvania" [ref=e206] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Pennsylvania
+              - text: ", carrying water and other supplies to workers. After a few years he took more permanent work as a driver in"
+              - link "Smithers, West Virginia" [ref=e207] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Smithers,_West_Virginia
+              - text: . He then started his own trucking company, initially hauling
+              - link "fill dirt" [ref=e208] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Fill_dirt
+              - text: to construction sites and later hauling coal mined in the region. Jennie Cipriani, a storekeeper's daughter in Smithers who had also emigrated from Italy in her childhood, married George in 1922.
+              - superscript [ref=e209]:
+                - link "[1]" [ref=e210] [cursor=pointer]:
+                  - /url: "#cite_note-Smithsonian_story-2"
+                  - generic: "[1]"
+            - paragraph [ref=e211]:
+              - text: The Sodders settled outside nearby
+              - link "Fayetteville" [ref=e212] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Fayetteville,_West_Virginia
+              - text: ", which had a large population of Italian immigrants, in a two-story"
+              - link "timber frame" [ref=e213] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Timber_framing
+              - text: house two miles (3.2 km) north of town.
+              - superscript [ref=e214]:
+                - link "[4]" [ref=e215] [cursor=pointer]:
+                  - /url: "#cite_note-AP_story_in_BYT-5"
+                  - generic: "[4]"
+              - text: In 1923, they had the first of their ten children. George's business prospered, and they became "one of the most respected middle-class families around" in the words of one local official. However, George had strong opinions about many subjects and was not shy about expressing them, sometimes alienating people. In particular, his strident opposition to Italian dictator
+              - link "Benito Mussolini" [ref=e216] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Benito_Mussolini
+              - text: had led to some strong arguments with other members of the immigrant community.
+              - superscript [ref=e217]:
+                - link "[1]" [ref=e218] [cursor=pointer]:
+                  - /url: "#cite_note-Smithsonian_story-2"
+                  - generic: "[1]"
+            - paragraph [ref=e219]:
+              - text: The last of the Sodder children, Sylvia, was born in 1942.
+              - superscript [ref=e220]:
+                - link "[5]" [ref=e221] [cursor=pointer]:
+                  - /url: "#cite_note-6"
+                  - generic: "[5]"
+              - text: By then, their second-oldest son, Joe (17), had left home to serve in the military during
+              - link "World War II" [ref=e222] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/World_War_II
+              - text: . The following year, Mussolini was deposed, and in 1945, executed. However, George's criticism of the late dictator had left some hard feelings. In October 1945,
+              - superscript [ref=e223]:
+                - link "[6]" [ref=e224] [cursor=pointer]:
+                  - /url: "#cite_note-Encyclopedia_of_Unsolved_Crime-7"
+                  - generic: "[6]"
+              - text: a visiting
+              - link "life insurance" [ref=e225] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Life_insurance
+              - text: salesman, after being rebuffed, warned George that his house "[would go] up in smoke ... and your children are going to be destroyed", attributing this all to "the dirty remarks you have been making about Mussolini." Another visitor to the house, ostensibly seeking work, took the occasion to go around to the back and warned George that a pair of
+              - link "fuse boxes" [ref=e226] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Fuse_box
+              - text: would "cause a fire someday." George was puzzled by the observation, since he had just had the house rewired when an electric stove was installed,
+              - superscript [ref=e227]:
+                - link "[7]" [ref=e228] [cursor=pointer]:
+                  - /url: "#cite_note-1968_Gazette-Mail_story-8"
+                  - generic: "[7]"
+              - text: and the local electric company had said afterwards it was safe. In the weeks before
+              - link "Christmas" [ref=e229] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Christmas
+              - text: that year, George's older sons had also noticed a strange car parked along the main highway through town, its occupants watching the younger Sodder children as they returned from school.
+              - superscript [ref=e230]:
+                - link "[1]" [ref=e231] [cursor=pointer]:
+                  - /url: "#cite_note-Smithsonian_story-2"
+                  - generic: "[1]"
+          - region "Christmas Eve 1945 house fire" [ref=e232]:
+            - generic [ref=e233]:
+              - heading "Christmas Eve 1945 house fire" [level=2] [ref=e234]
+              - generic [ref=e235]:
+                - link "edit":
+                  - /url: /w/index.php?title=Sodder_children_disappearance&action=edit&section=2
+            - paragraph [ref=e236]:
+              - text: The Sodder family celebrated on
+              - link "Christmas Eve" [ref=e237] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Christmas_Eve
+              - text: 1945. Marion (19), the oldest daughter, had been working at a
+              - link "dime store" [ref=e238] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Dime_store
+              - text: in downtown Fayetteville, and she surprised three of her younger sisters—Martha (12), Jennie (8), and Betty (5)
+              - superscript [ref=e239]:
+                - link "[8]" [ref=e240] [cursor=pointer]:
+                  - /url: "#cite_note-Register-Herald_story-9"
+                  - generic: "[8]"
+              - text: —with new toys she had bought for them as gifts. The younger children were so excited that they asked their mother if they could stay up past what would have been their usual bedtime.
+              - superscript [ref=e241]:
+                - link "[8]" [ref=e242] [cursor=pointer]:
+                  - /url: "#cite_note-Register-Herald_story-9"
+                  - generic: "[8]"
+            - paragraph [ref=e243]:
+              - text: At 10 p.m., Jennie told them they could stay up a little later, as long as the two oldest boys who were still awake, 14-year-old Maurice and his 9-year-old brother Louis, remembered to put the cows in and feed the chickens before going to bed themselves. George and the two oldest boys, John (22) and George Jr. (16), who had spent the day working with their father, were already asleep. After reminding the children of those remaining chores, she took Sylvia (3) upstairs with her, and they went to bed together.
+              - superscript [ref=e244]:
+                - link "[8]" [ref=e245] [cursor=pointer]:
+                  - /url: "#cite_note-Register-Herald_story-9"
+                  - generic: "[8]"
+            - paragraph [ref=e246]:
+              - text: The telephone rang at 12:30 a.m. Jennie woke and went downstairs to answer it. The caller was a woman whose voice she did not recognize, asking for a name she was not familiar with, with the sound of laughter and
+              - link "clinking glasses" [ref=e247] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Clinking_glasses
+              - text: in the background. Jennie told the caller she had reached the wrong number, later recalling the woman's "weird laugh". She hung up and returned to bed. As she did, she noticed that the lights were still on and the curtains were not drawn, two things the children normally attended to when they stayed up later than their parents.
+              - superscript [ref=e248]:
+                - link "[7]" [ref=e249] [cursor=pointer]:
+                  - /url: "#cite_note-1968_Gazette-Mail_story-8"
+                  - generic: "[7]"
+              - text: Marion had fallen asleep on the living room couch, so Jennie assumed the other children who had stayed up later had gone back up to the attic where they slept.
+              - superscript [ref=e250]:
+                - link "[1]" [ref=e251] [cursor=pointer]:
+                  - /url: "#cite_note-Smithsonian_story-2"
+                  - generic: "[1]"
+              - text: She closed the curtains, turned out the lights, and returned to bed.
+              - superscript [ref=e252]:
+                - link "[7]" [ref=e253] [cursor=pointer]:
+                  - /url: "#cite_note-1968_Gazette-Mail_story-8"
+                  - generic: "[7]"
+            - paragraph [ref=e254]:
+              - text: At 1 a.m., Jennie was again awakened by the sound of an object hitting the house's roof with a loud bang, then a rolling noise.
+              - superscript [ref=e255]:
+                - link "[1]" [ref=e256] [cursor=pointer]:
+                  - /url: "#cite_note-Smithsonian_story-2"
+                  - generic: "[1]"
+              - text: After hearing nothing further, she went back to sleep. After another half hour she woke up again, smelling smoke. When she got up again she found that the room George used for his office was on fire around the telephone line and fuse box.
+              - superscript [ref=e257]:
+                - link "[9]" [ref=e258] [cursor=pointer]:
+                  - /url: "#cite_note-Gazette-Mail_story-10"
+                  - generic: "[9]"
+              - text: Jennie woke him, and he in turn woke his older sons.
+              - superscript [ref=e259]:
+                - link "[2]" [ref=e260] [cursor=pointer]:
+                  - /url: "#cite_note-NPR_story-3"
+                  - generic: "[2]"
+            - paragraph [ref=e261]:
+              - text: Both parents and four of their children—Marion, Sylvia, John, and George Jr.—escaped the house. They frantically yelled to the children upstairs but heard no response; they could not go up there as the stairway itself was already aflame.
+              - superscript [ref=e262]:
+                - link "[6]" [ref=e263] [cursor=pointer]:
+                  - /url: "#cite_note-Encyclopedia_of_Unsolved_Crime-7"
+                  - generic: "[6]"
+              - text: John said in his first police interview after the fire that he went up to the attic to alert his siblings sleeping there, though he later changed his story to say that he only called up there and did not actually see them.
+              - superscript [ref=e264]:
+                - link "[9]" [ref=e265] [cursor=pointer]:
+                  - /url: "#cite_note-Gazette-Mail_story-10"
+                  - generic: "[9]"
+            - paragraph [ref=e266]:
+              - text: Efforts to find aid and rescue the children were unexpectedly complicated. The phone did not work, so Marion ran to a neighbor's house to call the Fayetteville fire department. A driver on the nearby road had also seen the flames and called from a nearby tavern; they too were unsuccessful either because they could not reach the
+              - link "operator" [ref=e267] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Switchboard_operator
+              - superscript [ref=e268]:
+                - link "[6]" [ref=e269] [cursor=pointer]:
+                  - /url: "#cite_note-Encyclopedia_of_Unsolved_Crime-7"
+                  - generic: "[6]"
+              - text: or because the phone there turned out to be broken. Either the neighbor or the passing motorist was eventually successful in reaching the fire department from another phone in the center of town.
+              - superscript [ref=e270]:
+                - link "[8]" [ref=e271] [cursor=pointer]:
+                  - /url: "#cite_note-Register-Herald_story-9"
+                  - generic: "[8]"
+            - paragraph [ref=e272]:
+              - text: George, barefoot,
+              - superscript [ref=e273]:
+                - link "[7]" [ref=e274] [cursor=pointer]:
+                  - /url: "#cite_note-1968_Gazette-Mail_story-8"
+                  - generic: "[7]"
+              - text: attempted to climb the house's outside wall
+              - superscript [ref=e275]:
+                - link "[7]" [ref=e276] [cursor=pointer]:
+                  - /url: "#cite_note-1968_Gazette-Mail_story-8"
+                  - generic: "[7]"
+              - text: and broke open a window, cutting his arm in the process. He and his sons intended to use a ladder to the attic to rescue the other children, but it was not in its usual spot resting against the house and could not be found nearby. A water barrel that could have been used to extinguish the fire was frozen solid. George then tried to pull both of the trucks he used in his business up to the house and use them to climb to the attic window, but neither of them would start despite having worked perfectly during the previous day.
+              - superscript [ref=e277]:
+                - link "[1]" [ref=e278] [cursor=pointer]:
+                  - /url: "#cite_note-Smithsonian_story-2"
+                  - generic: "[1]"
+            - paragraph [ref=e279]:
+              - text: Frustrated, the six Sodders who had escaped had no choice but to watch the house burn down and collapse over the next 45 minutes. They assumed the other five children had perished in the blaze. The fire department, low on manpower due to the war and relying on individual firefighters to call each other, did not respond until later that morning.
+              - superscript [ref=e280]:
+                - link "[2]" [ref=e281] [cursor=pointer]:
+                  - /url: "#cite_note-NPR_story-3"
+                  - generic: "[2]"
+              - text: Chief F.J. Morris said the next day that the already slow response was further hampered by his inability to drive the fire truck, requiring that he wait until someone who could drive was available.
+              - superscript [ref=e282]:
+                - link "[8]" [ref=e283] [cursor=pointer]:
+                  - /url: "#cite_note-Register-Herald_story-9"
+                  - generic: "[8]"
+            - paragraph [ref=e284]:
+              - text: The firefighters, one of whom was a brother of Jennie's,
+              - superscript [ref=e285]:
+                - link "[10]" [ref=e286] [cursor=pointer]:
+                  - /url: "#cite_note-Stacy_Horn_blog_post-11"
+                  - generic: "[10]"
+              - text: could do little but look through the ashes that were left in the Sodders' basement. By 10 a.m., Morris told the Sodders that they had not found any bones, as might have been expected if the other children had been in the house as it burned.
+              - superscript [ref=e287]:
+                - link "[1]" [ref=e288] [cursor=pointer]:
+                  - /url: "#cite_note-Smithsonian_story-2"
+                  - generic: "[1]"
+              - text: According to another account, they did find a few bone fragments and internal organs, but chose not to tell the family;
+              - superscript [ref=e289]:
+                - link "[2]" [ref=e290] [cursor=pointer]:
+                  - /url: "#cite_note-NPR_story-3"
+                  - generic: "[2]"
+              - text: other fire professionals concluded that their search had been cursory at best.
+              - superscript [ref=e291]:
+                - link "[10]" [ref=e292] [cursor=pointer]:
+                  - /url: "#cite_note-Stacy_Horn_blog_post-11"
+                  - generic: "[10]"
+              - text: Nevertheless, Morris believed that the five children unaccounted for had died in the fire, suggesting it had been hot enough to burn their bodies completely.
+              - superscript [ref=e293]:
+                - link "[1]" [ref=e294] [cursor=pointer]:
+                  - /url: "#cite_note-Smithsonian_story-2"
+                  - generic: "[1]"
+          - region "Aftermath" [ref=e295]:
+            - generic [ref=e296]:
+              - heading "Aftermath" [level=2] [ref=e297]
+              - generic [ref=e298]:
+                - link "edit":
+                  - /url: /w/index.php?title=Sodder_children_disappearance&action=edit&section=3
+            - paragraph [ref=e299]:
+              - text: Morris told George to leave the site undisturbed so that the state
+              - link "fire marshal" [ref=e300] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Fire_marshal
+              - text: "'s office could conduct a more thorough investigation. However, after four days, George and his wife could not bear the sight anymore, so he bulldozed 5 feet (1.5 m) of dirt over the site with the intention of converting it to a memorial garden for the lost children. The local"
+              - link "coroner" [ref=e301] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Coroner
+              - text: convened an
+              - link "inquest" [ref=e302] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Inquest
+              - text: the next day, which held that the fire was an accident caused by "faulty wiring".
+              - superscript [ref=e303]:
+                - link "[6]" [ref=e304] [cursor=pointer]:
+                  - /url: "#cite_note-Encyclopedia_of_Unsolved_Crime-7"
+                  - generic: "[6]"
+              - text: Among the jurors was the man who had threatened George that his house would be burned down and his children "destroyed" in retribution for his anti-Mussolini remarks.
+              - superscript [ref=e305]:
+                - link "[1]" [ref=e306] [cursor=pointer]:
+                  - /url: "#cite_note-Smithsonian_story-2"
+                  - generic: "[1]"
+            - paragraph [ref=e307]:
+              - link "Death certificates" [ref=e308] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Death_certificate
+              - text: for the five children were issued on December 30.
+              - superscript [ref=e309]:
+                - link "[8]" [ref=e310] [cursor=pointer]:
+                  - /url: "#cite_note-Register-Herald_story-9"
+                  - generic: "[8]"
+              - text: The local newspaper contradicted itself, stating that all the bodies had been found, but then later in the same story reporting that only part of one body was recovered. George and Jennie were too grief stricken to attend the funeral on January 2, 1946, but their surviving children did.
+              - superscript [ref=e311]:
+                - link "[9]" [ref=e312] [cursor=pointer]:
+                  - /url: "#cite_note-Gazette-Mail_story-10"
+                  - generic: "[9]"
+          - region "Family questions about the official account" [ref=e313]:
+            - generic [ref=e314]:
+              - heading "Family questions about the official account" [level=2] [ref=e315]
+              - generic [ref=e316]:
+                - link "edit":
+                  - /url: /w/index.php?title=Sodder_children_disappearance&action=edit&section=4
+            - paragraph [ref=e317]:
+              - text: Not long afterward, as they began to rebuild their lives, the Sodder family started to question all the official findings about the fire. They wondered why, if it had been caused by an electrical problem, the family's
+              - link "Christmas lights" [ref=e318] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Christmas_lights
+              - text: had remained on throughout the fire's early stages, when the power should have gone out. Then, they found the ladder that had been missing from the side of the house on the night of the fire at the bottom of an
+              - link "embankment" [ref=e319] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Embankment_(transportation)
+              - text: 75 feet (23 m) away.
+              - superscript [ref=e320]:
+                - link "[8]" [ref=e321] [cursor=pointer]:
+                  - /url: "#cite_note-Register-Herald_story-9"
+                  - generic: "[8]"
+            - paragraph [ref=e322]:
+              - text: A telephone repairman told the Sodders that the house's phone line had not been burned through in the fire, as they had initially thought, but cut by someone who had been willing and able to climb 14 feet (4.3 m) up the pole and reach 2 feet (61 cm) away from it to do so. A man whom neighbors had seen stealing a
+              - link "block and tackle" [ref=e323] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Block_and_tackle
+              - text: from the property around the time of the fire was identified and arrested. He admitted to the theft,
+              - superscript [ref=e324]:
+                - link "[7]" [ref=e325] [cursor=pointer]:
+                  - /url: "#cite_note-1968_Gazette-Mail_story-8"
+                  - generic: "[7]"
+              - text: and claimed he had been the one who cut the phone line, thinking it was a power line, but denied having anything to do with the fire. However, no record identifying the suspect exists, and why he would have wanted to cut any utility lines to the Sodder house while stealing the block and tackle has never been explained.
+              - superscript [ref=e326]:
+                - link "[6]" [ref=e327] [cursor=pointer]:
+                  - /url: "#cite_note-Encyclopedia_of_Unsolved_Crime-7"
+                  - generic: "[6]"
+              - text: Jennie said in 1968 that if he had cut the power line, she and her husband, along with their other four children, would never have been able to make it out of the house.
+              - superscript [ref=e328]:
+                - link "[7]" [ref=e329] [cursor=pointer]:
+                  - /url: "#cite_note-1968_Gazette-Mail_story-8"
+                  - generic: "[7]"
+            - paragraph [ref=e330]:
+              - text: Jennie also had trouble accepting Morris's belief that all traces of the children's bodies had been burned completely in the fire. Many of the household appliances had been found, still recognizable, in the ash,
+              - superscript [ref=e331]:
+                - link "[1]" [ref=e332] [cursor=pointer]:
+                  - /url: "#cite_note-Smithsonian_story-2"
+                  - generic: "[1]"
+              - text: along with fragments of the tin roof.
+              - superscript [ref=e333]:
+                - link "[8]" [ref=e334] [cursor=pointer]:
+                  - /url: "#cite_note-Register-Herald_story-9"
+                  - generic: "[8]"
+              - text: She contrasted the results of the fire with a newspaper account of a similar house fire that she read around the same time that killed a family of seven; skeletal remains of all the victims were reported to have been found in that case.
+              - superscript [ref=e335]:
+                - link "[7]" [ref=e336] [cursor=pointer]:
+                  - /url: "#cite_note-1968_Gazette-Mail_story-8"
+                  - generic: "[7]"
+              - text: Jennie burned small piles of animal bones to see if they would be completely consumed; none ever were. An employee of a local
+              - link "crematorium" [ref=e337] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Crematorium
+              - text: she contacted told her that human bones remain even after bodies are burned at 2,000 °F (1,090 °C) for two hours, far longer and hotter than the house fire could have been.
+              - superscript [ref=e338]:
+                - link "[1]" [ref=e339] [cursor=pointer]:
+                  - /url: "#cite_note-Smithsonian_story-2"
+                  - generic: "[1]"
+            - paragraph [ref=e340]:
+              - text: The Sodders' trucks' failure to start was also considered. George believed they had been tampered with, perhaps by the same man who stole the block and tackle and cut the phone line. However, one of George's sons-in-law told the
+              - link "Charleston Gazette-Mail" [ref=e342] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Charleston_Gazette-Mail
+              - text: in 2013 that he had come to believe that Sodder and his sons might have, in their haste to start the trucks,
+              - link "flooded the engines" [ref=e343] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Flooded_engine
+              - text: .
+              - superscript [ref=e344]:
+                - link "[9]" [ref=e345] [cursor=pointer]:
+                  - /url: "#cite_note-Gazette-Mail_story-10"
+                  - generic: "[9]"
+            - paragraph [ref=e346]:
+              - text: Some accounts have suggested the wrong-number phone call to the Sodder house might have also somehow been connected to the fire.
+              - superscript [ref=e347]:
+                - link "[8]" [ref=e348] [cursor=pointer]:
+                  - /url: "#cite_note-Register-Herald_story-9"
+                  - generic: "[8]"
+              - text: However, investigators later located the woman who had made the call. She confirmed it had been a wrong number on her part.
+              - superscript [ref=e349]:
+                - link "[10]" [ref=e350] [cursor=pointer]:
+                  - /url: "#cite_note-Stacy_Horn_blog_post-11"
+                  - generic: "[10]"
+          - region "Subsequent developments" [ref=e351]:
+            - generic [ref=e352]:
+              - heading "Subsequent developments" [level=2] [ref=e353]
+              - generic [ref=e354]:
+                - link "edit":
+                  - /url: /w/index.php?title=Sodder_children_disappearance&action=edit&section=5
+            - paragraph [ref=e355]:
+              - text: As spring approached, the Sodders, as they had said they would, planted flowers in the soil bulldozed over the house. Jennie tended it carefully for the rest of her life.
+              - superscript [ref=e356]:
+                - link "[9]" [ref=e357] [cursor=pointer]:
+                  - /url: "#cite_note-Gazette-Mail_story-10"
+                  - generic: "[9]"
+              - text: However, further developments in early 1946 reinforced the family's belief that the children they were memorializing might, in fact, be alive somewhere.
+              - superscript [ref=e358]:
+                - link "[8]" [ref=e359] [cursor=pointer]:
+                  - /url: "#cite_note-Register-Herald_story-9"
+                  - generic: "[8]"
+            - paragraph [ref=e360]:
+              - text: Evidence soon emerged indicating that the fire had not started in an electrical fault and was instead set deliberately. The driver of a bus that passed through Fayetteville late Christmas Eve said he had seen some people throwing "balls of fire" at the house.
+              - superscript [ref=e361]:
+                - link "[6]" [ref=e362] [cursor=pointer]:
+                  - /url: "#cite_note-Encyclopedia_of_Unsolved_Crime-7"
+                  - generic: "[6]"
+              - text: A few months later, when the snow had melted, Sylvia found a small, hard, dark-green, rubber ball-like object in the brush nearby. George, recalling his wife's account of a loud thump on the roof before the fire, said it looked like a "pineapple bomb"
+              - link "hand grenade" [ref=e363] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Hand_grenade
+              - text: or some other
+              - link "incendiary device" [ref=e364] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Incendiary_device
+              - text: used in combat. The family later claimed that, contrary to the fire marshal's conclusion, the fire had started on the roof, although by then there was no way to prove it.
+              - superscript [ref=e365]:
+                - link "[8]" [ref=e366] [cursor=pointer]:
+                  - /url: "#cite_note-Register-Herald_story-9"
+                  - generic: "[8]"
+            - paragraph [ref=e367]:
+              - text: Other witnesses claimed to have seen the missing Sodder children themselves. One woman who had been watching the fire from the road said she had seen some of them peering out of a passing car while the house was burning. Another woman at a
+              - link "rest stop" [ref=e368] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Rest_stop
+              - text: between Fayetteville and
+              - link "Charleston" [ref=e369] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Charleston,_West_Virginia
+              - text: said she had served them breakfast the next morning, and noted the presence of a car with
+              - link "Florida license plates" [ref=e370] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Vehicle_registration_plates_of_Florida
+              - text: in the rest stop's parking lot as well.
+              - superscript [ref=e371]:
+                - link "[1]" [ref=e372] [cursor=pointer]:
+                  - /url: "#cite_note-Smithsonian_story-2"
+                  - generic: "[1]"
+            - paragraph [ref=e373]:
+              - text: The Sodders hired a
+              - link "private investigator" [ref=e374] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Private_investigator
+              - text: named C.C. Tinsley from the nearby town of
+              - link "Gauley Bridge" [ref=e375] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Gauley_Bridge,_West_Virginia
+              - superscript [ref=e376]:
+                - link "[1]" [ref=e377] [cursor=pointer]:
+                  - /url: "#cite_note-Smithsonian_story-2"
+                  - generic: "[1]"
+              - text: to look into the case. Tinsley informed the family that the insurance salesman who had threatened George over his anti-Mussolini sentiments had been on the coroner's jury that ruled the fire an accident. He also learned of rumors around Fayetteville that despite his report to the Sodders that no remains had been found in the ashes, Morris had found a heart which he later packed into a metal box and secretly buried.
+              - superscript [ref=e378]:
+                - link "[1]" [ref=e379] [cursor=pointer]:
+                  - /url: "#cite_note-Smithsonian_story-2"
+                  - generic: "[1]"
+            - paragraph [ref=e380]:
+              - text: Morris had apparently confessed this to a local minister, who in turn confirmed it to George. George and Tinsley went to Morris and confronted him with this news. Morris agreed to show the two where he had buried the metal box and they dug it up. They took what they found inside the box to a local
+              - link "funeral director" [ref=e381] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Funeral_director
+              - text: ", who after examining it told them it was in reality fresh"
+              - link "beef liver" [ref=e382] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Beef_liver
+              - text: that had never been exposed to fire. Later, more rumors circulated around Fayetteville—that Morris had afterwards admitted the box with the liver had indeed not come from the fire originally; he had supposedly placed it there in the hope that the Sodders would find it and be satisfied that the missing children had indeed died in the fire.
+              - superscript [ref=e383]:
+                - link "[1]" [ref=e384] [cursor=pointer]:
+                  - /url: "#cite_note-Smithsonian_story-2"
+                  - generic: "[1]"
+          - region "1949 excavation" [ref=e385]:
+            - generic [ref=e386]:
+              - heading "1949 excavation" [level=2] [ref=e387]
+              - generic [ref=e388]:
+                - link "edit":
+                  - /url: /w/index.php?title=Sodder_children_disappearance&action=edit&section=6
+            - paragraph [ref=e389]:
+              - text: On one occasion, George saw a magazine photo of a group of young ballet dancers in
+              - link "New York City" [ref=e390] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/New_York_City
+              - text: ", one of whom looked like his missing daughter Betty. He drove all the way to the girl's school, where his repeated demands to see the girl himself were refused."
+              - superscript [ref=e391]:
+                - link "[1]" [ref=e392] [cursor=pointer]:
+                  - /url: "#cite_note-Smithsonian_story-2"
+                  - generic: "[1]"
+            - paragraph [ref=e393]:
+              - text: George also tried to interest the
+              - link "Federal Bureau of Investigation" [ref=e394] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Federal_Bureau_of_Investigation
+              - text: (FBI) in investigating what he considered a
+              - link "kidnapping" [ref=e395] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Kidnapping
+              - text: .
+              - link "FBI Director" [ref=e396] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Director_of_the_FBI
+              - link "J. Edgar Hoover" [ref=e397] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/J._Edgar_Hoover
+              - text: "personally responded to his letters: \"Although I would like to be of service, the matter related appears to be of local character and does not come within the investigative jurisdiction of this bureau.\" If the local authorities requested the bureau's assistance, he added, he would of course direct agents to assist, but the Fayetteville police and fire departments declined to do so."
+              - superscript [ref=e398]:
+                - link "[1]" [ref=e399] [cursor=pointer]:
+                  - /url: "#cite_note-Smithsonian_story-2"
+                  - generic: "[1]"
+            - paragraph [ref=e400]:
+              - text: In August 1949, George was able to persuade Oscar Hunter, a
+              - link "Washington, D.C." [ref=e401] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Washington,_D.C.
+              - link "pathologist" [ref=e402] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Pathology
+              - text: ", to supervise a new search through the dirt at the house site. After a very thorough search, artifacts including a dictionary that had belonged to the children and some coins were found. Several small bone fragments were unearthed, determined to have been human"
+              - link "vertebrae" [ref=e403] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Vertebra
+              - text: .
+              - superscript [ref=e404]:
+                - link "[1]" [ref=e405] [cursor=pointer]:
+                  - /url: "#cite_note-Smithsonian_story-2"
+                  - generic: "[1]"
+              - text: The bone fragments were sent to Marshall T. Newman, a specialist at the
+              - link "Smithsonian Institution" [ref=e406] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Smithsonian_Institution
+              - text: .
+              - superscript [ref=e407]:
+                - link "[9]" [ref=e408] [cursor=pointer]:
+                  - /url: "#cite_note-Gazette-Mail_story-10"
+                  - generic: "[9]"
+              - text: They were confirmed to be
+              - link "lumbar vertebrae" [ref=e409] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Lumbar_vertebrae
+              - text: ", all from the same person. \"Since the transverse recesses are fused, the age of this individual at death should have been 16 or 17 years\", Newman's report said. \"The top limit of age should be about 22 since the centra, which normally fuse at 23, are still unfused\". Thus, given this age range, it was not very likely that these bones were from any of the five missing children, since the oldest, Maurice, had been 14 at the time (although the report allowed that vertebrae of a boy his age sometimes were advanced enough to appear to be at the lower end of the range)."
+              - superscript [ref=e410]:
+                - link "[1]" [ref=e411] [cursor=pointer]:
+                  - /url: "#cite_note-Smithsonian_story-2"
+                  - generic: "[1]"
+            - paragraph [ref=e412]:
+              - text: Newman added that the bone showed no sign of exposure to flame. Further, he agreed that it was "very strange" that those bones were the only ones found, since a wood fire of such short duration should have left full skeletons of all of the children behind. The report concluded that the vertebrae had, instead, most likely come from the dirt that George had used to bulldoze the site.
+              - superscript [ref=e413]:
+                - link "[1]" [ref=e414] [cursor=pointer]:
+                  - /url: "#cite_note-Smithsonian_story-2"
+                  - generic: "[1]"
+              - text: Later, Tinsley supposedly confirmed that the bone fragments had come from a cemetery in nearby
+              - link "Mount Hope" [ref=e415] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Mount_Hope,_West_Virginia
+              - text: ", but could not explain why they had been taken from there or how they came to be at the fire site."
+              - superscript [ref=e416]:
+                - link "[6]" [ref=e417] [cursor=pointer]:
+                  - /url: "#cite_note-Encyclopedia_of_Unsolved_Crime-7"
+                  - generic: "[6]"
+              - text: The Smithsonian returned the bone fragments to George in September 1949, according to its records; their current location is unknown.
+              - superscript [ref=e418]:
+                - link "[9]" [ref=e419] [cursor=pointer]:
+                  - /url: "#cite_note-Gazette-Mail_story-10"
+                  - generic: "[9]"
+            - paragraph [ref=e420]:
+              - text: The investigation and its findings attracted national attention, and the
+              - link "West Virginia Legislature" [ref=e421] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/West_Virginia_Legislature
+              - text: held two hearings on the case in 1950. Afterwards, however,
+              - link "Governor" [ref=e422] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Governor_of_West_Virginia
+              - link "Okey L. Patteson" [ref=e423] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Okey_L._Patteson
+              - text: and
+              - link "state police" [ref=e424] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/West_Virginia_State_Police
+              - text: superintendent W.E. Burchett told the Sodders the case was "hopeless" and closed it at the state level.
+              - superscript [ref=e425]:
+                - link "[1]" [ref=e426] [cursor=pointer]:
+                  - /url: "#cite_note-Smithsonian_story-2"
+                  - generic: "[1]"
+              - text: The FBI decided it had jurisdiction as a possible interstate kidnapping but dropped the case after two years of following fruitless leads.
+              - superscript [ref=e427]:
+                - link "[6]" [ref=e428] [cursor=pointer]:
+                  - /url: "#cite_note-Encyclopedia_of_Unsolved_Crime-7"
+                  - generic: "[6]"
+          - region "Continuing family investigation" [ref=e429]:
+            - generic [ref=e430]:
+              - heading "Continuing family investigation" [level=2] [ref=e431]
+              - generic [ref=e432]:
+                - link "edit":
+                  - /url: /w/index.php?title=Sodder_children_disappearance&action=edit&section=7
+            - paragraph [ref=e433]:
+              - text: With the end of official efforts to resolve the case, the Sodder family did not give up hope. They had flyers printed up with pictures of the children, offering a $5,000 reward (soon doubled) for information that would have settled the case for even one of them. In 1952, they put up a billboard at the site of the house (and another along
+              - link "U.S. Route 60" [ref=e434] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/U.S._Route_60
+              - text: near
+              - link "Ansted" [ref=e435] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Ansted,_West_Virginia
+              - superscript [ref=e436]:
+                - link "[6]" [ref=e437] [cursor=pointer]:
+                  - /url: "#cite_note-Encyclopedia_of_Unsolved_Crime-7"
+                  - generic: "[6]"
+              - superscript [ref=e438]:
+                - link "[8]" [ref=e439] [cursor=pointer]:
+                  - /url: "#cite_note-Register-Herald_story-9"
+                  - generic: "[8]"
+              - text: ) with the same information. It would in time become a landmark for traffic through Fayetteville on
+              - link "U.S. Route 19" [ref=e440] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/U.S._Route_19
+              - text: (today
+              - link "State Route 16" [ref=e441] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/West_Virginia_State_Route_16
+              - text: ).
+              - superscript [ref=e442]:
+                - link "[1]" [ref=e443] [cursor=pointer]:
+                  - /url: "#cite_note-Smithsonian_story-2"
+                  - generic: "[1]"
+              - superscript [ref=e444]:
+                - link "[2]" [ref=e445] [cursor=pointer]:
+                  - /url: "#cite_note-NPR_story-3"
+                  - generic: "[2]"
+              - superscript [ref=e446]:
+                - link "[9]" [ref=e447] [cursor=pointer]:
+                  - /url: "#cite_note-Gazette-Mail_story-10"
+                  - generic: "[9]"
+            - paragraph [ref=e448]:
+              - text: The family's efforts soon brought another reported sighting of the children after the fire. Ida Crutchfield,
+              - superscript [ref=e449]:
+                - link "[10]" [ref=e450] [cursor=pointer]:
+                  - /url: "#cite_note-Stacy_Horn_blog_post-11"
+                  - generic: "[10]"
+              - text: a woman who ran a Charleston, West Virginia, hotel, claimed to have seen the children approximately a week afterwards. "I do not remember the exact date", she said in a statement. The children had come in, around midnight, with two men and two women, all of whom appeared to her to be "of Italian extraction". When she attempted to speak with the children, "[o]ne of the men looked at me in a hostile manner; he turned around and began talking rapidly in
+              - link "Italian" [ref=e451] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Italian_language
+              - text: . Immediately, the whole party stopped talking to me". She recalled that they left the hotel early the next morning.
+              - superscript [ref=e452]:
+                - link "[1]" [ref=e453] [cursor=pointer]:
+                  - /url: "#cite_note-Smithsonian_story-2"
+                  - generic: "[1]"
+              - text: Investigators today do not, however, consider her story credible, as she had only first seen photos of the children two years after the fire, five years before she came forward.
+              - superscript [ref=e454]:
+                - link "[10]" [ref=e455] [cursor=pointer]:
+                  - /url: "#cite_note-Stacy_Horn_blog_post-11"
+                  - generic: "[10]"
+            - paragraph [ref=e456]:
+              - text: George followed up leads in person, traveling to the areas from where tips had come. A woman from
+              - link "St. Louis, Missouri" [ref=e457] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/St._Louis,_Missouri
+              - text: ", claimed Martha was being held in a"
+              - link "convent" [ref=e458] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Convent
+              - text: there. A bar patron in
+              - link "Texas" [ref=e459] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Texas
+              - text: claimed to have overheard two other people making incriminating statements about a fire that happened on Christmas Eve in West Virginia some years before. None of those proved significant.
+              - superscript [ref=e460]:
+                - link "[1]" [ref=e461] [cursor=pointer]:
+                  - /url: "#cite_note-Smithsonian_story-2"
+                  - generic: "[1]"
+              - text: When George heard later that a relative of Jennie's in
+              - link "Florida" [ref=e462] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Florida
+              - text: had children that looked similar to his, the relative had to prove the children were his own before George was satisfied.
+              - superscript [ref=e463]:
+                - link "[10]" [ref=e464] [cursor=pointer]:
+                  - /url: "#cite_note-Stacy_Horn_blog_post-11"
+                  - generic: "[10]"
+            - paragraph [ref=e465]:
+              - text: In 1967, George went to the
+              - link "Houston" [ref=e466] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Houston,_Texas
+              - text: area to investigate another tip. A woman there had written to the family, saying that Louis had revealed his true identity to her one night after having too much to drink. She believed that he and Maurice were both living in Texas somewhere. However, George and his son-in-law, Grover Paxton, were unable to speak with her. Police there were able to help them find the two men she had indicated, but they denied being the missing sons. Paxton said years later that doubts about that denial lingered in George's mind for the rest of his life.
+              - superscript [ref=e467]:
+                - link "[9]" [ref=e468] [cursor=pointer]:
+                  - /url: "#cite_note-Gazette-Mail_story-10"
+                  - generic: "[9]"
+            - figure "Photograph received by the family in 1967, believed by them to be an adult Louis" [ref=e469]:
+              - link "A black and white photograph of a man with dark hair leaning towards the camera slightly, wearing a light-colored shirt with the collar open, against a dark background" [ref=e470] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/File:Alleged_1967_photograph_of_Louis_Sodder.jpg
+                - img "A black and white photograph of a man with dark hair leaning towards the camera slightly, wearing a light-colored shirt with the collar open, against a dark background" [ref=e471]
+              - generic [ref=e472]: Photograph received by the family in 1967, believed by them to be an adult Louis
+            - paragraph [ref=e473]:
+              - text: Another letter that they received that year brought the Sodders what they believed was the most credible evidence that at least Louis was still alive. One day Jennie found in the mail a letter addressed to her, postmarked in
+              - link "Central City, Kentucky" [ref=e474] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Central_City,_Kentucky
+              - text: ", with no return address. Inside was a picture of a young man of around 30 with features strongly resembling Louis's, who would have been in his 30s if he had survived. On the back was written:"
+            - definition [ref=e476]:
+              - generic [ref=e477]:
+                - definition [ref=e478]: Louis Sodder
+                - definition [ref=e479]: I love brother Frankie
+                - definition [ref=e480]: Ilil boys
+                - definition [ref=e481]:
+                  - text: A90132 or 35
+                  - superscript [ref=e482]:
+                    - link "[7]" [ref=e483] [cursor=pointer]:
+                      - /url: "#cite_note-1968_Gazette-Mail_story-8"
+                      - generic: "[7]"
+            - paragraph [ref=e484]:
+              - text: The family hired another private detective to go to Central City and look into the missive, but he never reported back to the Sodders, and they were unable to locate him afterwards.
+              - superscript [ref=e485]:
+                - link "[1]" [ref=e486] [cursor=pointer]:
+                  - /url: "#cite_note-Smithsonian_story-2"
+                  - generic: "[1]"
+              - text: The picture nonetheless gave them hope. They added it to the billboard (leaving Central City out of it and any other published information out of fear that Louis might come to harm) and put an enlargement of it over their fireplace.
+              - superscript [ref=e487]:
+                - link "[1]" [ref=e488] [cursor=pointer]:
+                  - /url: "#cite_note-Smithsonian_story-2"
+                  - generic: "[1]"
+            - paragraph [ref=e489]:
+              - text: George admitted to the
+              - link "Charleston Gazette-Mail" [ref=e491] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Charleston_Gazette-Mail
+              - text: late the next year that the lack of information had been "like hitting a rock wall—we can't go any further". He nevertheless vowed to continue.
+              - superscript [ref=e492]:
+                - link "[7]" [ref=e493] [cursor=pointer]:
+                  - /url: "#cite_note-1968_Gazette-Mail_story-8"
+                  - generic: "[7]"
+              - text: "\"Time is running out for us\", he admitted in another interview around that time. \"But we only want to know. If they did die in the fire, we want to be convinced. Otherwise, we want to know what happened to them\"."
+              - superscript [ref=e494]:
+                - link "[1]" [ref=e495] [cursor=pointer]:
+                  - /url: "#cite_note-Smithsonian_story-2"
+                  - generic: "[1]"
+            - paragraph [ref=e496]:
+              - text: George Sodder died in 1969. Jennie and her surviving children—except John, who never talked about the night of the fire except to say that the family should accept what happened and move on with their lives
+              - superscript [ref=e497]:
+                - link "[10]" [ref=e498] [cursor=pointer]:
+                  - /url: "#cite_note-Stacy_Horn_blog_post-11"
+                  - generic: "[10]"
+              - text: —continued to seek answers to their questions about the missing children's fate. After George's death, Jennie stayed in the family home, putting up fencing around it and adding additional rooms. For the rest of her life she
+              - link "wore black in mourning" [ref=e499] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Mourning#Continental_Europe
+              - text: and tended the garden at the site of the former house. After her death in 1989, the family finally took the weathered, worn billboard down.
+              - superscript [ref=e500]:
+                - link "[1]" [ref=e501] [cursor=pointer]:
+                  - /url: "#cite_note-Smithsonian_story-2"
+                  - generic: "[1]"
+            - paragraph [ref=e502]:
+              - text: The surviving Sodder children, joined by their own children, continued to publicize the case and investigate leads. They, along with older Fayetteville residents, have theorized that the
+              - link "Sicilian Mafia" [ref=e503] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Sicilian_Mafia
+              - text: was trying to
+              - link "extort" [ref=e504] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Extortion
+              - text: money from George and the children may have been taken by someone who knew about the planned arson and said they would be safe if they left the house.
+              - superscript [ref=e505]:
+                - link "[1]" [ref=e506] [cursor=pointer]:
+                  - /url: "#cite_note-Smithsonian_story-2"
+                  - generic: "[1]"
+              - text: They were possibly taken back to Italy.
+              - superscript [ref=e507]:
+                - link "[2]" [ref=e508] [cursor=pointer]:
+                  - /url: "#cite_note-NPR_story-3"
+                  - generic: "[2]"
+              - text: If the children had survived all those years and were aware that their parents and siblings had survived too, the family believes, they may have avoided contact in order to keep them from harm.
+              - superscript [ref=e509]:
+                - link "[1]" [ref=e510] [cursor=pointer]:
+                  - /url: "#cite_note-Smithsonian_story-2"
+                  - generic: "[1]"
+            - paragraph [ref=e511]:
+              - text: Sylvia Sodder Paxton, the youngest of the surviving Sodder siblings, died in 2021.
+              - superscript [ref=e512]:
+                - link "[3]" [ref=e513] [cursor=pointer]:
+                  - /url: "#cite_note-Obit-4"
+                  - generic: "[3]"
+              - text: She was in the house on the night of the fire, which she said was her earliest memory. "I was the last one of the kids to leave home", she recalled to the Gazette-Mail in 2013. She and her father often stayed up late, talking about what might have happened. "I experienced their grief for a long time". She believed that her siblings survived that night, and assisted with efforts to find them and publicize the case.
+              - superscript [ref=e514]:
+                - link "[9]" [ref=e515] [cursor=pointer]:
+                  - /url: "#cite_note-Gazette-Mail_story-10"
+                  - generic: "[9]"
+              - text: "Her daughter said in 2006: \"She promised my grandparents she wouldn't let the story die, that she would do everything she could\"."
+              - superscript [ref=e516]:
+                - link "[8]" [ref=e517] [cursor=pointer]:
+                  - /url: "#cite_note-Register-Herald_story-9"
+                  - generic: "[8]"
+            - paragraph [ref=e518]:
+              - text: In the 21st century, the family's efforts have come to include online forums like
+              - link "websleuths.com" [ref=e519] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Websleuths.com
+              - text: in addition to media coverage.
+              - superscript [ref=e520]:
+                - link "[6]" [ref=e521] [cursor=pointer]:
+                  - /url: "#cite_note-Encyclopedia_of_Unsolved_Crime-7"
+                  - generic: "[6]"
+              - superscript [ref=e522]:
+                - link "[8]" [ref=e523] [cursor=pointer]:
+                  - /url: "#cite_note-Register-Herald_story-9"
+                  - generic: "[8]"
+              - text: "The increase in the latter has led some who have examined the case to believe that the children did, in fact, die in 1945. George Bragg, a local author who wrote about the case in his 2012 book West Virginia's Unsolved Murders, believes that John was telling the truth in his original account, when he said he tried to physically awaken his siblings before fleeing the house. He allows that that conclusion may still not be correct: \"Logic tells you they probably did burn up in the fire, but you can't always go by logic.\""
+              - superscript [ref=e524]:
+                - link "[9]" [ref=e525] [cursor=pointer]:
+                  - /url: "#cite_note-Gazette-Mail_story-10"
+                  - generic: "[9]"
+            - paragraph [ref=e526]:
+              - link "Stacy Horn" [ref=e527] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/Stacy_Horn
+              - text: ", who did a segment on the case for"
+              - link "National Public Radio" [ref=e528] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/National_Public_Radio
+              - text: around its 60th anniversary in 2005, also believes the children's death in the fire is the most plausible solution. In a contemporaneous post on her blog with material she had to cut from her story for time, she noted that the fire had continued to smolder all night after the house collapsed and that two hours was not enough time to search the ash thoroughly. Even if it had been, the firefighters may not have known what to look for. "However", she said, "there is enough genuine weirdness about this whole thing ... that if someday it is learned that the children did not die in the fire I won't be shocked".
+              - superscript [ref=e529]:
+                - link "[10]" [ref=e530] [cursor=pointer]:
+                  - /url: "#cite_note-Stacy_Horn_blog_post-11"
+                  - generic: "[10]"
+            - paragraph [ref=e531]:
+              - text: In 2022, the
+              - link "History Channel" [ref=e532] [cursor=pointer]:
+                - /url: //en.wikipedia.org/wiki/History_Channel
+              - text: aired an episode of its series, History's Greatest Mysteries, that detailed the events of the case.
+              - superscript [ref=e533]:
+                - link "[11]" [ref=e534] [cursor=pointer]:
+                  - /url: "#cite_note-12"
+                  - generic: "[11]"
+          - region "See also" [ref=e535]:
+            - generic [ref=e536]:
+              - heading "See also" [level=2] [ref=e537]
+              - generic [ref=e538]:
+                - link "edit":
+                  - /url: /w/index.php?title=Sodder_children_disappearance&action=edit&section=8
+            - list [ref=e539]:
+              - listitem [ref=e540]:
+                - link "Beaumont children disappearance" [ref=e541] [cursor=pointer]:
+                  - /url: //en.wikipedia.org/wiki/Beaumont_children_disappearance
+                - text: ", in Adelaide, Australia, 1966; three children disappeared while walking together in a beach town."
+              - listitem [ref=e542]:
+                - 'link "Little Girl Lost: The Delimar Vera Story" [ref=e544] [cursor=pointer]':
+                  - /url: //en.wikipedia.org/wiki/Little_Girl_Lost:_The_Delimar_Vera_Story
+                - text: ", based on an actual child who disappeared in Philadelphia in 1997; the kidnapper set a fire to cover her action and the fire department falsely declared her dead"
+              - listitem [ref=e545]:
+                - link "Murders of Lauria Bible and Ashley Freeman" [ref=e546] [cursor=pointer]:
+                  - /url: //en.wikipedia.org/wiki/Murders_of_Lauria_Bible_and_Ashley_Freeman
+                - text: ", two teenage girls whose remains were not found after a 1999 Oklahoma fire destroyed Freeman's home while Bible was sleeping over; Freeman's parents were found to have been killed before the fire. In 2018 it was learned that they had been taken alive and held in captivity for several days before being killed, leading to a 2020 conviction of the surviving murderer."
+              - listitem [ref=e547]:
+                - 'link "List of people who disappeared mysteriously: 1910–1990" [ref=e548] [cursor=pointer]':
+                  - /url: //en.wikipedia.org/wiki/List_of_people_who_disappeared_mysteriously:_1910–1990
+          - region "Notes" [ref=e549]:
+            - generic [ref=e550]:
+              - heading "Notes" [level=2] [ref=e551]
+              - generic [ref=e552]:
+                - link "edit":
+                  - /url: /w/index.php?title=Sodder_children_disappearance&action=edit&section=9
+            - list [ref=e555]:
+              - listitem [ref=e556]:
+                - link "Jump up" [ref=e558] [cursor=pointer]:
+                  - /url: "#cite_ref-1"
+                  - text: ^
+                - text: If foul play was involved.
+          - region "References" [ref=e559]:
+            - generic [ref=e560]:
+              - heading "References" [level=2] [ref=e561]
+              - generic [ref=e562]:
+                - link "edit":
+                  - /url: /w/index.php?title=Sodder_children_disappearance&action=edit&section=10
+            - list [ref=e565]:
+              - listitem [ref=e566]:
+                - generic [ref=e567]:
+                  - text: ^
+                  - link "Jump up to:" [ref=e568] [cursor=pointer]:
+                    - /url: "#cite_ref-Smithsonian_story_2-0"
+                    - generic [ref=e569]: "Jump up to:"
+                  - link [ref=e570] [cursor=pointer]:
+                    - /url: "#cite_ref-Smithsonian_story_2-1"
+                  - link [ref=e571] [cursor=pointer]:
+                    - /url: "#cite_ref-Smithsonian_story_2-2"
+                  - link [ref=e572] [cursor=pointer]:
+                    - /url: "#cite_ref-Smithsonian_story_2-3"
+                  - link [ref=e573] [cursor=pointer]:
+                    - /url: "#cite_ref-Smithsonian_story_2-4"
+                  - link [ref=e574] [cursor=pointer]:
+                    - /url: "#cite_ref-Smithsonian_story_2-5"
+                  - link [ref=e575] [cursor=pointer]:
+                    - /url: "#cite_ref-Smithsonian_story_2-6"
+                  - link [ref=e576] [cursor=pointer]:
+                    - /url: "#cite_ref-Smithsonian_story_2-7"
+                  - link [ref=e577] [cursor=pointer]:
+                    - /url: "#cite_ref-Smithsonian_story_2-8"
+                  - link [ref=e578] [cursor=pointer]:
+                    - /url: "#cite_ref-Smithsonian_story_2-9"
+                  - link [ref=e579] [cursor=pointer]:
+                    - /url: "#cite_ref-Smithsonian_story_2-10"
+                  - link [ref=e580] [cursor=pointer]:
+                    - /url: "#cite_ref-Smithsonian_story_2-11"
+                  - link [ref=e581] [cursor=pointer]:
+                    - /url: "#cite_ref-Smithsonian_story_2-12"
+                  - link [ref=e582] [cursor=pointer]:
+                    - /url: "#cite_ref-Smithsonian_story_2-13"
+                  - link [ref=e583] [cursor=pointer]:
+                    - /url: "#cite_ref-Smithsonian_story_2-14"
+                  - link [ref=e584] [cursor=pointer]:
+                    - /url: "#cite_ref-Smithsonian_story_2-15"
+                  - link [ref=e585] [cursor=pointer]:
+                    - /url: "#cite_ref-Smithsonian_story_2-16"
+                  - link [ref=e586] [cursor=pointer]:
+                    - /url: "#cite_ref-Smithsonian_story_2-17"
+                  - link [ref=e587] [cursor=pointer]:
+                    - /url: "#cite_ref-Smithsonian_story_2-18"
+                  - link [ref=e588] [cursor=pointer]:
+                    - /url: "#cite_ref-Smithsonian_story_2-19"
+                  - link [ref=e589] [cursor=pointer]:
+                    - /url: "#cite_ref-Smithsonian_story_2-20"
+                  - link [ref=e590] [cursor=pointer]:
+                    - /url: "#cite_ref-Smithsonian_story_2-21"
+                  - link [ref=e591] [cursor=pointer]:
+                    - /url: "#cite_ref-Smithsonian_story_2-22"
+                  - link [ref=e592] [cursor=pointer]:
+                    - /url: "#cite_ref-Smithsonian_story_2-23"
+                  - link [ref=e593] [cursor=pointer]:
+                    - /url: "#cite_ref-Smithsonian_story_2-24"
+                  - link [ref=e594] [cursor=pointer]:
+                    - /url: "#cite_ref-Smithsonian_story_2-25"
+                  - link [ref=e595] [cursor=pointer]:
+                    - /url: "#cite_ref-Smithsonian_story_2-26"
+                  - link [ref=e596] [cursor=pointer]:
+                    - /url: "#cite_ref-Smithsonian_story_2-27"
+                  - link [ref=e597] [cursor=pointer]:
+                    - /url: "#cite_ref-Smithsonian_story_2-28"
+                  - link [ref=e598] [cursor=pointer]:
+                    - /url: "#cite_ref-Smithsonian_story_2-29"
+                  - link [ref=e599] [cursor=pointer]:
+                    - /url: "#cite_ref-Smithsonian_story_2-30"
+                  - link [ref=e600] [cursor=pointer]:
+                    - /url: "#cite_ref-Smithsonian_story_2-31"
+                - generic [ref=e601]:
+                  - generic [ref=e602]:
+                    - text: Abbott, Karen (December 25, 2012).
+                    - link "\"The Children Who Went Up In Smoke\"" [ref=e603] [cursor=pointer]:
+                      - /url: http://www.smithsonianmag.com/history/the-children-who-went-up-in-smoke-172429802/
+                    - text: .
+                    - link "Smithsonian" [ref=e605] [cursor=pointer]:
+                      - /url: //en.wikipedia.org/wiki/Smithsonian_(magazine)
+                    - generic [ref=e606]: . Retrieved December 2, 2015
+                    - text: .
+                  - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=article&rft.jtitle=Smithsonian&rft.atitle=The+Children+Who+Went+Up+In+Smoke&rft.date=2012-12-25&rft.aulast=Abbott&rft.aufirst=Karen&rft_id=http%3A%2F%2Fwww.smithsonianmag.com%2Fhistory%2Fthe-children-who-went-up-in-smoke-172429802%2F&rfr_id=info%3Asid%2Fen.wikipedia.org%3ASodder+children+disappearance"
+              - listitem [ref=e607]:
+                - generic [ref=e608]:
+                  - text: ^
+                  - link "Jump up to:" [ref=e609] [cursor=pointer]:
+                    - /url: "#cite_ref-NPR_story_3-0"
+                    - generic [ref=e610]: "Jump up to:"
+                  - link [ref=e611] [cursor=pointer]:
+                    - /url: "#cite_ref-NPR_story_3-1"
+                  - link [ref=e612] [cursor=pointer]:
+                    - /url: "#cite_ref-NPR_story_3-2"
+                  - link [ref=e613] [cursor=pointer]:
+                    - /url: "#cite_ref-NPR_story_3-3"
+                  - link [ref=e614] [cursor=pointer]:
+                    - /url: "#cite_ref-NPR_story_3-4"
+                  - link [ref=e615] [cursor=pointer]:
+                    - /url: "#cite_ref-NPR_story_3-5"
+                - generic [ref=e616]:
+                  - generic [ref=e617]:
+                    - link "Horn, Stacy" [ref=e618] [cursor=pointer]:
+                      - /url: //en.wikipedia.org/wiki/Stacy_Horn
+                    - text: (December 23, 2005).
+                    - link "\"Mystery of Missing Children Haunts W.Va. Town\"" [ref=e619] [cursor=pointer]:
+                      - /url: https://www.npr.org/templates/story/story.php?storyId=5067563
+                    - text: .
+                    - link "National Public Radio" [ref=e621] [cursor=pointer]:
+                      - /url: //en.wikipedia.org/wiki/National_Public_Radio
+                    - generic [ref=e622]: . Retrieved December 2, 2015
+                    - text: .
+                  - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=article&rft.jtitle=National+Public+Radio&rft.atitle=Mystery+of+Missing+Children+Haunts+W.Va.+Town&rft.date=2005-12-23&rft.aulast=Horn&rft.aufirst=Stacy&rft_id=https%3A%2F%2Fwww.npr.org%2Ftemplates%2Fstory%2Fstory.php%3FstoryId%3D5067563&rfr_id=info%3Asid%2Fen.wikipedia.org%3ASodder+children+disappearance"
+              - listitem [ref=e623]:
+                - generic [ref=e624]:
+                  - text: ^
+                  - link "Jump up to:" [ref=e625] [cursor=pointer]:
+                    - /url: "#cite_ref-Obit_4-0"
+                    - generic [ref=e626]: "Jump up to:"
+                  - link [ref=e627] [cursor=pointer]:
+                    - /url: "#cite_ref-Obit_4-1"
+                - generic [ref=e628]:
+                  - generic [ref=e629]:
+                    - link "\"Sylvia Paxton\"" [ref=e630] [cursor=pointer]:
+                      - /url: https://www.wvgazettemail.com/obituaries/sylvia-paxton/article_eb50dc1f-1551-58c2-9763-2642ac0979a1.html
+                    - text: . Charleston Gazette-Mail
+                    - generic [ref=e631]: . Retrieved April 28, 2021
+                    - text: .
+                  - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=unknown&rft.jtitle=Charleston+Gazette-Mail&rft.atitle=Sylvia+Paxton&rft_id=https%3A%2F%2Fwww.wvgazettemail.com%2Fobituaries%2Fsylvia-paxton%2Farticle_eb50dc1f-1551-58c2-9763-2642ac0979a1.html&rfr_id=info%3Asid%2Fen.wikipedia.org%3ASodder+children+disappearance"
+              - listitem [ref=e632]:
+                - link "Jump up" [ref=e634] [cursor=pointer]:
+                  - /url: "#cite_ref-AP_story_in_BYT_5-0"
+                  - text: ^
+                - generic [ref=e635]:
+                  - generic [ref=e636]:
+                    - link "\"11 children Die in 4 Home Fires; Weather Man's Christmas Greetings to Two Cities\"" [ref=e637] [cursor=pointer]:
+                      - /url: https://www.nytimes.com/1945/12/26/archives/11-children-die-in-4-home-fires-weather-mans-christmas-greetings-to.html
+                    - text: .
+                    - link "The New York Times" [ref=e639] [cursor=pointer]:
+                      - /url: //en.wikipedia.org/wiki/The_New_York_Times
+                    - text: . Associated Press. December 26, 1945
+                    - generic [ref=e640]: . Retrieved December 5, 2015
+                    - text: .
+                  - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=article&rft.jtitle=The+New+York+Times&rft.atitle=11+children+Die+in+4+Home+Fires%3B+Weather+Man%27s+Christmas+Greetings+to+Two+Cities&rft.date=1945-12-26&rft_id=https%3A%2F%2Fwww.nytimes.com%2F1945%2F12%2F26%2Farchives%2F11-children-die-in-4-home-fires-weather-mans-christmas-greetings-to.html&rfr_id=info%3Asid%2Fen.wikipedia.org%3ASodder+children+disappearance"
+              - listitem [ref=e641]:
+                - link "Jump up" [ref=e643] [cursor=pointer]:
+                  - /url: "#cite_ref-6"
+                  - text: ^
+                - generic [ref=e644]:
+                  - generic [ref=e645]:
+                    - link "\"Sylvia Sodder Paxton - View Obituary & Service Information\"" [ref=e646] [cursor=pointer]:
+                      - /url: https://www.bartlettnicholsfuneralhome.com/obituaries/Sylvia-Paxton/
+                    - text: . Sylvia Sodder Paxton Obituary
+                    - generic [ref=e647]: . Retrieved December 12, 2022
+                    - text: .
+                  - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=unknown&rft.jtitle=Sylvia+Sodder+Paxton+Obituary&rft.atitle=Sylvia+Sodder+Paxton+-+View+Obituary+%26+Service+Information&rft_id=https%3A%2F%2Fwww.bartlettnicholsfuneralhome.com%2Fobituaries%2FSylvia-Paxton%2F&rfr_id=info%3Asid%2Fen.wikipedia.org%3ASodder+children+disappearance"
+              - listitem [ref=e648]:
+                - generic [ref=e649]:
+                  - text: ^
+                  - link "Jump up to:" [ref=e650] [cursor=pointer]:
+                    - /url: "#cite_ref-Encyclopedia_of_Unsolved_Crime_7-0"
+                    - generic [ref=e651]: "Jump up to:"
+                  - link [ref=e652] [cursor=pointer]:
+                    - /url: "#cite_ref-Encyclopedia_of_Unsolved_Crime_7-1"
+                  - link [ref=e653] [cursor=pointer]:
+                    - /url: "#cite_ref-Encyclopedia_of_Unsolved_Crime_7-2"
+                  - link [ref=e654] [cursor=pointer]:
+                    - /url: "#cite_ref-Encyclopedia_of_Unsolved_Crime_7-3"
+                  - link [ref=e655] [cursor=pointer]:
+                    - /url: "#cite_ref-Encyclopedia_of_Unsolved_Crime_7-4"
+                  - link [ref=e656] [cursor=pointer]:
+                    - /url: "#cite_ref-Encyclopedia_of_Unsolved_Crime_7-5"
+                  - link [ref=e657] [cursor=pointer]:
+                    - /url: "#cite_ref-Encyclopedia_of_Unsolved_Crime_7-6"
+                  - link [ref=e658] [cursor=pointer]:
+                    - /url: "#cite_ref-Encyclopedia_of_Unsolved_Crime_7-7"
+                  - link [ref=e659] [cursor=pointer]:
+                    - /url: "#cite_ref-Encyclopedia_of_Unsolved_Crime_7-8"
+                  - link [ref=e660] [cursor=pointer]:
+                    - /url: "#cite_ref-Encyclopedia_of_Unsolved_Crime_7-9"
+                - generic [ref=e661]:
+                  - generic [ref=e662]:
+                    - text: Newton, Michael (2009).
+                    - link "The Encyclopedia of Unsolved Crimes" [ref=e663] [cursor=pointer]:
+                      - /url: https://books.google.com/books?id=gijG7fSwvjAC&pg=PA349
+                    - text: . Infobase Publishing. pp. 348–50.
+                    - link "ISBN" [ref=e664] [cursor=pointer]:
+                      - /url: //en.wikipedia.org/wiki/ISBN_(identifier)
+                    - link "9781438119144" [ref=e665] [cursor=pointer]:
+                      - /url: //en.wikipedia.org/wiki/Special:BookSources/9781438119144
+                    - text: .
+                  - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&rft.genre=book&rft.btitle=The+Encyclopedia+of+Unsolved+Crimes&rft.pages=348-50&rft.pub=Infobase+Publishing&rft.date=2009&rft.isbn=9781438119144&rft.aulast=Newton&rft.aufirst=Michael&rft_id=https%3A%2F%2Fbooks.google.com%2Fbooks%3Fid%3DgijG7fSwvjAC%26pg%3DPA349&rfr_id=info%3Asid%2Fen.wikipedia.org%3ASodder+children+disappearance"
+              - listitem [ref=e666]:
+                - generic [ref=e667]:
+                  - text: ^
+                  - link "Jump up to:" [ref=e668] [cursor=pointer]:
+                    - /url: "#cite_ref-1968_Gazette-Mail_story_8-0"
+                    - generic [ref=e669]: "Jump up to:"
+                  - link [ref=e670] [cursor=pointer]:
+                    - /url: "#cite_ref-1968_Gazette-Mail_story_8-1"
+                  - link [ref=e671] [cursor=pointer]:
+                    - /url: "#cite_ref-1968_Gazette-Mail_story_8-2"
+                  - link [ref=e672] [cursor=pointer]:
+                    - /url: "#cite_ref-1968_Gazette-Mail_story_8-3"
+                  - link [ref=e673] [cursor=pointer]:
+                    - /url: "#cite_ref-1968_Gazette-Mail_story_8-4"
+                  - link [ref=e674] [cursor=pointer]:
+                    - /url: "#cite_ref-1968_Gazette-Mail_story_8-5"
+                  - link [ref=e675] [cursor=pointer]:
+                    - /url: "#cite_ref-1968_Gazette-Mail_story_8-6"
+                  - link [ref=e676] [cursor=pointer]:
+                    - /url: "#cite_ref-1968_Gazette-Mail_story_8-7"
+                  - link [ref=e677] [cursor=pointer]:
+                    - /url: "#cite_ref-1968_Gazette-Mail_story_8-8"
+                  - link [ref=e678] [cursor=pointer]:
+                    - /url: "#cite_ref-1968_Gazette-Mail_story_8-9"
+                - generic [ref=e679]:
+                  - generic [ref=e680]:
+                    - text: Jackson, Niles (December 22, 1968).
+                    - link "\"What Really Happened to Children?\"" [ref=e681] [cursor=pointer]:
+                      - /url: https://www.rootsweb.ancestry.com/~wvrcbiog/WhatReallyHappenedToChildrena.html
+                    - text: .
+                    - link "Charleston Gazette-Mail" [ref=e683] [cursor=pointer]:
+                      - /url: //en.wikipedia.org/wiki/Charleston_Gazette-Mail
+                    - generic [ref=e684]: . Retrieved December 5, 2015
+                    - text: – via rootsweb.com.
+                  - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=article&rft.jtitle=Charleston+Gazette-Mail&rft.atitle=What+Really+Happened+to+Children%3F&rft.date=1968-12-22&rft.aulast=Jackson&rft.aufirst=Niles&rft_id=http%3A%2F%2Fwww.rootsweb.ancestry.com%2F~wvrcbiog%2FWhatReallyHappenedToChildrena.html&rfr_id=info%3Asid%2Fen.wikipedia.org%3ASodder+children+disappearance"
+              - listitem [ref=e685]:
+                - generic [ref=e686]:
+                  - text: ^
+                  - link "Jump up to:" [ref=e687] [cursor=pointer]:
+                    - /url: "#cite_ref-Register-Herald_story_9-0"
+                    - generic [ref=e688]: "Jump up to:"
+                  - link [ref=e689] [cursor=pointer]:
+                    - /url: "#cite_ref-Register-Herald_story_9-1"
+                  - link [ref=e690] [cursor=pointer]:
+                    - /url: "#cite_ref-Register-Herald_story_9-2"
+                  - link [ref=e691] [cursor=pointer]:
+                    - /url: "#cite_ref-Register-Herald_story_9-3"
+                  - link [ref=e692] [cursor=pointer]:
+                    - /url: "#cite_ref-Register-Herald_story_9-4"
+                  - link [ref=e693] [cursor=pointer]:
+                    - /url: "#cite_ref-Register-Herald_story_9-5"
+                  - link [ref=e694] [cursor=pointer]:
+                    - /url: "#cite_ref-Register-Herald_story_9-6"
+                  - link [ref=e695] [cursor=pointer]:
+                    - /url: "#cite_ref-Register-Herald_story_9-7"
+                  - link [ref=e696] [cursor=pointer]:
+                    - /url: "#cite_ref-Register-Herald_story_9-8"
+                  - link [ref=e697] [cursor=pointer]:
+                    - /url: "#cite_ref-Register-Herald_story_9-9"
+                  - link [ref=e698] [cursor=pointer]:
+                    - /url: "#cite_ref-Register-Herald_story_9-10"
+                  - link [ref=e699] [cursor=pointer]:
+                    - /url: "#cite_ref-Register-Herald_story_9-11"
+                  - link [ref=e700] [cursor=pointer]:
+                    - /url: "#cite_ref-Register-Herald_story_9-12"
+                  - link [ref=e701] [cursor=pointer]:
+                    - /url: "#cite_ref-Register-Herald_story_9-13"
+                - generic [ref=e702]:
+                  - generic [ref=e703]:
+                    - text: Stanton, Audrey (December 24, 2006).
+                    - link "\"Where are the children?\"" [ref=e704] [cursor=pointer]:
+                      - /url: http://www.register-herald.com/local/local_story_358182913.html
+                    - text: . Beckley Register–Herald.
+                    - link "Beckley, WV" [ref=e705] [cursor=pointer]:
+                      - /url: //en.wikipedia.org/wiki/Beckley,_West_Virginia
+                    - generic [ref=e706]: . Retrieved December 3, 2015
+                    - text: .
+                  - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=article&rft.jtitle=Beckley+Register%E2%80%93Herald&rft.atitle=Where+are+the+children%3F&rft.date=2006-12-24&rft.aulast=Stanton&rft.aufirst=Audrey&rft_id=http%3A%2F%2Fwww.register-herald.com%2Flocal%2Flocal_story_358182913.html&rfr_id=info%3Asid%2Fen.wikipedia.org%3ASodder+children+disappearance"
+              - listitem [ref=e707]:
+                - generic [ref=e708]:
+                  - text: ^
+                  - link "Jump up to:" [ref=e709] [cursor=pointer]:
+                    - /url: "#cite_ref-Gazette-Mail_story_10-0"
+                    - generic [ref=e710]: "Jump up to:"
+                  - link [ref=e711] [cursor=pointer]:
+                    - /url: "#cite_ref-Gazette-Mail_story_10-1"
+                  - link [ref=e712] [cursor=pointer]:
+                    - /url: "#cite_ref-Gazette-Mail_story_10-2"
+                  - link [ref=e713] [cursor=pointer]:
+                    - /url: "#cite_ref-Gazette-Mail_story_10-3"
+                  - link [ref=e714] [cursor=pointer]:
+                    - /url: "#cite_ref-Gazette-Mail_story_10-4"
+                  - link [ref=e715] [cursor=pointer]:
+                    - /url: "#cite_ref-Gazette-Mail_story_10-5"
+                  - link [ref=e716] [cursor=pointer]:
+                    - /url: "#cite_ref-Gazette-Mail_story_10-6"
+                  - link [ref=e717] [cursor=pointer]:
+                    - /url: "#cite_ref-Gazette-Mail_story_10-7"
+                  - link [ref=e718] [cursor=pointer]:
+                    - /url: "#cite_ref-Gazette-Mail_story_10-8"
+                  - link [ref=e719] [cursor=pointer]:
+                    - /url: "#cite_ref-Gazette-Mail_story_10-9"
+                  - link [ref=e720] [cursor=pointer]:
+                    - /url: "#cite_ref-Gazette-Mail_story_10-10"
+                - generic [ref=e721]:
+                  - generic [ref=e722]:
+                    - text: Hopkins, Autumn D.F. (December 23, 2013).
+                    - link "\"Christmas Eve tragedy\"" [ref=e723] [cursor=pointer]:
+                      - /url: http://www.wvgazettemail.com/News/201312230105?page=1
+                    - text: .
+                    - link "Charleston Gazette-Mail" [ref=e725] [cursor=pointer]:
+                      - /url: //en.wikipedia.org/wiki/Charleston_Gazette-Mail
+                    - generic [ref=e726]: . Retrieved December 4, 2015
+                    - text: .
+                  - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=article&rft.jtitle=Charleston+Gazette-Mail&rft.atitle=Christmas+Eve+tragedy&rft.date=2013-12-23&rft.aulast=Hopkins&rft.aufirst=Autumn+D.F.&rft_id=http%3A%2F%2Fwww.wvgazettemail.com%2FNews%2F201312230105%3Fpage%3D1&rfr_id=info%3Asid%2Fen.wikipedia.org%3ASodder+children+disappearance"
+              - listitem [ref=e727]:
+                - generic [ref=e728]:
+                  - text: ^
+                  - link "Jump up to:" [ref=e729] [cursor=pointer]:
+                    - /url: "#cite_ref-Stacy_Horn_blog_post_11-0"
+                    - generic [ref=e730]: "Jump up to:"
+                  - link [ref=e731] [cursor=pointer]:
+                    - /url: "#cite_ref-Stacy_Horn_blog_post_11-1"
+                  - link [ref=e732] [cursor=pointer]:
+                    - /url: "#cite_ref-Stacy_Horn_blog_post_11-2"
+                  - link [ref=e733] [cursor=pointer]:
+                    - /url: "#cite_ref-Stacy_Horn_blog_post_11-3"
+                  - link [ref=e734] [cursor=pointer]:
+                    - /url: "#cite_ref-Stacy_Horn_blog_post_11-4"
+                  - link [ref=e735] [cursor=pointer]:
+                    - /url: "#cite_ref-Stacy_Horn_blog_post_11-5"
+                  - link [ref=e736] [cursor=pointer]:
+                    - /url: "#cite_ref-Stacy_Horn_blog_post_11-6"
+                  - link [ref=e737] [cursor=pointer]:
+                    - /url: "#cite_ref-Stacy_Horn_blog_post_11-7"
+                - generic [ref=e738]:
+                  - generic [ref=e739]:
+                    - link "Horn, Stacy" [ref=e740] [cursor=pointer]:
+                      - /url: //en.wikipedia.org/wiki/Stacy_Horn
+                    - text: (December 28, 2005).
+                    - link "\"Long, Long, Long Sodder Post\"" [ref=e741] [cursor=pointer]:
+                      - /url: http://www.echonyc.com/~horn/stacy/?p=80
+                    - text: .
+                    - link "EchoNYC" [ref=e742] [cursor=pointer]:
+                      - /url: //en.wikipedia.org/wiki/EchoNYC
+                    - generic [ref=e743]: . Retrieved December 5, 2015
+                    - text: .
+                  - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&rft.genre=unknown&rft.btitle=Long%2C+Long%2C+Long+Sodder+Post&rft.pub=EchoNYC&rft.date=2005-12-28&rft.aulast=Horn&rft.aufirst=Stacy&rft_id=http%3A%2F%2Fwww.echonyc.com%2F~horn%2Fstacy%2F%3Fp%3D80&rfr_id=info%3Asid%2Fen.wikipedia.org%3ASodder+children+disappearance"
+              - listitem [ref=e744]:
+                - link "Jump up" [ref=e746] [cursor=pointer]:
+                  - /url: "#cite_ref-12"
+                  - text: ^
+                - generic [ref=e747]:
+                  - generic [ref=e748]:
+                    - link "\"History's Greatest Mysteries - Rotten Tomatoes - The Sodder Family Children Disappearance\"" [ref=e749] [cursor=pointer]:
+                      - /url: https://www.rottentomatoes.com/tv/historys_greatest_mysteries/s03
+                    - text: . Rotten Tomatoes
+                    - generic [ref=e750]: . Retrieved April 23, 2022
+                    - text: .
+                  - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=unknown&rft.jtitle=Rotten+Tomatoes&rft.atitle=History%27s+Greatest+Mysteries+-+Rotten+Tomatoes+-+The+Sodder+Family+Children+Disappearance&rft_id=https%3A%2F%2Fwww.rottentomatoes.com%2Ftv%2Fhistorys_greatest_mysteries%2Fs03&rfr_id=info%3Asid%2Fen.wikipedia.org%3ASodder+children+disappearance"
+          - region "External links" [ref=e751]:
+            - generic [ref=e752]:
+              - heading "External links" [level=2] [ref=e753]
+              - generic [ref=e754]:
+                - link "edit":
+                  - /url: /w/index.php?title=Sodder_children_disappearance&action=edit&section=11
+            - list [ref=e755]:
+              - listitem [ref=e756]:
+                - link "Sodder children disappearance on Bottega Mistero" [ref=e757] [cursor=pointer]:
+                  - /url: https://www.bottegamistero.com/cinque-bambini-scomparsi-della-famiglia-sodder/
+              - listitem [ref=e758]:
+                - link "Stuff You Should Know episode" [ref=e759] [cursor=pointer]:
+                  - /url: https://www.iheart.com/podcast/105-stuff-you-should-know-26940277/episode/selects-the-unsolved-mystery-disappearance-of-81077117/
+            - paragraph
+        - generic [ref=e761]:
+          - link "Categories" [ref=e762] [cursor=pointer]:
+            - /url: /wiki/Help:Category
+          - text: ":"
+          - list [ref=e763]:
+            - listitem [ref=e764]:
+              - link "1940s missing person cases" [ref=e765] [cursor=pointer]:
+                - /url: /wiki/Category:1940s_missing_person_cases
+            - listitem [ref=e766]:
+              - link "Missing person cases in West Virginia" [ref=e767] [cursor=pointer]:
+                - /url: /wiki/Category:Missing_person_cases_in_West_Virginia
+            - listitem [ref=e768]:
+              - link "Italian-American history" [ref=e769] [cursor=pointer]:
+                - /url: /wiki/Category:Italian-American_history
+            - listitem [ref=e770]:
+              - link "1945 in West Virginia" [ref=e771] [cursor=pointer]:
+                - /url: /wiki/Category:1945_in_West_Virginia
+            - listitem [ref=e772]:
+              - link "1945 fires in the United States" [ref=e773] [cursor=pointer]:
+                - /url: /wiki/Category:1945_fires_in_the_United_States
+            - listitem [ref=e774]:
+              - link "Building and structure collapses in the United States" [ref=e775] [cursor=pointer]:
+                - /url: /wiki/Category:Building_and_structure_collapses_in_the_United_States
+            - listitem [ref=e776]:
+              - link "Building and structure collapses caused by fire" [ref=e777] [cursor=pointer]:
+                - /url: /wiki/Category:Building_and_structure_collapses_caused_by_fire
+            - listitem [ref=e778]:
+              - link "Building and structure fires in the United States" [ref=e779] [cursor=pointer]:
+                - /url: /wiki/Category:Building_and_structure_fires_in_the_United_States
+            - listitem [ref=e780]:
+              - link "Fayette County, West Virginia" [ref=e781] [cursor=pointer]:
+                - /url: /wiki/Category:Fayette_County,_West_Virginia
+            - listitem [ref=e782]:
+              - link "December 1945 in the United States" [ref=e783] [cursor=pointer]:
+                - /url: /wiki/Category:December_1945_in_the_United_States
+            - listitem [ref=e784]:
+              - link "Mass disappearances" [ref=e785] [cursor=pointer]:
+                - /url: /wiki/Category:Mass_disappearances
+            - listitem [ref=e786]:
+              - link "Missing American children" [ref=e787] [cursor=pointer]:
+                - /url: /wiki/Category:Missing_American_children
+            - listitem [ref=e788]:
+              - link "Fires in West Virginia" [ref=e789] [cursor=pointer]:
+                - /url: /wiki/Category:Fires_in_West_Virginia
+            - listitem [ref=e790]:
+              - link "History of Christmas" [ref=e791] [cursor=pointer]:
+                - /url: /wiki/Category:History_of_Christmas
+            - listitem [ref=e792]:
+              - link "Italian fascism" [ref=e793] [cursor=pointer]:
+                - /url: /wiki/Category:Italian_fascism
+            - listitem [ref=e794]:
+              - link "Aftermath of World War II in the United States" [ref=e795] [cursor=pointer]:
+                - /url: /wiki/Category:Aftermath_of_World_War_II_in_the_United_States
+            - listitem [ref=e796]:
+              - link "Anti-fascism in the United States" [ref=e797] [cursor=pointer]:
+                - /url: /wiki/Category:Anti-fascism_in_the_United_States
+    - contentinfo [ref=e799]:
+      - list [ref=e800]:
+        - listitem [ref=e801]: This page was last edited on 2 July 2026, at 20:28 (UTC).
+        - listitem [ref=e802]:
+          - text: Page was rendered with
+          - link "Parsoid" [ref=e803] [cursor=pointer]:
+            - /url: https://www.mediawiki.org/wiki/Special:MyLanguage/Parsoid
+          - text: .
+        - listitem [ref=e804]:
+          - text: Text is available under the
+          - link "Creative Commons Attribution-ShareAlike 4.0 License" [ref=e805] [cursor=pointer]:
+            - /url: /wiki/Wikipedia:Text_of_the_Creative_Commons_Attribution-ShareAlike_4.0_International_License
+          - text: ; additional terms may apply. By using this site, you agree to the
+          - link "Terms of Use" [ref=e806] [cursor=pointer]:
+            - /url: https://foundation.wikimedia.org/wiki/Special:MyLanguage/Policy:Terms_of_Use
+          - text: and
+          - link "Privacy Policy" [ref=e807] [cursor=pointer]:
+            - /url: https://foundation.wikimedia.org/wiki/Special:MyLanguage/Policy:Privacy_policy
+          - text: . Wikipedia® is a registered trademark of the
+          - link "Wikimedia Foundation, Inc." [ref=e808] [cursor=pointer]:
+            - /url: https://wikimediafoundation.org/
+          - text: ", a non-profit organization."
+      - list:
+        - listitem [ref=e809]:
+          - link "Privacy policy" [ref=e810] [cursor=pointer]:
+            - /url: https://foundation.wikimedia.org/wiki/Special:MyLanguage/Policy:Privacy_policy
+        - listitem [ref=e811]:
+          - link "About Wikipedia" [ref=e812] [cursor=pointer]:
+            - /url: /wiki/Wikipedia:About
+        - listitem [ref=e813]:
+          - link "Disclaimers" [ref=e814] [cursor=pointer]:
+            - /url: /wiki/Wikipedia:General_disclaimer
+        - listitem [ref=e815]:
+          - link "Contact Wikipedia" [ref=e816] [cursor=pointer]:
+            - /url: //en.wikipedia.org/wiki/Wikipedia:Contact_us
+        - listitem [ref=e817]:
+          - link "Legal & safety contacts" [ref=e818] [cursor=pointer]:
+            - /url: https://foundation.wikimedia.org/wiki/Special:MyLanguage/Legal:Wikimedia_Foundation_Legal_and_Safety_Contact_Information
+        - listitem [ref=e819]:
+          - link "Code of Conduct" [ref=e820] [cursor=pointer]:
+            - /url: https://foundation.wikimedia.org/wiki/Special:MyLanguage/Policy:Universal_Code_of_Conduct
+        - listitem [ref=e821]:
+          - link "Developers" [ref=e822] [cursor=pointer]:
+            - /url: https://developer.wikimedia.org
+        - listitem [ref=e823]:
+          - link "Statistics" [ref=e824] [cursor=pointer]:
+            - /url: https://stats.wikimedia.org/#/en.wikipedia.org
+        - listitem [ref=e825]:
+          - link "Cookie statement" [ref=e826] [cursor=pointer]:
+            - /url: https://foundation.wikimedia.org/wiki/Special:MyLanguage/Policy:Cookie_statement
+        - listitem [ref=e827]:
+          - link "Mobile view" [ref=e828] [cursor=pointer]:
+            - /url: //en.wikipedia.org/w/index.php?title=Sodder_children_disappearance&mobileaction=toggle_view_mobile
+      - list [ref=e829]:
+        - listitem [ref=e830]:
+          - link "Wikimedia Foundation" [ref=e831] [cursor=pointer]:
+            - /url: https://www.wikimedia.org/
+            - img "Wikimedia Foundation" [ref=e833]
+        - listitem [ref=e834]:
+          - link "Powered by MediaWiki" [ref=e835] [cursor=pointer]:
+            - /url: https://www.mediawiki.org/
+            - img "Powered by MediaWiki" [ref=e837]
+  - generic [ref=e838]:
+    - list

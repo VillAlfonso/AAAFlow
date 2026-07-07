@@ -213,6 +213,13 @@ def load() -> List[Dict]:
         rec = storage.read_json(d / "channel.json", None) if d.is_dir() else None
         if isinstance(rec, dict) and rec.get("id"):
             rec["ui"] = ui_info(rec["id"])
+            # expose only WHETHER the vault holds a connection, never the keys
+            try:
+                sec = storage.read_json(_secrets_file(rec["id"]), None) or {}
+                rec.setdefault("youtube", {})["connected"] = bool(
+                    sec.get("refresh_token"))
+            except (ValueError, OSError):
+                pass
             out.append(rec)
     out.sort(key=lambda c: c.get("created") or 0)
     return out
@@ -225,6 +232,46 @@ def _write(ch: Dict) -> Dict:
     return dict(rec, ui=ui_info(rec["id"]))
 
 
+# --- YouTube secrets vault (user rule 2026-07-05: keys must be PRIVATE on
+# GitHub). channel.json (tracked in git) never holds credentials; they live in
+# data/secrets/<cid>.json which .gitignore excludes. get() merges them back in
+# memory so youtube.py keeps working unchanged.
+_SECRET_KEYS = ("client_id", "client_secret", "refresh_token", "token",
+                "access_token")
+
+
+def _secrets_file(cid: str) -> Path:
+    d = config.DATA_DIR / "secrets"
+    d.mkdir(parents=True, exist_ok=True)
+    return d / f"{_safe_cid(cid)}.json"
+
+
+def _split_secrets(rec: Dict) -> Dict:
+    """Move credential fields out of rec['youtube'] into the vault (merging
+    with what's already there); rec keeps only non-secret fields (privacy)."""
+    yt = rec.get("youtube")
+    if not isinstance(yt, dict):
+        return rec
+    secrets = {k: yt.pop(k) for k in list(yt) if k in _SECRET_KEYS and yt[k]}
+    for k in _SECRET_KEYS:
+        yt.pop(k, None)
+    if secrets:
+        cur = storage.read_json(_secrets_file(rec["id"]), {}) or {}
+        cur.update(secrets)
+        storage.write_json(_secrets_file(rec["id"]), cur)
+    return rec
+
+
+def _merge_secrets(rec: Dict) -> Dict:
+    try:
+        sec = storage.read_json(_secrets_file(rec["id"]), None)
+        if isinstance(sec, dict) and sec:
+            rec["youtube"] = {**(rec.get("youtube") or {}), **sec}
+    except (ValueError, OSError):
+        pass
+    return rec
+
+
 def get(cid: Optional[str]) -> Optional[Dict]:
     if not cid:
         return None
@@ -235,7 +282,7 @@ def get(cid: Optional[str]) -> Optional[Dict]:
         return None
     if isinstance(rec, dict) and rec.get("id"):
         rec["ui"] = ui_info(rec["id"])
-        return rec
+        return _merge_secrets(rec)
     return None
 
 
@@ -252,12 +299,12 @@ def upsert(channel: Dict) -> Dict:
         old.pop("ui", None)
         merged = storage.deep_merge(old, channel)
         merged["updated"] = _now()
-        return _write(merged)
+        return _write(_split_secrets(merged))
     channel.setdefault("defaults", {})
     channel.setdefault("youtube", {})
     channel.setdefault("stats", {"projects": 0, "last_project": None})
     channel["created"] = channel["updated"] = _now()
-    return _write(channel)
+    return _write(_split_secrets(channel))
 
 
 def remove(cid: str) -> bool:

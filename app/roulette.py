@@ -35,7 +35,7 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 from . import channels, config, jobs, storage, writer
-from .brandkit import build_graph
+from .brandkit import build_graph, publish_graph_to_comfy
 from .comfy_engine import comfy_engine
 
 ROULETTE_DIR = config.DATA_DIR / "roulette"
@@ -75,6 +75,17 @@ _AESTHETICS = [
     "illuminated-manuscript margins, gold leaf and flat medieval figures",
     "risograph two-ink print, grainy overlap of fluorescent and navy",
     "noir ink-wash editorial cartoon, dramatic hard shadows",
+    # proven-viral reference looks (user-supplied examples, 2026-07-05)
+    "ember-glow dark fable art: near-black scene lit by ONE smoldering red glow, "
+    "expressive cartoon animals with huge readable emotion, cracked scorched earth "
+    "and bare twisted branches",
+    "clean stickman comic: simple round-headed white figure with an expressive face "
+    "inside a detailed muted real-world scene, one bright accent light source",
+    "chibi mascot documentary: big-headed blank-faced white figure in crisp corporate "
+    "and industrial environments, soft warm render, tiny identical clones in the "
+    "background",
+    "parchment history comic: warm candlelit palette, expressive doodle people in "
+    "period dress, aged-paper texture and engraved-frame borders",
 ]
 _TONES = [
     "deadpan and dry", "quietly ominous", "awestruck and curious",
@@ -420,6 +431,8 @@ def submit_roll(hint: Optional[str] = None) -> str:
         seed_offset = rng.randrange(1_000_000)
         wf, prefix_map = build_graph(pseudo, seed_offset, only=_ROLL_SLOTS)
         (rdir / "graph.json").write_text(json.dumps(wf, indent=2), encoding="utf-8")
+        # brainstormer graphs land in ComfyUI's library too — nothing to drag
+        publish_graph_to_comfy(f"roulette_{rid}_{concept.get('id') or 'roll'}", wf)
 
         progress("Starting ComfyUI / krea2…", 0.45)
         comfy_engine.ensure_running(progress=lambda s, f: progress(s, 0.45 + 0.05 * f))
@@ -473,7 +486,10 @@ def accept(rid: str, cid: Optional[str] = None, name: Optional[str] = None) -> D
             "voice_instruct": c["voice_instruct"],
             "style_suffix": c["style_suffix"], "negative_style": c["negative_style"],
             "music_vibe": c["music_vibe"],
-            "thumb": {"template": c["thumb_template"], "accent": c["accent"]},
+            # accent only — no pinned template, so every video rotates the
+            # thumbnail variance pool (high-variance rule, 2026-07-05)
+            "thumb": {"accent": c["accent"]},
+            "voice_humanize": "natural",
         },
         "youtube": {},
         "roulette": {"rid": rid, "dice": rec.get("dice"),
@@ -492,6 +508,7 @@ def accept(rid: str, cid: Optional[str] = None, name: Optional[str] = None) -> D
             shutil.copy2(src, bdir / f"{key}.png")
     if (rdir / "graph.json").exists():
         shutil.copy2(rdir / "graph.json", bdir / "graphs" / "channel_preview.json")
+        publish_graph_to_comfy(f"{final}_channel_preview", rdir / "graph.json")
     storage.write_json(channels.ui_dir(final) / "ui.json", {"accent": c["accent"]})
 
     rec["accepted"] = final

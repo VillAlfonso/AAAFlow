@@ -87,4 +87,4 @@ def submit_shorts(pid: str, opts: Optional[Dict] = None) -> str:
         })
         return {"shorts": made}
 
-    return jobs.submit("shorts", task)
+    return jobs.submit("shorts", task, pid=pid)

@@ -114,9 +114,18 @@ def pop(dur: float = 0.22) -> np.ndarray:
     return _norm(_stereo(click * 0.5 + blip), 0.6)
 
 
+def click(dur: float = 0.09) -> np.ndarray:
+    """Small mechanical UI click (date chips, typeset elements landing)."""
+    t = _t(dur)
+    burst = _lowpassish(_noise(len(t), seed=21), 3) * np.exp(-t * 260.0)
+    tick = np.sin(2 * np.pi * 2900.0 * t) * np.exp(-t * 300.0) * 0.6
+    return _norm(_stereo(burst * 0.7 + tick), 0.5)
+
+
 # (keywords, synth, pre) — first match wins; pre=True means the clip should
 # END at the cut (risers build into a scene) instead of starting on it.
 _RULES: List[Tuple[Tuple[str, ...], object, bool]] = [
+    (("click", "tick"), click, False),
     (("ris", "build"), riser, True),
     (("whoosh", "swish", "swoosh", "woosh"), whoosh, False),
     (("ka-ching", "kaching", "cash", "register", "coin"), kaching, False),
@@ -124,6 +133,14 @@ _RULES: List[Tuple[Tuple[str, ...], object, bool]] = [
     (("boom", "impact", "thud", "slam", "hit", "clank", "punch", "drop"), impact, False),
     (("pop",), pop, False),
 ]
+
+# Big synthesized stingers read as SYNTHETIC (user, 2026-07-05: "they sound
+# terrible") — only these tiny UI ticks may come from the procedural synths;
+# whoosh/boom/riser/kaching/ding now require a REAL library file (Freesound
+# fetch or user-imported wav) or they stay silent.
+_TICK_SYNTHS = {"pop", "click"}
+_BIG_BUILTINS = {"whoosh_air", "impact_boom", "riser_build", "ding_bell",
+                 "kaching_register"}
 
 
 def classify(cue: str) -> Optional[Tuple[object, bool]]:
@@ -145,6 +162,7 @@ _BUILTINS = [
     ("ding_bell", ding, ["ding", "bell", "chime"]),
     ("kaching_register", kaching, ["kaching", "ka-ching", "cash", "register", "coin", "money"]),
     ("pop_cartoon", pop, ["pop", "bubble", "blip"]),
+    ("ui_click", click, ["click", "tick", "ui"]),
 ]
 
 
@@ -209,19 +227,29 @@ def _load_wav(path) -> Optional[np.ndarray]:
 
 
 def _match_library(cue: str) -> Optional[Dict]:
+    """Best REAL sound for a cue. Fetched/imported files always beat the
+    seeded procedural wavs; the big procedural stingers are excluded entirely
+    (they sound synthetic — user rule 2026-07-05)."""
     cw = set(_words(cue))
     if not cw:
         return None
-    best, score = None, 0
+    best, score = None, -1
     for entry in library():
+        if entry.get("id") in _BIG_BUILTINS:
+            continue
         s = len(cw & set(entry.get("tags") or []))
-        if s > score:
-            best, score = entry, s
-    return best if score > 0 else None
+        if s <= 0:
+            continue
+        real = 0 if entry.get("source") == "builtin-procedural" else 1
+        if (s + real * 10) > score:
+            best, score = entry, s + real * 10
+    return best
 
 
 def render(cue: str) -> Optional[np.ndarray]:
-    """Stinger for a free-text cue: tagged library file first, synth fallback."""
+    """Stinger for a free-text cue: real library file first; only tiny UI
+    ticks (pop/click) may fall back to a synth — big cues stay silent rather
+    than sound fake."""
     entry = _match_library(cue)
     if entry:
         arr = _load_wav(config.SFX_LIB_DIR / entry["file"])
@@ -231,7 +259,7 @@ def render(cue: str) -> Optional[np.ndarray]:
     if not hit:
         return None
     fn, _pre = hit
-    return fn()
+    return fn() if fn.__name__ in _TICK_SYNTHS else None
 
 
 def is_pre(cue: str) -> bool:

@@ -36,6 +36,29 @@ SEO pool, YouTube account) is inherited from a **channel**.
   they were last in / the obvious fit, and say which you picked.
 - Projects created in a channel land in `data/channels/<cid>/projects/<pid>/`.
 
+## 1b. RESEARCH the story before writing (real facts + receipts)
+The topic bank gives ideas, not facts. Before scripting a true story:
+- **WebSearch/WebFetch** 2–3 solid sources (Wikipedia, contemporary news,
+  archives); pull the exact names, dates, amounts, and the one detail nobody
+  explains. Wrong facts are the fastest way to lose comments-section trust.
+- **Receipts (optional but powerful)**: with the **playwright MCP**
+  screenshot a real article/archive page per act into `<project>/research/`.
+  Capture the QUOTE's position in the same pass (normalized rect for the
+  receipt move):
+  `browser_evaluate: () => { const el = [...document.querySelectorAll('p,h1,h2,li')]
+  .find(e => e.textContent.includes("THE QUOTE")); const r = el.getBoundingClientRect();
+  return {x: r.x/innerWidth, y: r.y/innerHeight, w: r.width/innerWidth,
+  h: r.height/innerHeight}; }` then a viewport screenshot.
+- **Attach with the RECEIPT MOVE** (floating card → word-synced zoom →
+  animated highlight, `app/receipts.py`): copy the shot to
+  `images/scene_XXXX.png`, then `PATCH /api/projects/{pid}/scenes/{sid}
+  {"image_file": "images/scene_XXXX.png", "image_locked": true,
+  "receipt": {"focus": [x,y,w,h], "highlight": [x,y,w,h],
+  "sync": "the phrase the narrator says"}}` — the zoom fires on the SPOKEN
+  word (words.json timing). Omit `receipt` for a plain locked still.
+  Real documents on screen are a documentary technique, not burned-in text;
+  narrate over them ("this is the actual telegram").
+
 ## 2. Get the script (voice comes FIRST in the pipeline, but the script is step 1)
 Pick whichever fits what the user gave you:
 - **Topic only** → let the channel write it locally:
@@ -47,6 +70,10 @@ Pick whichever fits what the user gave you:
   or the upload form.
 - **Always lint first** to see what the director will fill/flag (no import):
   `POST /api/storyboard/lint {channel, data}` → read `report.fixes` + `warnings`.
+  Fix `visuals drift` warnings — the picture must SHOW what the line says.
+- Mark the ONE load-bearing word of a big line with `*asterisks*` — the
+  assembler lands a micro zoom/flash + tick exactly on that spoken word
+  (word-level Whisper timing). Unmarked lines get a sensible auto-pick.
 
 ## 3. Know the effects grammar (this is what makes it look edited)
 The auto-director fills transitions, SFX cues, shot variety and hero-motion
@@ -79,10 +106,15 @@ mood. The audio scorer reads the same file.
 - Audio: narration clear over the ducked bed, no clipping, no dead air > 1 s,
   one-take QA `ok: true`, ~−16 LUFS.
 
-## 6. SEO — every video ships with it (hard rule)
-`POST /api/projects/{pid}/package` → unique-to-this-video tags leading, channel
-`seo_keywords` behind; description with chapters; the scorer's credits are
-appended automatically. Review `project.seo`; adjust via `PUT .../seo` if weak.
+## 6. SEO — every video ships with it, RESEARCH-DRIVEN (hard rule)
+**First** save your research: `PUT /api/projects/{pid}/research {summary,
+facts[], sources[{title,url}], keywords[]}` — then
+`POST /api/projects/{pid}/package`. The description quotes the video's own
+most specific lines + a public Sources block; tags lead with real entities
+(names/places/years) + your research keywords, channel pool behind. Never
+ship the old boilerplate style ("The full story of…", "subscribe so…") — if
+the result still reads AI, rewrite the description by hand via `PUT .../seo`
+in the narrator's voice.
 
 ## 7. Optional finish
 - Shorts: `POST /api/projects/{pid}/shorts` (vertical hook + payoff).

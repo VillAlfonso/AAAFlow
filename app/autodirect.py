@@ -36,6 +36,94 @@ def _pick_cue(text: str) -> str:
     return grammar.pick_cue(text)
 
 
+_STOPW = set("a an the of in on at to for with and or but as is was were are be "
+             "been his her hers their its this that these those it he she they "
+             "them him from by into over under after before then than when "
+             "while who what where why how not no had has have did does do "
+             "will would could should there here about just very".split())
+
+
+def _content_words(t: str) -> set:
+    return {w for w in re.findall(r"[a-z][a-z'-]+", (t or "").lower())
+            if w not in _STOPW and len(w) > 2}
+
+
+def _stem(w: str) -> str:
+    if w.endswith("ies") and len(w) > 4:
+        return w[:-3] + "y"
+    for suf in ("ing", "ed", "es", "s"):
+        if w.endswith(suf) and len(w) - len(suf) >= 3:
+            return w[: -len(suf)]
+    return w
+
+
+def _visuals_match(narr: str, prompt: str) -> bool:
+    """Does the visual share ANY subject with the line? Exact word, same stem
+    (entries/entry), or compound containment (log/logbook) all count — this is
+    a slideshow-drift heuristic, not a grammar test."""
+    A, B = _content_words(narr), _content_words(prompt)
+    if A & B:
+        return True
+    As, Bs = {_stem(w) for w in A}, {_stem(w) for w in B}
+    if As & Bs:
+        return True
+    for x in As:
+        for y in Bs:
+            lo, hi = (x, y) if len(x) <= len(y) else (y, x)
+            # containment anywhere (phone/telephone, house/farmhouse) — a
+            # drift HEURISTIC, so a rare false pass beats constant false alarms
+            if len(lo) >= 4 and lo in hi:
+                return True
+            if len(lo) == 3 and hi.startswith(lo) and len(hi) >= 6:
+                return True
+    return False
+
+
+def _subject_of(narr: str, n: int = 7) -> str:
+    """The line's concrete subject — its first content words, in order."""
+    toks = [w for w in re.findall(r"[A-Za-z][\w'-]*", narr or "")
+            if w.lower() not in _STOPW][:n]
+    return " ".join(toks)
+
+
+# --- word-level emphasis (writer *markup* wins; else grammar detectors) -------
+_EMPH_MARK_RE = re.compile(r"\*([^*\n]{1,42}?)\*")
+_NUM_RE = re.compile(
+    r"\$\s?\d[\d,]*(?:\.\d+)?(?:\s*(?:million|billion|thousand))?"
+    r"|\b\d[\d,]*(?:\.\d+)?\s*(?:million|billion|thousand|percent|years?|days?|"
+    r"nights?|hours?|minutes?|men|women|children|people|bodies|victims|times|"
+    r"miles|feet|tons?|keepers?|hikers?)\b"
+    r"|\b(?:three|four|five|six|seven|eight|nine|ten|eleven|twelve|twenty|"
+    r"thirty|forty|fifty|hundred|thousand|million|billion)\b"
+    r"|\b\d[\d,]{0,7}\b", re.I)
+
+
+def _pull_markup(narr: str):
+    """Extract *marked* phrases; return (tts-clean text, phrases)."""
+    phrases = [m.strip() for m in _EMPH_MARK_RE.findall(narr) if m.strip()]
+    clean = _EMPH_MARK_RE.sub(lambda m: m.group(1), narr)
+    return clean.replace("*", ""), phrases
+
+
+def _auto_emphasis(narr: str, cfg: Dict) -> List[str]:
+    """The one phrase a human editor would punch: a number/amount first, else
+    the strongest absolute word — preferring late in the line, where it lands."""
+    if cfg.get("detect_numbers", True):
+        m = list(_NUM_RE.finditer(narr or ""))
+        if m:
+            return [m[-1].group(0).strip()]
+    low = (narr or "").lower()
+    best = None
+    for w in (cfg.get("detect_words") or []):
+        i = low.rfind(w)
+        if i < 0 or (best and i <= best[0]):
+            continue
+        j = i + len(w)
+        if (i == 0 or not low[i - 1].isalnum()) and (j >= len(low) or not low[j].isalnum()):
+            best = (i, narr[i:j])
+    return [best[1]] if best else []
+
+
 # --- assisted mode (small-model authoring, e.g. Haiku) -----------------------
 # In "assisted" mode the director may REWRITE weak structure, not just fill
 # gaps: an overlong cold open gets trimmed to a hard hook, rambling scenes are
@@ -164,6 +252,25 @@ def direct(raw: Dict, *, default_style: str | None = None,
             hook_idx.append(i)
         t += estimate_duration(s.get("narration") or "")
 
+    # draw the direction card (anti-factory: same rules, different skeleton).
+    # Author-set cards are kept; the pick is seeded so re-linting is stable.
+    cards = grammar.direction_cards()
+    if cards and not video.get("direction_card"):
+        seed = sum(ord(c) for c in (video.get("title") or "")) + len(scenes)
+        video["direction_card"] = dict(cards[seed % len(cards)])
+        fixes.append(f"video: direction card -> {video['direction_card'].get('id')}")
+    card = video.get("direction_card") or {}
+    t_off = int(card.get("transition_offset", 0) or 0)
+
+    bible = [b for b in (sb.get("character_bible") or [])
+             if (b.get("name") or "").strip()]
+    bible_names = [b["name"].strip() for b in bible]
+    e_cfg = grammar.emphasis_cfg()
+    e_max = max(1, int(e_cfg.get("max_per_scene", 1)))
+    last_emph = -9          # auto-emphasis at most every other scene
+    last_chip_year, last_chip_i = "", -9      # date chips: new years only
+    drift: List[int] = []   # scenes whose visual ignores the narration subject
+
     last_transition = ""
     # animation coverage: "all" = a real clip on every scene (viewer-retention
     # maximalist — costly), "heroes" = budgeted (dense for short videos, grows
@@ -185,6 +292,16 @@ def direct(raw: Dict, *, default_style: str | None = None,
         sid = s.get("id", i + 1)
         narr = (s.get("narration") or "").strip()
 
+        # writer *emphasis* markup: pull the phrases out, keep the TTS text clean
+        if "*" in narr:
+            clean, marked = _pull_markup(narr)
+            s["narration"] = narr = clean.strip()
+            if marked and not s.get("emphasis"):
+                s["emphasis"] = marked[:e_max]
+                last_emph = i
+            fixes.append(f"scene {sid}: emphasis markup -> "
+                         f"{', '.join(marked) if marked else 'stripped'}")
+
         # TTS-safe punctuation: trailing commas invite hallucinated continuations
         if narr.endswith(","):
             s["narration"] = narr[:-1] + "."
@@ -205,6 +322,30 @@ def direct(raw: Dict, *, default_style: str | None = None,
                 warnings.append(f"scene {sid}: image_prompt synthesized from "
                                 f"narration — a real prompt would look better")
 
+        # STORY-FIRST VISUALS: the picture must show what the line says — a
+        # visual sharing zero content words with its narration is slideshow
+        # filler, not storytelling. Assisted mode repairs it; pro mode warns.
+        ip = (s.get("image_prompt") or "").strip()
+        if ip and narr and not _visuals_match(narr, ip):
+            subj = _subject_of(narr)
+            if strict and subj:
+                s["image_prompt"] = f"{ip} — clearly showing {subj}"
+                fixes.append(f"scene {sid}: visual didn't depict the line — "
+                             f"anchored to '{subj}'")
+            else:
+                drift.append(sid)
+
+        # recurring-cast continuity: if a bible character is named in the line
+        # but the scene doesn't list them, list them (fills a gap — the prompt
+        # builder then appends their fixed look, keeping the cast on-model).
+        if bible_names and not s.get("characters"):
+            hit = [n for n in bible_names
+                   if re.search(rf"\b{re.escape(n.split()[0])}\b",
+                                f"{narr} {ip}", re.I)]
+            if hit:
+                s["characters"] = hit
+                fixes.append(f"scene {sid}: characters -> {', '.join(hit)}")
+
         beat = grammar.beat_of(f"{narr} {s.get('image_prompt')}")
         if not (s.get("transition") or "").strip():
             # A detected story beat picks its signature cut (reveal→flash,
@@ -212,9 +353,9 @@ def direct(raw: Dict, *, default_style: str | None = None,
             pick = grammar.transition_for_beat(beat) if beat else ""
             if not pick or pick == last_transition:
                 cycle = grammar.transitions(i in hook_idx)
-                pick = cycle[i % len(cycle)]
+                pick = cycle[(i + t_off) % len(cycle)]
                 if pick == last_transition:
-                    pick = cycle[(i + 1) % len(cycle)]
+                    pick = cycle[(i + t_off + 1) % len(cycle)]
             s["transition"] = pick
             fixes.append(f"scene {sid}: transition -> {pick}")
         last_transition = s["transition"]
@@ -234,6 +375,38 @@ def direct(raw: Dict, *, default_style: str | None = None,
         if not (s.get("motion_type") or "").strip() and i in heroes:
             s["motion_type"] = "ambient"
             fixes.append(f"scene {sid}: flagged as hero (ambient motion)")
+
+        # whole-scene FX on the beats that matter (grammar scene_fx)
+        if beat and not s.get("fx"):
+            if (i in heroes) or not grammar.scene_fx_hero_only():
+                fxn = grammar.scene_fx_for(beat)
+                if fxn:
+                    s["fx"] = [fxn]
+                    fixes.append(f"scene {sid}: scene fx -> {fxn} ({beat} beat)")
+
+        # DATE CHIP: a mentioned year/date is the perfect transition moment
+        # (user, 2026-07-05) — stamp a small typeset chip (assembler adds a
+        # click). Only on a NEW year, never two scenes running.
+        if not (s.get("date_chip") or "").strip():
+            ym = re.search(r"\b(1[6-9]\d\d|20[0-2]\d)\b", narr)
+            if ym and ym.group(1) != last_chip_year and i - last_chip_i >= 2:
+                md = re.search(r"\b(January|February|March|April|May|June|July|"
+                               r"August|September|October|November|December)"
+                               r"\s+\d{1,2}(?:\w{2})?,?\s*" + ym.group(1), narr)
+                s["date_chip"] = md.group(0).replace(",", ", ").replace("  ", " ") \
+                    if md else ym.group(1)
+                last_chip_year, last_chip_i = ym.group(1), i
+                fixes.append(f"scene {sid}: date chip -> {s['date_chip']}")
+
+        # word-level emphasis: author's field wins; else detect ONE phrase —
+        # and never two auto-punches on back-to-back scenes (metronome guard).
+        if s.get("emphasis"):
+            s["emphasis"] = [str(x).strip() for x in s["emphasis"]][:e_max]
+        elif i - last_emph >= 2:
+            auto = _auto_emphasis(narr, e_cfg)
+            if auto:
+                s["emphasis"] = auto[:e_max]
+                last_emph = i
 
     # --- lint-only observations ---------------------------------------------
     if scenes:
@@ -278,8 +451,36 @@ def direct(raw: Dict, *, default_style: str | None = None,
             warnings.append(f"scene {s.get('id')}: ~{est:.0f}s on a single still "
                             f"— split the narration or flag motion_type ambient")
 
+    # story-first summary: visuals that ignore the narration are "cool
+    # slideshow", not storytelling — the #1 way a video loses its viewer.
+    if drift:
+        head = ", ".join(str(x) for x in drift[:8])
+        warnings.append(f"visuals drift from the narration in {len(drift)}/"
+                        f"{len(scenes)} scenes ({head}{'…' if len(drift) > 8 else ''}) "
+                        f"— the picture must SHOW what the line says, or the "
+                        f"viewer can't follow the story with the sound off")
+
+    # a recurring name with no character_bible entry = a cast member whose
+    # face changes every scene (continuity is what makes visuals track a story)
+    if not bible_names and scenes:
+        from collections import Counter as _Counter
+        toks: List[str] = []
+        for line in (sc.get("narration") or "" for sc in scenes):
+            for sent in _SENT_RE.split(line):
+                ws = sent.strip().split()
+                toks += [w.strip(".,;:!?…\"'—–") for w in ws[1:]]
+        cnt = _Counter(w for w in toks
+                       if w[:1].isupper() and w[1:2].islower() and len(w) > 2)
+        top = sorted([n for n, c in cnt.items() if c >= 3])[:3]
+        if top:
+            warnings.append(f"recurring name(s) {', '.join(top)} have no "
+                            f"character_bible entry — add one (fixed look) so "
+                            f"the cast stays visually consistent across scenes")
+
     sb["video"] = video
     sb["scenes"] = scenes
+    stats["emphasized"] = sum(1 for s in scenes if s.get("emphasis"))
+    stats["scene_fx"] = sum(1 for s in scenes if s.get("fx"))
     report = {"fixes": fixes, "warnings": warnings, "stats": stats,
               "mode": "assisted" if strict else "standard"}
     return sb, report

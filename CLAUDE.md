@@ -36,15 +36,23 @@ Validate any storyboard without importing: `POST /api/storyboard/lint`.
 When a video underwhelms, improve the template/auto-director/validators —
 not just that one video.
 
-**The effects grammar (2026-07-04).** The "which effect WHEN" choices are NOT
-hardcoded — they live in one editable dictionary `data/effects_dictionary.json`
-(`app/grammar.py`, UI: Settings · Effects grammar, `GET/PUT
-/api/effects_dictionary`). It maps a narration **beat** (money/reveal/impact/
-motion/small) → the SFX stinger, the transition (reveals *flash*, impacts
-*smash*, money *punch-in*), the shot rotation, and the tone → music mood. BOTH
-`autodirect.py` and the audio scorer `score.py` read it, so teaching the system
-a new reflex is a one-JSON edit (or the `/add-effect` skill), never a code
-change. Every rule carries a `why` so it reads like a playbook.
+**The effects grammar (2026-07-04; expanded 2026-07-05).** The "which effect
+WHEN" choices are NOT hardcoded — they live in one editable dictionary
+`data/effects_dictionary.json` (`app/grammar.py`, UI: Settings · Effects
+grammar, `GET/PUT /api/effects_dictionary`). It maps a narration **beat**
+(money/reveal/impact/motion/small) → the SFX stinger, the transition (reveals
+*flash*, impacts *smash*, money *punch-in*), the shot rotation, and the tone →
+music mood. BOTH `autodirect.py` and the audio scorer `score.py` read it, so
+teaching the system a new reflex is a one-JSON edit (or the `/add-effect`
+skill), never a code change. Every rule carries a `why` so it reads like a
+playbook. 2026-07-05 additions (user: "add more editing effects, all in a
+dictionary"): a **catalog** section lists every effect the assembler can
+execute — new transitions *crash zoom*, real *glitch* (RGB tear), *drop-in*,
+*black flash* (`app/transitions.py`); **scene_fx** (letterbox on reveals,
+vignette on impacts — hero scenes only); and **emphasis** — the director marks
+≤1 phrase/scene (writer `*markup*` wins, else number/absolute-word detectors)
+and the assembler lands a micro zoom/flash/shake + tick on the exact SPOKEN
+word (one-take Whisper word timestamps persist to `audio/words.json`).
 
 **"Make me a video" is THE entry point (user, 2026-07-04, reaffirmed).** The
 user's chosen production method is now **Claude Code (set to Haiku) driving this
@@ -117,6 +125,20 @@ dictionary) so the moving/audio vibe is legible too. Hub card "Brand preview" /
 Regenerate = new `seed_offset`; every output PNG embeds the graph (drag into
 ComfyUI :8188 to edit nodes). **This is the reusable YouTube-identity template**:
 the same fixed architecture fits any channel by reading its `style_suffix`/`niche`.
+**The generator is VISIBLE + EDITABLE (user, 2026-07-05):** slot prompts/sizes/
+seeds live in `data/brandkit_slots.json` (`GET/PUT /api/brandkit_slots`; brand
+modal → 🧬 Architecture edits them in-app), and "Open in ComfyUI" /
+`POST /api/channels/{cid}/brand/comfy` re-renders the graph from the CURRENT
+slots and copies all the channel's graphs into ComfyUI's own workflow library
+(`ComfyUI/user/default/workflows/AAAFlow/<cid>_*.json` — sidebar → Workflows).
+**Every generated graph AUTO-publishes there** (user: "so I don't have to drag
+them"): brand previews, Wan snippet graphs, AND roulette brainstormer rolls
+(`brandkit.publish_graph_to_comfy`, called by preview/snippets/roulette).
+Menagerie's style_suffix carries an ember-glow infusion distilled from
+user-supplied reference channels (2026-07-05); those four looks (ember-glow
+dark fable / stickman comic / chibi mascot / parchment history comic) also
+joined the roulette aesthetics dice — reference styles enter as PROMPT DNA,
+never as LoRA training on other creators' art.
 The identity has a MOVING half too — `POST /api/channels/{cid}/snippets
 {keys?,seconds,quality}` animates chosen stills into short Wan 2.2 brand motion
 snippets (logo sting from `profile`, teaser from `thumbnail`) via the enhance
@@ -150,8 +172,13 @@ generations sound cut-up and out of tone; only prosody *within* a take is good.
 1. **Script** — write/receive the full script (spec: `storyboard_v3_prompt.md`).
 2. **One-take narration** — the WHOLE script in a single Qwen3-TTS pass:
    `POST /api/projects/{pid}/voiceover/onetake` (UI: Voiceover → "One-take
-   narration"). Whisper aligns every scene to the take and QA-checks the
-   transcript against the script (TTS hallucinates; never skip the QA result).
+   narration"). The take is auto-HUMANIZED before alignment (2026-07-05, "voice
+   still sounds AI"): `humanize.polish_wav` runs the mic/room/pacing-jitter
+   chain — channel `defaults.voice_humanize` ("natural" default; "off"
+   disables; Menagerie retuned with imperfection-heavy instruct). Then Whisper
+   aligns every scene to the take, saves word times to `audio/words.json` (the
+   emphasis system's clock) and QA-checks the transcript against the script
+   (TTS hallucinates; never skip the QA result).
 3. **Storyboard around the voice** — scene timings come FROM the narration
    alignment. Compose/adjust image prompts, camera hints, audio_cue per scene.
 4. **Images** — krea2 via ComfyUI; prompt = scene image_prompt + editable
@@ -205,55 +232,138 @@ get a TTS-drift lint warning; spot-check the one-take QA extra carefully.
 
 ## Hard rules
 - **NO on-screen text is ever burned into the video.** Narration + visuals
-  carry it. (The assembler no longer composites captions at all.)
-- **Thumbnails carry EMOTION and use fixed templates (user rules, 2026-07-05).**
-  `app/thumbs.py` composites every thumbnail from 5 reusable templates
-  (spotlight/case-file/reveal/split/bar) with REAL typeset text — never
-  AI-drawn glyphs. The emotion rule is pipeline-enforced: frame pick prefers
-  expressive people on reveal/impact beats, and a mood grade
-  (`grammar.mood_for` — same mood the scorer hears) tints color/vignette and
-  picks the kicker line (`data/thumb_templates.json`, editable). Channels pin
-  template/accent/kicker in `defaults.thumb`. All variants land in
+  carry it. (The assembler no longer composites captions at all.) Exception
+  (user, 2026-07-05): REAL article/document screenshots as evidence stills are
+  a documentary technique, not burned text — attach via scene `image_file` +
+  `image_locked: true` (batch regen skips locked scenes; playwright MCP in
+  `.mcp.json` captures them into `<project>/research/`).
+- **Visuals are STORY-FIRST, never slideshow (user, 2026-07-05).** Every
+  scene's picture must SHOW what its line SAYS (sound-off test). The
+  auto-director warns on zero subject overlap ("visuals drift"), repairs in
+  assisted mode, and auto-fills scene `characters` from the bible so the
+  recurring cast stays on-model. Spec carries matching clarity rules (one idea
+  per scene, cause→effect connectors, re-anchor names, signpost time jumps).
+- **Thumbnails carry EMOTION + HIGH VARIANCE (user rules, 2026-07-05).**
+  `app/thumbs.py` composites every thumbnail from 7 reusable templates
+  (spotlight/case-file/reveal/split/bar/poster/big-word) with REAL typeset
+  text — never AI-drawn glyphs. The emotion rule is pipeline-enforced: frame
+  pick prefers expressive people on reveal/impact beats, and a mood grade
+  (`grammar.mood_for`) tints color/vignette and picks the kicker
+  (`data/thumb_templates.json`, editable). VARIANCE is the default: when a
+  channel pins no template, the pool rotates per video (pid-seeded), never
+  repeating the previous video's pick; kickers draw from channel
+  `kicker_pool` + mood lines and sometimes drop entirely. Serial-number
+  kickers ("EXHIBIT No. {n}") are dead — Menagerie's pin removed; roulette no
+  longer pins templates. Title reframes rotate per video too
+  (`packaging._curiosity_titles` pool + seed). All variants land in
   `video/thumbs/`; the chosen one is `thumbnail.png`.
 - **Titles open a CURIOSITY GAP, never face value (user rule, 2026-07-05).**
   "He Sold the Eiffel Tower. Twice." not "The Story of Victor Lustig". Rule 0
   in `storyboard_v3_prompt.md` (writers) + `packaging.build` leads its title
   options with the hook + a deterministic curiosity reframe. Kickers/titles
   must still be TRUE — the payoff pays off the promise.
-- **Every video ships WITH its SEO (user rule, 2026-07-03).** Whenever Claude
-  makes a video, it must also build the SEO package — and it must be UNIQUE to
-  that video and that channel's niche (video-specific phrases lead the tags;
-  the channel's `seo_keywords` pool fills behind them; never boilerplate).
-  Generate via `POST /api/projects/{pid}/package`, review it like any other
-  output, adjust `project.seo` if weak.
-- **Every video ships auto-SCORED (user rule, 2026-07-03).** Music bed + SFX
-  are placed by `app/score.py` on every produce — never leave a video silent or
-  hand-drop tracks. Prefer real royalty-free libraries (Jamendo music, Freesound
-  SFX) when keys are set; else ACE-Step + procedural. Keep the license ledger +
-  auto-attribution intact (commercial-safe). Free/commercial-royalty-free only —
-  never a copyrighted track.
+- **Every video ships WITH its SEO — RESEARCH-DRIVEN (user rules 2026-07-03 +
+  2026-07-05 "SEO is way too AI").** Save research first
+  (`PUT /api/projects/{pid}/research {summary, facts, sources, keywords}`),
+  then `POST .../package`: the description QUOTES the video's most specific
+  narration lines + a public Sources block (no "The full story of…", no
+  "subscribe so…" boilerplate — both removed); tags lead with real entities
+  (names/places/years via `packaging._entities`) + research keywords, channel
+  pool behind. Review `project.seo`, hand-polish via `PUT .../seo` if it still
+  reads AI. Every package also writes `video/recipe.md` — the RECIPE CARD
+  (user's chef model): exact ingredients + measurements (script stats,
+  direction card, voice+humanize, look, cut/fx/emphasis counts, score plan,
+  package, sources). Live JSON: `GET /api/projects/{pid}/recipe`.
+- **Direction cards — the anti-factory dial (user, 2026-07-05: "one video
+  should be distinguishable from the next; not a factory").** Every video
+  draws ONE card (grammar `direction_cards`: cold-fact / in-medias-res /
+  object-first / question-first / countdown) that bends hook style, ending
+  type, transition-rotation offset, emphasis rotation, and Ken Burns energy.
+  Author-set `video.direction_card` wins; the card shows in lint + recipe.
+  Same rules every time, different skeleton every video.
+- **Every video ships auto-SCORED (user rule, 2026-07-03; amended 2026-07-05
+  "procedural SFX sound terrible").** Music bed + SFX placed by `app/score.py`
+  on every produce. Stingers must be REAL sounds (Freesound fetch or imported
+  wavs) — the big procedural synths (whoosh/boom/riser/kaching/ding) are
+  banned; a cue with no real file stays SILENT. Only tiny UI ticks (pop,
+  click) may synth. Beds: Jamendo → ACE-Step → existing. Keep the license
+  ledger + auto-attribution intact; never a copyrighted track.
+- **New editing furniture (user, 2026-07-05).** `edit` is now step 6 in the UI
+  (the ffmpeg-led auto-editor): `POST /api/projects/{pid}/autoedit` re-decides
+  every call (transitions/cues/shots/emphasis/fx/date chips) from the grammar
+  with one click; the plan renders scene-by-scene. **Date chips**: a year/date
+  mentioned in narration auto-stamps a small TYPESET date (georgiab) + click
+  SFX — the one sanctioned on-screen text besides receipt stills. **Receipt
+  move** (`app/receipts.py`): evidence screenshots float in as a tilted card,
+  ease-zoom into the referenced region ON the spoken word, marker highlight
+  sweeps it (scene `receipt{focus,highlight,sync}`). **Film filters**:
+  `filter` on preset/assemble opts — "vhs" (grain/scanlines/chroma fringe/
+  tracking wobble, `transitions.apply_filter`) is Menagerie's default via the
+  `cinematic-vhs` preset.
+- **Cinematic GRADE — the pro "Lumetri" pass (user, 2026-07-06: "make it look
+  like it was edited by a professional youtuber, through ffmpeg").** Runs LAST
+  over the FINISHED mp4 as ONE ffmpeg `filter_complex` (`app/grade.py`): film
+  colour (contrast/gamma/3-way balance) + halation **bloom** + **vignette** +
+  fine film **grain**. A POST-process, so it upgrades ANY render WITHOUT a
+  re-assemble. Looks live in the effects dictionary (`grammar['grades']`:
+  ember / cinematic / noir / warm / soft; `grade_for(mood)` picks by mood,
+  channel/preset/`asm.grade` override — **Menagerie = ember**, deepening its
+  ember-glow). `POST /api/projects/{pid}/grade {look?}` grades the newest
+  render on demand; it also auto-runs as the produce **`grade`** stage (after
+  assemble). New transition too: **dip to white** (`_whiteflash`, bright
+  reveal bloom) joins the grammar rotation + catalog.
+- **YouTube keys live in a git-ignored vault (user, 2026-07-05).**
+  `data/secrets/<cid>.json` (`.gitignore`d); `channels.get()` merges them in
+  memory, `upsert()` diverts them — channel.json never holds credentials. The
+  channel editor carries an idiot-proof connect guide (console links,
+  Desktop-app OAuth client, test user).
+- **In-app YouTube control center (user, 2026-07-06: "everything I need here,
+  no browser").** Connect a channel once (OAuth scope widened to
+  `youtube.force-ssl`), then manage it from the **channel editor**: `GET
+  /api/channels/{cid}/youtube/channels` (live avatar/banner/stats), `PUT
+  .../youtube/branding` (description/keywords/country), `POST .../youtube/banner`
+  (upload + set), `PUT .../youtube/video/{video_id}` (edit an uploaded video's
+  title/desc/tags/privacy) — plus the existing per-project upload. **HARD API
+  LIMITS (Google's, not ours — do NOT try to build around them):** you CANNOT
+  create a channel or set the profile picture/avatar via API, and API channel
+  RENAMES are usually silently ignored — those stay one-time youtube.com steps.
+  Uploads still default **private** (unverified app can't publish public without
+  Google's OAuth audit); user chose private → publish manually.
 - One art direction per video, sourced from the project's
   `video.global_style_suffix` — never hardcode a look into a pipeline stage.
 - Scenes with no people get the style minus its character clause
   (`scenes.scene_has_people`) or the model draws phantom figures.
-- Keep animated clips short (~3 s) and subtle; the project style LEADS every
-  clip prompt (see animate.py) so Wan animates the drawing, not repaints it.
+- Animated clips run AS LONG AS THE SCENE IS ON SCREEN (user rule 2026-07-05:
+  "the animation should last as long as the image is shown") — per-scene
+  `planned_dur` from the voice alignment, clamped to Wan's sweet range
+  2.5–6 s (beyond ~6 s the 14B degrades; longer scenes end on the assembler's
+  drifting hold). Motion stays subtle; the project style LEADS every clip
+  prompt (animate.py) so Wan animates the drawing, not repaints it.
 - Narration lines should end with a period — trailing commas invite TTS to
   keep talking (hallucination).
 
 ## Operational rules
-- Backend (`app/*.py`) edits need a **full server restart** (no hot-reload):
+- Backend (`app/*.py`) edits: **hot-reload first, restart second** (user rule
+  2026-07-05 "make it so it's not that way"). `POST /api/dev/reload
+  {"modules": ["assemble", ...]}` swaps pure-logic modules on the LIVE server
+  — running jobs keep their code, the next job/request uses the new code.
+  `POST /api/dev/call {module, func, kwargs}` runs a brand-new function before
+  its endpoint exists. Full restart still needed for: new/changed ROUTES,
+  engine singletons (engine/comfy_engine/wan_engine/image_engine/
+  music_engine), jobs/produce/config/storage —
   `.venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8000`
-  from repo root (log to `data/server.log`). Bump `app.js?v=` in
-  `web/index.html` after frontend changes. **Never restart while a job runs.**
+  (log to `data/server.log`), and **never while a job runs**. Bump
+  `app.js?v=` in `web/index.html` after frontend changes.
 - One GPU: TTS, krea2, Wan, ACE-Step contend. The job queue serializes, but
   the ACE sidecar (port 8765) holds VRAM with no unload API — kill its process
   before Wan work on 16 GB.
-- ComfyUI auto-starts from `ComfyUI_windows_portable/`. Don't auto-open
-  media/browser on the user's machine. A **ComfyUI MCP** is wired in
-  `.mcp.json` (`comfyui-mcp` via npx, pointed at `127.0.0.1:8188`) so Claude
-  can inspect/drive the live graph; approve it in Claude Code on first use
-  (first launch npx-downloads the package).
+- ComfyUI auto-starts from `ComfyUI_windows_portable/`; **run.bat also boots
+  ComfyUI + opens both tabs** (user rule 2026-07-05 — that bat is the one
+  sanctioned auto-open; Claude still never auto-opens media/browser itself).
+  MCPs in `.mcp.json`: **comfyui-mcp** (inspect/drive the live graph at
+  :8188) and **playwright** (headless browser — article screenshots/receipts
+  for research; first use npx-downloads). Claude's built-in WebSearch/WebFetch
+  cover search + article text.
 - Projects: `data/channels/<cid>/projects/<pid>/` (`project.json` + audio/
   images/ video/); `data/projects/` is only the legacy/standalone fallback.
   Always resolve paths via `projects.project_dir(pid)` — never build them.

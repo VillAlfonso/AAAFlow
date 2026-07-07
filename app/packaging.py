@@ -74,6 +74,61 @@ def _bigrams(text: str, top: int = 6) -> List[str]:
     return [p for p, c in pairs.most_common(top * 3) if c >= 2][:top]
 
 
+# --- research-driven description + tags (user rule 2026-07-05: "SEO is way too
+# AI") — the description QUOTES the video's most specific lines instead of
+# describing it, and tags lead with the real entities (names, places, years)
+# a human would actually search. `project.research` (PUT .../research) feeds
+# keywords + a Sources block.
+_MONTHS_RE = re.compile(r"\b(january|february|march|april|may|june|july|august|"
+                        r"september|october|november|december)\b", re.I)
+
+
+def _specificity(line: str) -> float:
+    """How researched a sentence reads: numbers, dates, proper nouns."""
+    score = 2.0 * len(re.findall(r"\d[\d,.]*", line))
+    score += 1.5 * len(_MONTHS_RE.findall(line))
+    words = line.split()
+    score += 1.2 * len([w for w in words[1:]
+                        if w[:1].isupper() and w[1:2].islower()])
+    return score + 0.15 * min(len(words), 18)
+
+
+def _specific_lines(scenes: List[Dict], skip: str, k: int = 2) -> List[str]:
+    """The k most specific narration lines, in story order — nothing reads
+    more human than the video's own facts."""
+    cand = []
+    for i, s in enumerate(scenes):
+        t = (s.get("narration") or "").strip()
+        if 25 <= len(t) <= 170 and t.rstrip(".") != skip.rstrip("."):
+            sc = _specificity(t)
+            if sc >= 3.0:
+                cand.append((i, sc, t))
+    cand.sort(key=lambda x: -x[1])
+    return [t for _i, _sc, t in sorted(cand[:k], key=lambda x: x[0])]
+
+
+def _entities(text: str, top: int = 8) -> List[str]:
+    """Proper-noun phrases + years — the terms real viewers type into search."""
+    ents: Counter = Counter()
+    for sent in re.split(r"(?<=[.!?…])\s+", text):
+        words = sent.split()
+        run: List[str] = []
+        for i, w in enumerate(words):
+            cw = w.strip(".,;:!?…\"'()—–")
+            if i > 0 and cw[:1].isupper() and cw[1:2].islower() and len(cw) > 2:
+                run.append(cw)
+            else:
+                if run:
+                    ents[" ".join(run).lower()] += 1
+                run = []
+        if run:
+            ents[" ".join(run).lower()] += 1
+    out = [e for e, c in ents.most_common(top * 2) if c >= 2][:top]
+    out += [y for y, _c in Counter(
+        re.findall(r"\b(1[6-9]\d\d|20[0-2]\d)\b", text)).most_common(2)]
+    return out
+
+
 def _tags(project: Dict, channel: Optional[Dict]) -> List[str]:
     """SEO tag mix, most-specific first: this video's phrases + words, then the
     channel's niche keyword pool. Unique per video by construction — the
@@ -87,6 +142,11 @@ def _tags(project: Dict, channel: Optional[Dict]) -> List[str]:
         if t and t not in tags:
             tags.append(t)
 
+    # real entities first — the names/places/years a human actually searches
+    for e in _entities(f"{title}. {text}"):
+        _add(e)
+    for k in ((project.get("research") or {}).get("keywords") or [])[:10]:
+        _add(k)
     tw = [w for w in _words(title) if w not in _STOP]
     for i in range(len(tw) - 1):                  # title phrases ("eiffel tower")
         _add(f"{tw[i]} {tw[i+1]}")
@@ -138,9 +198,12 @@ def _subject_np(title: str, max_words: int = 6) -> str:
     return (t[0].lower() + t[1:]) if t[:4].lower() == "the " else t
 
 
-def _curiosity_titles(title: str, hook: str, narration: str) -> List[str]:
+def _curiosity_titles(title: str, hook: str, narration: str,
+                      seed: int = 0) -> List[str]:
     """Deterministic curiosity reframes of the subject. The viewer should think
-    'wait — what?', not 'ah, a video about X'."""
+    'wait — what?', not 'ah, a video about X'. HIGH VARIANCE (user rule
+    2026-07-05): the pool is broad and its order rotates per video, so
+    consecutive uploads don't share a title formula."""
     np = _subject_np(title)
     low = narration.lower()
     out: List[str] = []
@@ -149,16 +212,24 @@ def _curiosity_titles(title: str, hook: str, narration: str) -> List[str]:
         out.append(hook)
     if np:
         Np = np[0].upper() + np[1:]
+        pool: List[str] = []
+        # story-matched reframes first (only claims the narration supports)
         if re.search(r"\b(lie[ds]?|fraud|fake|hoax|con |conned|swindle)", low):
-            out.append(f"The Lie Behind {Np}")
-        elif re.search(r"\b(vanish\w*|disappear\w*|missing|without a trace)", low):
-            out.append(f"What Happened to {Np}?")
-        elif re.search(r"\b(curse\w*|haunt\w*|possess\w*)", low):
-            out.append(f"Why No One Will Go Near {Np}")
-        elif re.search(r"\b(unexplained|no one knows|nobody knows|never solved|unsolved)", low):
-            out.append(f"No One Can Explain {Np}")
-        else:
-            out.append(f"The Truth About {Np}")
+            pool += [f"The Lie Behind {Np}", f"Everyone Believed {Np}"]
+        if re.search(r"\b(vanish\w*|disappear\w*|missing|without a trace)", low):
+            pool += [f"What Happened to {Np}?", f"{Np} Just… Vanished"]
+        if re.search(r"\b(curse\w*|haunt\w*|possess\w*)", low):
+            pool += [f"Why No One Will Go Near {Np}"]
+        if re.search(r"\b(unexplained|no one knows|nobody knows|never solved|unsolved)", low):
+            pool += [f"No One Can Explain {Np}", f"{Np} Still Doesn't Add Up"]
+        # always-true generics fill behind
+        pool += [f"The Truth About {Np}",
+                 f"What They Never Told You About {Np}",
+                 f"{Np} — The Part They Left Out",
+                 f"Nobody Talks About {Np}"]
+        if pool:
+            k = seed % len(pool)
+            out += pool[k:] + pool[:k]           # rotate: a different lead each video
     return out
 
 
@@ -187,12 +258,13 @@ def build(pid: str, thumb_text: Optional[str] = None,
     # crafted hook — face-value titles are single noun phrases.
     already_gap = bool(_CURIOSITY_MARKERS.search(title)
                        or re.search(r"[.!?]\s+\S", title))
+    seed = sum(ord(c) * (i + 3) for i, c in enumerate(pid))
     if already_gap:
         _add_title(title)
         if hook and 20 <= len(hook) <= 70:
             _add_title(hook)
     else:
-        for t in _curiosity_titles(title, hook, narration):
+        for t in _curiosity_titles(title, hook, narration, seed=seed):
             _add_title(t)
     _add_title(title)
     _add_title(f"{title} — {ch['tagline'].rstrip('.')}" if ch and ch.get("tagline")
@@ -201,18 +273,23 @@ def build(pid: str, thumb_text: Optional[str] = None,
     chapters = _chapters(p)
     tags = _tags(p, ch)
     hashtags = ["#" + re.sub(r"[^a-z0-9]", "", t) for t in tags[:3] if t and len(t) < 24]
-    # First ~150 chars are the search snippet: hook + the title keywords, front-loaded.
-    synopsis = f"The full story of {title[:1].lower() + title[1:]}."
-    if ch:
-        synopsis += f" From {ch.get('name')} — {ch.get('tagline', '')}"
-
-    desc_lines = ([hook + "."] if hook else []) + [synopsis, ""]
+    # The description reads like a person wrote it because it's the STORY, not
+    # copy: the hook, then the video's own most specific lines (names, dates,
+    # amounts — front-loaded for the search snippet), then chapters + sources.
+    desc_lines = ([hook + "."] if hook else [])
+    desc_lines += _specific_lines(scenes, skip=hook)
+    if ch and ch.get("tagline"):
+        desc_lines += ["", f"{ch.get('name')} — {ch['tagline'].rstrip('.')}."]
+    desc_lines += [""]
     if len(chapters) >= 3:
         desc_lines += ["Chapters:"] + [f"{c['stamp']} {c['label']}" for c in chapters] + [""]
-    if ch:
-        niche_word = (_words(ch.get("niche") or "story") or ["story"])[0]
-        desc_lines += [f"New {niche_word} stories every week — subscribe so the "
-                       f"next one finds you.", ""]
+    # Research sources (PUT /api/projects/{pid}/research) — receipts in public.
+    srcs = [s for s in ((p.get("research") or {}).get("sources") or [])
+            if isinstance(s, dict) and (s.get("title") or s.get("url"))]
+    if srcs:
+        desc_lines += ["Sources:"] + [
+            "- " + " — ".join(x for x in (s.get("title"), s.get("url")) if x)
+            for s in srcs[:6]] + [""]
     # Auto-attribution: any CC-licensed music/SFX the scorer used must be credited
     # here (CC0 needs none, but the scorer only lists what actually requires it).
     credits = ((p.get("audio_plan") or {}).get("attribution")) or []
@@ -258,6 +335,9 @@ def build(pid: str, thumb_text: Optional[str] = None,
                                             "thumb_mood")},
                      "built": _t.time()}
         projects.save_project(p2)
+    # the chef's recipe card rides with every package
+    from . import recipe as _recipe
+    seo["recipe"] = _recipe.write_md(pid)
     return seo
 
 

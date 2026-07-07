@@ -24,7 +24,7 @@ from typing import Callable, Dict, List, Optional, Tuple
 
 import numpy as np
 
-from . import audio, config, jobs, projects, storage
+from . import audio, channels, config, humanize, jobs, projects, storage
 from .chunking import chunk_text
 from .engine import engine
 from .voices import display_name
@@ -136,7 +136,7 @@ def submit_voiceover(pid: str, voice: Dict, scope: str = "missing",
         return {"done": done, "voice": label,
                 "timeline": proj["timeline"], "counts": counts}
 
-    return jobs.submit("voiceover", task)
+    return jobs.submit("voiceover", task, pid=pid)
 
 
 def _ingest_narration(master, pid: str):
@@ -324,6 +324,26 @@ def submit_onetake(pid: str, voice: Dict) -> str:
         arr = np.asarray(stitched, dtype=np.float32).reshape(-1)
         dur = float(len(arr) / sr) if sr else 0.0
 
+        # Humanize the take BEFORE alignment (mic/room/analog character +
+        # pacing jitter — strips the AI-voice tells) so Whisper times the audio
+        # that actually ships. voice.humanize > channel default > settings >
+        # "natural"; pass false/"off" to skip.
+        hum = voice.get("humanize")
+        if hum is None:
+            ch = channels.get(proj.get("channel")) if proj.get("channel") else None
+            hum = ((ch or {}).get("defaults") or {}).get("voice_humanize")
+        if hum is None:
+            hum = (settings.get("audio") or {}).get("voice_humanize", "natural")
+        applied_hum = None
+        if hum and str(hum).lower() not in ("off", "false", "none", "0"):
+            progress("Humanizing the take (mic · room · pacing)", 0.55)
+            try:
+                params = hum if isinstance(hum, dict) else {"preset": str(hum)}
+                dur = humanize.polish_wav(dst, dst, params) or dur
+                applied_hum = params.get("preset") or "custom"
+            except Exception as exc:  # noqa: BLE001 — raw take still usable
+                progress(f"Humanize skipped ({type(exc).__name__})", 0.56)
+
         progress("Aligning scenes to the take (Whisper)", 0.62)
         from . import transcribe as _tr
         model = _tr.load_model(progress=lambda s, f: progress(s, 0.62))
@@ -364,8 +384,15 @@ def submit_onetake(pid: str, voice: Dict) -> str:
             done += 1
 
         qa = qa_transcript(script, heard)
+        # persist the word timestamps — the assembler lands word-level emphasis
+        # effects (grammar "emphasis") on these exact times
+        words_rel = "audio/words.json"
+        storage.write_json(projects.project_dir(pid) / words_rel,
+                           [[w, round(a, 3), round(b, 3)] for w, a, b in words])
         proj["narration"] = {"file": rel, "dur": round(dur, 3), "voice": label,
-                             "source": "onetake", "qa": qa}
+                             "source": "onetake", "qa": qa,
+                             "words_file": words_rel,
+                             "humanize": applied_hum}
         projects.recompute_timeline(proj)
         projects.save_project(proj)
         storage.add_history({
@@ -378,4 +405,4 @@ def submit_onetake(pid: str, voice: Dict) -> str:
         return {"done": done, "voice": label, "duration": round(dur, 3),
                 "qa": qa, "timeline": proj["timeline"]}
 
-    return jobs.submit("voiceover_onetake", task)
+    return jobs.submit("voiceover_onetake", task, pid=pid)

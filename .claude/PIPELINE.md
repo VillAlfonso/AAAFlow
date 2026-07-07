@@ -42,7 +42,15 @@ Practical rules learned in production:
   "…and a phone and phone's on time, be happy I can't swim." (scene 6,
   2026-07-02). The QA gate (script vs transcript fuzzy compare) is built into
   the one-take job — check `result.qa.ok`.
-- The storyteller `instruct` matters more than the speaker choice.
+- The storyteller `instruct` matters more than the speaker choice — and ask
+  for IMPERFECTIONS (breaths, hesitations, uneven gaps); "calm and even"
+  alone reads synthetic (Menagerie lesson, 2026-07-05).
+- The take is auto-humanized before alignment (`humanize.polish_wav`,
+  "natural": tempo jitter, mic EQ/de-ess, tanh saturation, wow, room-tone bed
+  — WAV out, no MP3 step). Order matters: humanize → THEN Whisper, so word
+  times (`audio/words.json`, feeds emphasis) match the shipped audio. Config:
+  `voice.humanize` > channel `defaults.voice_humanize` > `settings.audio.
+  voice_humanize` > "natural"; "off" disables.
 
 ## Stage order
 1. **Script** → storyboard JSON (`storyboard_v2_prompt.md` shape). When
@@ -102,6 +110,18 @@ Effects grammar). The single source of truth for WHICH effect WHEN:
 both read it, so a new reflex = one JSON edit (or the `/add-effect` skill), no
 code. Every rule keeps a `why`.
 
+2026-07-05 sections: **catalog** (every executable effect name + why — new
+transitions: crash zoom, real glitch RGB-tear, drop-in, black flash; all in
+`app/transitions.py`), **scene_fx** (beat→letterbox/vignette overlays,
+hero-only, `transitions.apply_scene_fx`), **emphasis** (word-level punches:
+`autodirect` stores ≤1 phrase/scene — writer `*markup*` beats
+number/absolute-word detectors, never two auto-picks back-to-back; one-take
+voiceover persists Whisper word times to `audio/words.json`; `assemble`
+matches phrase→word time and applies `transitions.apply_emphasis`
+zoom_bump/flash_soft/shake_micro + a low tick at the exact spoken word;
+`emphasis.sfx` sets cue/volume). Lookups: `emphasis_cfg`/`scene_fx_for`/
+`scene_fx_hero_only`.
+
 ## Auto-direction (weak-model proofing)
 `app/autodirect.py` runs inside `projects.create_project` on EVERY import (the
 report lands in `project.direction_report`) and via `POST /api/storyboard/lint`:
@@ -117,6 +137,13 @@ report lands in `project.direction_report`) and via `POST /api/storyboard/lint`:
   budget ≈ scenes/4 capped at 10
 - falls back to the flat-cartoon house style when `global_style_suffix` is empty
 - lints the viral formula: scene-1 length, hook words/scene, est. runtime
+- STORY-FIRST visuals (2026-07-05): warns when a scene's image_prompt shares no
+  content word with its narration (stem/compound-aware — "visuals drift" =
+  slideshow risk; assisted mode appends "clearly showing <subject>"), auto-fills
+  scene `characters` from bible names in the line (continuity via the existing
+  prompt-builder), warns when a recurring name has no bible entry
+- extracts `*emphasis*` markup (TTS never hears asterisks) / auto-detects one
+  punchable phrase; fills `fx` (scene_fx) on hero beat scenes
 The division of labor: models write narration + picture subjects
 (`storyboard_v3_prompt.md`); code directs. Raise output quality by improving
 autodirect/the template — that fixes every future video at once.
@@ -130,6 +157,12 @@ fields; max 8 splits; scenes renumbered, thumbnail_scene remapped). Pro mode
 never touches author text beyond punctuation. Channel default or per-project.
 
 ## Publish (step 9: SEO → Shorts → Upload)
+Research-driven since 2026-07-05: `PUT /api/projects/{pid}/research` first
+(summary/facts/sources/keywords). `packaging.build` quotes the script's most
+specific lines (`_specific_lines`, specificity = numbers+dates+proper nouns),
+leads tags with `_entities` (proper-noun phrases + years) + research keywords,
+appends a Sources block, and writes `video/recipe.md` (`app/recipe.py`,
+`GET /api/projects/{pid}/recipe`) — the per-video ingredients card.
 **SEO** `POST /api/projects/{pid}/package {thumb_text?, thumb_template?}`
 (`app/packaging.py`): **title options are CURIOSITY-GAP first (hard rule
 2026-07-05)** — the cold-open hook + a deterministic reframe of the subject

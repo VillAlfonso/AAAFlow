@@ -67,6 +67,18 @@ DEFAULT_TEMPLATES: Dict = {
     "bar": {"bar": 0.24,
             "why": "clean lower-third title bar — reads at tiny sizes, minimal "
                    "channels"},
+    "poster": {"inset": 0.035, "vignette": 0.55,
+               "why": "vintage poster: double accent frame + centered title — "
+                      "collectible, event energy"},
+    "big-word": {"fill": 0.92,
+                 "why": "ONE giant word owns the frame, the rest whispers above "
+                        "it — maximum thumb-size legibility, pure intrigue"},
+    # High-variance rule (user mandate 2026-07-05): consecutive videos must not
+    # look templated. When a channel pins no template, the composer rotates
+    # through this pool per video (seeded by project id) and never repeats the
+    # previous video's pick.
+    "variance_pool": ["spotlight", "case-file", "reveal", "split", "bar",
+                      "poster", "big-word"],
     # mood → (tint hex, tint strength, vignette floor, saturation, kicker lines).
     # Same mood labels grammar.mood_for gives the audio scorer — sound and
     # thumbnail always agree about what the video feels like.
@@ -464,11 +476,98 @@ def _t_bar(frames, ctx):
     return base
 
 
+def _t_poster(frames, ctx):
+    from PIL import ImageDraw
+    W, H = ctx["size"]
+    tp = ctx["params"].get("poster") or {}
+    base = _cover(frames[0], W, H)
+    _grade(base, ctx["grade"])
+    _vignette(base, max(float(tp.get("vignette", 0.55)),
+                        ctx["grade"].get("vignette", 0.4)))
+    draw = ImageDraw.Draw(base)
+    inset = int(min(W, H) * float(tp.get("inset", 0.035)))
+    for k, wdt in ((inset, 5), (inset + 14, 2)):        # double frame
+        draw.rectangle((k, k, W - k, H - k),
+                       outline=tuple(ctx["accent"]) + (255,), width=wdt)
+    font, lines = _fit(draw, ctx["title"], ctx["title_font"], W - 300, 2, 128)
+    asc, desc = font.getmetrics()
+    lh = int((asc + desc) * 1.08)
+    _text_block(base, lines, font, 150, inset + 44, align="center", box_w=W - 300)
+    if ctx["kicker"]:
+        kw = int(len(ctx["kicker"]) * 19) + 52
+        _kicker_tag(base, ctx["kicker"], ctx["accent"],
+                    max((W - kw) // 2, inset + 20), H - inset - 92,
+                    font_path=ctx["kicker_font"], size=32)
+    return base
+
+
+def _t_bigword(frames, ctx):
+    from PIL import ImageDraw, ImageFont
+    W, H = ctx["size"]
+    base = _cover(frames[0], W, H)
+    _grade(base, ctx["grade"])
+    _vignette(base, max(0.45, ctx["grade"].get("vignette", 0.4)))
+    draw = ImageDraw.Draw(base)
+    words = ctx["title"].split()
+    # the LAST strong word goes giant; everything before it stays a readable
+    # phrase above ("THE LIGHT WENT" / "OUT" — never a gap-toothed sentence)
+    bi = max((i for i, w in enumerate(words) if w.lower() not in _STOP),
+             default=len(words) - 1) if words else 0
+    big = words[bi] if words else ""
+    rest = " ".join(words[:bi])
+    # the giant word fills the width along the bottom
+    size = 300
+    fp = ctx["title_font"]
+    while size > 90:
+        font = ImageFont.truetype(fp, size) if fp else ImageFont.load_default()
+        if draw.textlength(big, font=font) <= W * float(
+                (ctx["params"].get("big-word") or {}).get("fill", 0.92)):
+            break
+        size -= 14
+    asc, desc = font.getmetrics()
+    y_big = H - (asc + desc) - 30
+    if rest:
+        rfont, rlines = _fit(draw, rest, fp, W - 160, 1, 84, floor=48)
+        _text_block(base, rlines, rfont, 80, y_big - int(rfont.size * 1.5))
+    _text_block(base, [big], font,
+                int((W - draw.textlength(big, font=font)) / 2), y_big)
+    draw.rectangle((int(W * 0.28), H - 22, int(W * 0.72), H - 12),
+                   fill=tuple(ctx["accent"]) + (255,))
+    if ctx["kicker"]:
+        _kicker_tag(base, ctx["kicker"], ctx["accent"], 40, 40,
+                    font_path=ctx["kicker_font"], size=32)
+    return base
+
+
 _TEMPLATES = {"spotlight": _t_spotlight, "case-file": _t_casefile,
-              "reveal": _t_reveal, "split": _t_split, "bar": _t_bar}
+              "reveal": _t_reveal, "split": _t_split, "bar": _t_bar,
+              "poster": _t_poster, "big-word": _t_bigword}
 
 
 # --- entry point ----------------------------------------------------------------
+def _seed(pid: str) -> int:
+    """Stable per-project number driving all variance picks."""
+    return sum(ord(c) * (i + 3) for i, c in enumerate(pid or ""))
+
+
+def _prev_template(p: Dict) -> Optional[str]:
+    """The previous video's chosen template on this channel (never repeat it —
+    the high-variance rule)."""
+    try:
+        sibs = projects.list_projects(p.get("channel"))
+        mine = p.get("created") or 0
+        prev = None
+        for s in sorted(sibs, key=lambda x: x.get("created") or 0):
+            if s.get("id") == p.get("id") or (s.get("created") or 0) >= mine:
+                continue
+            tpl = ((s.get("seo") or {}).get("thumb_template"))
+            if tpl:
+                prev = tpl
+        return prev
+    except Exception:  # noqa: BLE001 — variance never blocks a render
+        return None
+
+
 def _thumb_no(p: Dict) -> int:
     """A stable per-video serial for kicker patterns like 'EXHIBIT No. {n}'."""
     saved = (p.get("video") or {}).get("thumb_no")
@@ -506,8 +605,12 @@ def build_for_project(p: Dict, text: Optional[str] = None,
     if kicker and "{n}" in kicker:
         kicker = kicker.replace("{n}", str(_thumb_no(p)))
     if not kicker:
-        ks = grade.get("kickers") or []
-        kicker = ks[sum(ord(c) for c in p["id"]) % len(ks)] if ks else ""
+        # variance: channel's own kicker pool (if any) + the mood's true-of-any-
+        # video lines, picked per project — consecutive videos read differently
+        ks = list(tconf.get("kicker_pool") or []) + list(grade.get("kickers") or [])
+        kicker = ks[_seed(p["id"]) % len(ks)] if ks else ""
+        if _seed(p["id"]) % 4 == 3:            # sometimes NO kicker at all
+            kicker = ""
 
     title = _headline(text or p.get("video", {}).get("title") or p.get("name") or "",
                       int(params.get("max_words", 5)))
@@ -535,8 +638,16 @@ def build_for_project(p: Dict, text: Optional[str] = None,
     if not variants:
         raise ValueError("all thumbnail templates failed: " + "; ".join(errors))
 
-    chosen = (template or tconf.get("template") or params.get("default") or
-              "spotlight")
+    chosen = template or tconf.get("template")
+    if not chosen:
+        # HIGH VARIANCE (user mandate): rotate the pool per video, never
+        # repeating the previous video's template on this channel.
+        pool = [t for t in (params.get("variance_pool") or list(_TEMPLATES))
+                if t in variants] or list(variants)
+        k = _seed(p["id"]) % len(pool)
+        if pool[k] == _prev_template(p) and len(pool) > 1:
+            k = (k + 1) % len(pool)
+        chosen = pool[k]
     if chosen not in variants:
         chosen = next(iter(variants))
     shutil.copy2(pdir / variants[chosen], pdir / "thumbnail.png")

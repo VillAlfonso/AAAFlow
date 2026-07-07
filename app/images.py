@@ -32,12 +32,19 @@ def _targets(scenes_list: List[Dict], video: Dict, scope: str, scene_id) -> List
         # Needs scene content of its own — the global style alone isn't a scene.
         return bool((s.get("image_prompt") or s.get("visual")
                      or s.get("narration") or "").strip())
+
+    def locked(s):
+        # image_locked = an attached evidence still (article screenshot,
+        # research receipt) — batch regen must never repaint it. Explicitly
+        # re-rendering that one scene (scope="scene") overrides the lock.
+        return bool(s.get("image_locked"))
     if scope == "scene":
         return [s for s in scenes_list if str(s.get("id")) == str(scene_id) and renderable(s)]
     if scope == "all":
-        return [s for s in scenes_list if renderable(s)]
+        return [s for s in scenes_list if renderable(s) and not locked(s)]
     return [s for s in scenes_list
-            if renderable(s) and s.get("status", {}).get("image") != "ready"]
+            if renderable(s) and not locked(s)
+            and s.get("status", {}).get("image") != "ready"]
 
 
 def _resolve_dims(image_cfg: Dict) -> Dict:
@@ -165,7 +172,7 @@ def submit_images(pid: str, image_cfg: Dict, scope: str = "missing",
         return {"done": done, "counts": counts,
                 "lora": image_engine.status().get("adapters", [])}
 
-    return jobs.submit("images", task)
+    return jobs.submit("images", task, pid=pid)
 
 
 def submit_download_defaults() -> str:

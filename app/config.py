@@ -246,9 +246,14 @@ WRITER = {
 YOUTUBE = {
     "auth_url": "https://accounts.google.com/o/oauth2/v2/auth",
     "token_url": "https://oauth2.googleapis.com/token",
+    "api_url": "https://www.googleapis.com/youtube/v3",                    # JSON API (channels/videos)
     "upload_url": "https://www.googleapis.com/upload/youtube/v3/videos",
     "thumb_url": "https://www.googleapis.com/upload/youtube/v3/thumbnails/set",
-    "scope": "https://www.googleapis.com/auth/youtube.upload",
+    "banner_url": "https://www.googleapis.com/upload/youtube/v3/channelBanners/insert",
+    # force-ssl covers upload + list/update channels + set banner + edit videos.
+    # (upload-only was too narrow for the in-app control center.)
+    "scope": ("https://www.googleapis.com/auth/youtube.upload "
+              "https://www.googleapis.com/auth/youtube.force-ssl"),
     "redirect_path": "/api/youtube/oauth/callback",   # loopback redirect (Desktop OAuth client)
     "chunk_bytes": 8 * 1024 * 1024,
 }

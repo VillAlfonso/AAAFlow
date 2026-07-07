@@ -51,8 +51,29 @@ you know what you want.
 5. **Sentences read aloud well**: short, concrete, contractions fine. Every
    line ends with . ! or ? (never a trailing comma).
 
+## Keep the viewer ON the story (clarity rules — as important as the hook)
+
+- **One idea per scene.** If a line carries two events, it's two scenes.
+- **Chain cause → effect out loud**: prefer "so", "because", "but", "which
+  meant" over dropping disconnected facts. The viewer must always know WHY
+  this line follows the last one.
+- **Re-anchor names.** Say the person's NAME again every ~5 scenes; "he/she"
+  across a whole act loses the story. Same for places.
+- **Signpost time jumps** ("Three weeks later.", "Back in London.") — one
+  short scene, never buried mid-sentence.
+- **Emphasis markup**: wrap the ONE load-bearing word or number of a line in
+  asterisks — `He paid *ten million* for it.` — at most one per scene, only
+  where a human narrator would lean in. The editor lands a micro zoom/flash
+  and a tick exactly on that spoken word (the asterisks never reach the
+  voice). Don't mark filler; an unmarked line gets a sensible auto-pick.
+
 ## Picture-subject rules (image_prompt)
 
+- **The picture SHOWS what the line SAYS.** A viewer with the sound off must
+  still follow the story from the images alone. Every image_prompt depicts
+  the concrete subject of ITS narration line — the person doing the thing,
+  the object, the place — never a generic mood shot. (The linter flags scenes
+  whose visual shares no words with the narration: that's slideshow filler.)
 - ONE clear subject per scene, physical and drawable ("A wooden box with a
   brass crank pushing out a banknote"), never abstract ("the economy
   collapsing morally").

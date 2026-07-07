@@ -213,6 +213,52 @@ def _voice_chain(p: Dict) -> str:
     return ",".join(chain) if chain else "anull"
 
 
+def polish_wav(src: Path, dst: Path, params: Optional[Dict] = None) -> float:
+    """Pipeline voice filter: run the humanize chain on a narration WAV and
+    write a WAV back (same mono/24k working format the TTS produced), so the
+    one-take flow can de-AI the take BEFORE Whisper aligns it — timings then
+    match the audio that actually ships. Returns the new duration (sec).
+
+    Same chain as process() minus the MP3 re-encode (the final video encode
+    already blends the spectrum; narration must stay lossless for mixing)."""
+    p = resolve_params(params or {"preset": "natural"})
+    src, dst = Path(src), Path(dst)
+    work = dst.with_suffix(".hum_work.wav")
+    _run([config.FFMPEG, "-y", "-i", str(src), "-ac", "1", "-ar",
+          str(WORK_SR), "-c:a", "pcm_s16le", str(work)])
+
+    y, sr = sf.read(str(work), dtype="float32", always_2d=False)
+    if y.ndim > 1:
+        y = np.mean(y, axis=-1).astype(np.float32)
+    if p["tempo_jitter"]["enabled"]:
+        y = _apply_tempo_jitter(y, int(p["tempo_jitter"]["segments"]),
+                                float(p["tempo_jitter"]["amount"]))
+    peak = float(np.max(np.abs(y))) if y.size else 0.0
+    if peak > 1.0:
+        y = y / peak
+    sf.write(str(work), y, sr, subtype="PCM_16")
+
+    voice = _voice_chain(p)
+    amb = p["ambiance"]
+    tmp_out = dst.with_suffix(".hum_out.wav")
+    out_args = ["-ar", str(WORK_SR), "-ac", "1", "-c:a", "pcm_s16le", str(tmp_out)]
+    if amb["enabled"]:
+        seed = random.randint(0, 2_000_000)
+        synth = _AMB_SYNTH.get(amb.get("type") or "room",
+                               _AMB_SYNTH["room"]).format(sr=WORK_SR, seed=seed)
+        fc = (f"[0:a]{voice}[v];"
+              f"{synth},volume={amb['level_db']:.1f}dB[amb];"
+              f"[v][amb]amix=inputs=2:duration=first:normalize=0[out]")
+        _run([config.FFMPEG, "-y", "-i", str(work), "-filter_complex", fc,
+              "-map", "[out]", *out_args])
+    else:
+        _run([config.FFMPEG, "-y", "-i", str(work), "-af", voice, *out_args])
+    work.unlink(missing_ok=True)
+    tmp_out.replace(dst)
+    y2, sr2 = sf.read(str(dst), dtype="float32", always_2d=False)
+    return float(len(y2) / sr2) if sr2 else 0.0
+
+
 def process(src_path: str, params: Optional[Dict], basename: str,
             progress: Optional[ProgressFn] = None) -> Dict:
     p = resolve_params(params)

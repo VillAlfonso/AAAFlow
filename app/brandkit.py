@@ -77,6 +77,58 @@ _SLOT_META: Dict[str, Tuple[str, str]] = {
 }
 _GROUP_ORDER = ["Identity", "Characters", "Thumbnail models", "Ambiance", "Other"]
 
+# --- the editable slot dictionary (data/brandkit_slots.json) ------------------
+# The channel-generator ARCHITECTURE is data, not code: every slot's prompt
+# template / size / seed lives in one JSON (seeded from the built-ins above),
+# editable in the Brand modal or via GET/PUT /api/brandkit_slots. build_graph
+# reads it, so an edit changes what EVERY future impression renders.
+SLOTS_FILE = config.DATA_DIR / "brandkit_slots.json"
+
+
+def _default_slots() -> List[Dict]:
+    out = []
+    for key, tmpl, w, h, seed in _SLOTS:
+        label, group = _SLOT_META.get(key, (key, "Other"))
+        out.append({"key": key, "label": label, "group": group, "prompt": tmpl,
+                    "width": w, "height": h, "seed": seed})
+    return out
+
+
+def slots() -> List[Dict]:
+    """Active slot list: user file wins per-key; new built-in slots appear.
+    Seeds the file on first load so it's always there to edit."""
+    from . import storage
+    data = storage.read_json(SLOTS_FILE, None)
+    defaults = _default_slots()
+    if not isinstance(data, dict) or not isinstance(data.get("slots"), list):
+        storage.write_json(SLOTS_FILE, {
+            "_why": ("The fixed channel-generator architecture, slot by slot — "
+                     "`{niche}` fills from the channel, its style_suffix rides "
+                     "every branch. Edit prompts here (or Brand modal · "
+                     "Architecture) and every future impression uses them."),
+            "slots": defaults})
+        return defaults
+    by_key = {s.get("key"): s for s in data["slots"] if s.get("key")}
+    merged = []
+    for d in defaults:
+        u = by_key.pop(d["key"], None)
+        merged.append({**d, **{k: v for k, v in (u or {}).items() if v not in (None, "")}})
+    merged += [s for s in by_key.values() if (s.get("prompt") or "").strip()]
+    return merged
+
+
+def save_slots(patch: List[Dict]) -> List[Dict]:
+    from . import storage
+    if not isinstance(patch, list) or not patch:
+        raise ValueError("slots must be a non-empty list")
+    for s in patch:
+        if not (s.get("key") and (s.get("prompt") or "").strip()):
+            raise ValueError("every slot needs a key and a prompt")
+    data = storage.read_json(SLOTS_FILE, None) or {}
+    data["slots"] = patch
+    storage.write_json(SLOTS_FILE, data)
+    return slots()
+
 
 def brand_dir(cid: str) -> Path:
     return channels.channel_dir(cid) / "brand"
@@ -130,11 +182,17 @@ def build_graph(channel: Dict, seed_offset: int = 0,
     }
     prefix_map = {}
     base = 100
-    for (key, tmpl, w, h, seed) in _SLOTS:
+    for slot in slots():
+        key = slot["key"]
         if only and key not in only:
             continue
-        subject = tmpl.format(niche=niche)
-        wf.update(_branch(base, subject, style, neg, w, h, seed + seed_offset, key, cid))
+        try:
+            subject = str(slot["prompt"]).format(niche=niche)
+        except (KeyError, IndexError, ValueError):
+            subject = str(slot["prompt"]).replace("{niche}", niche)
+        wf.update(_branch(base, subject, style, neg,
+                          int(slot.get("width", 1280)), int(slot.get("height", 720)),
+                          int(slot.get("seed", 1000)) + seed_offset, key, cid))
         prefix_map[f"{cid}/{key}"] = key
         base += 10
     return wf, prefix_map
@@ -145,7 +203,54 @@ def brand_video_dir(cid: str) -> Path:
 
 
 def _slot_meta(stem: str) -> Tuple[str, str]:
+    for s in slots():
+        if s["key"] == stem:
+            return (s.get("label") or stem, s.get("group") or "Other")
     return _SLOT_META.get(stem, (stem.replace("_", " ").title(), "Other"))
+
+
+def publish_graph_to_comfy(name: str, wf) -> Optional[Path]:
+    """Drop a node graph straight into ComfyUI's workflow library (sidebar →
+    Workflows → AAAFlow) the moment it's generated — no PNG dragging. `wf` is
+    a dict or a Path to a saved graph JSON. Never raises (publishing is a
+    convenience; generation must not die on it)."""
+    try:
+        dest = config.COMFY_DIR / "ComfyUI" / "user" / "default" / "workflows" / "AAAFlow"
+        dest.mkdir(parents=True, exist_ok=True)
+        out = dest / (name if name.endswith(".json") else f"{name}.json")
+        if isinstance(wf, (str, Path)):
+            out.write_text(Path(wf).read_text(encoding="utf-8"), encoding="utf-8")
+        else:
+            out.write_text(json.dumps(wf, indent=2), encoding="utf-8")
+        return out
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def export_graphs_to_comfy(cid: str) -> Dict:
+    """Copy this channel's saved node graphs into ComfyUI's workflow library
+    (user/default/workflows/AAAFlow/) so they appear in the ComfyUI sidebar,
+    editable. Always (re)writes channel_preview.json from the CURRENT slot
+    dictionary first, so what you open is what the system would render."""
+    ch = channels.get(cid)
+    if not ch:
+        raise ValueError("channel not found")
+    gdir = brand_dir(cid) / "graphs"
+    gdir.mkdir(parents=True, exist_ok=True)
+    wf, _pm = build_graph(ch)
+    (gdir / "channel_preview.json").write_text(json.dumps(wf, indent=2),
+                                               encoding="utf-8")
+    dest = config.COMFY_DIR / "ComfyUI" / "user" / "default" / "workflows" / "AAAFlow"
+    dest.mkdir(parents=True, exist_ok=True)
+    exported = []
+    for f in sorted(gdir.glob("*.json")):
+        out = dest / f"{cid}_{f.name}"
+        out.write_text(f.read_text(encoding="utf-8"), encoding="utf-8")
+        exported.append(out.name)
+    return {"exported": exported, "folder": str(dest),
+            "url": config.COMFY_URL,
+            "note": "ComfyUI sidebar → Workflows → AAAFlow (API-format JSON — "
+                    "ComfyUI lays the nodes out on open; PNGs drag in too)"}
 
 
 def assets(cid: str) -> List[Dict]:
@@ -232,6 +337,7 @@ def submit_snippets(cid: str, keys: Optional[List[str]] = None, seconds: float =
                                       seed=1313 + i,
                                       progress=lambda s, f, _b=base: progress(s, _b),
                                       save_graph=gdir / f"snippet_{k}.json")
+            publish_graph_to_comfy(f"{cid}_snippet_{k}", gdir / f"snippet_{k}.json")
             raw = vd / f"{k}_raw.mp4"
             raw.write_bytes(data)
             outp = vd / f"{k}.mp4"
@@ -259,6 +365,7 @@ def submit_preview(cid: str, seed_offset: int = 0) -> str:
         (bd / "graphs").mkdir(parents=True, exist_ok=True)
         (bd / "graphs" / "channel_preview.json").write_text(
             json.dumps(wf, indent=2), encoding="utf-8")
+        publish_graph_to_comfy(f"{cid}_channel_preview", wf)
         progress("Starting ComfyUI / krea2…", 0.05)
         comfy_engine.ensure_running(progress=lambda s, f: progress(s, 0.05 + 0.1 * f))
         progress("Rendering the 6-output brand graph (~4-5 min)…", 0.2)

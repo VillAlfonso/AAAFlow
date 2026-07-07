@@ -59,11 +59,15 @@ single line is written, do this:
 5. **Build the escalation ladder.** Order the remaining facts so each tops the
    last. Put the **second-best fact at ~60–70%** as a mid-video re-hook (that's
    where viewers drop — re-grab them).
-6. **Verify and flag.** Use your own knowledge; if a web tool is available,
-   confirm anything you'd stake credibility on and keep the source for the
-   description. **Never invent quotes, numbers, or defamatory claims about real
-   living people** — soften to "reportedly" or drop it. Flag anything uncertain
-   in the handoff notes.
+6. **Verify and flag — with real sources.** Use WebSearch/WebFetch to confirm
+   anything you'd stake credibility on (names, dates, amounts); keep the source
+   for the description. **Receipts**: the playwright MCP can screenshot a real
+   article/archive page into `<project>/research/` — attach one as a scene's
+   visual (`image_file` + `image_locked` via scene PATCH) and narrate over it
+   ("this is the actual telegram"). Real documents on screen are a documentary
+   move, not burned-in text. **Never invent quotes, numbers, or defamatory
+   claims about real living people** — soften to "reportedly" or drop it. Flag
+   anything uncertain in the handoff notes.
 7. **Fit the channel.** Match angle and tone to the channel's brief/topic bank
    (`GET /api/channels/{cid}`): GRIFT *admires the craft*, Autopsy writes a
    *eulogy*, Night Shift is *calm awe*. The same facts get a different voice per
@@ -107,6 +111,12 @@ executable procedure:
 
    (Prefer explicit control? Set `audio_cue` / `shot` / `motion_type` per scene —
    they're honored. Or teach a new reflex with the `/add-effect` skill.)
+   **Emphasis markup:** wrap the ONE load-bearing word/number of a big line in
+   `*asterisks*` — the assembler lands a micro zoom/flash + tick exactly on
+   that spoken word (word-level Whisper timing; asterisks never reach the TTS).
+   **Clarity rules** (spec §clarity): one idea per scene, cause→effect
+   connectors, re-anchor names every ~5 scenes, signpost time jumps — the
+   visuals AND the script must let a viewer follow the story effortlessly.
 9. **Picture subjects (`image_prompt`).** Physical and specific ("a wooden box
    with a brass crank pushing out a banknote"), never abstract. **No readable
    text/documents** (models draw gibberish), **no real-person likeness**. For
@@ -128,8 +138,11 @@ executable procedure:
 
 ## 3. THE CAPABILITY MAP (everything you can pull on — use ALL of it)
 
-**Voice** — one-take Qwen3-TTS of the whole script, Whisper-aligned + QA'd. It's
-the timing spine every scene is cut to. Always read the QA result.
+**Voice** — one-take Qwen3-TTS of the whole script, then an automatic
+**humanize pass** (`app/humanize.py "natural"`: mic/room character, pacing
+jitter, ambiance bed — strips the AI-voice tells) BEFORE Whisper aligns + QA's
+it. Per-channel `defaults.voice_humanize` ("natural"/preset/off). It's the
+timing spine every scene is cut to. Always read the QA result.
 
 **Images — Krea2 (the only image model).** Flat cartoon art via ComfyUI, no
 download. The *look* comes from the channel's `global_style_suffix`, applied to
@@ -166,7 +179,18 @@ attribution-required track is auto-credited in the description.
 - **Coverage knob** — *every phrase always cuts to a fresh moving visual*
   (retention). Coverage only decides which scenes get a real Wan clip vs.
   parallax/Ken Burns: `heroes` (budgeted, default) · `all` (costly) · `none`.
-- **Transitions** between every scene, chosen by the grammar (§3 above).
+- **Transitions** between every scene, chosen by the grammar (§3 above) —
+  full catalog in the dictionary's `catalog` section: hard/smash/flash/black
+  flash cuts, punch-in, **crash zoom**, whip-pans, push/pull, **glitch** (RGB
+  tear), **drop-in**, iris, shake, fades.
+- **Word-level emphasis** — the director marks ≤1 phrase per scene (writer
+  `*markup*` wins, else number/absolute-word detectors); the assembler lands a
+  **zoom bump / soft flash / micro shake + tick** on the exact spoken word.
+- **Scene FX** — letterbox bars on reveals, vignette on impacts (hero scenes
+  only; `scene_fx` in the dictionary).
+- **Thumbnails/titles are HIGH-VARIANCE**: 7 templates rotate per video (never
+  repeating the last one) with mood kickers, and title formulas rotate per
+  video — consecutive uploads never look templated.
 
 **Assembly presets** (`data/effects_presets.json`): `cinematic` (Wan + parallax +
 SFX) · `parallax-slides` (parallax only, no video model) · `dynamic-slides` /

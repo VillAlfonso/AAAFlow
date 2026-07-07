@@ -83,3 +83,6 @@ third_party/Qwen3-TTS/.git/
 Thumbs.db
 *.log
 *.tmp
+
+# --- Per-channel YouTube OAuth credentials (NEVER commit) ---
+data/secrets/

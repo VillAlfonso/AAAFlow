@@ -21,8 +21,8 @@ import threading
 import time
 from typing import Dict, Optional
 
-from . import (animate, assemble, config, effects, images, jobs, projects,
-               score, storage, voiceover)
+from . import (animate, assemble, channels, config, effects, grade, images,
+               jobs, projects, score, storage, voiceover)
 
 _state: Dict[str, Dict] = {}
 _lock = threading.Lock()
@@ -45,6 +45,13 @@ def default_plan(project: Dict) -> Dict:
                          or "cinematic")
     uses_clips = "clips" in (preset.get("sources") or [])
     engine = (settings.get("animate", {}) or {}).get("engine", "wan")
+    # Cinematic grade (the pro "Lumetri" pass) runs LAST unless the resolved
+    # look is "none" — Menagerie = ember; other channels get a mood default.
+    try:
+        look, cfg = grade.resolve_look(project, channels.get(project.get("channel")))
+        grade_stage = look if (look and look != "none" and cfg) else False
+    except Exception:  # noqa: BLE001 — never let look resolution block a produce
+        grade_stage = False
     return {
         "voice": "skip" if project.get("narration") else "onetake",
         "images": True,
@@ -54,6 +61,7 @@ def default_plan(project: Dict) -> Dict:
         "score": True,
         "animate": {"scope": "missing"} if (uses_clips and engine != "none") else False,
         "assemble": {},
+        "grade": grade_stage,
     }
 
 
@@ -77,6 +85,8 @@ def submit_produce(pid: str, plan: Optional[Dict] = None) -> Dict:
         stages.append("animate")
     if plan.get("assemble") is not False:
         stages.append("assemble")
+    if plan.get("grade"):
+        stages.append("grade")      # cinematic grade over the finished render
     if not stages:
         raise ValueError("The plan skips every stage — nothing to do.")
 
@@ -103,6 +113,9 @@ def submit_produce(pid: str, plan: Optional[Dict] = None) -> Dict:
         if name == "assemble":
             aopts = dict(plan["assemble"]) if isinstance(plan["assemble"], dict) else {}
             return assemble.submit_assemble(pid, aopts)
+        if name == "grade":
+            look = plan["grade"] if isinstance(plan["grade"], str) else None
+            return grade.submit_grade(pid, look)
         raise ValueError(f"Unknown stage {name}")
 
     def _kill_ace_sidecar():
@@ -138,10 +151,18 @@ def submit_produce(pid: str, plan: Optional[Dict] = None) -> Dict:
                     raise
                 entry.update(status="running", job_id=jid)
                 _set(pid, stage=name, job_id=jid)
+                vanished = 0
                 while True:
                     j = jobs.get_job(jid)
                     if not j:
-                        raise RuntimeError(f"{name} job vanished")
+                        # registry GC can drop a long job right at completion;
+                        # stages are idempotent, so treat a repeat miss as done
+                        vanished += 1
+                        if vanished >= 3:
+                            entry.update(status="done", detail="job gc'd at finish")
+                            break
+                        time.sleep(2)
+                        continue
                     _set(pid, stage=f"{name}: {j.get('stage')}",
                          progress=j.get("progress"))
                     if j["status"] == "done":
@@ -153,6 +174,8 @@ def submit_produce(pid: str, plan: Optional[Dict] = None) -> Dict:
                         break
                     if j["status"] == "error":
                         raise RuntimeError(f"{name} failed: {j.get('error')}")
+                    if j["status"] == "cancelled":
+                        raise RuntimeError(f"{name} cancelled by user")
                     time.sleep(2)
             _set(pid, status="done", stage="done", progress=1.0)
         except Exception as exc:  # noqa: BLE001

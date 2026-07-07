@@ -14,10 +14,10 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from . import (animate, assemble, audiolib, brandkit, captions, channels,
-               characters, config, effects, grammar, humanize, images, janitor,
-               jobs, music, packaging, produce, projects, roulette, scenes, score,
-               service, sfx, shorts, storage, style_refs, training, transcribe,
-               voiceover, writer, youtube)
+               characters, config, effects, grade, grammar, humanize, images,
+               janitor, jobs, music, packaging, produce, projects, recipe,
+               roulette, scenes, score, service, sfx, shorts, storage,
+               style_refs, training, transcribe, voiceover, writer, youtube)
 from .audio import ffmpeg_ok
 from .engine import engine
 from .image_engine import image_engine
@@ -289,6 +289,22 @@ def job_status(job_id: str):
     return job
 
 
+@app.post("/api/jobs/{job_id}/cancel")
+def cancel_job(job_id: str):
+    """Stop a queued/running job. Queued jobs drop instantly; a running render
+    stops at its next progress checkpoint (~1 scene)."""
+    ok = jobs.cancel(job_id)
+    return {"cancelled": ok, "job": jobs.get_job(job_id)}
+
+
+@app.get("/api/projects/{pid}/active_job")
+def project_active_job(pid: str):
+    """The project's in-flight build (assemble/score/animate/…), so the UI can
+    RECONNECT its progress after a page switch or refresh instead of losing the
+    handle. null when nothing is running."""
+    return {"job": jobs.active_for(pid)}
+
+
 # --- API: voices (clone / delete) -----------------------------------------
 @app.post("/api/voices/clone")
 async def clone_voice(
@@ -506,6 +522,31 @@ def gen_channel_snippets(cid: str, req: SnippetsReq = SnippetsReq()):
         raise HTTPException(status_code=400, detail=str(exc))
 
 
+@app.get("/api/brandkit_slots")
+def get_brandkit_slots():
+    """The channel-generator architecture, slot by slot (editable dictionary —
+    data/brandkit_slots.json). Every channel impression renders from these."""
+    return {"slots": brandkit.slots(), "file": "data/brandkit_slots.json"}
+
+
+@app.put("/api/brandkit_slots")
+def put_brandkit_slots(patch: dict):
+    try:
+        return {"slots": brandkit.save_slots((patch or {}).get("slots") or [])}
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
+@app.post("/api/channels/{cid}/brand/comfy")
+def export_brand_to_comfy(cid: str):
+    """Regenerate this channel's node graph from the current slot dictionary and
+    copy all its graphs into ComfyUI's workflow library (sidebar → AAAFlow)."""
+    try:
+        return brandkit.export_graphs_to_comfy(cid)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
 # --- API: channel roulette (randomize a whole channel concept) -----------------
 class RollReq(BaseModel):
     hint: Optional[str] = None        # optional steer ("something about space")
@@ -587,6 +628,23 @@ def score_project(pid: str):
         raise HTTPException(status_code=400, detail=str(exc))
 
 
+class GradeReq(BaseModel):
+    look: Optional[str] = None   # ember|cinematic|noir|warm|soft|none (blank=mood)
+
+
+@app.post("/api/projects/{pid}/grade")
+def grade_project(pid: str, req: GradeReq = GradeReq()):
+    """Cinematic GRADE — the pro 'Lumetri' pass over the finished render: one
+    ffmpeg filter_complex (film colour + halation bloom + vignette + film
+    grain). Applies to the newest render WITHOUT re-assembling. The look
+    defaults to the channel/mood (Menagerie = ember); looks are editable in the
+    effects grammar (grades.looks)."""
+    try:
+        return {"job_id": grade.submit_grade(pid, req.look)}
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
 # --- API: storage janitor ----------------------------------------------------
 @app.get("/api/storage")
 def storage_report():
@@ -618,6 +676,187 @@ def build_package(pid: str, req: PackageReq = PackageReq()):
         return packaging.build(pid, req.thumb_text, req.thumb_template)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
+
+
+# --- dev hot-reload (no more "wait for the GPU job to finish to restart") ----
+class DevReloadReq(BaseModel):
+    modules: List[str]
+
+
+@app.post("/api/dev/reload")
+def dev_reload(req: DevReloadReq):
+    """Hot-reload app modules IN PLACE — no server restart, running jobs keep
+    the code they started with; the NEXT request/job/stage uses the new code.
+
+    Safe for the pure-logic modules (grammar, autodirect, transitions,
+    receipts, sfx, thumbs, packaging, recipe, assemble, score, humanize,
+    animate, images, voiceover, scenes, projects, channels, brandkit,
+    roulette). DO NOT reload engine singletons (engine, comfy_engine,
+    wan_engine, image_engine, music_engine) or jobs/produce/main — they hold
+    live threads/models."""
+    import importlib
+    import sys as _sys
+    banned = {"main", "jobs", "produce", "engine", "comfy_engine", "wan_engine",
+              "image_engine", "music_engine", "config", "storage"}
+    out = {}
+    for name in req.modules:
+        if not name.isidentifier() or name.startswith("_") or name in banned:
+            out[name] = "refused"
+            continue
+        mod = _sys.modules.get(f"app.{name}")
+        if mod is None:
+            out[name] = "not loaded"
+            continue
+        try:
+            importlib.reload(mod)
+            out[name] = "reloaded"
+        except Exception as exc:  # noqa: BLE001
+            out[name] = f"FAILED: {type(exc).__name__}: {exc}"
+    return out
+
+
+class DevCallReq(BaseModel):
+    module: str
+    func: str
+    kwargs: dict = {}
+
+
+@app.post("/api/dev/call")
+def dev_call(req: DevCallReq):
+    """Call app.<module>.<func>(**kwargs) directly — the escape hatch that
+    makes a brand-new capability usable BEFORE its real endpoint exists (a
+    restart while a GPU job runs would kill the job). Local single-user app;
+    private names are refused."""
+    import importlib
+    if not (req.module.isidentifier() and not req.module.startswith("_")
+            and req.func.isidentifier() and not req.func.startswith("_")):
+        raise HTTPException(status_code=400, detail="bad module/function name")
+    try:
+        mod = importlib.import_module(f"app.{req.module}")
+        fn = getattr(mod, req.func)
+    except (ImportError, AttributeError) as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
+    try:
+        result = fn(**(req.kwargs or {}))
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    try:
+        import json as _json
+        _json.dumps(result)
+        return {"result": result}
+    except (TypeError, ValueError):
+        return {"result": str(result)}
+
+
+class EditPreviewReq(BaseModel):
+    scene: Optional[str] = None       # center the slice on this scene
+    t0: Optional[float] = None        # or give an explicit window
+    t1: Optional[float] = None
+    seconds: float = 12.0
+
+
+@app.post("/api/projects/{pid}/edit_preview")
+def edit_preview(pid: str, req: EditPreviewReq = EditPreviewReq()):
+    """LIVE PREVIEW for the Edit page: render a short slice of the timeline
+    through the REAL assembler — transitions, word-synced emphasis, date
+    chips, receipt moves, scene FX and the film filter all included — to
+    video/edit_preview.mp4 (fast NVENC; never listed in renders)."""
+    p = projects.get_project(pid)
+    if not p:
+        raise HTTPException(status_code=404, detail="project not found")
+    tl = projects.recompute_timeline(p)
+    t0, t1 = req.t0, req.t1
+    if req.scene is not None:
+        row = next((r for r in (tl.get("scenes") or [])
+                    if str(r.get("id")) == str(req.scene)), None)
+        if not row:
+            raise HTTPException(status_code=400, detail="scene not on the timeline")
+        t0 = max(0.0, float(row["start"]) - 1.5)
+        t1 = t0 + max(6.0, float(req.seconds))
+    if t0 is None:
+        t0 = 0.0
+    if t1 is None:
+        t1 = t0 + max(6.0, float(req.seconds))
+    total = float(tl.get("total_dur") or 0)
+    if total:
+        t1 = min(t1, total)
+        t0 = max(0.0, min(t0, t1 - 2.0))
+    try:
+        jid = assemble.submit_assemble(pid, {"window": [t0, t1],
+                                             "out_name": "edit_preview",
+                                             "preview": True})
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    return {"job_id": jid, "window": [round(t0, 2), round(t1, 2)],
+            "file": "video/edit_preview.mp4"}
+
+
+@app.post("/api/projects/{pid}/autoedit")
+def autoedit(pid: str):
+    """ONE-CLICK AUTO-EDIT: the AI re-reads the script and re-decides every
+    editing call — transitions, SFX cues, shots, word-level emphasis, scene
+    FX, date chips, hero flags — from the grammar dictionary. Script, voice
+    and images are untouched; assemble afterwards to render the new edit."""
+    from . import autodirect
+    p = projects.get_project(pid)
+    if not p:
+        raise HTTPException(status_code=404, detail="project not found")
+    ch = channels.get(p.get("channel")) or {}
+    d = ch.get("defaults") or {}
+    board = {"video": dict(p.get("video") or {}),
+             "character_bible": [{"name": c.get("name"),
+                                  "description": c.get("description"),
+                                  "palette": c.get("palette")}
+                                 for c in (p.get("characters") or [])],
+             "scenes": [dict(s) for s in (p.get("scenes") or [])]}
+    for s in board["scenes"]:            # blank the calls so they're re-decided
+        for k in ("transition", "audio_cue", "shot", "emphasis", "fx", "date_chip"):
+            s.pop(k, None)
+    fixed, report = autodirect.direct(board, default_style=d.get("style_suffix"),
+                                      strict=False)
+    by_id = {str(s.get("id")): s for s in fixed["scenes"]}
+    n = 0
+    for s in p["scenes"]:
+        f = by_id.get(str(s.get("id")))
+        if not f:
+            continue
+        for k in ("transition", "audio_cue", "shot", "emphasis", "fx", "date_chip"):
+            if f.get(k):
+                s[k] = f[k]
+        n += 1
+    p["video"]["direction_card"] = (fixed["video"].get("direction_card")
+                                    or p["video"].get("direction_card"))
+    projects.save_project(p)
+    return {"scenes": n, "card": (p["video"].get("direction_card") or {}).get("id"),
+            "fixes": len(report.get("fixes") or []),
+            "warnings": (report.get("warnings") or [])[:8]}
+
+
+@app.get("/api/projects/{pid}/recipe")
+def get_recipe(pid: str):
+    """The video's RECIPE CARD — exact ingredients + measurements (script,
+    direction card, voice, look, edit counts, score, package, research)."""
+    try:
+        return {"recipe": recipe.build(pid), "file": recipe.write_md(pid)}
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
+
+
+@app.put("/api/projects/{pid}/research")
+def put_research(pid: str, patch: dict):
+    """Attach research to a project: {summary, facts[], sources[{title,url}],
+    keywords[]}. The SEO packager builds from it — keywords lead the tags and
+    sources become a public Sources block (the anti-AI-slop description)."""
+    p = projects.get_project(pid)
+    if not p:
+        raise HTTPException(status_code=404, detail="project not found")
+    r = p.get("research") or {}
+    for k in ("summary", "facts", "sources", "keywords"):
+        if k in (patch or {}):
+            r[k] = patch[k]
+    p["research"] = r
+    projects.save_project(p)
+    return {"research": r}
 
 
 @app.put("/api/projects/{pid}/seo")
@@ -667,9 +906,9 @@ def cut_shorts(pid: str, req: ShortsReq = ShortsReq()):
 
 # --- API: YouTube upload (per-channel OAuth) -----------------------------------
 @app.get("/api/channels/{cid}/youtube/auth_url")
-def youtube_auth_url(cid: str):
+def youtube_auth_url(cid: str, reconnect: bool = False):
     try:
-        return {"url": youtube.auth_url(cid)}
+        return {"url": youtube.auth_url(cid, reconnect=reconnect)}
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
 
@@ -704,6 +943,67 @@ def upload_to_youtube(pid: str, req: UploadReq = UploadReq()):
         return {"job_id": youtube.submit_upload(pid, req.dict(exclude_none=True))}
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
+
+
+# --- API: in-app YouTube control center (manage the connected account) --------
+@app.get("/api/channels/{cid}/youtube/channels")
+def youtube_my_channels(cid: str):
+    """The channel(s) on the connected account — avatar, banner, description, stats."""
+    try:
+        return youtube.list_my_channels(cid)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    except Exception as exc:  # noqa: BLE001 - surface YouTube API errors to the UI
+        raise HTTPException(status_code=502, detail=str(exc))
+
+
+class BrandingReq(BaseModel):
+    description: Optional[str] = None
+    keywords: Optional[str] = None     # space/comma-separated channel keywords
+    country: Optional[str] = None      # ISO 3166-1 alpha-2 (e.g. US)
+    title: Optional[str] = None        # best-effort (Google often ignores API renames)
+    default_language: Optional[str] = None
+
+
+@app.put("/api/channels/{cid}/youtube/branding")
+def youtube_update_branding(cid: str, req: BrandingReq):
+    """Edit the channel description / keywords / country from the app."""
+    try:
+        return youtube.update_branding(cid, req.dict(exclude_none=True))
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(status_code=502, detail=str(exc))
+
+
+@app.post("/api/channels/{cid}/youtube/banner")
+async def youtube_set_banner(cid: str, file: UploadFile = File(...)):
+    """Upload + set the channel banner (2048×1152 recommended)."""
+    data = await file.read()
+    try:
+        return youtube.set_banner(cid, data, file.content_type or "image/png")
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(status_code=502, detail=str(exc))
+
+
+class VideoEditReq(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    tags: Optional[List[str]] = None
+    privacy: Optional[str] = None      # private | unlisted | public
+
+
+@app.put("/api/channels/{cid}/youtube/video/{video_id}")
+def youtube_update_video(cid: str, video_id: str, req: VideoEditReq):
+    """Edit an already-uploaded video's title/description/tags/privacy."""
+    try:
+        return youtube.update_video(cid, video_id, req.dict(exclude_none=True))
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(status_code=502, detail=str(exc))
 
 
 @app.get("/api/storyboard/template")

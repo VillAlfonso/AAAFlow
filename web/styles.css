@@ -119,6 +119,7 @@ input[type=text],input[type=number],input[type=password],select,textarea{
   border:1px solid var(--line-2);border-radius:var(--r-sm);padding:11px 13px;width:100%;transition:.15s}
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(230,169,75,.14)}
 textarea{resize:vertical;min-height:90px;line-height:1.5}
+textarea.voice-test-text{min-height:220px}
 select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%238a9099' stroke-width='2'%3E%3Cpath d='M2 4l4 4 4-4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;padding-right:34px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}

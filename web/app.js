@@ -2106,10 +2106,27 @@ async function renderVoiceLab(host) {
   topbar("Voice Lab", "Design or clone narrator voices (used in Voiceover)");
   await refreshVoices();
   const page = el("div", "page page-wide");
+  const v = state.voices || {};
 
   const mine = el("div", "card");
   mine.innerHTML = `<div class="section-title">Your voices</div><div id="vlList"></div>`;
   page.appendChild(mine);
+
+  const test = el("div", "card"); test.style.marginTop = "16px";
+  test.innerHTML = `
+    <div class="section-title">Try a voice</div>
+    <p class="desc">Type a line, pick a voice, and hear it spoken instantly.</p>
+    <div class="grid2">
+      <div class="field"><label>Voice</label><select id="vtVoice"></select></div>
+      <div class="field"><label>Language</label><select id="vtLang"></select></div>
+    </div>
+    <div class="field"><label>Text to speak</label><textarea id="vtText" rows="10" class="voice-test-text" placeholder="Type whatever you want to hear…"></textarea></div>
+    <div class="row" style="margin-top:8px;align-items:center;gap:12px;flex-wrap:wrap">
+      <button class="btn btn-primary" id="vtGo">${icon("i-voice")} Speak it</button>
+      <span class="muted mono" id="vtMsg"></span>
+    </div>
+    <div id="vtAudio" style="margin-top:14px"></div>`;
+  page.appendChild(test);
 
   const make = el("div", "card"); make.style.marginTop = "16px";
   make.innerHTML = `
@@ -2144,6 +2161,38 @@ async function renderVoiceLab(host) {
     <div class="media-grid">${(state.voices.builtin || []).map(v => `<div class="card" style="background:var(--panel-2);padding:14px"><b>${dispName(v.id)}</b> ${v.youtube ? '<span class="badge gold">YT</span>' : ''}<div class="muted" style="font-size:12.5px;margin-top:5px">${esc(v.native)} · ${esc(v.desc)}</div></div>`).join("")}</div>`;
   page.appendChild(speakers);
   host.appendChild(page);
+
+  const vtVoice = $("#vtVoice", page);
+  let vtOpts = "";
+  if ((v.builtin || []).length) vtOpts += `<optgroup label="Built-in speakers">` + v.builtin.map(s => `<option value="custom:${esc(s.id)}">${esc(dispName(s.id))}${s.youtube ? " · YT" : ""}</option>`).join("") + `</optgroup>`;
+  if ((v.custom || []).length) vtOpts += `<optgroup label="Your voices">` + v.custom.map(c => `<option value="clone:${esc(c.id)}">${esc(c.name)} (${esc(c.type)})</option>`).join("") + `</optgroup>`;
+  vtVoice.innerHTML = vtOpts || `<option value="custom:Ryan">Ryan</option>`;
+  vtVoice.value = [...vtVoice.options].some(o => o.value === "custom:Ryan") ? "custom:Ryan" : (vtVoice.options[0] ? vtVoice.options[0].value : "custom:Ryan");
+
+  const vtLang = $("#vtLang", page);
+  vtLang.innerHTML = (v.languages || ["Auto", "English"]).map(l => `<option value="${l}">${l === "Auto" ? "Auto-detect" : l}</option>`).join("");
+  vtLang.value = "English";
+
+  $("#vtGo", page).onclick = async () => {
+    const text = $("#vtText", page).value.trim();
+    if (!text) return toast("Type something to hear first.", "err");
+    const msg = $("#vtMsg", page); const btn = $("#vtGo", page);
+    const [mode, id] = vtVoice.value.split(":");
+    const body = { mode, text, language: vtLang.value, format: "wav", loudnorm: false, speed: 1 };
+    if (mode === "clone") body.voice_id = id; else body.speaker = id;
+    btn.disabled = true; msg.textContent = "speaking…";
+    try {
+      const { job_id } = await api.post("/api/tts", body);
+      const res = await pollJob(job_id, j => { msg.textContent = j.stage + " " + Math.round((j.progress || 0) * 100) + "%"; });
+      const files = (res.item && res.item.files) || {};
+      const file = files.wav || files.mp3 || null;
+      if (!file) throw new Error("No audio was produced.");
+      const audioWrap = $("#vtAudio", page);
+      audioWrap.innerHTML = `<audio controls autoplay src="/audio/${file}" style="width:100%"></audio>`;
+      msg.textContent = "✓ preview ready";
+    } catch (e) { msg.textContent = ""; toast(e.message, "err"); }
+    finally { btn.disabled = false; }
+  };
 
   const dgLang = $("#dgLang", page);
   dgLang.innerHTML = (state.voices.languages || ["English"]).filter(l => l !== "Auto").map(l => `<option>${l}</option>`).join("");

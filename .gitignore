@@ -86,3 +86,34 @@ Thumbs.db
 
 # --- Per-channel YouTube OAuth credentials (NEVER commit) ---
 data/secrets/
+
+# --- Editor / tooling ---
+.vscode/
+.idea/
+
+# --- Node / JS ---
+node_modules/
+npm-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# --- Local env files ---
+.env
+.env.local
+.env.*.local
+
+# --- Python / test caches ---
+.mypy_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+pip-wheel-metadata/
+
+# --- Databases / caches ---
+*.sqlite3
+*.db
+*.sqlite
+.cache/
+
+# --- Source maps / build artifacts ---
+*.map

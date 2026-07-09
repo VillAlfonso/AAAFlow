@@ -87,32 +87,6 @@ Thumbs.db
 # --- Per-channel YouTube OAuth credentials (NEVER commit) ---
 data/secrets/
 
-# --- Generated project media and runtime state ---
-data/channels/**/projects/**/audio/
-data/channels/**/projects/**/images/
-data/channels/**/projects/**/video/
-data/channels/**/*.wav
-data/channels/**/*.mp3
-data/channels/**/*.mp4
-data/channels/**/*.m4a
-data/channels/**/*.mov
-data/channels/**/*.png
-data/channels/**/*.jpg
-data/channels/**/*.jpeg
-data/channels/**/*.webp
-data/projects/**/audio/
-data/projects/**/images/
-data/projects/**/video/
-data/projects/**/*.wav
-data/projects/**/*.mp3
-data/projects/**/*.mp4
-data/projects/**/*.m4a
-data/projects/**/*.mov
-data/projects/**/*.png
-data/projects/**/*.jpg
-data/projects/**/*.jpeg
-data/projects/**/*.webp
-
 # --- Editor / tooling ---
 .vscode/
 .idea/

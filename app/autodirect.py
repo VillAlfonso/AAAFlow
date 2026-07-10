@@ -269,6 +269,9 @@ def direct(raw: Dict, *, default_style: str | None = None,
     e_max = max(1, int(e_cfg.get("max_per_scene", 1)))
     last_emph = -9          # auto-emphasis at most every other scene
     last_chip_year, last_chip_i = "", -9      # date chips: new years only
+    g_cfg = grammar.dictionary().get("sfx_gating") or {}
+    cue_gap = max(0, int(g_cfg.get("min_gap_scenes", 2)))
+    last_cue_i = -9         # stinger spacing (see the audio_cue block)
     drift: List[int] = []   # scenes whose visual ignores the narration subject
 
     last_transition = ""
@@ -358,7 +361,11 @@ def direct(raw: Dict, *, default_style: str | None = None,
                 s["characters"] = hit
                 fixes.append(f"scene {sid}: characters -> {', '.join(hit)}")
 
-        beat = grammar.beat_of(f"{narr} {s.get('image_prompt')}")
+        # Effects key off what is SPOKEN, never off the picture (user,
+        # 2026-07-10: "don't randomly put sound effects where they don't
+        # belong") - a burning-house image_prompt must not smash-cut a calm
+        # line. The beat comes from the narration alone.
+        beat = grammar.beat_of(narr)
         if not (s.get("transition") or "").strip():
             # A detected story beat picks its signature cut (reveal→flash,
             # impact→smash…); otherwise rotate the hook/body set, never repeating.
@@ -373,12 +380,17 @@ def direct(raw: Dict, *, default_style: str | None = None,
         last_transition = s["transition"]
 
         if not (s.get("audio_cue") or "").strip():
-            cue = _pick_cue(f"{s.get('narration')} {s.get('image_prompt')}")
-            if not cue and i in hook_idx and i > 0:
-                cue = "quick whoosh"        # hook cuts always carry energy
+            # spacing rule: a stinger needs air around it or it reads random;
+            # dictionary "sfx_gating".min_gap_scenes overrides (default 2)
+            cue = _pick_cue(narr) if i - last_cue_i >= cue_gap else ""
+            if not cue and i in hook_idx and i > 0 and i - last_cue_i >= 2:
+                cue = "quick whoosh"        # hook cuts still carry energy
             if cue:
                 s["audio_cue"] = cue
+                last_cue_i = i
                 fixes.append(f"scene {sid}: audio_cue -> {cue}")
+        else:
+            last_cue_i = i                  # an author cue spaces the next auto one
 
         if not (s.get("shot") or "").strip():
             shots = grammar.shots()

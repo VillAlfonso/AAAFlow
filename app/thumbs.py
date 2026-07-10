@@ -337,13 +337,35 @@ def _pick_frames(p: Dict, n: int = 2) -> List[Path]:
 
 
 # --- templates ---------------------------------------------------------------------
+def _warm_mass(im, left: bool) -> float:
+    """How much face-like warm tone lives in one horizontal half. On this
+    studio's flat art, faces are the warm bone/cream mass on cool dark
+    grounds, so text panels must go to the half with LESS of it (2026-07-10:
+    edge energy alone parked the title on a crying boy's face)."""
+    from PIL import Image
+    w, h = im.size
+    box = (0, int(h * 0.18), w // 2, int(h * 0.9)) if left else \
+          (w // 2, int(h * 0.18), w, int(h * 0.9))
+    r, g, b = im.convert("RGB").crop(box).resize((64, 48), Image.BILINEAR).split()
+    import numpy as np
+    R = np.asarray(r, float); G = np.asarray(g, float); B = np.asarray(b, float)
+    warm = (R > 120) & (R > B + 24) & (G > B) & (R + G + B > 240)
+    return float(warm.mean())
+
+
 def _t_spotlight(frames, ctx):
     from PIL import Image
     W, H = ctx["size"]
     tp = ctx["params"]["spotlight"]
     base = _cover(frames[0], W, H, fx=0.5)
-    e = _thirds_energy(base)
-    panel_left = e[0] <= e[2]                    # panel over the quiet side
+    # the panel goes over the side WITHOUT the subject: face-tone mass first,
+    # edge energy only as the tie-breaker
+    wl, wr = _warm_mass(base, True), _warm_mass(base, False)
+    if abs(wl - wr) > 0.015:
+        panel_left = wl < wr
+    else:
+        e = _thirds_energy(base)
+        panel_left = e[0] <= e[2]
     _grade(base, ctx["grade"])
     pw = int(W * float(tp.get("panel", 0.56)))
     grad = Image.new("L", (pw, 1), 0)
@@ -386,6 +408,15 @@ def _t_casefile(frames, ctx):
     font, lines = _fit(draw, ctx["title"], ctx["title_font"], W - 160, 2, 138)
     asc, desc = font.getmetrics()
     block_h = int((asc + desc) * 1.08) * len(lines)
+    # bottom scrim so the title never fights busy art behind it
+    from PIL import Image
+    sc_h = block_h + 120
+    grad = Image.new("L", (1, sc_h), 0)
+    for yy in range(sc_h):
+        grad.putpixel((0, yy), int(215 * (yy / sc_h) ** 1.2))
+    scrim = Image.new("RGBA", (W, sc_h), (7, 8, 12, 255))
+    scrim.putalpha(grad.resize((W, sc_h)))
+    base.alpha_composite(scrim, (0, H - sc_h))
     _text_block(base, lines, font, 64, H - block_h - 56)
     if ctx["kicker"]:
         _kicker_tag(base, ctx["kicker"], ctx["accent"], 40, 44,
@@ -528,7 +559,9 @@ def _t_bigword(frames, ctx):
     y_big = H - (asc + desc) - 30
     if rest:
         rfont, rlines = _fit(draw, rest, fp, W - 160, 1, 84, floor=48)
-        _text_block(base, rlines, rfont, 80, y_big - int(rfont.size * 1.5))
+        # centered over the giant word, never ragged-left against it
+        _text_block(base, rlines, rfont, 80, y_big - int(rfont.size * 1.5),
+                    align="center", box_w=W - 160)
     _text_block(base, [big], font,
                 int((W - draw.textlength(big, font=font)) / 2), y_big)
     draw.rectangle((int(W * 0.28), H - 22, int(W * 0.72), H - 12),

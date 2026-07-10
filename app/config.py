@@ -10,6 +10,22 @@ import os
 import shutil
 from pathlib import Path
 
+
+def _load_env_file() -> None:
+    """Load a local .env file if present so OAuth defaults work without extra UI input."""
+    env_file = BASE_DIR / ".env"
+    if not env_file.exists():
+        return
+    for raw in env_file.read_text(encoding="utf-8").splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        key = key.strip()
+        value = value.strip().strip('"').strip("'")
+        os.environ.setdefault(key, value)
+
+
 # --- paths -----------------------------------------------------------------
 BASE_DIR = Path(__file__).resolve().parent.parent          # project root (C:\AAAFlow)
 APP_DIR = BASE_DIR / "app"
@@ -34,6 +50,7 @@ for _d in (DATA_DIR, OUTPUTS_DIR, REFS_DIR, PROJECTS_DIR, CHANNELS_DIR, MODELS_D
     _d.mkdir(parents=True, exist_ok=True)
 
 # Keep model weights local to the project and use the fast downloader.
+_load_env_file()
 os.environ.setdefault("HF_HOME", str(MODELS_DIR))
 os.environ.setdefault("HF_HUB_ENABLE_HF_TRANSFER", "0")  # hf_transfer stalls on this machine; classic downloader is reliable
 os.environ.setdefault("HF_HUB_DISABLE_XET", "1")         # Xet backend hangs here; use the plain LFS CDN
@@ -251,6 +268,11 @@ YOUTUBE = {
     "upload_url": "https://www.googleapis.com/upload/youtube/v3/videos",
     "thumb_url": "https://www.googleapis.com/upload/youtube/v3/thumbnails/set",
     "banner_url": "https://www.googleapis.com/upload/youtube/v3/channelBanners/insert",
+    # Optional local defaults so the app can connect without re-pasting the
+    # OAuth client on every channel. The channel values still override these.
+    "client_id": os.environ.get("AAAFLOW_YOUTUBE_CLIENT_ID", ""),
+    "client_secret": os.environ.get("AAAFLOW_YOUTUBE_CLIENT_SECRET", ""),
+    "redirect_uri": os.environ.get("AAAFLOW_YOUTUBE_REDIRECT_URI", "http://127.0.0.1:8000/api/youtube/oauth/callback"),
     # force-ssl covers upload + list/update channels + set banner + edit videos.
     # (upload-only was too narrow for the in-app control center.)
     "scope": ("https://www.googleapis.com/auth/youtube.upload "

@@ -22,12 +22,22 @@ from . import channels, config, jobs, projects
 
 
 def _redirect_uri() -> str:
-    return "http://127.0.0.1:8000" + config.YOUTUBE["redirect_path"]
+    return config.YOUTUBE.get("redirect_uri") or ("http://127.0.0.1:8000" + config.YOUTUBE["redirect_path"])
+
+
+def _effective_youtube_creds(yt: Optional[Dict] = None) -> Dict:
+    yt = dict(yt or {})
+    env_cfg = config.YOUTUBE or {}
+    if not yt.get("client_id"):
+        yt["client_id"] = env_cfg.get("client_id", "")
+    if not yt.get("client_secret"):
+        yt["client_secret"] = env_cfg.get("client_secret", "")
+    return yt
 
 
 def auth_url(cid: str, reconnect: bool = False) -> str:
     ch = channels.get(cid)
-    yt = (ch or {}).get("youtube") or {}
+    yt = _effective_youtube_creds((ch or {}).get("youtube") or {})
     if not yt.get("client_id"):
         raise ValueError("Set youtube.client_id + client_secret on the channel first "
                          "(Google Cloud Console → OAuth client, type 'Desktop app').")
@@ -54,7 +64,7 @@ def _token_request(data: Dict) -> Dict:
 def finish_oauth(cid: str, code: str) -> Dict:
     """Exchange the callback code and persist the refresh token on the channel."""
     ch = channels.get(cid)
-    yt = (ch or {}).get("youtube") or {}
+    yt = _effective_youtube_creds((ch or {}).get("youtube") or {})
     if not yt.get("client_id"):
         raise ValueError("channel has no youtube.client_id")
     tok = _token_request({
@@ -104,7 +114,7 @@ def submit_upload(pid: str, opts: Optional[Dict] = None) -> str:
     ch = channels.get(project.get("channel"))
     if not ch:
         raise ValueError("This project has no channel — uploads are per-channel.")
-    yt = ch.get("youtube") or {}
+    yt = _effective_youtube_creds(ch.get("youtube") or {})
     if not (yt.get("client_id") and yt.get("refresh_token")):
         raise ValueError(f"Channel “{ch.get('name')}” isn't connected to YouTube yet "
                          "(Publish page → Connect).")
@@ -215,7 +225,7 @@ def submit_upload(pid: str, opts: Optional[Dict] = None) -> str:
 
 def _yt_creds(cid: str) -> Dict:
     ch = channels.get(cid)
-    yt = (ch or {}).get("youtube") or {}
+    yt = _effective_youtube_creds((ch or {}).get("youtube") or {})
     if not (yt.get("client_id") and yt.get("refresh_token")):
         raise ValueError("This channel isn't connected to YouTube yet — Connect first.")
     return yt

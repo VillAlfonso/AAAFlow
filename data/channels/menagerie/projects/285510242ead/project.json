@@ -2,7 +2,7 @@
   "id": "285510242ead",
   "name": "Five Children Went Upstairs. The Fire Left No Bones.",
   "created": 1783676227.2910883,
-  "updated": 1783677592.2534285,
+  "updated": 1783685597.0123107,
   "channel": "menagerie",
   "video": {
     "title": "Five Children Went Upstairs. The Fire Left No Bones.",
@@ -73,7 +73,14 @@
       "enhance": true,
       "coverage": "heroes"
     },
-    "music": null,
+    "music": {
+      "file": "score_20260710_201316_c95798.wav",
+      "volume": 0.16,
+      "duck": true,
+      "fade": 1.5,
+      "prompt": "calm dark ambient, faraway broken music box, low drones, slow airy pads, unhurried calm ambient atmospheric underscore soft",
+      "source": "ace-step"
+    },
     "authoring": "assisted",
     "music_vibe": "calm dark ambient, faraway broken music box, low drones, slow airy pads, unhurried"
   },
@@ -92,11 +99,11 @@
       "audio_cue": "quick whoosh",
       "id": 1,
       "planned_start": 0.0,
-      "planned_end": 4.63,
-      "planned_dur": 4.63,
+      "planned_end": 4.99,
+      "planned_dur": 4.99,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.99,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0001.png",
       "image_seed": null,
       "image_meta": {
@@ -116,7 +123,7 @@
       "video_file": "video/scene_0001.mp4",
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "ready",
         "transcript": "none"
@@ -139,12 +146,12 @@
       "transition": "crash zoom",
       "audio_cue": "quick whoosh",
       "id": 2,
-      "planned_start": 0.0,
-      "planned_end": 4.63,
-      "planned_dur": 4.63,
+      "planned_start": 5.26,
+      "planned_end": 9.53,
+      "planned_dur": 4.27,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.27,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0002.png",
       "image_seed": null,
       "image_meta": {
@@ -162,7 +169,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -181,12 +188,12 @@
       "transition": "whip-pan left",
       "audio_cue": "quick whoosh",
       "id": 3,
-      "planned_start": 0.0,
-      "planned_end": 4.63,
-      "planned_dur": 4.63,
+      "planned_start": 9.84,
+      "planned_end": 13.65,
+      "planned_dur": 3.81,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.81,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0003.png",
       "image_seed": null,
       "image_meta": {
@@ -206,7 +213,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -225,12 +232,12 @@
       "transition": "flash cut",
       "audio_cue": "quick whoosh",
       "id": 4,
-      "planned_start": 0.0,
-      "planned_end": 3.86,
-      "planned_dur": 3.86,
+      "planned_start": 14.02,
+      "planned_end": 18.33,
+      "planned_dur": 4.31,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.31,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0004.png",
       "image_seed": null,
       "image_meta": {
@@ -250,7 +257,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -269,12 +276,12 @@
       "transition": "smash cut",
       "audio_cue": "deep impact boom",
       "id": 5,
-      "planned_start": 0.0,
-      "planned_end": 3.48,
-      "planned_dur": 3.48,
+      "planned_start": 18.68,
+      "planned_end": 23.55,
+      "planned_dur": 4.87,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.87,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0005.png",
       "image_seed": null,
       "image_meta": {
@@ -292,7 +299,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -311,12 +318,12 @@
       "transition": "whip-pan right",
       "audio_cue": "quick whoosh",
       "id": 6,
-      "planned_start": 0.0,
-      "planned_end": 4.25,
-      "planned_dur": 4.25,
+      "planned_start": 23.84,
+      "planned_end": 27.63,
+      "planned_dur": 3.79,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.79,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0006.png",
       "image_seed": null,
       "image_meta": {
@@ -336,7 +343,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -355,12 +362,12 @@
       "transition": "punch-in",
       "audio_cue": "quick whoosh",
       "id": 7,
-      "planned_start": 0.0,
-      "planned_end": 4.25,
-      "planned_dur": 4.25,
+      "planned_start": 27.38,
+      "planned_end": 31.27,
+      "planned_dur": 3.89,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.89,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0007.png",
       "image_seed": null,
       "image_meta": {
@@ -378,7 +385,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -397,12 +404,12 @@
       "transition": "hard cut",
       "audio_cue": "cash register ding",
       "id": 8,
-      "planned_start": 0.0,
-      "planned_end": 3.48,
-      "planned_dur": 3.48,
+      "planned_start": 31.52,
+      "planned_end": 35.15,
+      "planned_dur": 3.63,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.63,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0008.png",
       "image_seed": null,
       "image_meta": {
@@ -422,7 +429,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -441,12 +448,12 @@
       "transition": "crossfade",
       "audio_cue": "",
       "id": 9,
-      "planned_start": 0.0,
-      "planned_end": 4.25,
-      "planned_dur": 4.25,
+      "planned_start": 35.7,
+      "planned_end": 40.63,
+      "planned_dur": 4.93,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.93,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0009.png",
       "image_seed": null,
       "image_meta": {
@@ -464,7 +471,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -483,12 +490,12 @@
       "transition": "whip-pan right",
       "audio_cue": "",
       "id": 10,
-      "planned_start": 0.0,
-      "planned_end": 3.48,
-      "planned_dur": 3.48,
+      "planned_start": 41.12,
+      "planned_end": 45.95,
+      "planned_dur": 4.83,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.83,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0010.png",
       "image_seed": null,
       "image_meta": {
@@ -509,7 +516,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -528,12 +535,12 @@
       "transition": "punch-in",
       "audio_cue": "cash register ding",
       "id": 11,
-      "planned_start": 0.0,
-      "planned_end": 3.86,
-      "planned_dur": 3.86,
+      "planned_start": 46.62,
+      "planned_end": 51.77,
+      "planned_dur": 5.15,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 5.15,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0011.png",
       "image_seed": null,
       "image_meta": {
@@ -551,7 +558,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -570,12 +577,12 @@
       "transition": "pull-back",
       "audio_cue": "",
       "id": 12,
-      "planned_start": 0.0,
-      "planned_end": 3.48,
-      "planned_dur": 3.48,
+      "planned_start": 52.24,
+      "planned_end": 55.19,
+      "planned_dur": 2.95,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 2.95,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0012.png",
       "image_seed": null,
       "image_meta": {
@@ -597,7 +604,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -616,12 +623,12 @@
       "transition": "drop-in",
       "audio_cue": "pop",
       "id": 13,
-      "planned_start": 0.0,
-      "planned_end": 4.25,
-      "planned_dur": 4.25,
+      "planned_start": 55.36,
+      "planned_end": 60.81,
+      "planned_dur": 5.45,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 5.45,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0013.png",
       "image_seed": null,
       "image_meta": {
@@ -639,7 +646,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -658,12 +665,12 @@
       "transition": "whip-pan right",
       "audio_cue": "quick whoosh",
       "id": 14,
-      "planned_start": 0.0,
-      "planned_end": 4.25,
-      "planned_dur": 4.25,
+      "planned_start": 61.0,
+      "planned_end": 65.23,
+      "planned_dur": 4.23,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.23,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0014.png",
       "image_seed": null,
       "image_meta": {
@@ -685,7 +692,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -704,12 +711,12 @@
       "transition": "dip to white",
       "audio_cue": "",
       "id": 15,
-      "planned_start": 0.0,
-      "planned_end": 3.09,
-      "planned_dur": 3.09,
+      "planned_start": 65.84,
+      "planned_end": 68.83,
+      "planned_dur": 2.99,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 2.99,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0015.png",
       "image_seed": null,
       "image_meta": {
@@ -729,7 +736,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -748,12 +755,12 @@
       "transition": "hard cut",
       "audio_cue": "pop",
       "id": 16,
-      "planned_start": 0.0,
-      "planned_end": 3.09,
-      "planned_dur": 3.09,
+      "planned_start": 69.12,
+      "planned_end": 71.71,
+      "planned_dur": 2.59,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 2.59,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0016.png",
       "image_seed": null,
       "image_meta": {
@@ -773,7 +780,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -792,12 +799,12 @@
       "transition": "punch-in",
       "audio_cue": "cash register ding",
       "id": 17,
-      "planned_start": 0.0,
-      "planned_end": 3.48,
-      "planned_dur": 3.48,
+      "planned_start": 71.94,
+      "planned_end": 75.05,
+      "planned_dur": 3.11,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.11,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0017.png",
       "image_seed": null,
       "image_meta": {
@@ -815,7 +822,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -834,12 +841,12 @@
       "transition": "crossfade",
       "audio_cue": "pop",
       "id": 18,
-      "planned_start": 0.0,
-      "planned_end": 4.63,
-      "planned_dur": 4.63,
+      "planned_start": 75.42,
+      "planned_end": 78.83,
+      "planned_dur": 3.41,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.41,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0018.png",
       "image_seed": null,
       "image_meta": {
@@ -859,7 +866,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -878,12 +885,12 @@
       "transition": "punch-in",
       "audio_cue": "cash register ding",
       "id": 19,
-      "planned_start": 0.0,
-      "planned_end": 4.63,
-      "planned_dur": 4.63,
+      "planned_start": 79.1,
+      "planned_end": 82.99,
+      "planned_dur": 3.89,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.89,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0019.png",
       "image_seed": null,
       "image_meta": {
@@ -901,7 +908,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -920,12 +927,12 @@
       "transition": "hard cut",
       "audio_cue": "",
       "id": 20,
-      "planned_start": 0.0,
-      "planned_end": 3.86,
-      "planned_dur": 3.86,
+      "planned_start": 82.74,
+      "planned_end": 86.57,
+      "planned_dur": 3.83,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.83,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0020.png",
       "image_seed": null,
       "image_meta": {
@@ -945,7 +952,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -964,12 +971,12 @@
       "transition": "pull-back",
       "audio_cue": "",
       "id": 21,
-      "planned_start": 0.0,
-      "planned_end": 4.25,
-      "planned_dur": 4.25,
+      "planned_start": 86.8,
+      "planned_end": 90.47,
+      "planned_dur": 3.67,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.67,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0021.png",
       "image_seed": null,
       "image_meta": {
@@ -989,7 +996,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -1008,12 +1015,12 @@
       "transition": "drop-in",
       "audio_cue": "",
       "id": 22,
-      "planned_start": 0.0,
-      "planned_end": 4.63,
-      "planned_dur": 4.63,
+      "planned_start": 90.76,
+      "planned_end": 96.87,
+      "planned_dur": 6.11,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 6.11,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0022.png",
       "image_seed": null,
       "image_meta": {
@@ -1033,7 +1040,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -1052,12 +1059,12 @@
       "transition": "fade",
       "audio_cue": "",
       "id": 23,
-      "planned_start": 0.0,
-      "planned_end": 3.09,
-      "planned_dur": 3.09,
+      "planned_start": 97.24,
+      "planned_end": 100.57,
+      "planned_dur": 3.33,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.33,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0023.png",
       "image_seed": null,
       "image_meta": {
@@ -1075,7 +1082,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -1094,12 +1101,12 @@
       "transition": "whip-pan right",
       "audio_cue": "quick whoosh",
       "id": 24,
-      "planned_start": 0.0,
-      "planned_end": 3.86,
-      "planned_dur": 3.86,
+      "planned_start": 100.84,
+      "planned_end": 104.23,
+      "planned_dur": 3.39,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.39,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0024.png",
       "image_seed": null,
       "image_meta": {
@@ -1117,7 +1124,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -1136,12 +1143,12 @@
       "transition": "hard cut",
       "audio_cue": "quick whoosh",
       "id": 25,
-      "planned_start": 0.0,
-      "planned_end": 4.25,
-      "planned_dur": 4.25,
+      "planned_start": 104.56,
+      "planned_end": 108.87,
+      "planned_dur": 4.31,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.31,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0025.png",
       "image_seed": null,
       "image_meta": {
@@ -1159,7 +1166,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -1178,12 +1185,12 @@
       "transition": "push-in",
       "audio_cue": "",
       "id": 26,
-      "planned_start": 0.0,
-      "planned_end": 3.86,
-      "planned_dur": 3.86,
+      "planned_start": 109.24,
+      "planned_end": 112.95,
+      "planned_dur": 3.71,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.71,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0026.png",
       "image_seed": null,
       "image_meta": {
@@ -1203,7 +1210,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -1222,12 +1229,12 @@
       "transition": "crossfade",
       "audio_cue": "",
       "id": 27,
-      "planned_start": 0.0,
-      "planned_end": 3.86,
-      "planned_dur": 3.86,
+      "planned_start": 113.22,
+      "planned_end": 115.75,
+      "planned_dur": 2.53,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 2.53,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0027.png",
       "image_seed": null,
       "image_meta": {
@@ -1245,7 +1252,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -1264,12 +1271,12 @@
       "transition": "whip-pan right",
       "audio_cue": "",
       "id": 28,
-      "planned_start": 0.0,
-      "planned_end": 3.86,
-      "planned_dur": 3.86,
+      "planned_start": 116.08,
+      "planned_end": 119.55,
+      "planned_dur": 3.47,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.47,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0028.png",
       "image_seed": null,
       "image_meta": {
@@ -1291,7 +1298,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -1310,12 +1317,12 @@
       "transition": "hard cut",
       "audio_cue": "",
       "id": 29,
-      "planned_start": 0.0,
-      "planned_end": 4.25,
-      "planned_dur": 4.25,
+      "planned_start": 119.86,
+      "planned_end": 124.25,
+      "planned_dur": 4.39,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.39,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0029.png",
       "image_seed": null,
       "image_meta": {
@@ -1335,7 +1342,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -1354,12 +1361,12 @@
       "transition": "pull-back",
       "audio_cue": "",
       "id": 30,
-      "planned_start": 0.0,
-      "planned_end": 5.02,
-      "planned_dur": 5.02,
+      "planned_start": 124.66,
+      "planned_end": 129.99,
+      "planned_dur": 5.33,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 5.33,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0030.png",
       "image_seed": null,
       "image_meta": {
@@ -1379,7 +1386,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -1398,12 +1405,12 @@
       "transition": "whip-pan right",
       "audio_cue": "quick whoosh",
       "id": 31,
-      "planned_start": 0.0,
-      "planned_end": 3.86,
-      "planned_dur": 3.86,
+      "planned_start": 130.36,
+      "planned_end": 133.99,
+      "planned_dur": 3.63,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.63,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0031.png",
       "image_seed": null,
       "image_meta": {
@@ -1421,7 +1428,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -1440,12 +1447,12 @@
       "transition": "smash cut",
       "audio_cue": "deep impact boom",
       "id": 32,
-      "planned_start": 0.0,
-      "planned_end": 4.25,
-      "planned_dur": 4.25,
+      "planned_start": 134.26,
+      "planned_end": 137.49,
+      "planned_dur": 3.23,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.23,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0032.png",
       "image_seed": null,
       "image_meta": {
@@ -1463,7 +1470,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -1482,12 +1489,12 @@
       "transition": "whip-pan right",
       "audio_cue": "quick whoosh",
       "id": 33,
-      "planned_start": 0.0,
-      "planned_end": 3.86,
-      "planned_dur": 3.86,
+      "planned_start": 137.76,
+      "planned_end": 140.81,
+      "planned_dur": 3.05,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.05,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0033.png",
       "image_seed": null,
       "image_meta": {
@@ -1505,7 +1512,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -1524,12 +1531,12 @@
       "transition": "hard cut",
       "audio_cue": "pop",
       "id": 34,
-      "planned_start": 0.0,
-      "planned_end": 5.02,
-      "planned_dur": 5.02,
+      "planned_start": 141.08,
+      "planned_end": 145.07,
+      "planned_dur": 3.99,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.99,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0034.png",
       "image_seed": null,
       "image_meta": {
@@ -1547,7 +1554,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -1566,12 +1573,12 @@
       "transition": "push-in",
       "audio_cue": "",
       "id": 35,
-      "planned_start": 0.0,
-      "planned_end": 4.25,
-      "planned_dur": 4.25,
+      "planned_start": 145.36,
+      "planned_end": 149.59,
+      "planned_dur": 4.23,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.23,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0035.png",
       "image_seed": null,
       "image_meta": {
@@ -1589,7 +1596,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -1608,12 +1615,12 @@
       "transition": "crossfade",
       "audio_cue": "pop",
       "id": 36,
-      "planned_start": 0.0,
-      "planned_end": 4.63,
-      "planned_dur": 4.63,
+      "planned_start": 149.82,
+      "planned_end": 154.03,
+      "planned_dur": 4.21,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.21,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0036.png",
       "image_seed": null,
       "image_meta": {
@@ -1631,7 +1638,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -1650,12 +1657,12 @@
       "transition": "whip-pan right",
       "audio_cue": "",
       "id": 37,
-      "planned_start": 0.0,
-      "planned_end": 3.09,
-      "planned_dur": 3.09,
+      "planned_start": 154.44,
+      "planned_end": 156.67,
+      "planned_dur": 2.23,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 2.23,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0037.png",
       "image_seed": null,
       "image_meta": {
@@ -1675,7 +1682,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -1694,12 +1701,12 @@
       "transition": "hard cut",
       "audio_cue": "quick whoosh",
       "id": 38,
-      "planned_start": 0.0,
-      "planned_end": 2.71,
-      "planned_dur": 2.71,
+      "planned_start": 156.84,
+      "planned_end": 160.23,
+      "planned_dur": 3.39,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.39,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0038.png",
       "image_seed": null,
       "image_meta": {
@@ -1717,7 +1724,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -1736,12 +1743,12 @@
       "transition": "pull-back",
       "audio_cue": "",
       "id": 39,
-      "planned_start": 0.0,
-      "planned_end": 5.02,
-      "planned_dur": 5.02,
+      "planned_start": 160.7,
+      "planned_end": 164.77,
+      "planned_dur": 4.07,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.07,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0039.png",
       "image_seed": null,
       "image_meta": {
@@ -1761,7 +1768,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -1780,12 +1787,12 @@
       "transition": "whip-pan right",
       "audio_cue": "quick whoosh",
       "id": 40,
-      "planned_start": 0.0,
-      "planned_end": 4.25,
-      "planned_dur": 4.25,
+      "planned_start": 164.52,
+      "planned_end": 169.39,
+      "planned_dur": 4.87,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.87,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0040.png",
       "image_seed": null,
       "image_meta": {
@@ -1807,7 +1814,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -1826,12 +1833,12 @@
       "transition": "fade",
       "audio_cue": "",
       "id": 41,
-      "planned_start": 0.0,
-      "planned_end": 3.09,
-      "planned_dur": 3.09,
+      "planned_start": 169.62,
+      "planned_end": 172.67,
+      "planned_dur": 3.05,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.05,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0041.png",
       "image_seed": null,
       "image_meta": {
@@ -1851,7 +1858,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -1870,12 +1877,12 @@
       "transition": "dip to white",
       "audio_cue": "",
       "id": 42,
-      "planned_start": 0.0,
-      "planned_end": 3.86,
-      "planned_dur": 3.86,
+      "planned_start": 172.68,
+      "planned_end": 176.51,
+      "planned_dur": 3.83,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.83,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0042.png",
       "image_seed": null,
       "image_meta": {
@@ -1893,7 +1900,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -1912,12 +1919,12 @@
       "transition": "hard cut",
       "audio_cue": "",
       "id": 43,
-      "planned_start": 0.0,
-      "planned_end": 3.09,
-      "planned_dur": 3.09,
+      "planned_start": 176.8,
+      "planned_end": 180.27,
+      "planned_dur": 3.47,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.47,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0043.png",
       "image_seed": null,
       "image_meta": {
@@ -1937,7 +1944,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -1956,12 +1963,12 @@
       "transition": "push-in",
       "audio_cue": "",
       "id": 44,
-      "planned_start": 0.0,
-      "planned_end": 4.25,
-      "planned_dur": 4.25,
+      "planned_start": 180.84,
+      "planned_end": 185.25,
+      "planned_dur": 4.41,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.41,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0044.png",
       "image_seed": null,
       "image_meta": {
@@ -1979,7 +1986,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -1998,12 +2005,12 @@
       "transition": "whip-pan right",
       "audio_cue": "quick whoosh",
       "id": 45,
-      "planned_start": 0.0,
-      "planned_end": 4.63,
-      "planned_dur": 4.63,
+      "planned_start": 185.52,
+      "planned_end": 189.35,
+      "planned_dur": 3.83,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.83,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0045.png",
       "image_seed": null,
       "image_meta": {
@@ -2023,7 +2030,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -2042,12 +2049,12 @@
       "transition": "hard cut",
       "audio_cue": "",
       "id": 46,
-      "planned_start": 0.0,
-      "planned_end": 3.86,
-      "planned_dur": 3.86,
+      "planned_start": 189.62,
+      "planned_end": 192.81,
+      "planned_dur": 3.19,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.19,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0046.png",
       "image_seed": null,
       "image_meta": {
@@ -2067,7 +2074,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -2086,12 +2093,12 @@
       "transition": "pull-back",
       "audio_cue": "",
       "id": 47,
-      "planned_start": 0.0,
-      "planned_end": 4.63,
-      "planned_dur": 4.63,
+      "planned_start": 193.02,
+      "planned_end": 197.97,
+      "planned_dur": 4.95,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.95,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0047.png",
       "image_seed": null,
       "image_meta": {
@@ -2109,7 +2116,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -2128,12 +2135,12 @@
       "transition": "drop-in",
       "audio_cue": "",
       "id": 48,
-      "planned_start": 0.0,
-      "planned_end": 3.86,
-      "planned_dur": 3.86,
+      "planned_start": 198.08,
+      "planned_end": 202.63,
+      "planned_dur": 4.55,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.55,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0048.png",
       "image_seed": null,
       "image_meta": {
@@ -2153,7 +2160,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -2172,12 +2179,12 @@
       "transition": "whip-pan right",
       "audio_cue": "quick whoosh",
       "id": 49,
-      "planned_start": 0.0,
-      "planned_end": 3.48,
-      "planned_dur": 3.48,
+      "planned_start": 202.88,
+      "planned_end": 206.41,
+      "planned_dur": 3.53,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.53,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0049.png",
       "image_seed": null,
       "image_meta": {
@@ -2195,7 +2202,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -2214,12 +2221,12 @@
       "transition": "fade",
       "audio_cue": "quick whoosh",
       "id": 50,
-      "planned_start": 0.0,
-      "planned_end": 3.86,
-      "planned_dur": 3.86,
+      "planned_start": 206.8,
+      "planned_end": 210.51,
+      "planned_dur": 3.71,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.71,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0050.png",
       "image_seed": null,
       "image_meta": {
@@ -2239,7 +2246,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -2258,12 +2265,12 @@
       "transition": "whip-pan right",
       "audio_cue": "quick whoosh",
       "id": 51,
-      "planned_start": 0.0,
-      "planned_end": 3.48,
-      "planned_dur": 3.48,
+      "planned_start": 210.9,
+      "planned_end": 213.21,
+      "planned_dur": 2.31,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 2.31,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0051.png",
       "image_seed": null,
       "image_meta": {
@@ -2286,7 +2293,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -2305,12 +2312,12 @@
       "transition": "hard cut",
       "audio_cue": "",
       "id": 52,
-      "planned_start": 0.0,
-      "planned_end": 3.48,
-      "planned_dur": 3.48,
+      "planned_start": 213.6,
+      "planned_end": 217.41,
+      "planned_dur": 3.81,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.81,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0052.png",
       "image_seed": null,
       "image_meta": {
@@ -2328,7 +2335,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -2347,12 +2354,12 @@
       "transition": "push-in",
       "audio_cue": "",
       "id": 53,
-      "planned_start": 0.0,
-      "planned_end": 2.71,
-      "planned_dur": 2.71,
+      "planned_start": 217.16,
+      "planned_end": 223.41,
+      "planned_dur": 6.25,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 6.25,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0053.png",
       "image_seed": null,
       "image_meta": {
@@ -2372,7 +2379,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -2391,12 +2398,12 @@
       "transition": "crossfade",
       "audio_cue": "",
       "id": 54,
-      "planned_start": 0.0,
-      "planned_end": 3.09,
-      "planned_dur": 3.09,
+      "planned_start": 223.8,
+      "planned_end": 227.27,
+      "planned_dur": 3.47,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.47,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0054.png",
       "image_seed": null,
       "image_meta": {
@@ -2416,7 +2423,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -2435,12 +2442,12 @@
       "transition": "whip-pan right",
       "audio_cue": "quick whoosh",
       "id": 55,
-      "planned_start": 0.0,
-      "planned_end": 4.63,
-      "planned_dur": 4.63,
+      "planned_start": 227.6,
+      "planned_end": 231.21,
+      "planned_dur": 3.61,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.61,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0055.png",
       "image_seed": null,
       "image_meta": {
@@ -2460,7 +2467,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -2479,12 +2486,12 @@
       "transition": "hard cut",
       "audio_cue": "",
       "id": 56,
-      "planned_start": 0.0,
-      "planned_end": 3.09,
-      "planned_dur": 3.09,
+      "planned_start": 231.34,
+      "planned_end": 234.41,
+      "planned_dur": 3.07,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.07,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0056.png",
       "image_seed": null,
       "image_meta": {
@@ -2504,7 +2511,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -2523,12 +2530,12 @@
       "transition": "whip-pan right",
       "audio_cue": "quick whoosh",
       "id": 57,
-      "planned_start": 0.0,
-      "planned_end": 5.02,
-      "planned_dur": 5.02,
+      "planned_start": 234.7,
+      "planned_end": 241.07,
+      "planned_dur": 6.37,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 6.37,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0057.png",
       "image_seed": null,
       "image_meta": {
@@ -2546,7 +2553,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -2565,12 +2572,12 @@
       "transition": "drop-in",
       "audio_cue": "quick whoosh",
       "id": 58,
-      "planned_start": 0.0,
-      "planned_end": 5.02,
-      "planned_dur": 5.02,
+      "planned_start": 240.82,
+      "planned_end": 245.07,
+      "planned_dur": 4.25,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.25,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0058.png",
       "image_seed": null,
       "image_meta": {
@@ -2590,7 +2597,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -2609,12 +2616,12 @@
       "transition": "fade",
       "audio_cue": "",
       "id": 59,
-      "planned_start": 0.0,
-      "planned_end": 4.25,
-      "planned_dur": 4.25,
+      "planned_start": 245.46,
+      "planned_end": 249.81,
+      "planned_dur": 4.35,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.35,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0059.png",
       "image_seed": null,
       "image_meta": {
@@ -2634,7 +2641,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -2653,12 +2660,12 @@
       "transition": "dip to white",
       "audio_cue": "",
       "id": 60,
-      "planned_start": 0.0,
-      "planned_end": 4.63,
-      "planned_dur": 4.63,
+      "planned_start": 250.32,
+      "planned_end": 254.15,
+      "planned_dur": 3.83,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.83,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0060.png",
       "image_seed": null,
       "image_meta": {
@@ -2678,7 +2685,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -2697,12 +2704,12 @@
       "transition": "hard cut",
       "audio_cue": "",
       "id": 61,
-      "planned_start": 0.0,
-      "planned_end": 2.71,
-      "planned_dur": 2.71,
+      "planned_start": 254.62,
+      "planned_end": 257.25,
+      "planned_dur": 2.63,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 2.63,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0061.png",
       "image_seed": null,
       "image_meta": {
@@ -2720,7 +2727,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -2739,12 +2746,12 @@
       "transition": "whip-pan right",
       "audio_cue": "quick whoosh",
       "id": 62,
-      "planned_start": 0.0,
-      "planned_end": 4.25,
-      "planned_dur": 4.25,
+      "planned_start": 257.8,
+      "planned_end": 260.73,
+      "planned_dur": 2.93,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 2.93,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0062.png",
       "image_seed": null,
       "image_meta": {
@@ -2762,7 +2769,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -2781,12 +2788,12 @@
       "transition": "crossfade",
       "audio_cue": "pop",
       "id": 63,
-      "planned_start": 0.0,
-      "planned_end": 4.25,
-      "planned_dur": 4.25,
+      "planned_start": 261.1,
+      "planned_end": 265.59,
+      "planned_dur": 4.49,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.49,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0063.png",
       "image_seed": null,
       "image_meta": {
@@ -2806,7 +2813,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -2825,12 +2832,12 @@
       "transition": "whip-pan right",
       "audio_cue": "",
       "id": 64,
-      "planned_start": 0.0,
-      "planned_end": 4.63,
-      "planned_dur": 4.63,
+      "planned_start": 265.94,
+      "planned_end": 269.75,
+      "planned_dur": 3.81,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.81,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0064.png",
       "image_seed": null,
       "image_meta": {
@@ -2848,7 +2855,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -2867,12 +2874,12 @@
       "transition": "smash cut",
       "audio_cue": "deep impact boom",
       "id": 65,
-      "planned_start": 0.0,
-      "planned_end": 2.71,
-      "planned_dur": 2.71,
+      "planned_start": 270.1,
+      "planned_end": 273.33,
+      "planned_dur": 3.23,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.23,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0065.png",
       "image_seed": null,
       "image_meta": {
@@ -2892,7 +2899,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -2911,12 +2918,12 @@
       "transition": "pull-back",
       "audio_cue": "pop",
       "id": 66,
-      "planned_start": 0.0,
-      "planned_end": 3.86,
-      "planned_dur": 3.86,
+      "planned_start": 273.08,
+      "planned_end": 277.19,
+      "planned_dur": 4.11,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.11,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0066.png",
       "image_seed": null,
       "image_meta": {
@@ -2934,7 +2941,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -2953,12 +2960,12 @@
       "transition": "drop-in",
       "audio_cue": "",
       "id": 67,
-      "planned_start": 0.0,
-      "planned_end": 3.09,
-      "planned_dur": 3.09,
+      "planned_start": 277.18,
+      "planned_end": 279.43,
+      "planned_dur": 2.25,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 2.25,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0067.png",
       "image_seed": null,
       "image_meta": {
@@ -2978,7 +2985,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -2997,12 +3004,12 @@
       "transition": "fade",
       "audio_cue": "",
       "id": 68,
-      "planned_start": 0.0,
-      "planned_end": 4.25,
-      "planned_dur": 4.25,
+      "planned_start": 279.7,
+      "planned_end": 284.69,
+      "planned_dur": 4.99,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.99,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0068.png",
       "image_seed": null,
       "image_meta": {
@@ -3020,7 +3027,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -3039,12 +3046,12 @@
       "transition": "whip-pan right",
       "audio_cue": "quick whoosh",
       "id": 69,
-      "planned_start": 0.0,
-      "planned_end": 4.63,
-      "planned_dur": 4.63,
+      "planned_start": 284.44,
+      "planned_end": 287.95,
+      "planned_dur": 3.51,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.51,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0069.png",
       "image_seed": null,
       "image_meta": {
@@ -3062,7 +3069,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -3081,12 +3088,12 @@
       "transition": "hard cut",
       "audio_cue": "pop",
       "id": 70,
-      "planned_start": 0.0,
-      "planned_end": 2.32,
-      "planned_dur": 2.32,
+      "planned_start": 288.26,
+      "planned_end": 291.07,
+      "planned_dur": 2.81,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 2.81,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0070.png",
       "image_seed": null,
       "image_meta": {
@@ -3106,7 +3113,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -3125,12 +3132,12 @@
       "transition": "push-in",
       "audio_cue": "",
       "id": 71,
-      "planned_start": 0.0,
-      "planned_end": 3.09,
-      "planned_dur": 3.09,
+      "planned_start": 291.46,
+      "planned_end": 294.57,
+      "planned_dur": 3.11,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.11,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0071.png",
       "image_seed": null,
       "image_meta": {
@@ -3148,7 +3155,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -3167,12 +3174,12 @@
       "transition": "whip-pan right",
       "audio_cue": "quick whoosh",
       "id": 72,
-      "planned_start": 0.0,
-      "planned_end": 5.02,
-      "planned_dur": 5.02,
+      "planned_start": 294.98,
+      "planned_end": 298.75,
+      "planned_dur": 3.77,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.77,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0072.png",
       "image_seed": null,
       "image_meta": {
@@ -3190,7 +3197,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -3209,12 +3216,12 @@
       "transition": "hard cut",
       "audio_cue": "",
       "id": 73,
-      "planned_start": 0.0,
-      "planned_end": 3.48,
-      "planned_dur": 3.48,
+      "planned_start": 299.08,
+      "planned_end": 301.67,
+      "planned_dur": 2.59,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 2.59,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0073.png",
       "image_seed": null,
       "image_meta": {
@@ -3234,7 +3241,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -3253,12 +3260,12 @@
       "transition": "pull-back",
       "audio_cue": "",
       "id": 74,
-      "planned_start": 0.0,
-      "planned_end": 4.25,
-      "planned_dur": 4.25,
+      "planned_start": 301.42,
+      "planned_end": 306.61,
+      "planned_dur": 5.19,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 5.19,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0074.png",
       "image_seed": null,
       "image_meta": {
@@ -3276,7 +3283,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -3295,12 +3302,12 @@
       "transition": "drop-in",
       "audio_cue": "pop",
       "id": 75,
-      "planned_start": 0.0,
-      "planned_end": 4.63,
-      "planned_dur": 4.63,
+      "planned_start": 306.36,
+      "planned_end": 310.35,
+      "planned_dur": 3.99,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.99,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0075.png",
       "image_seed": null,
       "image_meta": {
@@ -3318,7 +3325,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -3337,12 +3344,12 @@
       "transition": "fade",
       "audio_cue": "",
       "id": 76,
-      "planned_start": 0.0,
-      "planned_end": 3.86,
-      "planned_dur": 3.86,
+      "planned_start": 310.76,
+      "planned_end": 313.79,
+      "planned_dur": 3.03,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.03,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0076.png",
       "image_seed": null,
       "image_meta": {
@@ -3360,7 +3367,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -3379,12 +3386,12 @@
       "transition": "dip to white",
       "audio_cue": "",
       "id": 77,
-      "planned_start": 0.0,
-      "planned_end": 4.63,
-      "planned_dur": 4.63,
+      "planned_start": 314.08,
+      "planned_end": 318.21,
+      "planned_dur": 4.13,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.13,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0077.png",
       "image_seed": null,
       "image_meta": {
@@ -3404,7 +3411,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -3423,12 +3430,12 @@
       "transition": "hard cut",
       "audio_cue": "",
       "id": 78,
-      "planned_start": 0.0,
-      "planned_end": 5.4,
-      "planned_dur": 5.4,
+      "planned_start": 318.42,
+      "planned_end": 322.81,
+      "planned_dur": 4.39,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.39,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0078.png",
       "image_seed": null,
       "image_meta": {
@@ -3448,7 +3455,7 @@
       "video_file": "video/scene_0078.mp4",
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "ready",
         "transcript": "none"
@@ -3471,12 +3478,12 @@
       "transition": "push-in",
       "audio_cue": "pop",
       "id": 79,
-      "planned_start": 0.0,
-      "planned_end": 3.86,
-      "planned_dur": 3.86,
+      "planned_start": 322.9,
+      "planned_end": 326.87,
+      "planned_dur": 3.97,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.97,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0079.png",
       "image_seed": null,
       "image_meta": {
@@ -3496,7 +3503,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -3515,12 +3522,12 @@
       "transition": "crossfade",
       "audio_cue": "",
       "id": 80,
-      "planned_start": 0.0,
-      "planned_end": 4.63,
-      "planned_dur": 4.63,
+      "planned_start": 327.18,
+      "planned_end": 330.41,
+      "planned_dur": 3.23,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.23,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0080.png",
       "image_seed": null,
       "image_meta": {
@@ -3538,7 +3545,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -3557,12 +3564,12 @@
       "transition": "whip-pan right",
       "audio_cue": "pop",
       "id": 81,
-      "planned_start": 0.0,
-      "planned_end": 3.86,
-      "planned_dur": 3.86,
+      "planned_start": 330.16,
+      "planned_end": 334.39,
+      "planned_dur": 4.23,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.23,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0081.png",
       "image_seed": null,
       "image_meta": {
@@ -3584,7 +3591,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -3603,12 +3610,12 @@
       "transition": "hard cut",
       "audio_cue": "",
       "id": 82,
-      "planned_start": 0.0,
-      "planned_end": 4.25,
-      "planned_dur": 4.25,
+      "planned_start": 334.42,
+      "planned_end": 339.15,
+      "planned_dur": 4.73,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.73,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0082.png",
       "image_seed": null,
       "image_meta": {
@@ -3626,7 +3633,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -3645,12 +3652,12 @@
       "transition": "pull-back",
       "audio_cue": "",
       "id": 83,
-      "planned_start": 0.0,
-      "planned_end": 2.71,
-      "planned_dur": 2.71,
+      "planned_start": 339.38,
+      "planned_end": 342.69,
+      "planned_dur": 3.31,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.31,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0083.png",
       "image_seed": null,
       "image_meta": {
@@ -3670,7 +3677,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -3689,12 +3696,12 @@
       "transition": "whip-pan right",
       "audio_cue": "quick whoosh",
       "id": 84,
-      "planned_start": 0.0,
-      "planned_end": 3.09,
-      "planned_dur": 3.09,
+      "planned_start": 343.08,
+      "planned_end": 346.37,
+      "planned_dur": 3.29,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.29,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0084.png",
       "image_seed": null,
       "image_meta": {
@@ -3712,7 +3719,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -3731,12 +3738,12 @@
       "transition": "drop-in",
       "audio_cue": "",
       "id": 85,
-      "planned_start": 0.0,
-      "planned_end": 3.86,
-      "planned_dur": 3.86,
+      "planned_start": 346.6,
+      "planned_end": 350.93,
+      "planned_dur": 4.33,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.33,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0085.png",
       "image_seed": null,
       "image_meta": {
@@ -3756,7 +3763,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -3775,12 +3782,12 @@
       "transition": "fade",
       "audio_cue": "",
       "id": 86,
-      "planned_start": 0.0,
-      "planned_end": 3.48,
-      "planned_dur": 3.48,
+      "planned_start": 351.46,
+      "planned_end": 355.33,
+      "planned_dur": 3.87,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.87,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0086.png",
       "image_seed": null,
       "image_meta": {
@@ -3800,7 +3807,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -3819,12 +3826,12 @@
       "transition": "whip-pan right",
       "audio_cue": "quick whoosh",
       "id": 87,
-      "planned_start": 0.0,
-      "planned_end": 3.09,
-      "planned_dur": 3.09,
+      "planned_start": 355.08,
+      "planned_end": 357.53,
+      "planned_dur": 2.45,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 2.45,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0087.png",
       "image_seed": null,
       "image_meta": {
@@ -3842,7 +3849,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -3861,12 +3868,12 @@
       "transition": "hard cut",
       "audio_cue": "",
       "id": 88,
-      "planned_start": 0.0,
-      "planned_end": 3.48,
-      "planned_dur": 3.48,
+      "planned_start": 357.76,
+      "planned_end": 362.03,
+      "planned_dur": 4.27,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.27,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0088.png",
       "image_seed": null,
       "image_meta": {
@@ -3886,7 +3893,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -3905,12 +3912,12 @@
       "transition": "whip-pan right",
       "audio_cue": "quick whoosh",
       "id": 89,
-      "planned_start": 0.0,
-      "planned_end": 5.02,
-      "planned_dur": 5.02,
+      "planned_start": 362.4,
+      "planned_end": 367.29,
+      "planned_dur": 4.89,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.89,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0089.png",
       "image_seed": null,
       "image_meta": {
@@ -3928,7 +3935,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -3947,12 +3954,12 @@
       "transition": "crossfade",
       "audio_cue": "",
       "id": 90,
-      "planned_start": 0.0,
-      "planned_end": 5.4,
-      "planned_dur": 5.4,
+      "planned_start": 367.6,
+      "planned_end": 372.49,
+      "planned_dur": 4.89,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.89,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0090.png",
       "image_seed": null,
       "image_meta": {
@@ -3970,7 +3977,7 @@
       "video_file": "video/scene_0090.mp4",
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "ready",
         "transcript": "none"
@@ -3993,12 +4000,12 @@
       "transition": "whip-pan right",
       "audio_cue": "",
       "id": 91,
-      "planned_start": 0.0,
-      "planned_end": 3.48,
-      "planned_dur": 3.48,
+      "planned_start": 372.76,
+      "planned_end": 376.57,
+      "planned_dur": 3.81,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.81,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0091.png",
       "image_seed": null,
       "image_meta": {
@@ -4016,7 +4023,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -4035,12 +4042,12 @@
       "transition": "hard cut",
       "audio_cue": "quick whoosh",
       "id": 92,
-      "planned_start": 0.0,
-      "planned_end": 3.48,
-      "planned_dur": 3.48,
+      "planned_start": 376.82,
+      "planned_end": 379.61,
+      "planned_dur": 2.79,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 2.79,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0092.png",
       "image_seed": null,
       "image_meta": {
@@ -4058,7 +4065,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -4077,12 +4084,12 @@
       "transition": "pull-back",
       "audio_cue": "pop",
       "id": 93,
-      "planned_start": 0.0,
-      "planned_end": 1.94,
-      "planned_dur": 1.94,
+      "planned_start": 379.94,
+      "planned_end": 381.79,
+      "planned_dur": 1.85,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 1.85,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0093.png",
       "image_seed": null,
       "image_meta": {
@@ -4100,7 +4107,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -4119,12 +4126,12 @@
       "transition": "drop-in",
       "audio_cue": "pop",
       "id": 94,
-      "planned_start": 0.0,
-      "planned_end": 5.78,
-      "planned_dur": 5.78,
+      "planned_start": 382.16,
+      "planned_end": 387.47,
+      "planned_dur": 5.31,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 5.31,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0094.png",
       "image_seed": null,
       "image_meta": {
@@ -4142,7 +4149,7 @@
       "video_file": "video/scene_0094.mp4",
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "ready",
         "transcript": "none"
@@ -4165,12 +4172,12 @@
       "transition": "fade",
       "audio_cue": "",
       "id": 95,
-      "planned_start": 0.0,
-      "planned_end": 5.4,
-      "planned_dur": 5.4,
+      "planned_start": 387.22,
+      "planned_end": 393.33,
+      "planned_dur": 6.11,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 6.11,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0095.png",
       "image_seed": null,
       "image_meta": {
@@ -4190,7 +4197,7 @@
       "video_file": "video/scene_0095.mp4",
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "ready",
         "transcript": "none"
@@ -4213,12 +4220,12 @@
       "transition": "dip to white",
       "audio_cue": "pop",
       "id": 96,
-      "planned_start": 0.0,
-      "planned_end": 5.4,
-      "planned_dur": 5.4,
+      "planned_start": 393.8,
+      "planned_end": 399.33,
+      "planned_dur": 5.53,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 5.53,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0096.png",
       "image_seed": null,
       "image_meta": {
@@ -4236,7 +4243,7 @@
       "video_file": "video/scene_0096.mp4",
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "ready",
         "transcript": "none"
@@ -4259,12 +4266,12 @@
       "transition": "hard cut",
       "audio_cue": "",
       "id": 97,
-      "planned_start": 0.0,
-      "planned_end": 4.63,
-      "planned_dur": 4.63,
+      "planned_start": 399.62,
+      "planned_end": 404.31,
+      "planned_dur": 4.69,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.69,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0097.png",
       "image_seed": null,
       "image_meta": {
@@ -4284,7 +4291,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -4303,12 +4310,12 @@
       "transition": "push-in",
       "audio_cue": "",
       "id": 98,
-      "planned_start": 0.0,
-      "planned_end": 4.63,
-      "planned_dur": 4.63,
+      "planned_start": 404.62,
+      "planned_end": 409.17,
+      "planned_dur": 4.55,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.55,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0098.png",
       "image_seed": null,
       "image_meta": {
@@ -4326,7 +4333,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -4345,12 +4352,12 @@
       "transition": "crossfade",
       "audio_cue": "pop",
       "id": 99,
-      "planned_start": 0.0,
-      "planned_end": 3.09,
-      "planned_dur": 3.09,
+      "planned_start": 409.4,
+      "planned_end": 412.29,
+      "planned_dur": 2.89,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 2.89,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0099.png",
       "image_seed": null,
       "image_meta": {
@@ -4370,7 +4377,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -4389,12 +4396,12 @@
       "transition": "whip-pan right",
       "audio_cue": "",
       "id": 100,
-      "planned_start": 0.0,
-      "planned_end": 4.25,
-      "planned_dur": 4.25,
+      "planned_start": 412.8,
+      "planned_end": 416.17,
+      "planned_dur": 3.37,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.37,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0100.png",
       "image_seed": null,
       "image_meta": {
@@ -4415,7 +4422,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -4434,12 +4441,12 @@
       "transition": "hard cut",
       "audio_cue": "",
       "id": 101,
-      "planned_start": 0.0,
-      "planned_end": 4.63,
-      "planned_dur": 4.63,
+      "planned_start": 416.48,
+      "planned_end": 422.27,
+      "planned_dur": 5.79,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 5.79,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0101.png",
       "image_seed": null,
       "image_meta": {
@@ -4461,7 +4468,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -4480,12 +4487,12 @@
       "transition": "pull-back",
       "audio_cue": "",
       "id": 102,
-      "planned_start": 0.0,
-      "planned_end": 1.94,
-      "planned_dur": 1.94,
+      "planned_start": 422.38,
+      "planned_end": 424.37,
+      "planned_dur": 1.99,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 1.99,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0102.png",
       "image_seed": null,
       "image_meta": {
@@ -4503,7 +4510,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -4522,12 +4529,12 @@
       "transition": "drop-in",
       "audio_cue": "",
       "id": 103,
-      "planned_start": 0.0,
-      "planned_end": 3.09,
-      "planned_dur": 3.09,
+      "planned_start": 425.08,
+      "planned_end": 428.13,
+      "planned_dur": 3.05,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.05,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0103.png",
       "image_seed": null,
       "image_meta": {
@@ -4545,7 +4552,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -4564,12 +4571,12 @@
       "transition": "fade",
       "audio_cue": "",
       "id": 104,
-      "planned_start": 0.0,
-      "planned_end": 4.25,
-      "planned_dur": 4.25,
+      "planned_start": 429.14,
+      "planned_end": 432.37,
+      "planned_dur": 3.23,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.23,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0104.png",
       "image_seed": null,
       "image_meta": {
@@ -4587,7 +4594,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -4606,12 +4613,12 @@
       "transition": "dip to white",
       "audio_cue": "pop",
       "id": 105,
-      "planned_start": 0.0,
-      "planned_end": 6.55,
-      "planned_dur": 6.55,
+      "planned_start": 432.68,
+      "planned_end": 436.69,
+      "planned_dur": 4.01,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.01,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0105.png",
       "image_seed": null,
       "image_meta": {
@@ -4629,7 +4636,7 @@
       "video_file": "video/scene_0105.mp4",
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "ready",
         "transcript": "none"
@@ -4652,12 +4659,12 @@
       "transition": "hard cut",
       "audio_cue": "pop",
       "id": 106,
-      "planned_start": 0.0,
-      "planned_end": 3.48,
-      "planned_dur": 3.48,
+      "planned_start": 437.0,
+      "planned_end": 439.45,
+      "planned_dur": 2.45,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 2.45,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0106.png",
       "image_seed": null,
       "image_meta": {
@@ -4675,7 +4682,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -4694,12 +4701,12 @@
       "transition": "push-in",
       "audio_cue": "pop",
       "id": 107,
-      "planned_start": 0.0,
-      "planned_end": 4.25,
-      "planned_dur": 4.25,
+      "planned_start": 439.66,
+      "planned_end": 444.93,
+      "planned_dur": 5.27,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 5.27,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0107.png",
       "image_seed": null,
       "image_meta": {
@@ -4717,7 +4724,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -4736,12 +4743,12 @@
       "transition": "flash cut",
       "audio_cue": "shimmering riser",
       "id": 108,
-      "planned_start": 0.0,
-      "planned_end": 4.25,
-      "planned_dur": 4.25,
+      "planned_start": 445.06,
+      "planned_end": 449.23,
+      "planned_dur": 4.17,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.17,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0108.png",
       "image_seed": null,
       "image_meta": {
@@ -4759,7 +4766,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -4778,12 +4785,12 @@
       "transition": "whip-pan right",
       "audio_cue": "",
       "id": 109,
-      "planned_start": 0.0,
-      "planned_end": 4.63,
-      "planned_dur": 4.63,
+      "planned_start": 449.54,
+      "planned_end": 453.99,
+      "planned_dur": 4.45,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.45,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0109.png",
       "image_seed": null,
       "image_meta": {
@@ -4804,7 +4811,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -4823,12 +4830,12 @@
       "transition": "hard cut",
       "audio_cue": "",
       "id": 110,
-      "planned_start": 0.0,
-      "planned_end": 3.09,
-      "planned_dur": 3.09,
+      "planned_start": 454.4,
+      "planned_end": 457.17,
+      "planned_dur": 2.77,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 2.77,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0110.png",
       "image_seed": null,
       "image_meta": {
@@ -4846,7 +4853,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -4865,12 +4872,12 @@
       "transition": "whip-pan right",
       "audio_cue": "quick whoosh",
       "id": 111,
-      "planned_start": 0.0,
-      "planned_end": 3.48,
-      "planned_dur": 3.48,
+      "planned_start": 457.5,
+      "planned_end": 462.99,
+      "planned_dur": 5.49,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 5.49,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0111.png",
       "image_seed": null,
       "image_meta": {
@@ -4890,7 +4897,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -4909,12 +4916,12 @@
       "transition": "drop-in",
       "audio_cue": "",
       "id": 112,
-      "planned_start": 0.0,
-      "planned_end": 2.71,
-      "planned_dur": 2.71,
+      "planned_start": 463.06,
+      "planned_end": 466.55,
+      "planned_dur": 3.49,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.49,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0112.png",
       "image_seed": null,
       "image_meta": {
@@ -4932,7 +4939,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -4951,12 +4958,12 @@
       "transition": "fade",
       "audio_cue": "",
       "id": 113,
-      "planned_start": 0.0,
-      "planned_end": 5.02,
-      "planned_dur": 5.02,
+      "planned_start": 466.86,
+      "planned_end": 472.41,
+      "planned_dur": 5.55,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 5.55,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0113.png",
       "image_seed": null,
       "image_meta": {
@@ -4976,7 +4983,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -4995,12 +5002,12 @@
       "transition": "dip to white",
       "audio_cue": "",
       "id": 114,
-      "planned_start": 0.0,
-      "planned_end": 5.78,
-      "planned_dur": 5.78,
+      "planned_start": 472.16,
+      "planned_end": 476.99,
+      "planned_dur": 4.83,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.83,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0114.png",
       "image_seed": null,
       "image_meta": {
@@ -5018,7 +5025,7 @@
       "video_file": "video/scene_0114.mp4",
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "ready",
         "transcript": "none"
@@ -5041,12 +5048,12 @@
       "transition": "hard cut",
       "audio_cue": "pop",
       "id": 115,
-      "planned_start": 0.0,
-      "planned_end": 4.25,
-      "planned_dur": 4.25,
+      "planned_start": 477.66,
+      "planned_end": 481.57,
+      "planned_dur": 3.91,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.91,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0115.png",
       "image_seed": null,
       "image_meta": {
@@ -5066,7 +5073,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -5085,12 +5092,12 @@
       "transition": "punch-in",
       "audio_cue": "cash register ding",
       "id": 116,
-      "planned_start": 0.0,
-      "planned_end": 3.09,
-      "planned_dur": 3.09,
+      "planned_start": 482.06,
+      "planned_end": 486.41,
+      "planned_dur": 4.35,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.35,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0116.png",
       "image_seed": null,
       "image_meta": {
@@ -5111,7 +5118,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -5130,12 +5137,12 @@
       "transition": "crossfade",
       "audio_cue": "cash register ding",
       "id": 117,
-      "planned_start": 0.0,
-      "planned_end": 5.4,
-      "planned_dur": 5.4,
+      "planned_start": 486.64,
+      "planned_end": 493.31,
+      "planned_dur": 6.67,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 6.67,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0117.png",
       "image_seed": null,
       "image_meta": {
@@ -5155,7 +5162,7 @@
       "video_file": "video/scene_0117.mp4",
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "ready",
         "transcript": "none"
@@ -5178,12 +5185,12 @@
       "transition": "punch-in",
       "audio_cue": "cash register ding",
       "id": 118,
-      "planned_start": 0.0,
-      "planned_end": 3.86,
-      "planned_dur": 3.86,
+      "planned_start": 493.06,
+      "planned_end": 497.77,
+      "planned_dur": 4.71,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.71,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0118.png",
       "image_seed": null,
       "image_meta": {
@@ -5201,7 +5208,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -5220,12 +5227,12 @@
       "transition": "hard cut",
       "audio_cue": "cash register ding",
       "id": 119,
-      "planned_start": 0.0,
-      "planned_end": 3.09,
-      "planned_dur": 3.09,
+      "planned_start": 497.52,
+      "planned_end": 499.89,
+      "planned_dur": 2.37,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 2.37,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0119.png",
       "image_seed": null,
       "image_meta": {
@@ -5245,7 +5252,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -5264,12 +5271,12 @@
       "transition": "pull-back",
       "audio_cue": "",
       "id": 120,
-      "planned_start": 0.0,
-      "planned_end": 4.25,
-      "planned_dur": 4.25,
+      "planned_start": 500.28,
+      "planned_end": 505.29,
+      "planned_dur": 5.01,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 5.01,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0120.png",
       "image_seed": null,
       "image_meta": {
@@ -5288,7 +5295,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -5307,12 +5314,12 @@
       "transition": "drop-in",
       "audio_cue": "pop",
       "id": 121,
-      "planned_start": 0.0,
-      "planned_end": 4.63,
-      "planned_dur": 4.63,
+      "planned_start": 505.6,
+      "planned_end": 510.01,
+      "planned_dur": 4.41,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.41,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0121.png",
       "image_seed": null,
       "image_meta": {
@@ -5332,7 +5339,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -5351,12 +5358,12 @@
       "transition": "fade",
       "audio_cue": "",
       "id": 122,
-      "planned_start": 0.0,
-      "planned_end": 4.25,
-      "planned_dur": 4.25,
+      "planned_start": 510.02,
+      "planned_end": 514.91,
+      "planned_dur": 4.89,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.89,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0122.png",
       "image_seed": null,
       "image_meta": {
@@ -5376,7 +5383,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -5395,12 +5402,12 @@
       "transition": "whip-pan right",
       "audio_cue": "quick whoosh",
       "id": 123,
-      "planned_start": 0.0,
-      "planned_end": 4.63,
-      "planned_dur": 4.63,
+      "planned_start": 514.66,
+      "planned_end": 520.35,
+      "planned_dur": 5.69,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 5.69,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0123.png",
       "image_seed": null,
       "image_meta": {
@@ -5418,7 +5425,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -5437,12 +5444,12 @@
       "transition": "hard cut",
       "audio_cue": "",
       "id": 124,
-      "planned_start": 0.0,
-      "planned_end": 4.25,
-      "planned_dur": 4.25,
+      "planned_start": 520.74,
+      "planned_end": 523.97,
+      "planned_dur": 3.23,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.23,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0124.png",
       "image_seed": null,
       "image_meta": {
@@ -5464,7 +5471,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -5483,12 +5490,12 @@
       "transition": "push-in",
       "audio_cue": "",
       "id": 125,
-      "planned_start": 0.0,
-      "planned_end": 3.86,
-      "planned_dur": 3.86,
+      "planned_start": 524.36,
+      "planned_end": 527.07,
+      "planned_dur": 2.71,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 2.71,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0125.png",
       "image_seed": null,
       "image_meta": {
@@ -5506,7 +5513,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -5525,12 +5532,12 @@
       "transition": "punch-in",
       "audio_cue": "cash register ding",
       "id": 126,
-      "planned_start": 0.0,
-      "planned_end": 4.25,
-      "planned_dur": 4.25,
+      "planned_start": 527.22,
+      "planned_end": 530.41,
+      "planned_dur": 3.19,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.19,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0126.png",
       "image_seed": null,
       "image_meta": {
@@ -5550,7 +5557,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -5569,12 +5576,12 @@
       "transition": "whip-pan right",
       "audio_cue": "",
       "id": 127,
-      "planned_start": 0.0,
-      "planned_end": 5.4,
-      "planned_dur": 5.4,
+      "planned_start": 530.7,
+      "planned_end": 535.43,
+      "planned_dur": 4.73,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.73,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0127.png",
       "image_seed": null,
       "image_meta": {
@@ -5595,7 +5602,7 @@
       "video_file": "video/scene_0127.mp4",
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "ready",
         "transcript": "none"
@@ -5618,12 +5625,12 @@
       "transition": "hard cut",
       "audio_cue": "",
       "id": 128,
-      "planned_start": 0.0,
-      "planned_end": 4.25,
-      "planned_dur": 4.25,
+      "planned_start": 535.68,
+      "planned_end": 538.75,
+      "planned_dur": 3.07,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.07,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0128.png",
       "image_seed": null,
       "image_meta": {
@@ -5641,7 +5648,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -5660,12 +5667,12 @@
       "transition": "whip-pan right",
       "audio_cue": "quick whoosh",
       "id": 129,
-      "planned_start": 0.0,
-      "planned_end": 4.25,
-      "planned_dur": 4.25,
+      "planned_start": 539.24,
+      "planned_end": 543.07,
+      "planned_dur": 3.83,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.83,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0129.png",
       "image_seed": null,
       "image_meta": {
@@ -5683,7 +5690,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -5702,12 +5709,12 @@
       "transition": "drop-in",
       "audio_cue": "",
       "id": 130,
-      "planned_start": 0.0,
-      "planned_end": 6.94,
-      "planned_dur": 6.94,
+      "planned_start": 543.3,
+      "planned_end": 549.07,
+      "planned_dur": 5.77,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 5.77,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0130.png",
       "image_seed": null,
       "image_meta": {
@@ -5727,7 +5734,7 @@
       "video_file": "video/scene_0130.mp4",
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "ready",
         "transcript": "none"
@@ -5750,12 +5757,12 @@
       "transition": "fade",
       "audio_cue": "pop",
       "id": 131,
-      "planned_start": 0.0,
-      "planned_end": 5.02,
-      "planned_dur": 5.02,
+      "planned_start": 549.38,
+      "planned_end": 553.33,
+      "planned_dur": 3.95,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.95,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0131.png",
       "image_seed": null,
       "image_meta": {
@@ -5773,7 +5780,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -5792,12 +5799,12 @@
       "transition": "whip-pan right",
       "audio_cue": "quick whoosh",
       "id": 132,
-      "planned_start": 0.0,
-      "planned_end": 4.63,
-      "planned_dur": 4.63,
+      "planned_start": 553.94,
+      "planned_end": 559.63,
+      "planned_dur": 5.69,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 5.69,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0132.png",
       "image_seed": null,
       "image_meta": {
@@ -5815,7 +5822,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -5834,12 +5841,12 @@
       "transition": "hard cut",
       "audio_cue": "pop",
       "id": 133,
-      "planned_start": 0.0,
-      "planned_end": 4.63,
-      "planned_dur": 4.63,
+      "planned_start": 559.92,
+      "planned_end": 564.51,
+      "planned_dur": 4.59,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.59,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0133.png",
       "image_seed": null,
       "image_meta": {
@@ -5857,7 +5864,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -5876,12 +5883,12 @@
       "transition": "push-in",
       "audio_cue": "",
       "id": 134,
-      "planned_start": 0.0,
-      "planned_end": 5.4,
-      "planned_dur": 5.4,
+      "planned_start": 564.9,
+      "planned_end": 569.57,
+      "planned_dur": 4.67,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.67,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0134.png",
       "image_seed": null,
       "image_meta": {
@@ -5899,7 +5906,7 @@
       "video_file": "video/scene_0134.mp4",
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "ready",
         "transcript": "none"
@@ -5922,12 +5929,12 @@
       "transition": "smash cut",
       "audio_cue": "deep impact boom",
       "id": 135,
-      "planned_start": 0.0,
-      "planned_end": 3.09,
-      "planned_dur": 3.09,
+      "planned_start": 569.84,
+      "planned_end": 574.21,
+      "planned_dur": 4.37,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.37,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0135.png",
       "image_seed": null,
       "image_meta": {
@@ -5950,7 +5957,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -5969,12 +5976,12 @@
       "transition": "whip-pan right",
       "audio_cue": "",
       "id": 136,
-      "planned_start": 0.0,
-      "planned_end": 4.63,
-      "planned_dur": 4.63,
+      "planned_start": 574.64,
+      "planned_end": 577.91,
+      "planned_dur": 3.27,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.27,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0136.png",
       "image_seed": null,
       "image_meta": {
@@ -5994,7 +6001,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -6013,12 +6020,12 @@
       "transition": "punch-in",
       "audio_cue": "cash register ding",
       "id": 137,
-      "planned_start": 0.0,
-      "planned_end": 4.25,
-      "planned_dur": 4.25,
+      "planned_start": 578.12,
+      "planned_end": 583.01,
+      "planned_dur": 4.89,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.89,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0137.png",
       "image_seed": null,
       "image_meta": {
@@ -6039,7 +6046,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -6058,12 +6065,12 @@
       "transition": "pull-back",
       "audio_cue": "",
       "id": 138,
-      "planned_start": 0.0,
-      "planned_end": 4.63,
-      "planned_dur": 4.63,
+      "planned_start": 582.76,
+      "planned_end": 588.25,
+      "planned_dur": 5.49,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 5.49,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0138.png",
       "image_seed": null,
       "image_meta": {
@@ -6081,7 +6088,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -6100,12 +6107,12 @@
       "transition": "smash cut",
       "audio_cue": "deep impact boom",
       "id": 139,
-      "planned_start": 0.0,
-      "planned_end": 4.25,
-      "planned_dur": 4.25,
+      "planned_start": 588.86,
+      "planned_end": 592.29,
+      "planned_dur": 3.43,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.43,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0139.png",
       "image_seed": null,
       "image_meta": {
@@ -6125,7 +6132,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -6144,12 +6151,12 @@
       "transition": "fade",
       "audio_cue": "",
       "id": 140,
-      "planned_start": 0.0,
-      "planned_end": 2.71,
-      "planned_dur": 2.71,
+      "planned_start": 592.58,
+      "planned_end": 596.11,
+      "planned_dur": 3.53,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.53,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0140.png",
       "image_seed": null,
       "image_meta": {
@@ -6167,7 +6174,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -6186,12 +6193,12 @@
       "transition": "dip to white",
       "audio_cue": "",
       "id": 141,
-      "planned_start": 0.0,
-      "planned_end": 4.25,
-      "planned_dur": 4.25,
+      "planned_start": 595.86,
+      "planned_end": 599.49,
+      "planned_dur": 3.63,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.63,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0141.png",
       "image_seed": null,
       "image_meta": {
@@ -6211,7 +6218,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -6502,7 +6509,1141 @@
     },
     "mode": "assisted"
   },
-  "timeline": null,
+  "timeline": {
+    "total_dur": 599.529,
+    "scenes": [
+      {
+        "id": 1,
+        "start": 0.0,
+        "end": 5.26,
+        "dur": 5.26,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 2,
+        "start": 5.26,
+        "end": 9.84,
+        "dur": 4.58,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 3,
+        "start": 9.84,
+        "end": 14.02,
+        "dur": 4.18,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 4,
+        "start": 14.02,
+        "end": 18.68,
+        "dur": 4.66,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 5,
+        "start": 18.68,
+        "end": 23.84,
+        "dur": 5.16,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 6,
+        "start": 23.84,
+        "end": 27.38,
+        "dur": 3.54,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 7,
+        "start": 27.38,
+        "end": 31.52,
+        "dur": 4.14,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 8,
+        "start": 31.52,
+        "end": 35.7,
+        "dur": 4.18,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 9,
+        "start": 35.7,
+        "end": 41.12,
+        "dur": 5.42,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 10,
+        "start": 41.12,
+        "end": 46.62,
+        "dur": 5.5,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 11,
+        "start": 46.62,
+        "end": 52.24,
+        "dur": 5.62,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 12,
+        "start": 52.24,
+        "end": 55.36,
+        "dur": 3.12,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 13,
+        "start": 55.36,
+        "end": 61.0,
+        "dur": 5.64,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 14,
+        "start": 61.0,
+        "end": 65.84,
+        "dur": 4.84,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 15,
+        "start": 65.84,
+        "end": 69.12,
+        "dur": 3.28,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 16,
+        "start": 69.12,
+        "end": 71.94,
+        "dur": 2.82,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 17,
+        "start": 71.94,
+        "end": 75.42,
+        "dur": 3.48,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 18,
+        "start": 75.42,
+        "end": 79.1,
+        "dur": 3.68,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 19,
+        "start": 79.1,
+        "end": 82.74,
+        "dur": 3.64,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 20,
+        "start": 82.74,
+        "end": 86.8,
+        "dur": 4.06,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 21,
+        "start": 86.8,
+        "end": 90.76,
+        "dur": 3.96,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 22,
+        "start": 90.76,
+        "end": 97.24,
+        "dur": 6.48,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 23,
+        "start": 97.24,
+        "end": 100.84,
+        "dur": 3.6,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 24,
+        "start": 100.84,
+        "end": 104.56,
+        "dur": 3.72,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 25,
+        "start": 104.56,
+        "end": 109.24,
+        "dur": 4.68,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 26,
+        "start": 109.24,
+        "end": 113.22,
+        "dur": 3.98,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 27,
+        "start": 113.22,
+        "end": 116.08,
+        "dur": 2.86,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 28,
+        "start": 116.08,
+        "end": 119.86,
+        "dur": 3.78,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 29,
+        "start": 119.86,
+        "end": 124.66,
+        "dur": 4.8,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 30,
+        "start": 124.66,
+        "end": 130.36,
+        "dur": 5.7,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 31,
+        "start": 130.36,
+        "end": 134.26,
+        "dur": 3.9,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 32,
+        "start": 134.26,
+        "end": 137.76,
+        "dur": 3.5,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 33,
+        "start": 137.76,
+        "end": 141.08,
+        "dur": 3.32,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 34,
+        "start": 141.08,
+        "end": 145.36,
+        "dur": 4.28,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 35,
+        "start": 145.36,
+        "end": 149.82,
+        "dur": 4.46,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 36,
+        "start": 149.82,
+        "end": 154.44,
+        "dur": 4.62,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 37,
+        "start": 154.44,
+        "end": 156.84,
+        "dur": 2.4,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 38,
+        "start": 156.84,
+        "end": 160.7,
+        "dur": 3.86,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 39,
+        "start": 160.7,
+        "end": 164.52,
+        "dur": 3.82,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 40,
+        "start": 164.52,
+        "end": 169.62,
+        "dur": 5.1,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 41,
+        "start": 169.62,
+        "end": 172.68,
+        "dur": 3.06,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 42,
+        "start": 172.68,
+        "end": 176.8,
+        "dur": 4.12,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 43,
+        "start": 176.8,
+        "end": 180.84,
+        "dur": 4.04,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 44,
+        "start": 180.84,
+        "end": 185.52,
+        "dur": 4.68,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 45,
+        "start": 185.52,
+        "end": 189.62,
+        "dur": 4.1,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 46,
+        "start": 189.62,
+        "end": 193.02,
+        "dur": 3.4,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 47,
+        "start": 193.02,
+        "end": 198.08,
+        "dur": 5.06,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 48,
+        "start": 198.08,
+        "end": 202.88,
+        "dur": 4.8,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 49,
+        "start": 202.88,
+        "end": 206.8,
+        "dur": 3.92,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 50,
+        "start": 206.8,
+        "end": 210.9,
+        "dur": 4.1,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 51,
+        "start": 210.9,
+        "end": 213.6,
+        "dur": 2.7,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 52,
+        "start": 213.6,
+        "end": 217.16,
+        "dur": 3.56,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 53,
+        "start": 217.16,
+        "end": 223.8,
+        "dur": 6.64,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 54,
+        "start": 223.8,
+        "end": 227.6,
+        "dur": 3.8,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 55,
+        "start": 227.6,
+        "end": 231.34,
+        "dur": 3.74,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 56,
+        "start": 231.34,
+        "end": 234.7,
+        "dur": 3.36,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 57,
+        "start": 234.7,
+        "end": 240.82,
+        "dur": 6.12,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 58,
+        "start": 240.82,
+        "end": 245.46,
+        "dur": 4.64,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 59,
+        "start": 245.46,
+        "end": 250.32,
+        "dur": 4.86,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 60,
+        "start": 250.32,
+        "end": 254.62,
+        "dur": 4.3,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 61,
+        "start": 254.62,
+        "end": 257.8,
+        "dur": 3.18,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 62,
+        "start": 257.8,
+        "end": 261.1,
+        "dur": 3.3,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 63,
+        "start": 261.1,
+        "end": 265.94,
+        "dur": 4.84,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 64,
+        "start": 265.94,
+        "end": 270.1,
+        "dur": 4.16,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 65,
+        "start": 270.1,
+        "end": 273.08,
+        "dur": 2.98,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 66,
+        "start": 273.08,
+        "end": 277.18,
+        "dur": 4.1,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 67,
+        "start": 277.18,
+        "end": 279.7,
+        "dur": 2.52,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 68,
+        "start": 279.7,
+        "end": 284.44,
+        "dur": 4.74,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 69,
+        "start": 284.44,
+        "end": 288.26,
+        "dur": 3.82,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 70,
+        "start": 288.26,
+        "end": 291.46,
+        "dur": 3.2,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 71,
+        "start": 291.46,
+        "end": 294.98,
+        "dur": 3.52,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 72,
+        "start": 294.98,
+        "end": 299.08,
+        "dur": 4.1,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 73,
+        "start": 299.08,
+        "end": 301.42,
+        "dur": 2.34,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 74,
+        "start": 301.42,
+        "end": 306.36,
+        "dur": 4.94,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 75,
+        "start": 306.36,
+        "end": 310.76,
+        "dur": 4.4,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 76,
+        "start": 310.76,
+        "end": 314.08,
+        "dur": 3.32,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 77,
+        "start": 314.08,
+        "end": 318.42,
+        "dur": 4.34,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 78,
+        "start": 318.42,
+        "end": 322.9,
+        "dur": 4.48,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 79,
+        "start": 322.9,
+        "end": 327.18,
+        "dur": 4.28,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 80,
+        "start": 327.18,
+        "end": 330.16,
+        "dur": 2.98,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 81,
+        "start": 330.16,
+        "end": 334.42,
+        "dur": 4.26,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 82,
+        "start": 334.42,
+        "end": 339.38,
+        "dur": 4.96,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 83,
+        "start": 339.38,
+        "end": 343.08,
+        "dur": 3.7,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 84,
+        "start": 343.08,
+        "end": 346.6,
+        "dur": 3.52,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 85,
+        "start": 346.6,
+        "end": 351.46,
+        "dur": 4.86,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 86,
+        "start": 351.46,
+        "end": 355.08,
+        "dur": 3.62,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 87,
+        "start": 355.08,
+        "end": 357.76,
+        "dur": 2.68,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 88,
+        "start": 357.76,
+        "end": 362.4,
+        "dur": 4.64,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 89,
+        "start": 362.4,
+        "end": 367.6,
+        "dur": 5.2,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 90,
+        "start": 367.6,
+        "end": 372.76,
+        "dur": 5.16,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 91,
+        "start": 372.76,
+        "end": 376.82,
+        "dur": 4.06,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 92,
+        "start": 376.82,
+        "end": 379.94,
+        "dur": 3.12,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 93,
+        "start": 379.94,
+        "end": 382.16,
+        "dur": 2.22,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 94,
+        "start": 382.16,
+        "end": 387.22,
+        "dur": 5.06,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 95,
+        "start": 387.22,
+        "end": 393.8,
+        "dur": 6.58,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 96,
+        "start": 393.8,
+        "end": 399.62,
+        "dur": 5.82,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 97,
+        "start": 399.62,
+        "end": 404.62,
+        "dur": 5.0,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 98,
+        "start": 404.62,
+        "end": 409.4,
+        "dur": 4.78,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 99,
+        "start": 409.4,
+        "end": 412.8,
+        "dur": 3.4,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 100,
+        "start": 412.8,
+        "end": 416.48,
+        "dur": 3.68,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 101,
+        "start": 416.48,
+        "end": 422.38,
+        "dur": 5.9,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 102,
+        "start": 422.38,
+        "end": 425.08,
+        "dur": 2.7,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 103,
+        "start": 425.08,
+        "end": 429.14,
+        "dur": 4.06,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 104,
+        "start": 429.14,
+        "end": 432.68,
+        "dur": 3.54,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 105,
+        "start": 432.68,
+        "end": 437.0,
+        "dur": 4.32,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 106,
+        "start": 437.0,
+        "end": 439.66,
+        "dur": 2.66,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 107,
+        "start": 439.66,
+        "end": 445.06,
+        "dur": 5.4,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 108,
+        "start": 445.06,
+        "end": 449.54,
+        "dur": 4.48,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 109,
+        "start": 449.54,
+        "end": 454.4,
+        "dur": 4.86,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 110,
+        "start": 454.4,
+        "end": 457.5,
+        "dur": 3.1,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 111,
+        "start": 457.5,
+        "end": 463.06,
+        "dur": 5.56,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 112,
+        "start": 463.06,
+        "end": 466.86,
+        "dur": 3.8,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 113,
+        "start": 466.86,
+        "end": 472.16,
+        "dur": 5.3,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 114,
+        "start": 472.16,
+        "end": 477.66,
+        "dur": 5.5,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 115,
+        "start": 477.66,
+        "end": 482.06,
+        "dur": 4.4,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 116,
+        "start": 482.06,
+        "end": 486.64,
+        "dur": 4.58,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 117,
+        "start": 486.64,
+        "end": 493.06,
+        "dur": 6.42,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 118,
+        "start": 493.06,
+        "end": 497.52,
+        "dur": 4.46,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 119,
+        "start": 497.52,
+        "end": 500.28,
+        "dur": 2.76,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 120,
+        "start": 500.28,
+        "end": 505.6,
+        "dur": 5.32,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 121,
+        "start": 505.6,
+        "end": 510.02,
+        "dur": 4.42,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 122,
+        "start": 510.02,
+        "end": 514.66,
+        "dur": 4.64,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 123,
+        "start": 514.66,
+        "end": 520.74,
+        "dur": 6.08,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 124,
+        "start": 520.74,
+        "end": 524.36,
+        "dur": 3.62,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 125,
+        "start": 524.36,
+        "end": 527.22,
+        "dur": 2.86,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 126,
+        "start": 527.22,
+        "end": 530.7,
+        "dur": 3.48,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 127,
+        "start": 530.7,
+        "end": 535.68,
+        "dur": 4.98,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 128,
+        "start": 535.68,
+        "end": 539.24,
+        "dur": 3.56,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 129,
+        "start": 539.24,
+        "end": 543.3,
+        "dur": 4.06,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 130,
+        "start": 543.3,
+        "end": 549.38,
+        "dur": 6.08,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 131,
+        "start": 549.38,
+        "end": 553.94,
+        "dur": 4.56,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 132,
+        "start": 553.94,
+        "end": 559.92,
+        "dur": 5.98,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 133,
+        "start": 559.92,
+        "end": 564.9,
+        "dur": 4.98,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 134,
+        "start": 564.9,
+        "end": 569.84,
+        "dur": 4.94,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 135,
+        "start": 569.84,
+        "end": 574.64,
+        "dur": 4.8,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 136,
+        "start": 574.64,
+        "end": 578.12,
+        "dur": 3.48,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 137,
+        "start": 578.12,
+        "end": 582.76,
+        "dur": 4.64,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 138,
+        "start": 582.76,
+        "end": 588.86,
+        "dur": 6.1,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 139,
+        "start": 588.86,
+        "end": 592.58,
+        "dur": 3.72,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 140,
+        "start": 592.58,
+        "end": 595.86,
+        "dur": 3.28,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 141,
+        "start": 595.86,
+        "end": 599.529,
+        "dur": 3.669,
+        "has_audio": true,
+        "has_image": true
+      }
+    ],
+    "planned_dur": null,
+    "narration": "audio/narration.wav"
+  },
   "renders": [],
   "research": {
     "summary": "On Christmas Eve 1945 the Sodder house in Fayetteville, WV burned in ~45 minutes; George, Jennie and four children escaped, five children (Maurice 14, Martha 12, Louis 9, Jennie 8, Betty 5) vanished — no remains were ever found. Phone line cut, ladder moved 75 ft, trucks disabled, fire dept arrived ~8am. Family maintained until 2021 the children survived.",
@@ -6734,5 +7875,57 @@
     "thumb_template": "big-word",
     "thumb_mood": "calm",
     "built": 1783676904.9614105
+  },
+  "narration": {
+    "file": "audio/narration.wav",
+    "dur": 599.529,
+    "voice": "clownpierce",
+    "source": "onetake",
+    "qa": {
+      "script_words": 1332,
+      "heard_words": 1321,
+      "extra_words": -11,
+      "overlap": 0.96,
+      "ok": true
+    },
+    "words_file": "audio/words.json",
+    "humanize": "natural",
+    "outro_scenes": 3
+  },
+  "audio_plan": {
+    "mood": "calm",
+    "query": "calm dark ambient, faraway broken music box, low drones, slow airy pads, unhurried calm ambient atmospheric underscore soft",
+    "seconds": 599.5,
+    "bed": {
+      "source": "ace-step",
+      "title": null,
+      "license": "generated",
+      "cc0": true
+    },
+    "sfx": [
+      {
+        "cue": "quick whoosh",
+        "source": "procedural"
+      },
+      {
+        "cue": "deep impact boom",
+        "source": "procedural"
+      },
+      {
+        "cue": "cash register ding",
+        "source": "procedural"
+      },
+      {
+        "cue": "pop",
+        "source": "procedural"
+      },
+      {
+        "cue": "shimmering riser",
+        "source": "procedural"
+      }
+    ],
+    "cues_placed": 0,
+    "attribution": [],
+    "scored": 1783685597.0123107
   }
 }

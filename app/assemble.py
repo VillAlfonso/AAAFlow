@@ -483,11 +483,19 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
         clips = []
 
     durs_sum = 0.0
+    # ENDING (user, 2026-07-10): the video must visibly END, not stop. The
+    # last scene fades to black and a short black tail lets the audio settle.
+    end_fade = max(0.0, float(asm.get("end_fade", preset.get("end_fade", 1.2))))
+    end_pad = max(0.0, float(asm.get("end_pad", preset.get("end_pad", 1.0))))
+
     for i, s in enumerate(scenes):
         progress(f"Composing scene {s['id']} ({i + 1}/{n})",
                  0.04 + (0.56 if segmented else 0.60) * i / max(n, 1))
         dur = float(rows.get(str(s["id"]), {}).get("dur") or s.get("planned_dur") or 2.0)
         v = visual(s, dur, i)
+        if i == n - 1 and end_fade > 0:
+            from moviepy.video.fx import FadeOut
+            v = v.with_effects([FadeOut(min(end_fade, max(0.4, dur * 0.5)))])
         if s.get("fx"):
             v = transitions.apply_scene_fx(v, s["fx"], W=W, H=H)
         if do_transitions:
@@ -527,6 +535,11 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
         if segmented and len(clips) >= seg_limit:
             progress(f"Encoding part {len(parts) + 1}", 0.04 + 0.56 * i / max(n, 1))
             _flush_segment()
+
+    if end_pad > 0 and not window:      # shorts windows keep their hard out
+        clips.append(ColorClip(size=(W, H), color=(0, 0, 0))
+                     .with_duration(end_pad))
+        durs_sum += end_pad
 
     progress("Mixing audio", 0.66)
     # Per-scene transitions are self-contained entrances, so clips join cleanly.
@@ -627,6 +640,13 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
                 end = min(N, off + len(arr))
                 if end > off:
                     mix[off:end] += arr[: end - off] * 0.3
+
+    # audio outro: everything eases to silence over the fade + black tail so
+    # the video ends, never stops (bed, tail of the room tone, everything)
+    if not window and (end_fade + end_pad) > 0:
+        fn = int(min(end_fade + end_pad, max(total_dur - 0.1, 0.1)) * SR)
+        if 0 < fn <= len(mix):
+            mix[-fn:] *= np.linspace(1.0, 0.0, fn, dtype=np.float32)[:, None]
 
     peak = float(np.max(np.abs(mix)))
     if peak > 0.985:                           # keep the sum out of clipping

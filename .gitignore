@@ -48,6 +48,8 @@ ACE-Step-1.5/
 
 # --- SECRETS: never commit (YouTube OAuth, API keys) ---
 data/secrets/
+.env
+.env.*
 
 # --- KEEP (tracked): the channel identities + their editable generators ---
 #   data/channels/<cid>/channel.json   the channel record
@@ -125,3 +127,6 @@ scratchpad/
 
 # nested repo (vendored trainer)
 trainers/musubi-tuner/
+
+# remotion overlay renderer deps
+tools/remotion/node_modules/

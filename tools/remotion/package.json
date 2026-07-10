@@ -1,0 +1,16 @@
+{
+  "name": "aaaflow-overlays",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Remotion overlay renderer for AAAFlow: ref cards, date chips, lower thirds rendered as transparent webm the assembler composites.",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "render": "remotion render src/index.ts"
+  },
+  "dependencies": {
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "remotion": "4.0.245",
+    "@remotion/cli": "4.0.245"
+  }
+}

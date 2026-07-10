@@ -431,6 +431,16 @@ def submit_onetake(pid: str, voice: Dict) -> str:
             prev_start = st
             done += 1
 
+        # The last line must never feel clipped (user, 2026-07-10: the ending
+        # "cuts off midsentence"): give the final scene extra tail room up to
+        # the real end of the recording, so the falling cadence breathes.
+        if scenes:
+            last = projects.get_scene(proj, scenes[-1]["id"])
+            if last:
+                last["planned_end"] = round(min(dur, float(last["planned_end"]) + 0.8), 3)
+                last["planned_dur"] = round(last["planned_end"] - last["planned_start"], 3)
+                last["audio_dur"] = last["planned_dur"]
+
         qa = qa_transcript(script, heard)
         # persist the word timestamps — the assembler lands word-level emphasis
         # effects (grammar "emphasis") on these exact times

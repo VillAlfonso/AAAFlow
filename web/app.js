@@ -3429,6 +3429,7 @@ async function editChannelModal(c) {
         <li>Enable the API: <a href="https://console.cloud.google.com/apis/library/youtube.googleapis.com" target="_blank">YouTube Data API v3</a> → <b>Enable</b>.</li>
         <li>Consent screen: <a href="https://console.cloud.google.com/auth/branding" target="_blank">Google Auth Platform → Branding</a> → External → fill only App name + your email → Save. Then <a href="https://console.cloud.google.com/auth/audience" target="_blank">Audience</a> → <b>Add your own email as a Test user</b> (skips Google's review).</li>
         <li>Credentials: <a href="https://console.cloud.google.com/apis/credentials/oauthclient" target="_blank">Create OAuth client ID</a> → Application type <b>Desktop app</b> → Create → copy the <b>Client ID</b> and <b>Client secret</b> into the boxes below → Save channel.</li>
+        <li>If you already saved those values in a local <span class="mono">.env</span> file, the app will use them automatically and you can skip the boxes below.</li>
         <li>Publish page → <b>Connect</b> → a Google window opens → pick the channel's account → Allow ("unverified app" → Advanced → Continue is fine, you're the test user).</li>
       </ol>
       <div class="muted" style="font-size:11px;margin-top:6px">🔒 Keys are stored in <span class="mono">data/secrets/</span> which is <b>git-ignored</b> — they can never land on GitHub. Uploads always default to <b>private</b>; you publish manually on YouTube after review.</div>
@@ -3762,14 +3763,14 @@ async function renderPublish(host) {
     let body;
     if (!ch) {
       body = `<div class="muted">This project has no channel — uploads are per-channel. Recreate it inside a channel, or set one on the Channels page.</div>`;
-    } else if (!yt.client_id) {
+    } else if (!yt.client_id && !yt.has_client) {
       body = `<div class="muted" style="line-height:1.5">Channel “${esc(ch.name)}” has no YouTube credentials yet.
         Add its Google OAuth <b>client id + secret</b> in the channel editor (Desktop-app client, YouTube Data API v3 enabled).</div>
         <button class="btn btn-ghost btn-sm" id="ytEditCh" style="margin-top:8px">${icon("i-settings")} Open channel editor</button>`;
-    } else if (!yt.refresh_token) {
-      body = `<div class="muted">Credentials saved — now authorize this machine to upload to “${esc(ch.name)}”.</div>
+    } else if (!yt.connected && !yt.refresh_token) {
+      body = `<div class="muted">The studio ships as one Google app, so there is nothing to configure. Just authorize “${esc(ch.name)}”'s account.</div>
         <button class="btn btn-primary btn-sm" id="ytConnect" style="margin-top:8px">${icon("i-upload")} Connect YouTube</button>
-        <div class="muted" style="font-size:11px;margin-top:6px">A Google consent tab opens; approve, then come back and refresh this page.</div>`;
+        <div class="muted" style="font-size:11px;margin-top:6px">A Google consent tab opens; pick the channel's account, approve, then refresh this page.</div>`;
     } else {
       const seo = state.project.seo || {};
       const rlist = (state.project.renders || []).filter(r => r.file);

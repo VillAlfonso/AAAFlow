@@ -2,7 +2,7 @@
   "id": "61b473b72123",
   "name": "Every House Burned. The Painting Never Did.",
   "created": 1783676227.141016,
-  "updated": 1783677447.0093203,
+  "updated": 1783683902.9078,
   "channel": "menagerie",
   "video": {
     "title": "Every House Burned. The Painting Never Did.",
@@ -73,7 +73,14 @@
       "enhance": true,
       "coverage": "heroes"
     },
-    "music": null,
+    "music": {
+      "file": "score_20260710_180832_19885e.wav",
+      "volume": 0.16,
+      "duck": true,
+      "fade": 1.5,
+      "prompt": "calm dark ambient, faraway broken music box, low drones, slow airy pads, unhurried dark cinematic tension ambient brooding",
+      "source": "ace-step"
+    },
     "authoring": "assisted",
     "music_vibe": "calm dark ambient, faraway broken music box, low drones, slow airy pads, unhurried"
   },
@@ -92,11 +99,11 @@
       "audio_cue": "",
       "id": 1,
       "planned_start": 0.0,
-      "planned_end": 5.02,
-      "planned_dur": 5.02,
+      "planned_end": 4.39,
+      "planned_dur": 4.39,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.39,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0001.png",
       "image_seed": null,
       "image_meta": {
@@ -117,7 +124,7 @@
       "video_file": "video/scene_0001.mp4",
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "ready",
         "transcript": "none"
@@ -140,12 +147,12 @@
       "transition": "whip-pan left",
       "audio_cue": "quick whoosh",
       "id": 2,
-      "planned_start": 0.0,
-      "planned_end": 3.09,
-      "planned_dur": 3.09,
+      "planned_start": 4.68,
+      "planned_end": 8.05,
+      "planned_dur": 3.37,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.37,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0002.png",
       "image_seed": null,
       "image_meta": {
@@ -165,7 +172,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -184,12 +191,12 @@
       "transition": "flash cut",
       "audio_cue": "pop",
       "id": 3,
-      "planned_start": 0.0,
-      "planned_end": 3.86,
-      "planned_dur": 3.86,
+      "planned_start": 8.68,
+      "planned_end": 12.09,
+      "planned_dur": 3.41,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.41,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0003.png",
       "image_seed": null,
       "image_meta": {
@@ -211,7 +218,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -230,12 +237,12 @@
       "transition": "smash cut",
       "audio_cue": "deep impact boom",
       "id": 4,
-      "planned_start": 0.0,
-      "planned_end": 3.86,
-      "planned_dur": 3.86,
+      "planned_start": 12.58,
+      "planned_end": 16.95,
+      "planned_dur": 4.37,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.37,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0004.png",
       "image_seed": null,
       "image_meta": {
@@ -256,7 +263,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -275,12 +282,12 @@
       "transition": "whip-pan right",
       "audio_cue": "quick whoosh",
       "id": 5,
-      "planned_start": 0.0,
-      "planned_end": 1.94,
-      "planned_dur": 1.94,
+      "planned_start": 17.54,
+      "planned_end": 19.69,
+      "planned_dur": 2.15,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 2.15,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0005.png",
       "image_seed": null,
       "image_meta": {
@@ -300,7 +307,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -319,12 +326,12 @@
       "transition": "punch-in",
       "audio_cue": "quick whoosh",
       "id": 6,
-      "planned_start": 0.0,
-      "planned_end": 2.71,
-      "planned_dur": 2.71,
+      "planned_start": 20.04,
+      "planned_end": 22.57,
+      "planned_dur": 2.53,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 2.53,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0006.png",
       "image_seed": null,
       "image_meta": {
@@ -346,7 +353,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -365,12 +372,12 @@
       "transition": "hard cut",
       "audio_cue": "quick whoosh",
       "id": 7,
-      "planned_start": 0.0,
-      "planned_end": 3.09,
-      "planned_dur": 3.09,
+      "planned_start": 22.68,
+      "planned_end": 25.31,
+      "planned_dur": 2.63,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 2.63,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0007.png",
       "image_seed": null,
       "image_meta": {
@@ -390,7 +397,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -409,12 +416,12 @@
       "transition": "crash zoom",
       "audio_cue": "quick whoosh",
       "id": 8,
-      "planned_start": 0.0,
-      "planned_end": 3.09,
-      "planned_dur": 3.09,
+      "planned_start": 25.66,
+      "planned_end": 28.17,
+      "planned_dur": 2.51,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 2.51,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0008.png",
       "image_seed": null,
       "image_meta": {
@@ -434,7 +441,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -453,12 +460,12 @@
       "transition": "whip-pan right",
       "audio_cue": "quick whoosh",
       "id": 9,
-      "planned_start": 0.0,
-      "planned_end": 5.02,
-      "planned_dur": 5.02,
+      "planned_start": 28.64,
+      "planned_end": 35.79,
+      "planned_dur": 7.15,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 7.15,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0009.png",
       "image_seed": null,
       "image_meta": {
@@ -482,7 +489,7 @@
       "video_file": "video/scene_0009.mp4",
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "ready",
         "transcript": "none"
@@ -505,12 +512,12 @@
       "transition": "hard cut",
       "audio_cue": "",
       "id": 10,
-      "planned_start": 0.0,
-      "planned_end": 3.86,
-      "planned_dur": 3.86,
+      "planned_start": 36.1,
+      "planned_end": 39.45,
+      "planned_dur": 3.35,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 3.35,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0010.png",
       "image_seed": null,
       "image_meta": {
@@ -531,7 +538,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -550,12 +557,12 @@
       "transition": "pull-back",
       "audio_cue": "",
       "id": 11,
-      "planned_start": 0.0,
-      "planned_end": 4.25,
+      "planned_start": 39.84,
+      "planned_end": 44.09,
       "planned_dur": 4.25,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.25,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0011.png",
       "image_seed": null,
       "image_meta": {
@@ -575,7 +582,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -594,12 +601,12 @@
       "transition": "drop-in",
       "audio_cue": "",
       "id": 12,
-      "planned_start": 0.0,
-      "planned_end": 5.02,
-      "planned_dur": 5.02,
+      "planned_start": 44.42,
+      "planned_end": 48.63,
+      "planned_dur": 4.21,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.21,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0012.png",
       "image_seed": null,
       "image_meta": {
@@ -620,7 +627,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -639,12 +646,12 @@
       "transition": "fade",
       "audio_cue": "",
       "id": 13,
-      "planned_start": 0.0,
-      "planned_end": 4.63,
-      "planned_dur": 4.63,
+      "planned_start": 48.92,
+      "planned_end": 53.47,
+      "planned_dur": 4.55,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.55,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0013.png",
       "image_seed": null,
       "image_meta": {
@@ -664,7 +671,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -683,12 +690,12 @@
       "transition": "dip to white",
       "audio_cue": "",
       "id": 14,
-      "planned_start": 0.0,
-      "planned_end": 5.78,
-      "planned_dur": 5.78,
+      "planned_start": 54.02,
+      "planned_end": 59.83,
+      "planned_dur": 5.81,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 5.81,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0014.png",
       "image_seed": null,
       "image_meta": {
@@ -709,7 +716,7 @@
       "video_file": "video/scene_0014.mp4",
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "ready",
         "transcript": "none"
@@ -732,12 +739,12 @@
       "transition": "hard cut",
       "audio_cue": "",
       "id": 15,
-      "planned_start": 0.0,
-      "planned_end": 3.86,
-      "planned_dur": 3.86,
+      "planned_start": 60.2,
+      "planned_end": 62.97,
+      "planned_dur": 2.77,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 2.77,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0015.png",
       "image_seed": null,
       "image_meta": {
@@ -758,7 +765,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -777,12 +784,12 @@
       "transition": "push-in",
       "audio_cue": "pop",
       "id": 16,
-      "planned_start": 0.0,
-      "planned_end": 4.25,
-      "planned_dur": 4.25,
+      "planned_start": 63.26,
+      "planned_end": 70.49,
+      "planned_dur": 7.23,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 7.23,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0016.png",
       "image_seed": null,
       "image_meta": {
@@ -802,7 +809,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -821,12 +828,12 @@
       "transition": "crossfade",
       "audio_cue": "",
       "id": 17,
-      "planned_start": 0.0,
-      "planned_end": 3.86,
-      "planned_dur": 3.86,
+      "planned_start": 70.8,
+      "planned_end": 75.33,
+      "planned_dur": 4.53,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.53,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0017.png",
       "image_seed": null,
       "image_meta": {
@@ -847,7 +854,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -866,12 +873,12 @@
       "transition": "whip-pan right",
       "audio_cue": "pop",
       "id": 18,
-      "planned_start": 0.0,
-      "planned_end": 5.02,
-      "planned_dur": 5.02,
+      "planned_start": 75.6,
+      "planned_end": 80.91,
+      "planned_dur": 5.31,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 5.31,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0018.png",
       "image_seed": null,
       "image_meta": {
@@ -891,7 +898,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -910,12 +917,12 @@
       "transition": "smash cut",
       "audio_cue": "deep impact boom",
       "id": 19,
-      "planned_start": 0.0,
-      "planned_end": 4.25,
-      "planned_dur": 4.25,
+      "planned_start": 81.3,
+      "planned_end": 85.43,
+      "planned_dur": 4.13,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.13,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0019.png",
       "image_seed": null,
       "image_meta": {
@@ -937,7 +944,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -956,12 +963,12 @@
       "transition": "pull-back",
       "audio_cue": "pop",
       "id": 20,
-      "planned_start": 0.0,
-      "planned_end": 4.63,
-      "planned_dur": 4.63,
+      "planned_start": 85.7,
+      "planned_end": 91.07,
+      "planned_dur": 5.37,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 5.37,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0020.png",
       "image_seed": null,
       "image_meta": {
@@ -981,7 +988,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -1000,12 +1007,12 @@
       "transition": "smash cut",
       "audio_cue": "deep impact boom",
       "id": 21,
-      "planned_start": 0.0,
-      "planned_end": 4.25,
-      "planned_dur": 4.25,
+      "planned_start": 90.96,
+      "planned_end": 95.01,
+      "planned_dur": 4.05,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.05,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0021.png",
       "image_seed": null,
       "image_meta": {
@@ -1025,7 +1032,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -1044,12 +1051,12 @@
       "transition": "fade",
       "audio_cue": "",
       "id": 22,
-      "planned_start": 0.0,
-      "planned_end": 4.63,
-      "planned_dur": 4.63,
+      "planned_start": 95.3,
+      "planned_end": 100.81,
+      "planned_dur": 5.51,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 5.51,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0022.png",
       "image_seed": null,
       "image_meta": {
@@ -1067,7 +1074,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -1086,12 +1093,12 @@
       "transition": "dip to white",
       "audio_cue": "",
       "id": 23,
-      "planned_start": 0.0,
-      "planned_end": 5.78,
-      "planned_dur": 5.78,
+      "planned_start": 101.08,
+      "planned_end": 107.67,
+      "planned_dur": 6.59,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 6.59,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0023.png",
       "image_seed": null,
       "image_meta": {
@@ -1111,7 +1118,7 @@
       "video_file": "video/scene_0023.mp4",
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "ready",
         "transcript": "none"
@@ -1134,12 +1141,12 @@
       "transition": "flash cut",
       "audio_cue": "shimmering riser",
       "id": 24,
-      "planned_start": 0.0,
-      "planned_end": 5.78,
-      "planned_dur": 5.78,
+      "planned_start": 108.0,
+      "planned_end": 113.35,
+      "planned_dur": 5.35,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 5.35,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0024.png",
       "image_seed": null,
       "image_meta": {
@@ -1163,7 +1170,7 @@
       "video_file": "video/scene_0024.mp4",
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "ready",
         "transcript": "none"
@@ -1186,12 +1193,12 @@
       "transition": "push-in",
       "audio_cue": "",
       "id": 25,
-      "planned_start": 0.0,
-      "planned_end": 3.86,
-      "planned_dur": 3.86,
+      "planned_start": 115.1,
+      "planned_end": 120.97,
+      "planned_dur": 5.87,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 5.87,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0025.png",
       "image_seed": null,
       "image_meta": {
@@ -1212,7 +1219,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -1231,12 +1238,12 @@
       "transition": "crossfade",
       "audio_cue": "",
       "id": 26,
-      "planned_start": 0.0,
-      "planned_end": 4.63,
-      "planned_dur": 4.63,
+      "planned_start": 121.24,
+      "planned_end": 125.95,
+      "planned_dur": 4.71,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.71,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0026.png",
       "image_seed": null,
       "image_meta": {
@@ -1257,7 +1264,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -1276,12 +1283,12 @@
       "transition": "whip-pan right",
       "audio_cue": "quick whoosh",
       "id": 27,
-      "planned_start": 0.0,
-      "planned_end": 3.48,
-      "planned_dur": 3.48,
+      "planned_start": 126.2,
+      "planned_end": 128.97,
+      "planned_dur": 2.77,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 2.77,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0027.png",
       "image_seed": null,
       "image_meta": {
@@ -1302,7 +1309,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -1321,12 +1328,12 @@
       "transition": "hard cut",
       "audio_cue": "",
       "id": 28,
-      "planned_start": 0.0,
-      "planned_end": 4.25,
-      "planned_dur": 4.25,
+      "planned_start": 129.38,
+      "planned_end": 133.41,
+      "planned_dur": 4.03,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.03,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0028.png",
       "image_seed": null,
       "image_meta": {
@@ -1349,7 +1356,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -1368,12 +1375,12 @@
       "transition": "pull-back",
       "audio_cue": "",
       "id": 29,
-      "planned_start": 0.0,
-      "planned_end": 5.78,
-      "planned_dur": 5.78,
+      "planned_start": 133.72,
+      "planned_end": 138.41,
+      "planned_dur": 4.69,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.69,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0029.png",
       "image_seed": null,
       "image_meta": {
@@ -1393,7 +1400,7 @@
       "video_file": "video/scene_0029.mp4",
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "ready",
         "transcript": "none"
@@ -1416,12 +1423,12 @@
       "transition": "drop-in",
       "audio_cue": "",
       "id": 30,
-      "planned_start": 0.0,
-      "planned_end": 3.48,
-      "planned_dur": 3.48,
+      "planned_start": 138.86,
+      "planned_end": 141.23,
+      "planned_dur": 2.37,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 2.37,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0030.png",
       "image_seed": null,
       "image_meta": {
@@ -1441,7 +1448,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -1460,12 +1467,12 @@
       "transition": "smash cut",
       "audio_cue": "deep impact boom",
       "id": 31,
-      "planned_start": 0.0,
-      "planned_end": 4.63,
-      "planned_dur": 4.63,
+      "planned_start": 141.42,
+      "planned_end": 146.95,
+      "planned_dur": 5.53,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 5.53,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0031.png",
       "image_seed": null,
       "image_meta": {
@@ -1485,7 +1492,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -1504,12 +1511,12 @@
       "transition": "dip to white",
       "audio_cue": "",
       "id": 32,
-      "planned_start": 0.0,
-      "planned_end": 4.63,
-      "planned_dur": 4.63,
+      "planned_start": 147.14,
+      "planned_end": 152.33,
+      "planned_dur": 5.19,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 5.19,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0032.png",
       "image_seed": null,
       "image_meta": {
@@ -1527,7 +1534,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -1546,12 +1553,12 @@
       "transition": "hard cut",
       "audio_cue": "",
       "id": 33,
-      "planned_start": 0.0,
-      "planned_end": 5.4,
-      "planned_dur": 5.4,
+      "planned_start": 152.72,
+      "planned_end": 157.39,
+      "planned_dur": 4.67,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.67,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0033.png",
       "image_seed": null,
       "image_meta": {
@@ -1574,7 +1581,7 @@
       "video_file": "video/scene_0033.mp4",
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "ready",
         "transcript": "none"
@@ -1597,12 +1604,12 @@
       "transition": "push-in",
       "audio_cue": "",
       "id": 34,
-      "planned_start": 0.0,
-      "planned_end": 4.25,
-      "planned_dur": 4.25,
+      "planned_start": 157.62,
+      "planned_end": 161.93,
+      "planned_dur": 4.31,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.31,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0034.png",
       "image_seed": null,
       "image_meta": {
@@ -1622,7 +1629,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -1641,12 +1648,12 @@
       "transition": "crossfade",
       "audio_cue": "",
       "id": 35,
-      "planned_start": 0.0,
-      "planned_end": 3.48,
-      "planned_dur": 3.48,
+      "planned_start": 162.34,
+      "planned_end": 164.99,
+      "planned_dur": 2.65,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 2.65,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0035.png",
       "image_seed": null,
       "image_meta": {
@@ -1667,7 +1674,7 @@
       "video_file": null,
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "none",
         "transcript": "none"
@@ -1686,12 +1693,12 @@
       "transition": "whip-pan right",
       "audio_cue": "",
       "id": 36,
-      "planned_start": 0.0,
-      "planned_end": 5.78,
-      "planned_dur": 5.78,
+      "planned_start": 165.3,
+      "planned_end": 169.57,
+      "planned_dur": 4.27,
       "audio_file": null,
-      "audio_dur": null,
-      "audio_voice": null,
+      "audio_dur": 4.27,
+      "audio_voice": "clownpierce",
       "image_file": "images/scene_0036.png",
       "image_seed": null,
       "image_meta": {
@@ -1714,7 +1721,7 @@
       "video_file": "video/scene_0036.mp4",
       "transcript": null,
       "status": {
-        "audio": "none",
+        "audio": "ready",
         "image": "ready",
         "video": "ready",
         "transcript": "none"
@@ -1847,15 +1854,338 @@
     },
     "mode": "assisted"
   },
-  "timeline": null,
-  "renders": [],
+  "timeline": {
+    "total_dur": 169.598,
+    "scenes": [
+      {
+        "id": 1,
+        "start": 0.0,
+        "end": 4.68,
+        "dur": 4.68,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 2,
+        "start": 4.68,
+        "end": 8.68,
+        "dur": 4.0,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 3,
+        "start": 8.68,
+        "end": 12.58,
+        "dur": 3.9,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 4,
+        "start": 12.58,
+        "end": 17.54,
+        "dur": 4.96,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 5,
+        "start": 17.54,
+        "end": 20.04,
+        "dur": 2.5,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 6,
+        "start": 20.04,
+        "end": 22.68,
+        "dur": 2.64,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 7,
+        "start": 22.68,
+        "end": 25.66,
+        "dur": 2.98,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 8,
+        "start": 25.66,
+        "end": 28.64,
+        "dur": 2.98,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 9,
+        "start": 28.64,
+        "end": 36.1,
+        "dur": 7.46,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 10,
+        "start": 36.1,
+        "end": 39.84,
+        "dur": 3.74,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 11,
+        "start": 39.84,
+        "end": 44.42,
+        "dur": 4.58,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 12,
+        "start": 44.42,
+        "end": 48.92,
+        "dur": 4.5,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 13,
+        "start": 48.92,
+        "end": 54.02,
+        "dur": 5.1,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 14,
+        "start": 54.02,
+        "end": 60.2,
+        "dur": 6.18,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 15,
+        "start": 60.2,
+        "end": 63.26,
+        "dur": 3.06,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 16,
+        "start": 63.26,
+        "end": 70.8,
+        "dur": 7.54,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 17,
+        "start": 70.8,
+        "end": 75.6,
+        "dur": 4.8,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 18,
+        "start": 75.6,
+        "end": 81.3,
+        "dur": 5.7,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 19,
+        "start": 81.3,
+        "end": 85.7,
+        "dur": 4.4,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 20,
+        "start": 85.7,
+        "end": 90.96,
+        "dur": 5.26,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 21,
+        "start": 90.96,
+        "end": 95.3,
+        "dur": 4.34,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 22,
+        "start": 95.3,
+        "end": 101.08,
+        "dur": 5.78,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 23,
+        "start": 101.08,
+        "end": 108.0,
+        "dur": 6.92,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 24,
+        "start": 108.0,
+        "end": 115.1,
+        "dur": 7.1,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 25,
+        "start": 115.1,
+        "end": 121.24,
+        "dur": 6.14,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 26,
+        "start": 121.24,
+        "end": 126.2,
+        "dur": 4.96,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 27,
+        "start": 126.2,
+        "end": 129.38,
+        "dur": 3.18,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 28,
+        "start": 129.38,
+        "end": 133.72,
+        "dur": 4.34,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 29,
+        "start": 133.72,
+        "end": 138.86,
+        "dur": 5.14,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 30,
+        "start": 138.86,
+        "end": 141.42,
+        "dur": 2.56,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 31,
+        "start": 141.42,
+        "end": 147.14,
+        "dur": 5.72,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 32,
+        "start": 147.14,
+        "end": 152.72,
+        "dur": 5.58,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 33,
+        "start": 152.72,
+        "end": 157.62,
+        "dur": 4.9,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 34,
+        "start": 157.62,
+        "end": 162.34,
+        "dur": 4.72,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 35,
+        "start": 162.34,
+        "end": 165.3,
+        "dur": 2.96,
+        "has_audio": true,
+        "has_image": true
+      },
+      {
+        "id": 36,
+        "start": 165.3,
+        "end": 169.598,
+        "dur": 4.298,
+        "has_audio": true,
+        "has_image": true
+      }
+    ],
+    "planned_dur": null,
+    "narration": "audio/narration.wav"
+  },
+  "renders": [
+    {
+      "id": "5814010a1b2b",
+      "created": 1783680575.2966905,
+      "file": "video/final_20260710_181046_graded.mp4",
+      "duration": 169.6,
+      "width": 1920,
+      "height": 1080,
+      "fps": 30,
+      "scenes": 36,
+      "with_audio": 36,
+      "with_images": 0,
+      "with_videos": 8,
+      "graded": "ember",
+      "grade_encoder": "h264_nvenc"
+    },
+    {
+      "id": "43f1610e1cff",
+      "created": 1783680369.133549,
+      "file": "video/final_20260710_181046.mp4",
+      "duration": 169.6,
+      "width": 1920,
+      "height": 1080,
+      "fps": 30,
+      "scenes": 36,
+      "with_audio": 36,
+      "with_images": 0,
+      "with_videos": 8
+    }
+  ],
   "seo": {
     "titles": [
       "Every House Burned. The Painting Never Did",
       "The house burned to the studs. The painting didn't even blister",
       "Every House Burned. The Painting Never Did: Every exhibit was real"
     ],
-    "description": "The house burned to the studs. The painting didn't even blister.\nRotherham, England. 1985. Ron and May Hall's kitchen. One chip pan.\nThen a newspaper made him famous. Front page. The curse of the Crying Boy.\n\nThe Midnight Menagerie — Every exhibit was real.\n\nChapters:\n0:00 The house burned to the studs\n0:27 Rotherham\n0:55 The phones didn't stop ringing for\n1:21 He died at nineteen\n1:50 Sacks of crying children went into\n2:16 Every miracle was just a painting\n\n#cryingboy #1985 #everyhouse",
+    "description": "The house burned to the studs. The painting didn't even blister.\nRotherham, England. 1985. Ron and May Hall's kitchen. One chip pan.\nThen a newspaper made him famous. Front page. The curse of the Crying Boy.\n\nThe Midnight Menagerie. Every exhibit was real.\n\nChapters:\n0:00 The house burned to the studs\n0:26 Why wouldn't the Crying Boy burn\n0:54 Then a newspaper made him famous\n1:21 Fire followed the child\n1:48 Here's the twist\n2:14 Twenty-five years later\n2:42 Buyers still turn him to face\n\n#cryingboy #1985 #everyhouse",
     "tags": [
       "crying boy",
       "1985",
@@ -1900,29 +2230,34 @@
         "label": "The house burned to the studs"
       },
       {
-        "time": 26.66,
-        "stamp": "0:27",
-        "label": "Rotherham"
+        "time": 25.66,
+        "stamp": "0:26",
+        "label": "Why wouldn't the Crying Boy burn"
       },
       {
-        "time": 55.22,
-        "stamp": "0:55",
-        "label": "The phones didn't stop ringing for"
+        "time": 54.02,
+        "stamp": "0:54",
+        "label": "Then a newspaper made him famous"
       },
       {
-        "time": 81.09,
+        "time": 81.3,
         "stamp": "1:21",
-        "label": "He died at nineteen"
+        "label": "Fire followed the child"
       },
       {
-        "time": 110.02,
-        "stamp": "1:50",
-        "label": "Sacks of crying children went into"
+        "time": 108.0,
+        "stamp": "1:48",
+        "label": "Here's the twist"
       },
       {
-        "time": 136.27,
-        "stamp": "2:16",
-        "label": "Every miracle was just a painting"
+        "time": 133.72,
+        "stamp": "2:14",
+        "label": "Twenty-five years later"
+      },
+      {
+        "time": 162.34,
+        "stamp": "2:42",
+        "label": "Buyers still turn him to face"
       }
     ],
     "thumbnail": "thumbnail.png",
@@ -1937,6 +2272,83 @@
     },
     "thumb_template": "spotlight",
     "thumb_mood": "dark",
-    "built": 1783676907.9498055
-  }
+    "built": 1783681914.2746193
+  },
+  "narration": {
+    "file": "audio/narration.wav",
+    "dur": 169.598,
+    "voice": "clownpierce",
+    "source": "onetake",
+    "qa": {
+      "script_words": 359,
+      "heard_words": 357,
+      "extra_words": -2,
+      "overlap": 0.963,
+      "ok": true
+    },
+    "words_file": "audio/words.json",
+    "humanize": "natural",
+    "outro_scenes": 3
+  },
+  "audio_plan": {
+    "mood": "dark",
+    "query": "calm dark ambient, faraway broken music box, low drones, slow airy pads, unhurried dark cinematic tension ambient brooding",
+    "seconds": 169.6,
+    "bed": {
+      "source": "ace-step",
+      "title": null,
+      "license": "generated",
+      "cc0": true
+    },
+    "sfx": [
+      {
+        "cue": "quick whoosh",
+        "source": "procedural"
+      },
+      {
+        "cue": "pop",
+        "source": "procedural"
+      },
+      {
+        "cue": "deep impact boom",
+        "source": "procedural"
+      },
+      {
+        "cue": "shimmering riser",
+        "source": "procedural"
+      }
+    ],
+    "cues_placed": 0,
+    "attribution": [],
+    "scored": 1783678112.9796054
+  },
+  "uploads": [
+    {
+      "video_id": "3vq-nBjlseM",
+      "url": "https://youtu.be/3vq-nBjlseM",
+      "file": "video/final_20260710_181046_graded.mp4",
+      "title": "Every House Burned. The Painting Never Did",
+      "privacy": "public",
+      "channel": "menagerie",
+      "uploaded": 1783683902.9078
+    },
+    {
+      "video_id": "ESM5q-ZC0do",
+      "url": "https://youtu.be/ESM5q-ZC0do",
+      "file": "video/final_20260710_181046_graded.mp4",
+      "title": "Every House Burned. The Painting Never Did",
+      "privacy": "public",
+      "channel": "menagerie",
+      "uploaded": 1783683855.2401066
+    },
+    {
+      "video_id": "r6i7-IblGWQ",
+      "url": "https://youtu.be/r6i7-IblGWQ",
+      "file": "video/final_20260710_181046_graded.mp4",
+      "title": "Every House Burned. The Painting Never Did",
+      "privacy": "public",
+      "channel": "menagerie",
+      "uploaded": 1783683808.1486304
+    }
+  ]
 }

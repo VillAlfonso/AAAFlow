@@ -235,8 +235,11 @@ def load() -> List[Dict]:
             # expose only WHETHER the vault holds a connection, never the keys
             try:
                 sec = storage.read_json(_secrets_file(rec["id"]), None) or {}
-                rec.setdefault("youtube", {})["connected"] = bool(
-                    sec.get("refresh_token"))
+                yt = rec.setdefault("youtube", {})
+                yt["connected"] = bool(sec.get("refresh_token"))
+                # app-level OAuth means every channel is Connect-ready
+                yt["has_client"] = bool(sec.get("client_id")
+                                        or yt.get("client_id") or app_oauth())
             except (ValueError, OSError):
                 pass
             out.append(rec)
@@ -300,6 +303,20 @@ def _split_secrets(rec: Dict) -> Dict:
     return rec
 
 
+def app_oauth() -> Dict:
+    """App-level Google OAuth (user, 2026-07-10: the studio ships as ONE
+    OAuth app). Lives in the gitignored vault; empty dict when absent."""
+    try:
+        sec = storage.read_json(config.DATA_DIR / "secrets" / "app_oauth.json",
+                                None)
+        if isinstance(sec, dict) and sec.get("client_id"):
+            return {"client_id": sec["client_id"],
+                    "client_secret": sec.get("client_secret", "")}
+    except (ValueError, OSError):
+        pass
+    return {}
+
+
 def _merge_secrets(rec: Dict) -> Dict:
     try:
         sec = storage.read_json(_secrets_file(rec["id"]), None)
@@ -307,6 +324,11 @@ def _merge_secrets(rec: Dict) -> Dict:
             rec["youtube"] = {**(rec.get("youtube") or {}), **sec}
     except (ValueError, OSError):
         pass
+    # Channels without their own OAuth client inherit the app's: the channel
+    # editor no longer needs client id/secret fields, just Connect.
+    yt = rec.setdefault("youtube", {})
+    if not yt.get("client_id"):
+        yt.update({k: v for k, v in app_oauth().items() if v})
     return rec
 
 

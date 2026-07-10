@@ -233,6 +233,67 @@ def _curiosity_titles(title: str, hook: str, narration: str,
     return out
 
 
+def _llm_polish(p: Dict, ch: Optional[Dict], titles: List[str],
+                description: str, *, hook: str, chapters: List[Dict],
+                srcs: List[Dict], credits: List[str],
+                hashtags: List[str]):
+    """Rewrite titles + the description's human paragraph with the local LLM.
+
+    Grounding rules are strict: only facts from the narration, no hype, no em
+    dashes, no boilerplate. The deterministic blocks (chapters, sources,
+    credits, hashtags) are re-attached verbatim so attribution never depends
+    on a language model. Any failure returns the inputs unchanged.
+    """
+    from . import writer
+    if not writer.ollama_up():
+        return titles, description
+
+    scenes = p.get("scenes", [])
+    narration = " ".join((s.get("narration") or "") for s in scenes)[:3500]
+    niche = (ch or {}).get("niche", "")
+    prompt = (
+        "You write YouTube metadata for a quiet, factual documentary "
+        "channel. Write like a person, not a marketer.\n\n"
+        f"CHANNEL NICHE: {niche}\n"
+        f"VIDEO NARRATION (the only allowed source of facts):\n{narration}\n\n"
+        "Return ONLY this JSON object:\n"
+        '{"titles": ["3 title options"], "about": "the description opening: '
+        '2 short paragraphs, 40-80 words total"}\n\n'
+        "Rules:\n"
+        "- Titles open a curiosity gap but must be TRUE to the narration; "
+        "60 characters max; no clickbait cliches (no 'you won't believe', "
+        "'shocking', 'gone wrong'); no ALL CAPS words; no emoji.\n"
+        "- The about text states what actually happens, with the story's own "
+        "names, dates and numbers; conversational, plain sentences; no "
+        "hashtags, no links, no 'in this video', no 'subscribe', no "
+        "'join us', no questions to the reader.\n"
+        "- Never use an em dash anywhere.")
+    data = writer.generate_json(prompt, lambda s, f: None)
+    new_titles = [str(t).strip().replace("—", ",").replace("–", ",")
+                  for t in (data.get("titles") or []) if str(t).strip()]
+    new_titles = [t[:100] for t in new_titles
+                  if 12 <= len(t) <= 100][:3]
+    about = str(data.get("about") or "").strip()
+    about = about.replace("—", ",").replace("–", ",")
+    if not (new_titles and 60 <= len(about) <= 900):
+        return titles, description
+
+    # rebuild the description: LLM opening + the deterministic blocks
+    lines = [about, ""]
+    if len(chapters) >= 3:
+        lines += ["Chapters:"] + [f"{c['stamp']} {c['label']}" for c in chapters] + [""]
+    if srcs:
+        lines += ["Sources:"] + [
+            "- " + " | ".join(x for x in (s.get("title"), s.get("url")) if x)
+            for s in srcs[:6]] + [""]
+    if credits:
+        lines += ["Credits:"] + credits + [""]
+    lines += [" ".join(hashtags)]
+    # keep the deterministic options as fallbacks behind the LLM's
+    keep = [t for t in titles if t.lower() not in {x.lower() for x in new_titles}]
+    return new_titles + keep[:2], "\n".join(lines).strip()
+
+
 def build(pid: str, thumb_text: Optional[str] = None,
           thumb_template: Optional[str] = None) -> Dict:
     p = projects.get_project(pid)
@@ -298,6 +359,19 @@ def build(pid: str, thumb_text: Optional[str] = None,
         desc_lines += ["Credits:"] + credits + [""]
     desc_lines += [" ".join(hashtags)]
     description = "\n".join(desc_lines).strip()
+
+    # LLM pass (user, 2026-07-10: "SEO is way too formulaic, an LLM should
+    # write it per video"): a local model rewrites the HUMAN half (titles +
+    # the description's story paragraph) grounded in the video's own lines;
+    # chapters/sources/credits/hashtags stay deterministic and re-attach
+    # after. Ollama only (the in-process writer would grab the GPU mid-
+    # pipeline); everything falls back to the deterministic kit silently.
+    try:
+        titles, description = _llm_polish(
+            p, ch, titles, description, hook=hook, chapters=chapters,
+            srcs=srcs, credits=credits, hashtags=hashtags)
+    except Exception as exc:  # noqa: BLE001
+        print(f"[packaging] llm polish skipped: {exc}")
 
     thumb_rel, thumb_err, thumb_info = None, None, {}
     try:

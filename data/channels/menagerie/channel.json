@@ -9,7 +9,7 @@
   "defaults": {
     "image_model": "krea2",
     "animate_engine": "none",
-    "quality": "balanced",
+    "quality": "max",
     "preset": "cinematic-vhs",
     "authoring": "assisted",
     "coverage": "heroes",
@@ -20,7 +20,8 @@
     "voice_humanize": "natural",
     "style_suffix": "dark carnival harlequin-noir illustration, bold flat vector shapes with thick confident ink outlines, harlequin diamond motifs and ornate vintage sideshow-poster borders, dramatic single-source spotlight cutting deep shadow, gaslight-gold and blood-crimson and bone-white on near-black aubergine, subtle velvet texture, macabre elegance, high contrast, clean uncluttered composition",
     "negative_style": "photorealistic, 3d render, gore, blood splatter, realistic human faces, modern clothing, readable text, gibberish letters, cluttered, washed out, low contrast, neon, watermark",
-    "music_vibe": "calm dark ambient, faraway broken music box, low drones, slow airy pads, unhurried"
+    "music_vibe": "calm dark ambient, faraway broken music box, low drones, slow airy pads, unhurried",
+    "voice": "Ryan"
   },
   "topic_bank": [
     "The Sodder children vanished from a fire that left no bodies",
@@ -38,12 +39,15 @@
     "documentary",
     "vanishing"
   ],
-  "youtube": {},
+  "youtube": {
+    "connected": 1783681953.76842,
+    "privacy": "public"
+  },
   "rebuilt": "2026-07-10 after data loss; identity recovered from brand graphs",
   "stats": {
     "projects": 3,
     "last_project": "285510242ead"
   },
   "created": 1783674599.749949,
-  "updated": 1783676227.3037164
+  "updated": 1783684727.21157
 }

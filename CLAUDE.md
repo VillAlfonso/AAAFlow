@@ -324,6 +324,13 @@ get a TTS-drift lint warning; spot-check the one-take QA extra carefully.
   memory, `upsert()` diverts them — channel.json never holds credentials. The
   channel editor carries an idiot-proof connect guide (console links,
   Desktop-app OAuth client, test user).
+- **APP-LEVEL OAuth (user, 2026-07-10: "publish this as an app").** The
+  studio's own Google client lives in `data/secrets/app_oauth.json`
+  (gitignored); every channel without its own creds inherits it in
+  `channels._merge_secrets`, so connecting a channel is ONE Connect click,
+  no client id/secret fields needed. Per-channel creds still win if set.
+  NOTE: switching clients invalidates old refresh tokens; menagerie's vault
+  was reset (backup `.oldclient.bak`) and must be reconnected once.
 - **In-app YouTube control center (user, 2026-07-06: "everything I need here,
   no browser").** Connect a channel once (OAuth scope widened to
   `youtube.force-ssl`), then manage it from the **channel editor**: `GET
@@ -360,6 +367,33 @@ get a TTS-drift lint warning; spot-check the one-take QA extra carefully.
   audibly settles as the video ends. Default on; channel
   `defaults.voice_outro` = "off" disables, a custom string replaces the
   wording; per-run `voice.outro`.
+- **THE VIDEO ENDS, never stops (user, 2026-07-10 evening).** The one-take
+  gives the LAST scene +0.8 s tail room (the falling cadence breathes), the
+  assembler fades the final scene to black (`end_fade`, 1.2 s) into a short
+  black tail (`end_pad`, 1.0 s), and ALL audio eases to silence over it.
+  Presets/opts can override; Shorts windows keep their hard out. Menagerie's
+  narrator is the "keeper v2" design voice (clownpierce character + the
+  user's documentary delivery template, incl. the conclusive final cadence);
+  the channel `voice_instruct` carries the begin-curious / settle / soften-
+  at-the-end performance arc.
+- **SFX/transitions belong to the SPOKEN line (user, 2026-07-10: "don't
+  randomly put effects where they don't belong").** Beats are detected from
+  narration ONLY (never the image prompt), auto stingers keep
+  `sfx_gating.min_gap_scenes` (default 2) of air, signature cuts fire only
+  on real beats. The `/edit-craft` skill is the composer rulebook (ref cards
+  at first mention, date pops, receipts, ending, overlay engines).
+- **SEO gets an LLM pass (user, 2026-07-10: "way too formulaic").**
+  `packaging._llm_polish` rewrites titles + the description opening with the
+  local LLM (Ollama only, never the in-process model mid-pipeline), grounded
+  strictly in the narration; chapters/Sources/Credits/hashtags stay
+  deterministic and re-attach verbatim; silent fallback to the deterministic
+  kit. Thumbnails: text panels avoid the face (warm-tone mass picks the
+  quiet side), case-file gets a bottom scrim, big-word centers its top line.
+- **Remotion overlay engine (optional).** `tools/remotion/` +
+  `app/remotion_engine.py` render spring-animated RefCard/DateChip as
+  transparent webm; enable via assemble opts `{"overlay_engine":
+  "remotion"}`; PIL overlays remain the default and the silent fallback.
+  ("hyperframes" is not a known package; Remotion fills that role.)
 - **REF CARDS (user, 2026-07-10).** Real photos of the story's integral
   people/items/places are edited in at the narrator's FIRST MENTION,
   word-synced, as a tilted floating card with a typeset name label + soft

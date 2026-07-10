@@ -2,7 +2,7 @@
   "id": "285510242ead",
   "name": "Five Children Went Upstairs. The Fire Left No Bones.",
   "created": 1783676227.2910883,
-  "updated": 1783693035.08479,
+  "updated": 1783693871.6027997,
   "channel": "menagerie",
   "video": {
     "title": "Five Children Went Upstairs. The Fire Left No Bones.",
@@ -7891,7 +7891,8 @@
     },
     "thumb_template": "spotlight",
     "thumb_mood": "calm",
-    "built": 1783692918.7161121
+    "built": 1783692918.7161121,
+    "publish_at": null
   },
   "narration": {
     "file": "audio/narration.wav",

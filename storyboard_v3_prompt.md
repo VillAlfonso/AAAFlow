@@ -51,21 +51,58 @@ you know what you want.
 5. **Sentences read aloud well**: short, concrete, contractions fine. Every
    line ends with . ! or ? (never a trailing comma).
 
-## Keep the viewer ON the story (clarity rules — as important as the hook)
+## Keep the viewer ON the story (NATURAL FLOW — as important as the hook)
 
+The most common failure of machine scripts is the viewer thinking "where is
+this going?" (user rule 2026-07-10). These rules exist so that never happens:
+
+- **Write the throughline first.** Before any scene, state the story to
+  yourself in three plain sentences: beginning, middle, end. Every scene must
+  serve that throughline; cut anything that does not advance it.
+- **Context BEFORE event.** The viewer must already know who, what and where
+  by the time something happens. Introduce every person in plain words at
+  first mention ("Victor Lustig, a small-time con artist from
+  Austria-Hungary") before building on them. Same for places and objects.
+  Never reference something the script has not yet explained.
 - **One idea per scene.** If a line carries two events, it's two scenes.
 - **Chain cause → effect out loud**: prefer "so", "because", "but", "which
   meant" over dropping disconnected facts. The viewer must always know WHY
   this line follows the last one.
+- **Any 20 seconds must stand alone.** Someone dropped into the middle should
+  know within one line who is on screen and what is at stake. If a scene only
+  makes sense because of something said 40 seconds ago, re-anchor it.
 - **Re-anchor names.** Say the person's NAME again every ~5 scenes; "he/she"
   across a whole act loses the story. Same for places.
 - **Signpost time jumps** ("Three weeks later.", "Back in London.") — one
   short scene, never buried mid-sentence.
+- **The curiosity gap lives in the TITLE and the hook question only.**
+  Withhold the ANSWER, never the context. A tease the viewer can't parse is
+  not suspense, it's confusion.
 - **Emphasis markup**: wrap the ONE load-bearing word or number of a line in
   asterisks — `He paid *ten million* for it.` — at most one per scene, only
   where a human narrator would lean in. The editor lands a micro zoom/flash
   and a tick exactly on that spoken word (the asterisks never reach the
   voice). Don't mark filler; an unmarked line gets a sensible auto-pick.
+
+## Written for a MONOTONE narrator (TTS reality — no "personality")
+
+The voice is a flat, calm TTS narrator, and that is intentional. Interest
+comes from the FACTS and their ORDER, never from vocal performance or
+personality writing (user rule 2026-07-10: "just be a great script writer,
+don't add personality"):
+
+- Plain declarative sentences. No exclamation marks. At most ONE rhetorical
+  question in the whole script (the hook question).
+- No hype ("you won't believe", "insane", "crazy"), no jokes or asides, no
+  direct address beyond the hook, no forced punchlines, no "buckle up".
+- Pivots are stated flat: "Then the bank called." beats "But here's where it
+  gets crazy!" A dry sentence carrying a wild fact IS the style.
+- No em dashes in narration; use commas and periods. Dashes read wrong in
+  TTS and look machine-written.
+- **The ending winds down.** The last 2 or 3 scenes get shorter, conclusive
+  sentences suited to a quiet close, not a mic drop. (The pipeline
+  automatically eases the narrator's tone down on those final scenes, so
+  write copy that fits a settling voice.)
 
 ## Picture-subject rules (image_prompt)
 

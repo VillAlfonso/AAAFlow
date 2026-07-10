@@ -1,0 +1,218 @@
+{
+  "clip": {
+    "class_type": "CLIPLoader",
+    "inputs": {
+      "clip_name": "umt5_xxl_fp8_e4m3fn_scaled.safetensors",
+      "type": "wan",
+      "device": "default"
+    }
+  },
+  "vae": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "wan_2.1_vae.safetensors"
+    }
+  },
+  "unet_h": {
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "wan2.2_i2v_high_noise_14B_fp8_scaled.safetensors",
+      "weight_dtype": "default"
+    }
+  },
+  "unet_l": {
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "wan2.2_i2v_low_noise_14B_fp8_scaled.safetensors",
+      "weight_dtype": "default"
+    }
+  },
+  "pos": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "clip",
+        0
+      ],
+      "text": "dark carnival harlequin-noir illustration, bold flat vector shapes with thick confident ink outlines, harlequin diamond motifs and ornate vintage sideshow-poster borders, dramatic single-source spotlight cutting deep shadow, gaslight-gold and blood-crimson and bone-white on near-black aubergine, subtle velvet texture, macabre elegance, high contrast, clean uncluttered composition. the emblem holds perfectly steady while the spotlight flickers gently and fine dust drifts through the beam, subtle ambient motion, no camera cuts"
+    }
+  },
+  "neg": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "clip",
+        0
+      ],
+      "text": "low quality, blurry, distorted, deformed, bad anatomy, jpeg artifacts, watermark, text, oversaturated, extra limbs, messy"
+    }
+  },
+  "img": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "aaaflow_ab47b5161d.png"
+    }
+  },
+  "i2v": {
+    "class_type": "WanImageToVideo",
+    "inputs": {
+      "positive": [
+        "pos",
+        0
+      ],
+      "negative": [
+        "neg",
+        0
+      ],
+      "vae": [
+        "vae",
+        0
+      ],
+      "width": 1280,
+      "height": 720,
+      "length": 45,
+      "batch_size": 1,
+      "start_image": [
+        "img",
+        0
+      ]
+    }
+  },
+  "lora_h": {
+    "class_type": "LoraLoaderModelOnly",
+    "inputs": {
+      "model": [
+        "unet_h",
+        0
+      ],
+      "lora_name": "wan2.2_i2v_lightx2v_4steps_lora_v1_high_noise.safetensors",
+      "strength_model": 1.0
+    }
+  },
+  "lora_l": {
+    "class_type": "LoraLoaderModelOnly",
+    "inputs": {
+      "model": [
+        "unet_l",
+        0
+      ],
+      "lora_name": "wan2.2_i2v_lightx2v_4steps_lora_v1_low_noise.safetensors",
+      "strength_model": 1.0
+    }
+  },
+  "msm_h": {
+    "class_type": "ModelSamplingSD3",
+    "inputs": {
+      "model": [
+        "lora_h",
+        0
+      ],
+      "shift": 5.0
+    }
+  },
+  "msm_l": {
+    "class_type": "ModelSamplingSD3",
+    "inputs": {
+      "model": [
+        "lora_l",
+        0
+      ],
+      "shift": 5.0
+    }
+  },
+  "k1": {
+    "class_type": "KSamplerAdvanced",
+    "inputs": {
+      "model": [
+        "msm_h",
+        0
+      ],
+      "add_noise": "enable",
+      "noise_seed": 1313,
+      "steps": 4,
+      "cfg": 1.0,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "positive": [
+        "i2v",
+        0
+      ],
+      "negative": [
+        "i2v",
+        1
+      ],
+      "latent_image": [
+        "i2v",
+        2
+      ],
+      "start_at_step": 0,
+      "end_at_step": 2,
+      "return_with_leftover_noise": "enable"
+    }
+  },
+  "k2": {
+    "class_type": "KSamplerAdvanced",
+    "inputs": {
+      "model": [
+        "msm_l",
+        0
+      ],
+      "add_noise": "disable",
+      "noise_seed": 1313,
+      "steps": 4,
+      "cfg": 1.0,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "positive": [
+        "i2v",
+        0
+      ],
+      "negative": [
+        "i2v",
+        1
+      ],
+      "latent_image": [
+        "k1",
+        0
+      ],
+      "start_at_step": 2,
+      "end_at_step": 4,
+      "return_with_leftover_noise": "disable"
+    }
+  },
+  "decode": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "k2",
+        0
+      ],
+      "vae": [
+        "vae",
+        0
+      ]
+    }
+  },
+  "video": {
+    "class_type": "CreateVideo",
+    "inputs": {
+      "images": [
+        "decode",
+        0
+      ],
+      "fps": 16.0
+    }
+  },
+  "save": {
+    "class_type": "SaveVideo",
+    "inputs": {
+      "video": [
+        "video",
+        0
+      ],
+      "filename_prefix": "AAAFlow/wan",
+      "format": "mp4",
+      "codec": "h264"
+    }
+  }
+}

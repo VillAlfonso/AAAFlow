@@ -32,6 +32,15 @@ Everything after SCRIPT is automated and self-directing. Your leverage — and
 where quality is won or lost — is **research + script + QA**. Spend your effort
 there.
 
+**AUTOPILOT (2026-07-10)**: the whole chain above also runs with ZERO cloud
+tokens — the channel Videos page has a "put your video idea here" box
+(`POST /api/channels/{cid}/autopilot {idea}`); a local agent (`app/pilot.py`)
+interprets the idea, researches Wikipedia (facts + reference photos), writes
+the script with the local LLM against THIS playbook + the spec, imports in
+assisted mode, produces and packages. Claude's job is improving the system,
+not burning tokens producing videos. These docs ARE the agent's skills:
+improving them upgrades both drivers.
+
 ---
 
 ## 1. THE RESEARCH ALGORITHM (topic → a story worth telling)
@@ -68,6 +77,13 @@ single line is written, do this:
    move, not burned-in text. **Never invent quotes, numbers, or defamatory
    claims about real living people** — soften to "reportedly" or drop it. Flag
    anything uncertain in the handoff notes.
+6b. **Reference images (2026-07-10).** Download real photos of the 2-5
+   INTEGRAL references: the people involved first, then a key place or item.
+   `POST /api/projects/{pid}/research/refs {entities: [{label, kind}]}`
+   fetches Wikipedia lead images (license recorded) into `research/refs/`;
+   the assembler then edits each photo in as a floating REF CARD at the
+   narrator's FIRST MENTION of that name, word-synced. Manual control per
+   scene: `scene.ref = {file, label, sync}` forces one, `ref: false` blocks.
 7. **Fit the channel.** Match angle and tone to the channel's brief/topic bank
    (`GET /api/channels/{cid}`): GRIFT *admires the craft*, Autopsy writes a
    *eulogy*, Night Shift is *calm awe*. The same facts get a different voice per
@@ -114,9 +130,16 @@ executable procedure:
    **Emphasis markup:** wrap the ONE load-bearing word/number of a big line in
    `*asterisks*` — the assembler lands a micro zoom/flash + tick exactly on
    that spoken word (word-level Whisper timing; asterisks never reach the TTS).
-   **Clarity rules** (spec §clarity): one idea per scene, cause→effect
-   connectors, re-anchor names every ~5 scenes, signpost time jumps — the
-   visuals AND the script must let a viewer follow the story effortlessly.
+   **NATURAL FLOW + MONOTONE rules** (spec, user rules 2026-07-10 — these are
+   the difference between "where is this going?" and a story that carries):
+   write the 3-sentence throughline first and make every scene serve it;
+   context BEFORE event (introduce every person/place plainly at first
+   mention); any 20 s must stand alone; the curiosity gap lives in the title
+   and the hook question, never in comprehension. The narrator is FLAT by
+   design: no exclamation marks, no hype, no jokes, no personality writing,
+   no em dashes; pivots stated dry ("Then the bank called."); the final 2-3
+   scenes wind down to a quiet close (the TTS eases its tone on them
+   automatically).
 9. **Picture subjects (`image_prompt`).** Physical and specific ("a wooden box
    with a brass crank pushing out a banknote"), never abstract. **No readable
    text/documents** (models draw gibberish), **no real-person likeness**. For
@@ -143,6 +166,10 @@ executable procedure:
 jitter, ambiance bed — strips the AI-voice tells) BEFORE Whisper aligns + QA's
 it. Per-channel `defaults.voice_humanize` ("natural"/preset/off). It's the
 timing spine every scene is cut to. Always read the QA result.
+**Ending-aware tone (2026-07-10)**: the final 2-3 scenes are synthesized as
+the tail of the same take with a wind-down instruct (split at a scene
+boundary), so the narrator audibly settles as the video ends. On by default;
+`defaults.voice_outro: "off"` disables, a custom string replaces the wording.
 
 **Images — Krea2 (the only image model).** Flat cartoon art via ComfyUI, no
 download. The *look* comes from the channel's `global_style_suffix`, applied to
@@ -188,6 +215,11 @@ attribution-required track is auto-credited in the description.
   **zoom bump / soft flash / micro shake + tick** on the exact spoken word.
 - **Scene FX** — letterbox bars on reveals, vignette on impacts (hero scenes
   only; `scene_fx` in the dictionary).
+- **REF CARDS (2026-07-10)** — researched photos of the story's people/items/
+  places float in as a tilted polaroid card (typeset name label, soft pop) at
+  the narrator's FIRST MENTION, word-synced via words.json. Fed by
+  `research/refs.json` (`POST /api/projects/{pid}/research/refs`); date chips
+  still pop typeset text on every spoken year.
 - **Thumbnails/titles are HIGH-VARIANCE**: 7 templates rotate per video (never
   repeating the last one) with mood kickers, and title formulas rotate per
   video — consecutive uploads never look templated.

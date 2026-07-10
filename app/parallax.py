@@ -66,6 +66,18 @@ class ParallaxEngine:
         self._pipe = None
         self._torch = None
 
+    def release(self) -> bool:
+        """Unload the cached depth pipeline (GPU housekeeping); reloads lazily."""
+        with _lock:
+            had = self._pipe is not None
+            self._pipe = None
+            try:
+                if self._torch is not None and self._torch.cuda.is_available():
+                    self._torch.cuda.empty_cache()
+            except Exception:  # noqa: BLE001
+                pass
+            return had
+
     def _ensure(self, progress=None):
         with _lock:
             if self._pipe is not None:

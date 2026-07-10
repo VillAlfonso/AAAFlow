@@ -14,10 +14,11 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from . import (animate, assemble, audiolib, brandkit, captions, channels,
-               characters, config, effects, grade, grammar, humanize, images,
-               janitor, jobs, music, packaging, produce, projects, recipe,
-               roulette, scenes, score, service, sfx, shorts, storage,
-               style_refs, training, transcribe, voiceover, writer, youtube)
+               characters, config, effects, gpu, grade, grammar, humanize,
+               images, janitor, jobs, music, packaging, pilot, produce,
+               projects, recipe, roulette, scenes, score, service, sfx,
+               shorts, storage, style_refs, training, transcribe, voiceover,
+               webresearch, writer, youtube)
 from .audio import ffmpeg_ok
 from .engine import engine
 from .image_engine import image_engine
@@ -114,10 +115,11 @@ def _safe_output(name: str) -> Path:
 @app.on_event("startup")
 def _startup():
     jobs.start_worker()
+    gpu.start_reaper()      # auto-free models after idle (settings.gpu)
 
     def _warm():
         try:
-            engine.ensure_imports()
+            engine.ensure_imports()   # imports only, no weights on the GPU
         except Exception:
             pass
 
@@ -189,6 +191,18 @@ def _status_payload():
 @app.get("/api/status")
 def status():
     return _status_payload()
+
+
+@app.get("/api/gpu")
+def gpu_status():
+    """What is holding the GPU right now + the idle-unload policy."""
+    return gpu.status()
+
+
+@app.post("/api/gpu/release")
+def gpu_release():
+    """Free every model this app (or its sidecars) holds on the GPU, now."""
+    return gpu.release_all("manual")
 
 
 @app.get("/api/settings")
@@ -859,6 +873,21 @@ def put_research(pid: str, patch: dict):
     return {"research": r}
 
 
+class RefsReq(BaseModel):
+    entities: List[dict]     # [{label, kind: person|place|item, query?, aliases?}]
+
+
+@app.post("/api/projects/{pid}/research/refs")
+def fetch_research_refs(pid: str, req: RefsReq):
+    """Download reference images (Wikipedia lead images, license recorded)
+    into research/refs/. The assembler edits each in at its first spoken
+    mention as a floating ref card."""
+    try:
+        return {"job_id": webresearch.submit_fetch_refs(pid, req.entities)}
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
 @app.put("/api/projects/{pid}/seo")
 def put_seo(pid: str, patch: dict):
     """Persist user edits to the SEO package (title/description/tags…)."""
@@ -887,6 +916,37 @@ def write_script(cid: str, req: WriteReq = WriteReq()):
         return {"job_id": writer.submit_write(cid, req.topic)}
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
+
+
+# --- API: Autopilot (idea in -> finished video out, local agent) ---------------
+class AutopilotReq(BaseModel):
+    idea: str
+    minutes: Optional[float] = None   # target length (default ~2)
+
+
+@app.post("/api/channels/{cid}/autopilot")
+def autopilot_start(cid: str, req: AutopilotReq):
+    """Type a video idea (broad or detailed); the local agent researches,
+    scripts, fetches reference images, produces and packages the video."""
+    try:
+        aid = pilot.submit(cid, req.idea, {"minutes": req.minutes})
+        return {"autopilot_id": aid}
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
+@app.get("/api/autopilot/{aid}")
+def autopilot_status(aid: str):
+    st = pilot.status(aid)
+    if not st:
+        raise HTTPException(status_code=404, detail="autopilot run not found")
+    return st
+
+
+@app.get("/api/channels/{cid}/autopilot")
+def autopilot_latest(cid: str):
+    """The newest autopilot run for this channel (UI reconnect after refresh)."""
+    return pilot.latest_for(cid) or {}
 
 
 # --- API: Shorts cutter --------------------------------------------------------

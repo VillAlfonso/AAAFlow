@@ -1,0 +1,36 @@
+{
+  "id": "main",
+  "name": "Main",
+  "niche": "Everything channel — split real channels out of it as you go",
+  "tagline": "The whole studio, one channel.",
+  "cadence": "as produced",
+  "defaults": {
+    "image_model": "krea2",
+    "animate_engine": "wan",
+    "quality": "balanced",
+    "preset": "cinematic",
+    "authoring": "pro",
+    "coverage": "heroes",
+    "voice": "Ryan",
+    "language": "English",
+    "voice_instruct": "Speak like a seasoned documentary narrator - dry, confident, never rushed.",
+    "style_suffix": "1940s noir editorial-cartoon illustration: confident ink linework, flat muted paper tones of charcoal, cream and smoke gray with one scarlet accent per scene, dramatic hard shadows, subtle paper grain, clean uncluttered composition",
+    "negative_style": "photorealistic, 3d render, glossy, neon, cluttered",
+    "music_vibe": "smoky noir jazz, upright bass, brushed drums, slow-building tension"
+  },
+  "brief": "Open on the story's most outrageous moment, never on background. Escalate stake by stake; the payoff reveals the one detail that changes everything.",
+  "topic_bank": [],
+  "seo_keywords": [
+    "documentary",
+    "true story",
+    "explained",
+    "history"
+  ],
+  "youtube": {},
+  "created": 1783672401.2514093,
+  "updated": 1783672910.5099509,
+  "stats": {
+    "projects": 1,
+    "last_project": "60b4e30c17ea"
+  }
+}

@@ -269,6 +269,32 @@ use), krea2 LoRA epochs 1-5. `DEFAULT_IMAGE_MODEL` is now **krea2**.
 Legacy code deleted the same day: animatediff_engine.py, LTX/AnimateDiff
 trainer scripts, Wan2.2 repo clone, stale QwenTTS/.git.
 
+## 2026-07-10: Autopilot, ref cards, ending tone, GPU lifecycle
+- **Autopilot** (`app/pilot.py`): idea in, video out, fully local. Stages:
+  interpret (local LLM) > Wikipedia research (`app/webresearch.py`) > script
+  (spec + playbook sections as the prompt "skills") > assisted import > ref
+  images > produce poll > package. `POST /api/channels/{cid}/autopilot`;
+  `GET /api/autopilot/{aid}`. Not a queue job (it waits on queue jobs).
+  Writer: Ollama `qwen3:8b` (num_ctx 16384, keep_alive 0, auto-picks an
+  installed model if the configured one is missing) > in-process Qwen3-4B.
+- **Ref cards** (`app/refcards.py` + `webresearch.fetch_refs`): Wikipedia
+  lead images of integral people/items/places, license + credit logged
+  (credit auto-joins SEO sources). First-mention mapping per scene, spoken
+  word sync from words.json, tilted card + typeset label + pop tick in
+  assemble. Overrides: `scene.ref` dict forces, `false` blocks.
+- **Ending-aware one-take** (`voiceover.submit_onetake`): last 2-3 scenes
+  (10%, min 1, max 3, only when >= 6 scenes) synthesized with a wind-down
+  instruct as the tail of the same take, split at a scene boundary so the
+  seam sits inside a natural pause. `narration.outro_scenes` records it.
+- **GPU lifecycle** (`app/gpu.py`): stage frees inside produce + idle reaper
+  (30 s tick, `settings.gpu.idle_unload_min`, default 5). Frees: TTS models,
+  Whisper, depth pipe, diffusers pipe, ComfyUI `/free`, ACE sidecar kill.
+  Job worker touches activity on start/finish. One-take releases TTS before
+  Whisper loads (peak VRAM).
+- **Publish**: Post video button previews the auto-attached metadata (saved
+  SEO title/description/tags + thumbnail) and can pick any render; backend
+  upload already used project.seo and thumbnail.png.
+
 ## Failure modes catalog (check before debugging something "new")
 - TTS: hallucinated continuations (comma endings), slow theatrical stretches.
 - krea2: phantom people in people-less scenes (fixed by clause strip); style

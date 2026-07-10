@@ -46,14 +46,35 @@ def status() -> Dict:
             "local_model_cached": local_model_cached()}
 
 
+def _ollama_model() -> str:
+    """The configured model if pulled, else the best installed fallback
+    (prefer a qwen3 chat model over a coder model, else whatever exists)."""
+    want = config.WRITER["ollama_model"]
+    try:
+        with urllib.request.urlopen(config.WRITER["ollama_url"] + "/api/tags",
+                                    timeout=4) as r:
+            names = [m.get("name", "") for m in json.load(r).get("models", [])]
+    except Exception:  # noqa: BLE001
+        return want
+    if not names or want in names or want.split(":")[0] in {n.split(":")[0] for n in names}:
+        return want
+    pick = (next((n for n in names if n.startswith("qwen3") and "coder" not in n), None)
+            or next((n for n in names if "coder" not in n), None) or names[0])
+    print(f"[writer] ollama model {want} not pulled; using {pick}")
+    return pick
+
+
 def _gen_ollama(prompt: str) -> str:
     body = json.dumps({
-        "model": config.WRITER["ollama_model"],
+        "model": _ollama_model(),
         "messages": [{"role": "system", "content": _SYSTEM},
                      {"role": "user", "content": prompt}],
         "stream": False, "format": "json", "keep_alive": 0,
         "options": {"temperature": config.WRITER["temperature"],
-                    "num_predict": config.WRITER["max_new_tokens"]},
+                    "num_predict": config.WRITER["max_new_tokens"],
+                    # the authoring spec + research digest need real context;
+                    # Ollama's default window silently truncates them
+                    "num_ctx": int(config.WRITER.get("num_ctx", 16384))},
     }).encode()
     req = urllib.request.Request(config.WRITER["ollama_url"] + "/api/chat",
                                  data=body, headers={"Content-Type": "application/json"})
@@ -121,7 +142,14 @@ def _extract_json(text: str) -> Dict:
 
 
 def _write_once(prompt: str, progress) -> Tuple[Dict, str]:
-    raw = _gen_ollama(prompt) if ollama_up() else _gen_transformers(prompt, progress)
+    if ollama_up():
+        try:
+            raw = _gen_ollama(prompt)
+            return _extract_json(raw), raw
+        except (OSError, urllib.error.HTTPError, urllib.error.URLError) as exc:
+            # e.g. the configured model isn't pulled - fall back to in-process
+            progress(f"Ollama failed ({exc}); using the in-process writer", 0.05)
+    raw = _gen_transformers(prompt, progress)
     return _extract_json(raw), raw
 
 

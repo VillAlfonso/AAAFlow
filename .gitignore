@@ -46,8 +46,15 @@ ACE-Step-1.5/
 /vae
 
 # --- Generated data / runtime state ---
+data/backups/
 data/outputs/
 data/refs/
+# Per-channel folders: track the small identity (channel.json, ui/, brand
+# graphs), NEVER the heavy media (projects, rendered brand PNGs/mp4s).
+# project.json content is mirrored to data/backups/ on every save.
+data/channels/*/projects/
+data/channels/*/brand/*
+!data/channels/*/brand/graphs/
 data/ambiance/
 data/training_runs/
 # cartoon RAG reference pack (seeded/uploaded), and runtime logs

@@ -199,6 +199,16 @@ def save_project(project: Dict) -> Dict:
     project["updated"] = time.time()
     ensure_dirs(project["id"])
     storage.write_json(_project_file(project["id"]), project)
+    try:
+        # Disaster mirror (2026-07-10): data/backups/ is gitignored, so the
+        # storyboard/settings/seo of every project survives a git clean even
+        # though the project folder itself is not tracked. Media is not
+        # mirrored; a restored project.json can re-produce it.
+        bdir = config.DATA_DIR / "backups" / "projects"
+        bdir.mkdir(parents=True, exist_ok=True)
+        storage.write_json(bdir / f"{project['id']}.json", project)
+    except Exception:  # noqa: BLE001 - the mirror never blocks a save
+        pass
     return project
 
 

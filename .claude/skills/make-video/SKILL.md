@@ -58,6 +58,15 @@ The topic bank gives ideas, not facts. Before scripting a true story:
   word (words.json timing). Omit `receipt` for a plain locked still.
   Real documents on screen are a documentary technique, not burned-in text;
   narrate over them ("this is the actual telegram").
+- **REFERENCE IMAGES (2026-07-10, do this for every true story):** after the
+  project exists, fetch real photos of the 2-5 integral references — the
+  people involved first, then a key place/item:
+  `POST /api/projects/{pid}/research/refs {"entities": [{"label": "Victor
+  Lustig", "kind": "person"}]}` (Wikipedia lead image, license auto-recorded,
+  credit auto-added to the SEO Sources). The assembler edits each photo in as
+  a floating REF CARD exactly when the narrator FIRST says that name
+  (word-synced). Per-scene override: `scene.ref = {file, label, sync}`;
+  `ref: false` blocks a card on that scene.
 
 ## 2. Get the script (voice comes FIRST in the pipeline, but the script is step 1)
 Pick whichever fits what the user gave you:
@@ -71,6 +80,14 @@ Pick whichever fits what the user gave you:
 - **Always lint first** to see what the director will fill/flag (no import):
   `POST /api/storyboard/lint {channel, data}` → read `report.fixes` + `warnings`.
   Fix `visuals drift` warnings — the picture must SHOW what the line says.
+- **NATURAL FLOW + MONOTONE (user rules 2026-07-10, non-negotiable):** write
+  the 3-sentence throughline first; context BEFORE event (introduce every
+  person/place plainly at first mention); any 20 s must stand alone; the
+  curiosity gap lives in the title + hook question, never in comprehension.
+  The narrator is FLAT by design: no exclamation marks, no hype words, no
+  jokes/asides/personality, no em dashes in narration; pivots stated dry;
+  the last 2-3 scenes wind down (the TTS automatically settles its tone on
+  them — write copy that suits a quiet close).
 - Mark the ONE load-bearing word of a big line with `*asterisks*` — the
   assembler lands a micro zoom/flash + tick exactly on that spoken word
   (word-level Whisper timing). Unmarked lines get a sensible auto-pick.

@@ -281,6 +281,14 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
             words = []
     emph_events: List[float] = []             # absolute mix times for SFX ticks
     chip_events: List[float] = []             # date-chip appearances → click SFX
+    ref_events: List[float] = []              # ref-card appearances → pop tick
+    # researched reference photos (people/items/places) -> first-mention cards
+    from . import refcards
+    try:
+        ref_plan = refcards.plan(project, pdir)
+    except Exception as exc:  # noqa: BLE001 - cards are decoration, never fatal
+        print(f"[assemble] ref plan failed: {exc}")
+        ref_plan = {}
     # Optional time window [t0, t1] — renders just that slice of the timeline
     # (the Shorts cutter uses this with a 9:16 size). Scene starts shift to 0.
     window = asm.get("window")
@@ -496,6 +504,22 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
             v = _date_chip(v, chip, W, H)
             if row is not None:
                 chip_events.append(float(row["start"]) + 0.25)
+        rc = ref_plan.get(str(s["id"]))
+        if rc:
+            # first-mention reference card, synced to the spoken name
+            try:
+                from . import refcards as _rc
+                t_loc = _rc.mention_time(
+                    [rc.get("sync")] if rc.get("sync") else (rc.get("match") or []),
+                    row, words, win_t0)
+                v, t_shown = _rc.overlay(v, pdir / rc["file"],
+                                         rc.get("label") or "", dur=dur,
+                                         t0=t_loc, W=W, H=H,
+                                         kind=rc.get("kind", ""))
+                if row is not None and t_shown is not None:
+                    ref_events.append(float(row["start"]) + t_shown)
+            except Exception as exc:  # noqa: BLE001
+                print(f"[assemble] ref card failed scene {s.get('id')}: {exc}")
         if film_filter:
             v = transitions.apply_filter(v, film_filter, W=W, H=H, cfg=filter_cfg)
         clips.append(v)
@@ -591,6 +615,18 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
                 end = min(N, off + len(arr))
                 if end > off:
                     mix[off:end] += arr[: end - off] * 0.4
+
+    # reference cards land with a soft pop (tiny UI tick, allowed to synth)
+    if sfx_on and ref_events:
+        arr = sfx.render("pop")
+        if arr is None:
+            arr = sfx.render("ui click")
+        if arr is not None:
+            for tt in ref_events:
+                off = int(tt * SR)
+                end = min(N, off + len(arr))
+                if end > off:
+                    mix[off:end] += arr[: end - off] * 0.3
 
     peak = float(np.max(np.abs(mix)))
     if peak > 0.985:                           # keep the sum out of clipping

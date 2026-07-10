@@ -309,13 +309,61 @@ def submit_onetake(pid: str, voice: Dict) -> str:
         max_chars = int(settings.get("max_chars", 240))
 
         script = "\n\n".join((s.get("narration") or "").strip() for s in scenes)
+
+        # Ending-aware tone (user, 2026-07-10): the narrator should KNOW the
+        # video is ending. The final scenes are synthesized as the tail of the
+        # same take with a wind-down instruct, split at a scene boundary (a
+        # natural pause), so prosody inside each half stays continuous.
+        # voice.outro > channel defaults.voice_outro > on by default;
+        # "off" disables, any other string replaces the wind-down wording.
+        outro = voice.get("outro")
+        if outro is None:
+            ch = channels.get(proj.get("channel")) if proj.get("channel") else None
+            outro = ((ch or {}).get("defaults") or {}).get("voice_outro")
+        outro_off = (outro is not None
+                     and str(outro).lower() in ("off", "false", "none", "0"))
+        n_out = max(1, min(3, round(len(scenes) * 0.10))) if len(scenes) >= 6 else 0
+        outro_instruct = None
+        if n_out and not outro_off:
+            base = (instruct or "").rstrip(". ")
+            tail = (outro if isinstance(outro, str)
+                    and outro.lower() not in ("settle", "on", "true", "1", "")
+                    else "The story is ending now: ease the pace down slightly, "
+                         "lower the energy, and settle to a calm, final close.")
+            outro_instruct = (base + ". " if base else "") + tail
+
         progress("Narrating the full script (one take)", 0.05)
-        chunks = chunk_text(script, max_chars)
+        if outro_instruct:
+            body_txt = "\n\n".join((s.get("narration") or "").strip()
+                                   for s in scenes[:-n_out])
+            out_txt = "\n\n".join((s.get("narration") or "").strip()
+                                  for s in scenes[-n_out:])
+            chunks = chunk_text(body_txt, max_chars)
+            out_chunks = chunk_text(out_txt, max_chars)
+            off = max((c["paragraph"] for c in chunks), default=-1) + 1
+            for c in out_chunks:
+                c["paragraph"] += off
+        else:
+            chunks = chunk_text(script, max_chars)
+            out_chunks = []
         if mode == "clone":
             segs, sr = engine.synth_clone(chunks, cv, language, instruct=instruct)
+            if out_chunks:
+                progress("Narrating the ending (wind-down tone)", 0.45)
+                seg2, _ = engine.synth_clone(out_chunks, cv, language,
+                                             instruct=outro_instruct)
+                segs += seg2
         else:
             segs, sr = engine.synth_custom(chunks, speaker, language, instruct)
+            if out_chunks:
+                progress("Narrating the ending (wind-down tone)", 0.45)
+                seg2, _ = engine.synth_custom(out_chunks, speaker, language,
+                                              outro_instruct)
+                segs += seg2
         stitched = audio.stitch(segs, sr, gap, pgap, trim)
+        # The take is done: drop the TTS checkpoint BEFORE Whisper loads so the
+        # two never overlap in VRAM (GPU housekeeping, 2026-07-10).
+        engine.release()
 
         rel = "audio/narration.wav"
         dst = projects.project_dir(pid) / rel
@@ -392,7 +440,8 @@ def submit_onetake(pid: str, voice: Dict) -> str:
         proj["narration"] = {"file": rel, "dur": round(dur, 3), "voice": label,
                              "source": "onetake", "qa": qa,
                              "words_file": words_rel,
-                             "humanize": applied_hum}
+                             "humanize": applied_hum,
+                             "outro_scenes": n_out if outro_instruct else 0}
         projects.recompute_timeline(proj)
         projects.save_project(proj)
         storage.add_history({

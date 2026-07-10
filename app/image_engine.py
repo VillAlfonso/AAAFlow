@@ -83,6 +83,26 @@ class ImageEngine:
         d = config.DEFAULT_IMAGE_MODEL
         return {"key": d, **config.IMAGE_BASES[d], "imported": False}
 
+    def release(self) -> bool:
+        """Drop the cached diffusers pipeline (GPU housekeeping); lazy reload."""
+        with _lock:
+            had = self._pipe is not None
+            if had:
+                try:
+                    del self._pipe
+                except Exception:  # noqa: BLE001
+                    pass
+            self._pipe = None
+            self._pipe_key = None
+            self._pipe_type = None
+            self._loaded_adapters = []
+            self._ip_loaded = False
+            try:
+                self._free()
+            except Exception:  # noqa: BLE001
+                pass
+            return had
+
     # ---- pipeline loading -------------------------------------------------
     def get_pipeline(self, progress=None):
         settings = storage.get_settings()

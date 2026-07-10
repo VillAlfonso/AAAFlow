@@ -365,6 +365,56 @@ async function renderProjects(host) {
 
   const page = el("div", "page");
 
+  // AUTOPILOT: idea in -> finished video out (local agent, zero cloud tokens)
+  const ap = el("div", "card");
+  ap.innerHTML = `
+    <div class="section-title">🚀 Autopilot — put your video idea here</div>
+    <div class="muted" style="font-size:12px;margin-bottom:8px">As detailed or as broad as you like — the local agent interprets it, researches the story (dates, people, reference photos), writes the script, and runs the whole pipeline: voice → images → score → animate → assemble → SEO.</div>
+    <div class="field"><textarea id="apIdea" placeholder='e.g. "the man who sold the Eiffel Tower twice" — one line or three paragraphs, both work' style="min-height:74px"></textarea></div>
+    <div class="row" style="gap:8px;align-items:center;flex-wrap:wrap">
+      <select id="apMin" style="width:auto"><option value="2">~2 min video</option><option value="4">~4 min video</option><option value="8">~8 min video</option></select>
+      <button class="btn btn-primary" id="apGo">${icon("i-wand")} Make this video</button>
+      <div class="muted mono" id="apStage" style="font-size:12px"></div>
+    </div>
+    <pre id="apLog" class="mono" style="display:none;font-size:11px;line-height:1.5;max-height:180px;overflow:auto;margin-top:8px;white-space:pre-wrap"></pre>`;
+  page.appendChild(ap);
+  let apTimer = null;
+  const apDraw = (st) => {
+    if (!st || !st.id) return;
+    const stage = $("#apStage", ap), log = $("#apLog", ap);
+    if (!stage) return;
+    stage.textContent = st.status === "running"
+      ? `${st.stage}${st.detail ? " · " + st.detail : ""}…`
+      : st.status === "error" ? `failed: ${st.error}`
+      : st.result ? `done — ${st.result.seo_title || st.result.name || ""}` : (st.status || "");
+    if ((st.log || []).length) {
+      log.style.display = "block";
+      log.textContent = st.log.slice(-14).join("\n");
+      log.scrollTop = log.scrollHeight;
+    }
+    if (st.status === "running" && !apTimer) {
+      apTimer = setInterval(async () => {
+        if (!document.body.contains(ap)) { clearInterval(apTimer); apTimer = null; return; }
+        try { apDraw(await api.get(`/api/autopilot/${st.id}`)); } catch (e) { }
+      }, 3000);
+    }
+    if (st.status !== "running" && apTimer) {
+      clearInterval(apTimer); apTimer = null;
+      if (st.status === "done") toast("Autopilot finished — the video is in the list below (refresh)");
+    }
+  };
+  $("#apGo", ap).onclick = async () => {
+    const idea = $("#apIdea", ap).value.trim();
+    if (!idea) { toast("Type the video idea first", "err"); return; }
+    try {
+      const { autopilot_id } = await api.post(`/api/channels/${ch.id}/autopilot`,
+        { idea, minutes: +$("#apMin", ap).value });
+      toast("Autopilot started");
+      apDraw(await api.get(`/api/autopilot/${autopilot_id}`));
+    } catch (e) { toast(e.message, "err"); }
+  };
+  api.get(`/api/channels/${ch.id}/autopilot`).then(apDraw).catch(() => { });
+
   // import card
   const imp = el("div", "card");
   imp.innerHTML = `
@@ -3721,13 +3771,28 @@ async function renderPublish(host) {
         <button class="btn btn-primary btn-sm" id="ytConnect" style="margin-top:8px">${icon("i-upload")} Connect YouTube</button>
         <div class="muted" style="font-size:11px;margin-top:6px">A Google consent tab opens; approve, then come back and refresh this page.</div>`;
     } else {
+      const seo = state.project.seo || {};
+      const rlist = (state.project.renders || []).filter(r => r.file);
+      const tags = seo.tags || [];
+      const upTitle = (seo.titles || [])[0] || p.name;
+      const d1 = (seo.description || "").split("\n")[0];
       body = `<div class="row" style="gap:8px;align-items:center;flex-wrap:wrap">
           <span class="badge good">Connected ✓</span>
+          <select id="ytFile" style="max-width:240px" title="which render to post">${rlist.length
+            ? rlist.map((r, i) => `<option value="${esc(r.file)}" ${i === 0 ? "selected" : ""}>${esc((r.file || "").replace("video/", ""))} · ${(r.duration || 0).toFixed(0)}s</option>`).join("")
+            : `<option value="">newest final render</option>`}</select>
           <select id="ytPriv" style="width:auto">${["private", "unlisted", "public"].map(v => `<option ${(yt.privacy || "private") === v ? "selected" : ""}>${v}</option>`).join("")}</select>
+          <button class="btn btn-primary" id="ytUpload">${icon("i-upload")} Post video</button>
           <button class="btn btn-ghost btn-sm" id="ytConnect">${icon("i-upload")} Reconnect</button>
-          <button class="btn btn-primary btn-sm" id="ytUpload">${icon("i-upload")} Upload newest final</button>
           <div class="muted" id="ytStage" style="font-size:12px"></div></div>
-        <div class="muted" style="font-size:11px;margin-top:6px">Private by default — review on YouTube, publish there. Uses your saved SEO title/description/tags + thumbnail.</div>
+        <div class="row" style="gap:12px;margin-top:10px;align-items:flex-start">
+          ${seo.thumbnail ? `<img src="/projects/${p.id}/${esc(seo.thumbnail)}?t=${Date.now()}" style="width:124px;border-radius:6px;flex:none"/>` : ""}
+          <div style="font-size:12px;line-height:1.6;min-width:0">
+            <div><b>${esc(upTitle)}</b></div>
+            <div class="muted">${esc(d1.slice(0, 110))}${d1.length > 110 ? "…" : ""}</div>
+            <div class="muted mono" style="font-size:11px">${tags.length} tags · thumbnail ${seo.thumbnail ? "✓" : "—"} · title, description, tags and thumbnail attach automatically</div>
+          </div></div>
+        <div class="muted" style="font-size:11px;margin-top:6px">Private by default — review on YouTube, publish there. Edit anything in the SEO card above first; Post always uses the saved version.</div>
         ${ups.length ? `<div style="margin-top:10px">${ups.map(u => `
           <div class="row" style="gap:10px;padding:5px 0;border-top:1px solid rgba(255,255,255,.06);font-size:12.5px">
             <a href="${esc(u.url)}" target="_blank" class="mono">${esc(u.url)}</a>
@@ -3741,7 +3806,12 @@ async function renderPublish(host) {
       catch (e) { toast(e.message, "err"); }
     };
     const upBtn = $("#ytUpload", ytC);
-    if (upBtn) upBtn.onclick = () => doUpload({ privacy: $("#ytPriv", ytC).value });
+    if (upBtn) upBtn.onclick = () => {
+      const sel = $("#ytFile", ytC);
+      const opts = { privacy: $("#ytPriv", ytC).value };
+      if (sel && sel.value) opts.file = sel.value;
+      doUpload(opts);
+    };
   }
   async function doUpload(opts) {
     if (!(state.project.seo || {}).built &&

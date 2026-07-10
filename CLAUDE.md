@@ -54,15 +54,19 @@ vignette on impacts — hero scenes only); and **emphasis** — the director mar
 and the assembler lands a micro zoom/flash/shake + tick on the exact SPOKEN
 word (one-take Whisper word timestamps persist to `audio/words.json`).
 
-**"Make me a video" is THE entry point (user, 2026-07-04, reaffirmed).** The
-user's chosen production method is now **Claude Code (set to Haiku) driving this
-system directly** to make videos — NOT the old `Script → JSON` UI flow (that was
-the previous way; it's demoted to a per-channel manual import, no longer how
-videos get generated). So the durable path is the **`/make-video` skill**
-(`.claude/skills/make-video/`): pick channel → get/write script → lint → the
-director fills effects from the grammar dictionary → `produce` → QA the mp4 →
-SEO. `/add-effect` teaches the grammar a new reflex. Keep the API + skills clean
-enough that a small model can run the whole pipeline.
+**Video production now runs LOCALLY: AUTOPILOT (user, 2026-07-10; supersedes
+the 2026-07-04 "Claude drives it" decision).** The user types a video IDEA,
+broad or detailed, into the channel Videos page ("Put your video idea here");
+`app/pilot.py` does the rest with zero cloud tokens: interpret idea (local
+LLM: Ollama `qwen3:8b`, auto-falls back to any installed model, then
+in-process Qwen3-4B), Wikipedia research + reference photos, script, assisted
+import, produce, SEO. `POST /api/channels/{cid}/autopilot {idea, minutes}`;
+poll `GET /api/autopilot/{aid}` (log included). The playbook + spec files ARE
+the agent's skills, so improving those docs upgrades both drivers. Claude's
+job is improving the SYSTEM, not burning tokens producing videos; the
+`/make-video` skill remains for when the user explicitly asks Claude to drive.
+(Ollama note: the tray app respawn-loops on this machine; a detached
+`ollama serve` works and the writer degrades gracefully without it.)
 
 **Hub is channel-first; per-channel tools stay per-channel (user, 2026-07-04).**
 `Script → JSON` and `History` are per-channel exclusives — removed from the
@@ -219,7 +223,10 @@ generations sound cut-up and out of tone; only prosody *within* a take is good.
    `POST .../shorts` cuts vertical 9:16 hook + payoff at scene boundaries.
    **Upload** `POST .../upload` sends a render to the channel's own YouTube
    account (per-channel OAuth in the channel editor; defaults to PRIVATE —
-   publish manually on YouTube after review). Thumbnails MAY carry text —
+   publish manually on YouTube after review). The Publish page's **Post
+   video** button (2026-07-10) previews exactly what attaches automatically
+   (saved SEO title, description, tags, thumbnail) and can pick any render.
+   Thumbnails MAY carry text —
    the no-text rule is only about frames inside the video.
 
 One call runs 2→7: `POST /api/projects/{pid}/produce` (UI: Assemble →
@@ -341,6 +348,29 @@ get a TTS-drift lint warning; spot-check the one-take QA extra carefully.
   prompt (animate.py) so Wan animates the drawing, not repaints it.
 - Narration lines should end with a period — trailing commas invite TTS to
   keep talking (hallucination).
+- **NATURAL FLOW + MONOTONE scripts (user, 2026-07-10: "just be a great
+  script writer, don't add personality").** Spec flow rules are law:
+  throughline first, context BEFORE event (introduce every person/place at
+  first mention), any 20 s stands alone, curiosity gap lives ONLY in the
+  title + hook question. The narrator is flat by design: no exclamation
+  marks, no hype words, no jokes or asides, pivots stated dry; the last 2-3
+  scenes wind down to a quiet close.
+- **Ending-aware voice (2026-07-10).** One-take TTS synthesizes the final 2-3
+  scenes with a wind-down instruct split at a scene boundary, so the narrator
+  audibly settles as the video ends. Default on; channel
+  `defaults.voice_outro` = "off" disables, a custom string replaces the
+  wording; per-run `voice.outro`.
+- **REF CARDS (user, 2026-07-10).** Real photos of the story's integral
+  people/items/places are edited in at the narrator's FIRST MENTION,
+  word-synced, as a tilted floating card with a typeset name label + soft
+  pop. Research fetch: `POST /api/projects/{pid}/research/refs {entities}`
+  (Wikipedia lead images into `research/refs/`, license logged, credit
+  auto-added to SEO sources); mapping `app/refcards.py`, compositing in
+  assemble. Ref cards join date chips + receipt stills as the only sanctioned
+  on-screen text. Per-scene: `scene.ref = {file,label,sync}` forces one,
+  `ref: false` blocks.
+- **No em dashes in ANY new writing (user, 2026-07-10).** Narration, titles,
+  SEO copy, docs, UI text, code comments: use commas or periods instead.
 
 ## Operational rules
 - Backend (`app/*.py`) edits: **hot-reload first, restart second** (user rule
@@ -357,6 +387,13 @@ get a TTS-drift lint warning; spot-check the one-take QA extra carefully.
 - One GPU: TTS, krea2, Wan, ACE-Step contend. The job queue serializes, but
   the ACE sidecar (port 8765) holds VRAM with no unload API — kill its process
   before Wan work on 16 GB.
+- **Models load only when needed and auto-unload (user, 2026-07-10).**
+  Engines stay lazy at boot; `app/gpu.py` frees what lingers: stage frees in
+  produce (TTS+Whisper after voice, ComfyUI `/free` after the last
+  image/animate stage, depth after assemble, ACE kill after score, everything
+  at pipeline end) plus an idle reaper (`settings.gpu.idle_unload_min`,
+  default 5 min, 0 disables). One-take drops the TTS model before Whisper
+  loads. Manual: `GET /api/gpu`, `POST /api/gpu/release`.
 - ComfyUI auto-starts from `ComfyUI_windows_portable/`; **run.bat also boots
   ComfyUI + opens both tabs** (user rule 2026-07-05 — that bat is the one
   sanctioned auto-open; Claude still never auto-opens media/browser itself).

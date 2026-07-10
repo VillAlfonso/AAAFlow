@@ -118,6 +118,16 @@ class Engine:
         except Exception:
             pass
 
+    def release(self) -> bool:
+        """Drop every loaded TTS checkpoint + clone prompts (GPU housekeeping).
+        The next synthesis simply reloads, so this is always safe when idle."""
+        with _load_lock:
+            had = bool(self._models)
+            self._models.clear()
+            self._clone_prompts.clear()
+            self._free()
+            return had
+
     # ---- generation kwargs ------------------------------------------------
     def _gen_kwargs(self, settings: Dict) -> Dict:
         s = settings.get("sampling", {})

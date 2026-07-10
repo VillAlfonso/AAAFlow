@@ -87,6 +87,14 @@ def _progress_for(jid: str) -> ProgressFn:
     return cb
 
 
+def _touch_gpu() -> None:
+    try:
+        from . import gpu
+        gpu.touch()
+    except Exception:  # noqa: BLE001
+        pass
+
+
 def _loop() -> None:
     while True:
         jid = _q.get()
@@ -94,6 +102,7 @@ def _loop() -> None:
         if fn is None:
             _q.task_done()
             continue
+        _touch_gpu()
         _update(jid, status="running", stage="starting", progress=0.01)
         try:
             result = fn(_progress_for(jid))
@@ -108,6 +117,7 @@ def _loop() -> None:
             traceback.print_exc()
         finally:
             _q.task_done()
+            _touch_gpu()
             _gc()
 
 

@@ -171,6 +171,25 @@ def _migrate() -> None:
     _migrated = True
     if _have_folders():
         return
+    # Disaster restore first: if the channel folders are gone but the
+    # registry snapshot survived, rebuild every channel record from it
+    # instead of re-merging the 2026-07-03 legacy backup (which silently
+    # forgets every channel created since, as happened on 2026-07-09).
+    backup = storage.read_json(config.DATA_DIR / "channels.backup.json", None)
+    if isinstance(backup, list) and backup:
+        restored = 0
+        for rec in backup:
+            if isinstance(rec, dict) and rec.get("id"):
+                try:
+                    d = ensure_dirs(rec["id"])
+                except ValueError:
+                    continue
+                storage.write_json(d / "channel.json", rec)
+                restored += 1
+        if restored:
+            print(f"[channels] restored {restored} channel record(s) "
+                  "from channels.backup.json")
+            return
     legacy = storage.read_json(config.CHANNELS_FILE, None)
     merged = _merged_channel(legacy if isinstance(legacy, list) else [])
     d = ensure_dirs("main")
@@ -225,10 +244,29 @@ def load() -> List[Dict]:
     return out
 
 
+def _backup_registry() -> None:
+    """Snapshot every channel record to data/channels.backup.json on each
+    write. That file is gitignored (data/*.json), so it survives the
+    git-clean class of accident that wiped data/channels/ on 2026-07-09;
+    _migrate restores channels from it before falling back to the legacy
+    merge. Records only, no projects, no secrets (those live in the vault)."""
+    try:
+        recs = []
+        for d in config.CHANNELS_DIR.iterdir():
+            rec = storage.read_json(d / "channel.json", None) if d.is_dir() else None
+            if isinstance(rec, dict) and rec.get("id"):
+                recs.append(rec)
+        if recs:
+            storage.write_json(config.DATA_DIR / "channels.backup.json", recs)
+    except Exception:  # noqa: BLE001 - never let the safety net block a write
+        pass
+
+
 def _write(ch: Dict) -> Dict:
     rec = {k: v for k, v in ch.items() if k != "ui"}   # ui/ folder is the truth
     ensure_dirs(rec["id"])
     storage.write_json(_record_file(rec["id"]), rec)
+    _backup_registry()
     return dict(rec, ui=ui_info(rec["id"]))
 
 

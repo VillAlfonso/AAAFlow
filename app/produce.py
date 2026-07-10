@@ -21,8 +21,8 @@ import threading
 import time
 from typing import Dict, Optional
 
-from . import (animate, assemble, channels, config, effects, grade, images,
-               jobs, projects, score, storage, voiceover)
+from . import (animate, assemble, channels, config, effects, gpu, grade,
+               images, jobs, projects, score, storage, voiceover)
 
 _state: Dict[str, Dict] = {}
 _lock = threading.Lock()
@@ -118,22 +118,21 @@ def submit_produce(pid: str, plan: Optional[Dict] = None) -> Dict:
             return grade.submit_grade(pid, look)
         raise ValueError(f"Unknown stage {name}")
 
-    def _kill_ace_sidecar():
-        """Free the music engine's VRAM before video work (no unload API)."""
-        import re as _re
-        import subprocess
-        try:
-            out = subprocess.run(["netstat", "-ano"], capture_output=True,
-                                 text=True, timeout=15).stdout
-            for line in out.splitlines():
-                if ":8765" in line and "LISTENING" in line:
-                    m = _re.search(r"(\d+)\s*$", line)
-                    if m:
-                        subprocess.run(["taskkill", "/PID", m.group(1), "/F"],
-                                       capture_output=True, timeout=15)
-                        return
-        except Exception:  # noqa: BLE001 — best-effort
-            pass
+    # GPU housekeeping: free each model the moment its LAST stage is done so
+    # stages never fight over the 16 GB and an idle app holds no VRAM.
+    comfy_stages = [s for s in stages if s in ("images", "animate")]
+    last_comfy = comfy_stages[-1] if comfy_stages else None
+
+    def _stage_free(name: str):
+        if name == "voice":
+            gpu.release_tts()
+            gpu.release_whisper()
+        if name == "score":
+            gpu.kill_ace()          # sidecar holds VRAM with no unload API
+        if name == last_comfy:
+            gpu.free_comfy()
+        if name == "assemble":
+            gpu.release_depth()     # parallax depth pipe
 
     def _run():
         try:
@@ -147,6 +146,7 @@ def submit_produce(pid: str, plan: Optional[Dict] = None) -> Dict:
                     msg = str(exc).lower()
                     if "no scenes" in msg or "nothing" in msg:
                         entry.update(status="skipped", detail=str(exc))
+                        _stage_free(name)
                         continue
                     raise
                 entry.update(status="running", job_id=jid)
@@ -167,8 +167,7 @@ def submit_produce(pid: str, plan: Optional[Dict] = None) -> Dict:
                          progress=j.get("progress"))
                     if j["status"] == "done":
                         entry.update(status="done")
-                        if name == "score":
-                            _kill_ace_sidecar()   # free VRAM if ACE-Step generated a bed
+                        _stage_free(name)
                         if name == "assemble":
                             _set(pid, result=j.get("result"))
                         break
@@ -181,6 +180,7 @@ def submit_produce(pid: str, plan: Optional[Dict] = None) -> Dict:
         except Exception as exc:  # noqa: BLE001
             _set(pid, status="error", error=f"{type(exc).__name__}: {exc}")
         finally:
+            gpu.release_all("produce finished")
             storage.add_history({
                 "id": storage.new_id(), "created": time.time(), "preview": False,
                 "kind": "produce", "project": pid,

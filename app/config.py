@@ -237,6 +237,7 @@ WRITER = {
     "repo": "Qwen/Qwen3-4B-Instruct-2507",   # transformers fallback (~8 GB, auto-downloads)
     "max_new_tokens": 6144,
     "temperature": 0.7,
+    "num_ctx": 16384,          # Ollama context window (spec + research digest)
 }
 
 # --- YouTube upload (per-channel OAuth; Google Data API v3 over HTTPS) -------

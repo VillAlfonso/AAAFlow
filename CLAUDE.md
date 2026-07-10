@@ -388,7 +388,17 @@ get a TTS-drift lint warning; spot-check the one-take QA extra carefully.
   strictly in the narration; chapters/Sources/Credits/hashtags stay
   deterministic and re-attach verbatim; silent fallback to the deterministic
   kit. Thumbnails: text panels avoid the face (warm-tone mass picks the
-  quiet side), case-file gets a bottom scrim, big-word centers its top line.
+  quiet side; case-file = narrow corner column + scrim), big-word centers
+  its top line, kickers come ONLY from a channel's own `kicker_pool`
+  (built-in mood lines like "STRANGER THAN IT SEEMS" are dead;
+  `thumb.kicker: "off"` kills even the pool), REGENERATE rotates to the
+  next template, a no-text "plain" variant always renders, and the Publish
+  page shows every variant as a click-to-choose strip
+  (`POST /api/projects/{pid}/thumbnail`). UI surfaces (user, 2026-07-10:
+  "I don't even see the webscraping thing"): Edit page = Reference images
+  card (manual fetch + first-mention scene mapping; date chips show as
+  badges in the plan table); Assemble page = Overlays select
+  (built-in | remotion).
 - **Remotion overlay engine (optional).** `tools/remotion/` +
   `app/remotion_engine.py` render spring-animated RefCard/DateChip as
   transparent webm; enable via assemble opts `{"overlay_engine":

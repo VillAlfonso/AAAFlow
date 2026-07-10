@@ -1,0 +1,95 @@
+{
+  "_why": "The fixed channel-generator architecture, slot by slot — `{niche}` fills from the channel, its style_suffix rides every branch. Edit prompts here (or Brand modal · Architecture) and every future impression uses them.",
+  "slots": [
+    {
+      "key": "profile",
+      "label": "Profile picture",
+      "group": "Identity",
+      "prompt": "a single bold iconic channel emblem or mascot logo mark, centered medallion, minimal, symmetrical, high contrast, plain dark background",
+      "width": 1024,
+      "height": 1024,
+      "seed": 1313
+    },
+    {
+      "key": "banner",
+      "label": "Channel banner",
+      "group": "Identity",
+      "prompt": "a wide panoramic cinematic establishing hero image for a channel about {niche}, deep empty center with room for the channel name, atmospheric, no readable text",
+      "width": 1280,
+      "height": 720,
+      "seed": 2020
+    },
+    {
+      "key": "thumbnail",
+      "label": "Signature thumbnail",
+      "group": "Identity",
+      "prompt": "one striking hero subject for a video about {niche}, dramatic lighting, bold and clickable, high contrast, large empty space in the upper-left for a title",
+      "width": 1280,
+      "height": 720,
+      "seed": 7777
+    },
+    {
+      "key": "host",
+      "label": "Host / narrator",
+      "group": "Characters",
+      "prompt": "a full-body character reference of the channel's recurring on-screen host/narrator for a show about {niche}, a distinctive memorable protagonist with a strong silhouette and signature costume, confident signature pose, single spotlight, plain backdrop, character sheet",
+      "width": 1024,
+      "height": 1280,
+      "seed": 5150
+    },
+    {
+      "key": "character",
+      "label": "Recurring character",
+      "group": "Characters",
+      "prompt": "a haunting character portrait of a recurring figure from the world of {niche}, expressive face, in-world costume, dramatic key light, emotive, character sheet",
+      "width": 1024,
+      "height": 1280,
+      "seed": 5151
+    },
+    {
+      "key": "thumb_face",
+      "label": "Thumbnail model · reaction",
+      "group": "Thumbnail models",
+      "prompt": "a bold YouTube thumbnail template for a video about {niche}: one intense reacting face in the dark, extreme close-up, dramatic rim light, huge clean negative space on one side for a big title, ultra high contrast, clickable",
+      "width": 1280,
+      "height": 720,
+      "seed": 8801
+    },
+    {
+      "key": "thumb_reveal",
+      "label": "Thumbnail model · reveal",
+      "group": "Thumbnail models",
+      "prompt": "a bold YouTube thumbnail template for a video about {niche}: a single mysterious subject about to be revealed under a hard spotlight, deep shadow, empty upper space for a title, high contrast, clickable",
+      "width": 1280,
+      "height": 720,
+      "seed": 8802
+    },
+    {
+      "key": "ambiance_wide",
+      "label": "Ambiance · wide",
+      "group": "Ambiance",
+      "prompt": "a cinematic wide establishing shot that sets the mood of a story about {niche}, atmospheric depth, deserted, no people, no readable text",
+      "width": 1280,
+      "height": 720,
+      "seed": 4001
+    },
+    {
+      "key": "ambiance_detail",
+      "label": "Ambiance · detail",
+      "group": "Ambiance",
+      "prompt": "a dramatic extreme close-up of a single meaningful object from a story about {niche}, shallow focus, moody, no people",
+      "width": 1280,
+      "height": 720,
+      "seed": 4002
+    },
+    {
+      "key": "ambiance_moment",
+      "label": "Ambiance · moment",
+      "group": "Ambiance",
+      "prompt": "a moody mid-shot capturing the emotional feeling of a story about {niche}, cinematic light and color, no readable text",
+      "width": 1280,
+      "height": 720,
+      "seed": 4003
+    }
+  ]
+}

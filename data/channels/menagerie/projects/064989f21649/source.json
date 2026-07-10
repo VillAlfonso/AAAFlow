@@ -1,0 +1,244 @@
+{
+  "video": {
+    "title": "The Light Went Out. So Did the Men Watching It.",
+    "global_style_suffix": "",
+    "thumbnail_scene": 33
+  },
+  "character_bible": [
+    {
+      "name": "James Ducat",
+      "description": "Principal lighthouse keeper, broad and steady, heavy navy-blue wool greatcoat with double rows of brass buttons, peaked keeper's cap, neat grey-streaked beard, weathered kind face",
+      "palette": "navy, brass gold, bone white"
+    },
+    {
+      "name": "Thomas Marshall",
+      "description": "Young second assistant keeper, lean and strong, glistening black oilskin coat and sou'wester hat, clean-shaven, wide alert eyes",
+      "palette": "black oilskin, storm grey, bone white"
+    },
+    {
+      "name": "Donald MacArthur",
+      "description": "Occasional stand-in keeper, thick-set and older, rolled white shirtsleeves and a dark knitted vest, no coat, heavy grey walrus moustache, deep-set haunted eyes",
+      "palette": "charcoal, cream, gaslight gold"
+    },
+    {
+      "name": "Joseph Moore",
+      "description": "Slight young relief keeper, buttoned dark uniform coat, cap held in both hands, pale anxious face",
+      "palette": "dark navy, ash grey, pale white"
+    }
+  ],
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Three men watched this light. On December fifteenth, 1900, it went dark.",
+      "image_prompt": "A lone lighthouse on a jagged black sea cliff at night, its lamp room dark and dead, cold moonlit waves far below, deserted, nobody around"
+    },
+    {
+      "id": 2,
+      "narration": "No distress call. No wreck. No bodies.",
+      "image_prompt": "A vast empty night ocean under low storm clouds, one small dark rock island on the horizon, deserted"
+    },
+    {
+      "id": 3,
+      "narration": "Just a shut gate, a cold stove, and a clock that had stopped.",
+      "image_prompt": "A tall wall clock in a dim room, its pendulum hanging dead still, face turned into shadow, empty room"
+    },
+    {
+      "id": 4,
+      "narration": "Eilean Mor. Seventeen miles off Scotland. A rock the gulls own.",
+      "image_prompt": "Aerial view of a tiny treeless island of black rock in a vast iron-grey sea, white gulls wheeling over it, deserted"
+    },
+    {
+      "id": 5,
+      "narration": "The lighthouse was one year old. Its light had never once failed.",
+      "image_prompt": "A proud white lighthouse tower against a cold starry sky, warm golden beam sweeping out over dark water, nobody around"
+    },
+    {
+      "id": 6,
+      "narration": "Three keepers lived inside. One rule ruled them all.",
+      "image_prompt": "A warm gaslit lighthouse kitchen window glowing small in the huge dark cliff face, three silhouettes at a table inside"
+    },
+    {
+      "id": 7,
+      "narration": "Someone always stays inside. Always.",
+      "image_prompt": "A heavy lighthouse door standing ajar with warm light spilling onto wet stone steps, empty doorway, nobody around"
+    },
+    {
+      "id": 8,
+      "narration": "So why was Donald MacArthur's coat still hanging on its hook?",
+      "image_prompt": "A single heavy black oilskin coat hanging on an iron hook in a dim stone hallway, one shaft of gaslight across it, nobody around"
+    },
+    {
+      "id": 9,
+      "narration": "James Ducat, principal keeper. Twenty-two years of lights. Four children ashore.",
+      "image_prompt": "James Ducat standing at the lamp-room railing at dusk holding his cap to his chest, calm and steady",
+      "characters": [
+        "James Ducat"
+      ]
+    },
+    {
+      "id": 10,
+      "narration": "Thomas Marshall, second assistant. Young, strong, new to the rock.",
+      "image_prompt": "Thomas Marshall coiling heavy rope on a stone landing, wind whipping his oilskin coat",
+      "characters": [
+        "Thomas Marshall"
+      ]
+    },
+    {
+      "id": 11,
+      "narration": "And MacArthur, the stand-in. He wasn't supposed to be there at all.",
+      "image_prompt": "Donald MacArthur seated close to an iron stove in his shirtsleeves and knitted vest, staring into the coals",
+      "characters": [
+        "Donald MacArthur"
+      ]
+    },
+    {
+      "id": 12,
+      "narration": "December fifteenth, nine in the morning. The log reads: all well.",
+      "image_prompt": "A brass inkwell and quill beside a closed leather logbook on a wooden desk, cold morning light through a small round window, empty room"
+    },
+    {
+      "id": 13,
+      "narration": "That night, a passing steamer looked for the light. Nothing.",
+      "image_prompt": "A dark steamship pitching on heavy night seas, tiny beneath a black horizon where a lighthouse beam should be, no light anywhere"
+    },
+    {
+      "id": 14,
+      "narration": "The captain logged it. The warning took three days to reach anyone.",
+      "image_prompt": "A cramped ship's bridge lit by one swinging lantern, brass telegraph and empty wheel, nobody around"
+    },
+    {
+      "id": 15,
+      "narration": "The relief boat was due on the twentieth. The storm said no.",
+      "image_prompt": "Mountainous storm waves exploding over a small stone pier, white spray towering against black rocks, deserted"
+    },
+    {
+      "id": 16,
+      "narration": "Boxing Day, 1900. The Hesperus finally reached the island.",
+      "image_prompt": "A small steam tender approaching the black island through choppy grey swell, coal smoke streaming flat from its funnel"
+    },
+    {
+      "id": 17,
+      "narration": "No flag on the pole. No boxes on the landing. No one waving.",
+      "image_prompt": "An empty flagpole above a bare stone landing, steps rising into cold mist, deserted, nobody around"
+    },
+    {
+      "id": 18,
+      "narration": "They blew the whistle. Fired a rocket. The island didn't answer.",
+      "image_prompt": "A white signal rocket bursting high over the dark island, its flare lighting empty cliffs, deserted"
+    },
+    {
+      "id": 19,
+      "narration": "Joseph Moore rowed ashore alone and climbed one hundred sixty steps.",
+      "image_prompt": "Joseph Moore climbing a steep stone stairway zigzagging up a sheer cliff face, gripping the iron rail, seen from high above",
+      "characters": [
+        "Joseph Moore"
+      ]
+    },
+    {
+      "id": 20,
+      "narration": "The gate was shut. The door was shut. His voice echoed back alone.",
+      "image_prompt": "Joseph Moore pushing open a heavy iron compound gate, pure darkness waiting beyond it",
+      "characters": [
+        "Joseph Moore"
+      ]
+    },
+    {
+      "id": 21,
+      "narration": "Inside: fire cold. Chairs tucked in place. The clock run down for days.",
+      "image_prompt": "A tidy lighthouse kitchen gone grey and cold, three chairs neatly tucked at the table, thin dust hanging in one beam of light, empty room"
+    },
+    {
+      "id": 22,
+      "narration": "Two sets of oilskins were gone. The third still hung by the door.",
+      "image_prompt": "Close-up of one lone oilskin coat on its hook beside two bare empty hooks, gaslight low, nobody around"
+    },
+    {
+      "id": 23,
+      "narration": "Upstairs, the lamp sat cleaned and filled. Ready to burn.",
+      "image_prompt": "The great lighthouse lens crystal-clean in a cold lamp room, wick centered and unlit, frost creeping on the glass, empty"
+    },
+    {
+      "id": 24,
+      "narration": "Moore wrote that his knees shook. He begged not to be left there alone.",
+      "image_prompt": "Joseph Moore standing pale in the dark kitchen doorway, cap crushed in both hands, eyes wide",
+      "characters": [
+        "Joseph Moore"
+      ]
+    },
+    {
+      "id": 25,
+      "narration": "You've heard what the logbook supposedly said. Marshall crying. Ducat silent.",
+      "image_prompt": "A quill lying across a shadowed desk, spilled ink pooled like a small black stain, one candle guttering, empty room"
+    },
+    {
+      "id": 26,
+      "narration": "The truth? Those entries were invented decades later, by a magazine.",
+      "image_prompt": "A garish fan of 1920s pulp magazines spread on a table, lurid painted covers, deserted room"
+    },
+    {
+      "id": 27,
+      "narration": "The real evidence was waiting outside, at the west landing.",
+      "image_prompt": "A narrow concrete landing carved into the cliff base, an iron crane above churning white foam, deserted"
+    },
+    {
+      "id": 28,
+      "narration": "Iron railings, bent flat like wire.",
+      "image_prompt": "Extreme close-up of thick iron railings twisted and folded over on themselves, wet with sea spray"
+    },
+    {
+      "id": 29,
+      "narration": "A box of ropes, wedged one hundred ten feet up. Smashed open.",
+      "image_prompt": "A shattered wooden crate high on a cliff shelf, heavy ropes spilled down the black rock face"
+    },
+    {
+      "id": 30,
+      "narration": "A stone heavier than a ton had simply moved.",
+      "image_prompt": "A massive boulder sitting displaced on scarred rock, deep drag gouges in the stone behind it, deserted"
+    },
+    {
+      "id": 31,
+      "narration": "The sea had climbed higher that week than anyone believed water could.",
+      "image_prompt": "A monstrous black wave towering the full height of the sea cliffs, moonlit spray tearing off its crest"
+    },
+    {
+      "id": 32,
+      "narration": "The verdict: a freak wave took Ducat and Marshall at the landing.",
+      "image_prompt": "James Ducat and Thomas Marshall tiny on the stone landing beneath an immense rising wall of dark water",
+      "characters": [
+        "James Ducat",
+        "Thomas Marshall"
+      ]
+    },
+    {
+      "id": 33,
+      "narration": "And MacArthur, the man whose coat still hung, must have seen it coming.",
+      "image_prompt": "Donald MacArthur's face in close-up at a rain-lashed window, eyes wide with horror, gaslight catching the wet glass",
+      "characters": [
+        "Donald MacArthur"
+      ]
+    },
+    {
+      "id": 34,
+      "narration": "He ran into a December gale in his shirtsleeves, shouting a warning.",
+      "image_prompt": "Donald MacArthur sprinting down the cliff steps into the storm, soaked shirt clinging, mouth open mid-shout",
+      "characters": [
+        "Donald MacArthur"
+      ]
+    },
+    {
+      "id": 35,
+      "narration": "The wave was already there.",
+      "image_prompt": "The cliff steps vanishing under an avalanche of white water, nobody visible"
+    },
+    {
+      "id": 36,
+      "narration": "So says the report. But no one saw it. No bodies ever washed ashore.",
+      "image_prompt": "The empty landing at grey dawn, dead calm sea, one loose rope trailing into the water, deserted"
+    },
+    {
+      "id": 37,
+      "narration": "The lamp stayed cleaned, filled, and ready. No one was left to light it.",
+      "image_prompt": "The dark lamp room at night, the cold polished lens catching moonlight like a huge unblinking eye, empty"
+    }
+  ]
+}

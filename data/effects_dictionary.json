@@ -1,0 +1,247 @@
+{
+  "version": 1,
+  "note": "WHEN→WHICH effect map. Edit freely (UI: Settings · Effects grammar, or PUT /api/effects_dictionary). autodirect + score read this on every video. First matching rule wins; keep the punchiest beats first.",
+  "sfx_cues": [
+    {
+      "beat": "money",
+      "cue": "cash register ding",
+      "when": [
+        "cash",
+        "money",
+        "bill",
+        "paid",
+        "bribe",
+        "fortune",
+        "price",
+        "sold",
+        "bought",
+        "reward",
+        "rich",
+        "gold",
+        "profit"
+      ],
+      "why": "a transaction / payoff beat lands on a register ding"
+    },
+    {
+      "beat": "reveal",
+      "cue": "shimmering riser",
+      "when": [
+        "reveal",
+        "secret",
+        "hidden",
+        "trick",
+        "twist",
+        "actually",
+        "truth",
+        "turns out",
+        "but then"
+      ],
+      "why": "a turn or reveal builds on a riser that ENDS on the cut"
+    },
+    {
+      "beat": "impact",
+      "cue": "deep impact boom",
+      "when": [
+        "crash",
+        "arrest",
+        "caught",
+        "busted",
+        "slam",
+        "fell",
+        "collapse",
+        "boom",
+        "explode",
+        "death",
+        "died",
+        "shot"
+      ],
+      "why": "a hard consequence hits on a low boom"
+    },
+    {
+      "beat": "motion",
+      "cue": "quick whoosh",
+      "when": [
+        "ran",
+        "fled",
+        "escape",
+        "train",
+        "chase",
+        "vanish",
+        "jump",
+        "climb",
+        "rush",
+        "race",
+        "flew",
+        "drove"
+      ],
+      "why": "movement / travel carries a whoosh into the cut"
+    },
+    {
+      "beat": "small",
+      "cue": "pop",
+      "when": [
+        "pop",
+        "tiny",
+        "small",
+        "appear",
+        "blink",
+        "click"
+      ],
+      "why": "a small appearance gets a light pop"
+    }
+  ],
+  "transitions": {
+    "hook": [
+      "smash cut",
+      "whip-pan right",
+      "punch-in",
+      "hard cut",
+      "crash zoom",
+      "whip-pan left",
+      "flash cut",
+      "dip to white"
+    ],
+    "body": [
+      "hard cut",
+      "push-in",
+      "crossfade",
+      "whip-pan right",
+      "hard cut",
+      "pull-back",
+      "drop-in",
+      "fade",
+      "dip to white"
+    ],
+    "by_beat": {
+      "reveal": "flash cut",
+      "impact": "smash cut",
+      "motion": "whip-pan right",
+      "money": "punch-in"
+    },
+    "default": "hard cut",
+    "why": "hook cuts fast & hard; the body breathes; a story beat overrides both"
+  },
+  "shots": [
+    "wide establishing",
+    "medium",
+    "close-up",
+    "low angle",
+    "macro detail",
+    "three-quarter medium"
+  ],
+  "motion": {
+    "hero_beats": [
+      "hook",
+      "reveal",
+      "impact",
+      "climax",
+      "payoff"
+    ],
+    "why": "budgeted real (moving) clips go to the beats a viewer must feel"
+  },
+  "music_moods": [
+    {
+      "mood": "dark",
+      "query": "dark cinematic tension ambient brooding",
+      "when": [
+        "death",
+        "die",
+        "dead",
+        "murder",
+        "kill",
+        "dark",
+        "fear",
+        "haunt",
+        "grief",
+        "cold",
+        "tragedy",
+        "collapse",
+        "ruin",
+        "war",
+        "blood",
+        "grave"
+      ],
+      "why": "loss / dread → low, brooding underscore"
+    },
+    {
+      "mood": "money",
+      "query": "cinematic corporate suspense understated",
+      "when": [
+        "money",
+        "fortune",
+        "rich",
+        "gold",
+        "empire",
+        "million",
+        "billion",
+        "luxury",
+        "profit",
+        "deal",
+        "market",
+        "fraud",
+        "scheme"
+      ],
+      "why": "greed / stakes → cool, understated suspense"
+    },
+    {
+      "mood": "tense",
+      "query": "tense driving suspense percussion cinematic",
+      "when": [
+        "run",
+        "chase",
+        "escape",
+        "race",
+        "heist",
+        "steal",
+        "fight",
+        "danger",
+        "hunt",
+        "attack",
+        "explode",
+        "crash"
+      ],
+      "why": "action / danger → driving percussion"
+    },
+    {
+      "mood": "calm",
+      "query": "calm ambient atmospheric underscore soft",
+      "when": [
+        "space",
+        "ocean",
+        "star",
+        "dream",
+        "calm",
+        "quiet",
+        "gentle",
+        "night",
+        "sleep",
+        "wonder",
+        "deep",
+        "silence",
+        "vast"
+      ],
+      "why": "awe / stillness → soft, spacious ambient"
+    },
+    {
+      "mood": "emotional",
+      "query": "emotional piano cinematic reflective",
+      "when": [
+        "love",
+        "loss",
+        "memory",
+        "home",
+        "heart",
+        "hope",
+        "alone",
+        "goodbye",
+        "remember",
+        "fell"
+      ],
+      "why": "sentiment → reflective piano"
+    }
+  ],
+  "default_mood": {
+    "mood": "neutral",
+    "query": "cinematic underscore ambient instrumental"
+  }
+}

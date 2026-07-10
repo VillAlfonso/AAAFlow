@@ -1,4 +1,15 @@
 # ============ AAAFlow .gitignore ============
+#
+# RULE OF THUMB (after the 2026-07-09 data loss): commit the things that
+# DEFINE the studio (code, docs, channel identities, dictionaries), ignore
+# the things the machine can REGENERATE (weights, renders, caches) and the
+# things that must never leave this machine (secrets).
+#
+# Anything under data/ that is ignored here is NOT protected by git, so the
+# app also keeps its own local safety nets:
+#   data/channels.backup.json     every channel record, rewritten on save
+#   data/backups/projects/*.json  every project.json, mirrored on save
+# Never run `git clean` in this repo without `-n` first.
 
 # --- Python ---
 __pycache__/
@@ -28,99 +39,86 @@ trainers/weights/
 ComfyUI_windows_portable/
 
 # --- Vendored LTX-2 source (huge, nested git repo; not our source) ---
-ltx2.3pro/
-
-# --- External trainer clone (cloned by setup, not our source) ---
-trainers/musubi-tuner/
-
-# --- Vendored ACE-Step source (music engine; huge, nested git repo; not our source) ---
+LTX-Video/
 ACE-Step-1.5/
 
-# --- Stray model dirs/files if they ever land at the repo root ---
-# (ComfyUI model dirs belong under ComfyUI_windows_portable/; these at root are
-#  accidental, e.g. a mis-redirected download script)
-/checkpoints
-/loras
-/text_encoders
-/diffusion_models
-/vae
+# ============================================================
+# data/ — the important half of this file
+# ============================================================
 
-# --- Generated data / runtime state ---
-data/backups/
-data/outputs/
-data/refs/
-# Per-channel folders: track the small identity (channel.json, ui/, brand
-# graphs), NEVER the heavy media (projects, rendered brand PNGs/mp4s).
-# project.json content is mirrored to data/backups/ on every save.
-data/channels/*/projects/
-data/channels/*/brand/*
-!data/channels/*/brand/graphs/
-data/ambiance/
-data/training_runs/
-# cartoon RAG reference pack (seeded/uploaded), and runtime logs
-data/style_refs/
-data/*.json
-data/*.log
-data/projects/*/audio/
-data/projects/*/images/
-data/projects/*/video/
-data/projects/*/*.backup.*.json
-
-# --- Local test artifacts (smoke tests write these to the repo root) ---
-cartoon_rag_test.*
-*_ltxtest.mp4
-
-# --- LoRA training: keep the READMEs + folder structure, ignore the heavy bits ---
-training/**/dataset/
-training/**/cache/
-training/**/output/
-training/**/dataset.toml
-training/**/*.jpg
-training/**/*.jpeg
-training/**/*.png
-training/**/*.webp
-training/**/*.txt
-
-# --- Legacy / vendored ---
-QwenTTS/
-third_party/Qwen3-TTS/.git/
-
-# --- OS / editor cruft ---
-.DS_Store
-Thumbs.db
-*.log
-*.tmp
-
-# --- Per-channel YouTube OAuth credentials (NEVER commit) ---
+# --- SECRETS: never commit (YouTube OAuth, API keys) ---
 data/secrets/
 
-# --- Editor / tooling ---
-.vscode/
-.idea/
+# --- KEEP (tracked): the channel identities + their editable generators ---
+#   data/channels/<cid>/channel.json   the channel record
+#   data/channels/<cid>/ui/            per-channel theme
+#   data/channels/<cid>/brand/graphs/  the ComfyUI node graphs
+data/channels/*/brand/*
+!data/channels/*/brand/graphs/
+!data/channels/*/brand/graphs/**
 
-# --- Node / JS ---
-node_modules/
-npm-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
+# --- KEEP (tracked): every project's STORYBOARD (small text, irreplaceable).
+# The 2026-07-09 loss was survivable only because the scripts existed outside
+# data/. Now git holds them. The media a project renders (audio/, images/,
+# video/, thumbs) is regenerable, so it stays ignored.
+data/channels/*/projects/**
+!data/channels/*/projects/
+!data/channels/*/projects/*/
+!data/channels/*/projects/*/project.json
+!data/channels/*/projects/*/source.json
+!data/channels/*/projects/*/HANDOFF.md
 
-# --- Local env files ---
-.env
-.env.local
-.env.*.local
+# --- Generated media / runtime state (regenerable, often multi-GB) ---
+data/projects/
+data/restored/
+data/backups/
+data/trash/
+data/outputs/
+data/refs/
+data/ambiance/
+data/music/
+data/audio_library/
+data/parallax_cache/
+data/upscale_cache/
+data/training_runs/
+data/style_refs/
+data/roulette/*/*.png
+data/*.log
+data/server*.log
 
-# --- Python / test caches ---
-.mypy_cache/
-.pytest_cache/
-.coverage
-htmlcov/
+# --- Loose runtime json in data/ (settings, history, library indexes) ---
+# The DICTIONARIES that shape every video are tracked explicitly below.
+data/*.json
+!data/effects_dictionary.json
+!data/effects_presets.json
+!data/thumb_templates.json
+!data/brandkit_slots.json
+!data/sfx_library.json
+
+# --- Training scratch ---
+training/**/dataset/
+training/**/dataset.toml
 pip-wheel-metadata/
 
 # --- Databases / caches ---
-*.sqlite3
-*.db
 *.sqlite
+*.db
 .cache/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
 
-# --- Source maps / build artifacts ---
-*.map
+# --- Editor / OS ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Local scratch ---
+.playwright-mcp/
+scratchpad/
+!scratchpad/poll.py
+# the storyboards recovered from the 2026-07-09 loss: keep them in git forever
+!scratchpad/recovered/
+!scratchpad/recovered/**

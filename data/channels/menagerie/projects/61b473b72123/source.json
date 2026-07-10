@@ -1,0 +1,259 @@
+{
+  "video": {
+    "title": "Every House Burned. The Painting Never Did.",
+    "global_style_suffix": "",
+    "thumbnail_scene": 11
+  },
+  "character_bible": [
+    {
+      "name": "The Crying Boy",
+      "description": "A painted toddler boy in a heavy gilt frame, round tearful face, enormous glossy brown eyes with one bright tear on the cheek, neat side-parted brown hair, little brown jacket, warm oil-paint glow against a near-black background",
+      "palette": "warm umber, gilt gold, near-black"
+    },
+    {
+      "name": "The Firefighter",
+      "description": "A 1980s British firefighter, dark double-breasted tunic with silver buttons, yellow helmet, soot-streaked square jaw, tired kind eyes",
+      "palette": "coal black, brass yellow, soot grey"
+    }
+  ],
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "The house burned to the studs. The painting didn't even blister.",
+      "image_prompt": "A gutted burned kitchen, blackened skeleton beams, and one pristine gilt-framed painting still hanging square on the charred wall, empty room"
+    },
+    {
+      "id": 2,
+      "narration": "A little boy, painted in oils, crying.",
+      "image_prompt": "The Crying Boy painting in extreme close-up, huge glossy tearful eyes, one bright tear rolling down his cheek, heavy gilt frame",
+      "characters": [
+        "The Crying Boy"
+      ]
+    },
+    {
+      "id": 3,
+      "narration": "Fifty thousand British homes hung him over the fireplace.",
+      "image_prompt": "A dark wall of identical crying boy prints receding into blackness like a gallery of small watching faces",
+      "characters": [
+        "The Crying Boy"
+      ]
+    },
+    {
+      "id": 4,
+      "narration": "House after house caught fire. The boy always survived.",
+      "image_prompt": "A brick terraced street at night, one house vomiting flame and smoke, every other window dark, deserted street"
+    },
+    {
+      "id": 5,
+      "narration": "Firefighters began keeping count.",
+      "image_prompt": "The Firefighter dragging a chalk tally mark onto a soot-black brick wall, helmet under one arm",
+      "characters": [
+        "The Firefighter"
+      ]
+    },
+    {
+      "id": 6,
+      "narration": "One officer stopped counting at fifty.",
+      "image_prompt": "Close-up of the Firefighter's tired soot-streaked face, eyes narrowed at something off-frame",
+      "characters": [
+        "The Firefighter"
+      ]
+    },
+    {
+      "id": 7,
+      "narration": "This is the exhibit nobody could burn.",
+      "image_prompt": "The crying boy painting alone on a velvet museum stand under one hard spotlight, deep darkness all around, empty hall",
+      "characters": [
+        "The Crying Boy"
+      ]
+    },
+    {
+      "id": 8,
+      "narration": "Why wouldn't the Crying Boy burn?",
+      "image_prompt": "A yellow fire helmet resting on scorched floorboards, the crying boy painting reflected upside down in its visor",
+      "characters": [
+        "The Crying Boy"
+      ]
+    },
+    {
+      "id": 9,
+      "narration": "Rotherham, England. 1985. Ron and May Hall's kitchen. One chip pan.",
+      "image_prompt": "A modest 1980s British kitchen at night, a chip pan on the stove beginning to flare orange, empty room"
+    },
+    {
+      "id": 10,
+      "narration": "The fire ate the kitchen, the carpet, the ceiling.",
+      "image_prompt": "Fire rolling across a living-room ceiling in a single wave, furniture silhouetted black beneath it, nobody around"
+    },
+    {
+      "id": 11,
+      "narration": "When the smoke cleared, one face was still watching. Untouched.",
+      "image_prompt": "The Crying Boy painting hanging perfectly on a destroyed black wall, thin smoke curling past his bright tear",
+      "characters": [
+        "The Crying Boy"
+      ]
+    },
+    {
+      "id": 12,
+      "narration": "Ron's brother fought fires for a living. He wasn't surprised.",
+      "image_prompt": "The Firefighter standing in the ruined doorway staring at the painting, hose hanging slack in his hand",
+      "characters": [
+        "The Firefighter",
+        "The Crying Boy"
+      ]
+    },
+    {
+      "id": 13,
+      "narration": "His station had pulled that same print from ruin after ruin.",
+      "image_prompt": "A row of soot-blackened crying boy prints leaning against a fire-station wall in lamplight",
+      "characters": [
+        "The Crying Boy"
+      ]
+    },
+    {
+      "id": 14,
+      "narration": "Then a newspaper made him famous. Front page. The curse of the Crying Boy.",
+      "image_prompt": "A towering stack of fresh newspapers on a dark press-room floor, bold black headline blocks suggested without readable letters, deserted"
+    },
+    {
+      "id": 15,
+      "narration": "The phones didn't stop ringing for a week.",
+      "image_prompt": "A 1980s office telephone knocked off its hook, receiver swinging on its cord under a harsh desk lamp, empty desk"
+    },
+    {
+      "id": 16,
+      "narration": "Kilburn. Nottingham. Surrey. Different houses, different fires. Always the boy.",
+      "image_prompt": "Three burned-out houses displayed in a row like museum dioramas, one small bright painting glowing unharmed in each",
+      "characters": [
+        "The Crying Boy"
+      ]
+    },
+    {
+      "id": 17,
+      "narration": "Then the backstory arrived, the way legends always do.",
+      "image_prompt": "An old leather suitcase spilling dried roses and yellowed papers across a dark table, one candle, empty room"
+    },
+    {
+      "id": 18,
+      "narration": "The story goes: a painter found the boy in Madrid. An orphan.",
+      "image_prompt": "A painter's easel in a sun-bleached Spanish courtyard, a small sad boy posing on a wooden stool",
+      "characters": [
+        "The Crying Boy"
+      ]
+    },
+    {
+      "id": 19,
+      "narration": "Fire followed the child. His parents had died in one.",
+      "image_prompt": "A small boy silhouetted before a burning farmhouse at night, clutching a blanket",
+      "characters": [
+        "The Crying Boy"
+      ]
+    },
+    {
+      "id": 20,
+      "narration": "Villagers crossed the street when he passed. Devil-touched, they whispered.",
+      "image_prompt": "Villagers under a swinging lantern turning away from a small boy standing alone in the street",
+      "characters": [
+        "The Crying Boy"
+      ]
+    },
+    {
+      "id": 21,
+      "narration": "He died at nineteen, they say. In a burning car.",
+      "image_prompt": "A vintage car engulfed in flame on a dark empty country road, deserted"
+    },
+    {
+      "id": 22,
+      "narration": "None of it checks out. No records. No orphanage. No boy.",
+      "image_prompt": "An empty records-office shelf with one drawer pulled out and hollow, dust drifting in lamplight, deserted"
+    },
+    {
+      "id": 23,
+      "narration": "The painter was real, though. Bruno Amadio, selling sorrow to tourists by the crate.",
+      "image_prompt": "A cramped Venice studio crowded with dozens of crying-child paintings stacked floor to ceiling",
+      "characters": [
+        "The Crying Boy"
+      ]
+    },
+    {
+      "id": 24,
+      "narration": "Here's the twist: there was never one Crying Boy. There was a catalogue.",
+      "image_prompt": "Twenty-eight subtly different crying children portraits arranged in a tight grid on a dark gallery wall",
+      "characters": [
+        "The Crying Boy"
+      ]
+    },
+    {
+      "id": 25,
+      "narration": "Halloween, 1985. The newspaper announced its solution: a bonfire.",
+      "image_prompt": "An unlit towering bonfire stack at dusk, gilt picture-frame corners jutting from the woodpile, deserted field"
+    },
+    {
+      "id": 26,
+      "narration": "Readers mailed in their paintings by the sackful. Thousands of them.",
+      "image_prompt": "Bulging grey mail sacks slumped against a loading dock, corners of gilt frames poking out of them, empty dock"
+    },
+    {
+      "id": 27,
+      "narration": "Sacks of crying children went into the flames.",
+      "image_prompt": "The bonfire raging against the night, picture frames blackening and curling in the blaze, sparks climbing high"
+    },
+    {
+      "id": 28,
+      "narration": "The paper declared the curse dead. The reports kept coming.",
+      "image_prompt": "A cold heap of bonfire ash at dawn with one gilt frame corner unburned in the grey, deserted field"
+    },
+    {
+      "id": 29,
+      "narration": "Twenty-five years later, a radio detective took the question to a fire lab.",
+      "image_prompt": "A clinical fire-research laboratory, steel table and instruments, one crying boy print waiting under cold lights",
+      "characters": [
+        "The Crying Boy"
+      ]
+    },
+    {
+      "id": 30,
+      "narration": "They put a genuine print to the torch.",
+      "image_prompt": "A gloved hand holding a blowtorch flame to the corner of the framed print",
+      "characters": [
+        "The Crying Boy"
+      ]
+    },
+    {
+      "id": 31,
+      "narration": "The cord burned through in seconds. The painting fell. Face down.",
+      "image_prompt": "The painting caught mid-fall against blackness, its face tipping toward the floor",
+      "characters": [
+        "The Crying Boy"
+      ]
+    },
+    {
+      "id": 32,
+      "narration": "Fire-retardant varnish. A cheap factory coating, tougher than any curse.",
+      "image_prompt": "Extreme close-up of flame licking across a glossy varnished surface and dying into threads of smoke"
+    },
+    {
+      "id": 33,
+      "narration": "Every miracle was just a painting lying face-down under its own lacquer.",
+      "image_prompt": "The print lying face-down on scorched floorboards, its plain hardboard back unburned amid dying embers"
+    },
+    {
+      "id": 34,
+      "narration": "The boy still surfaces in charity shops. Two pounds each.",
+      "image_prompt": "A cluttered thrift-shop shelf, the crying boy print propped between chipped teapots under flickering fluorescent light",
+      "characters": [
+        "The Crying Boy"
+      ]
+    },
+    {
+      "id": 35,
+      "narration": "Buyers still turn him to face the wall.",
+      "image_prompt": "The painting hung backwards on floral wallpaper, its wire and brown-paper backing facing the room, empty room"
+    },
+    {
+      "id": 36,
+      "narration": "The only fire that ever beat the Crying Boy was lit by a newspaper.",
+      "image_prompt": "The bonfire's last ember glowing inside a charred gilt frame on black ground, deserted"
+    }
+  ]
+}

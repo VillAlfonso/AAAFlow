@@ -1,0 +1,98 @@
+[
+  {
+    "id": "whoosh_air",
+    "file": "whoosh_air.wav",
+    "tags": [
+      "whoosh",
+      "swish",
+      "swoosh",
+      "transition",
+      "air"
+    ],
+    "dur": 0.55,
+    "source": "builtin-procedural",
+    "pre": false
+  },
+  {
+    "id": "impact_boom",
+    "file": "impact_boom.wav",
+    "tags": [
+      "impact",
+      "boom",
+      "hit",
+      "thud",
+      "slam",
+      "clank",
+      "drop",
+      "punch"
+    ],
+    "dur": 0.85,
+    "source": "builtin-procedural",
+    "pre": false
+  },
+  {
+    "id": "riser_build",
+    "file": "riser_build.wav",
+    "tags": [
+      "riser",
+      "rise",
+      "build",
+      "shimmer",
+      "sweep"
+    ],
+    "dur": 1.1,
+    "source": "builtin-procedural",
+    "pre": true
+  },
+  {
+    "id": "ding_bell",
+    "file": "ding_bell.wav",
+    "tags": [
+      "ding",
+      "bell",
+      "chime"
+    ],
+    "dur": 0.9,
+    "source": "builtin-procedural",
+    "pre": false
+  },
+  {
+    "id": "kaching_register",
+    "file": "kaching_register.wav",
+    "tags": [
+      "kaching",
+      "ka-ching",
+      "cash",
+      "register",
+      "coin",
+      "money"
+    ],
+    "dur": 0.9,
+    "source": "builtin-procedural",
+    "pre": false
+  },
+  {
+    "id": "pop_cartoon",
+    "file": "pop_cartoon.wav",
+    "tags": [
+      "pop",
+      "bubble",
+      "blip"
+    ],
+    "dur": 0.22,
+    "source": "builtin-procedural",
+    "pre": false
+  },
+  {
+    "id": "ui_click",
+    "file": "ui_click.wav",
+    "tags": [
+      "click",
+      "tick",
+      "ui"
+    ],
+    "dur": 0.09,
+    "source": "builtin-procedural",
+    "pre": false
+  }
+]

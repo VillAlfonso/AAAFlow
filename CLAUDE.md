@@ -405,6 +405,18 @@ get a TTS-drift lint warning; spot-check the one-take QA extra carefully.
   images/ video/); `data/projects/` is only the legacy/standalone fallback.
   Always resolve paths via `projects.project_dir(pid)` — never build them.
   Long builds keep a `HANDOFF.md` there, updated as stages finish.
+- **DATA SAFETY (incident 2026-07-09; safeguards 2026-07-10).** `data/channels/`
+  was wiped outside the app (git-clean signature: untracked non-ignored files
+  died, ignored/tracked survived) and the app silently re-migrated a bare
+  "main" from the legacy backup. Menagerie was rebuilt from its surviving
+  ComfyUI brand graphs + secrets vault; its produced videos were lost
+  locally. Now protected three ways: channel.json + ui/ + brand graphs are
+  TRACKED in git (per-channel project media is gitignored so `git add .`
+  stays safe), every channel write snapshots ALL records to
+  `data/channels.backup.json` (gitignored, `_migrate` restores from it
+  first), and every `save_project` mirrors project.json to
+  `data/backups/projects/` (gitignored). NEVER run `git clean` here without
+  `-n` first; nothing under data/ is disposable.
 - **Storage is precious** (2026-07-03 purge freed ~100 GB: last LTX remnant,
   training-only raw weights, superseded SDXL/IP-Adapter caches — everything
   re-downloads on demand; see `trainers/weights/README.md`). Disk janitor:

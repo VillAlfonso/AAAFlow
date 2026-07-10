@@ -1,0 +1,93 @@
+{
+  "_why": "Thumbnails are composited from fixed reusable templates with real typeset text (AI glyphs are gibberish) and are REQUIRED to carry the video's emotion — mood-graded color, vignette and kicker — because viewers click what they can already feel.",
+  "default": "spotlight",
+  "max_words": 5,
+  "spotlight": {
+    "panel": 0.56,
+    "opacity": 0.88,
+    "why": "classic documentary look: dark side panel, huge title, subject untouched on the other side"
+  },
+  "case-file": {
+    "tag_angle": -5,
+    "vignette": 0.5,
+    "why": "evidence-tag energy: rotated accent label + stamped title — mystery/true-crime"
+  },
+  "reveal": {
+    "vignette": 0.78,
+    "ring": true,
+    "why": "one lit subject in darkness + a ring that says LOOK — pure curiosity gap"
+  },
+  "split": {
+    "seam": 0.055,
+    "why": "two-panel contrast (before/after, X vs Y) — instant story"
+  },
+  "bar": {
+    "bar": 0.24,
+    "why": "clean lower-third title bar — reads at tiny sizes, minimal channels"
+  },
+  "mood_grades": {
+    "dark": {
+      "tint": "#141c2b",
+      "strength": 0.3,
+      "vignette": 0.6,
+      "saturation": 0.92,
+      "kickers": [
+        "NEVER EXPLAINED",
+        "STILL UNSOLVED",
+        "THE PART THEY LEFT OUT"
+      ]
+    },
+    "tense": {
+      "tint": "#2b1c16",
+      "strength": 0.26,
+      "vignette": 0.52,
+      "saturation": 0.97,
+      "kickers": [
+        "SOMETHING WENT WRONG",
+        "IT ALMOST WORKED",
+        "NOBODY SAW IT COMING"
+      ]
+    },
+    "money": {
+      "tint": "#2b2210",
+      "strength": 0.22,
+      "vignette": 0.42,
+      "saturation": 1.08,
+      "kickers": [
+        "THE PERFECT LIE",
+        "EVERYONE BELIEVED IT",
+        "WHERE DID IT GO?"
+      ]
+    },
+    "calm": {
+      "tint": "#152026",
+      "strength": 0.16,
+      "vignette": 0.34,
+      "saturation": 1.0,
+      "kickers": [
+        "TAKE A CLOSER LOOK",
+        "STRANGER THAN IT SEEMS"
+      ]
+    },
+    "emotional": {
+      "tint": "#281a24",
+      "strength": 0.24,
+      "vignette": 0.5,
+      "saturation": 1.02,
+      "kickers": [
+        "THEY NEVER KNEW",
+        "NOBODY TALKS ABOUT THIS"
+      ]
+    },
+    "neutral": {
+      "tint": "#10151a",
+      "strength": 0.14,
+      "vignette": 0.4,
+      "saturation": 1.0,
+      "kickers": [
+        "THE FULL STORY",
+        "WHAT REALLY HAPPENED"
+      ]
+    }
+  }
+}

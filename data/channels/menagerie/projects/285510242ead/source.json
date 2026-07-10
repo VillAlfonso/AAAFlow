@@ -1,0 +1,821 @@
+{
+  "video": {
+    "title": "Five Children Went Upstairs. The Fire Left No Bones.",
+    "global_style_suffix": "",
+    "thumbnail_scene": 94,
+    "direction_card": {
+      "id": "countdown",
+      "hook_style": "open with a clock — timestamps structure the acts",
+      "ending": "the clock stops where the record stops",
+      "transition_offset": 3,
+      "emphasis_offset": 2,
+      "kb_strength": 0.95
+    }
+  },
+  "character_bible": [
+    {
+      "name": "George Sodder",
+      "description": "stocky Italian immigrant father in his fifties, weathered kind face, thick dark mustache, dark work trousers with suspenders over a rolled-sleeve flannel shirt, coal dust on his boots",
+      "palette": "charcoal, flannel red, leather brown"
+    },
+    {
+      "name": "Jennie Sodder",
+      "description": "small careworn mother in her forties, dark hair pinned in a low bun, long plain 1940s housedress with a knitted shawl, in later years dressed all in black mourning clothes",
+      "palette": "faded navy, bone white, mourning black"
+    }
+  ],
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Five children went upstairs on Christmas Eve. They never came down.",
+      "image_prompt": "a dark wooden farmhouse staircase at night, five small shadowed children climbing up, warm lamplight below, long shadows"
+    },
+    {
+      "id": 2,
+      "narration": "By morning, their house was a hole full of smoking ash.",
+      "image_prompt": "a smoking rectangular foundation pit where a farmhouse stood, ash and embers, snow-dusted ground, cold dawn, deserted"
+    },
+    {
+      "id": 3,
+      "narration": "The fire took *forty-five minutes* to eat the whole thing.",
+      "image_prompt": "a two-story wooden farmhouse fully engulfed in fire at night, flames through every window, sparks rising"
+    },
+    {
+      "id": 4,
+      "narration": "Searchers raked the ashes for bones. They found *nothing*.",
+      "image_prompt": "a man raking through knee-deep grey ash inside a burned foundation, morning light, empty hands"
+    },
+    {
+      "id": 5,
+      "narration": "No skulls. No teeth. Nothing, from five children.",
+      "image_prompt": "fine grey ash falling through a wooden sifting screen held by two hands, nothing caught in the mesh"
+    },
+    {
+      "id": 6,
+      "narration": "The phone line had not burned. Someone had *cut* it.",
+      "image_prompt": "a severed telephone wire hanging from a wooden pole against the night sky, clean-cut end frayed with copper"
+    },
+    {
+      "id": 7,
+      "narration": "The ladder that always leaned on the house was gone.",
+      "image_prompt": "the empty clapboard wall of a farmhouse at night, a pale ladder-shaped outline in the frost where one stood"
+    },
+    {
+      "id": 8,
+      "narration": "Eighty years later, nobody has explained that night.",
+      "image_prompt": "a roadside billboard weathered by eighty years, five faded oval child portraits, empty mountain road at dusk, deserted"
+    },
+    {
+      "id": 9,
+      "narration": "This is the exhibit Fayetteville never closed. The Sodder children.",
+      "image_prompt": "a dark carnival exhibit pedestal holding one framed photograph of five children, single spotlight, red curtain behind"
+    },
+    {
+      "id": 10,
+      "narration": "Rewind to ten p.m., December 24th, 1945.",
+      "image_prompt": "a wooden mantel clock showing ten o'clock, pine garland and one candle beside it, warm low light, nobody around"
+    },
+    {
+      "id": 11,
+      "narration": "Fayetteville, West Virginia. Coal country, deep in the mountains.",
+      "image_prompt": "wide establishing shot of a small 1940s Appalachian coal town in snowy mountains at night, few golden windows, deserted"
+    },
+    {
+      "id": 12,
+      "narration": "George Sodder had built this life from nothing.",
+      "image_prompt": "George Sodder standing proud in front of his two-story farmhouse, thumbs in suspenders, snow falling",
+      "characters": [
+        "George Sodder"
+      ]
+    },
+    {
+      "id": 13,
+      "narration": "He left Sardinia at thirteen, alone, and never said why.",
+      "image_prompt": "a small boy with one suitcase standing alone at a ship's rail, grey ocean, gulls, cold light"
+    },
+    {
+      "id": 14,
+      "narration": "Whatever George ran from, he never spoke of Italy again.",
+      "image_prompt": "George Sodder's face half in shadow beside a dark window, closed guarded expression, lamplight edge",
+      "characters": [
+        "George Sodder"
+      ]
+    },
+    {
+      "id": 15,
+      "narration": "Now his coal trucks fed ten children.",
+      "image_prompt": "George Sodder beside a loaded 1940s flatbed coal truck, farmhouse behind him, proud stance",
+      "characters": [
+        "George Sodder"
+      ]
+    },
+    {
+      "id": 16,
+      "narration": "That night, nine of them were home.",
+      "image_prompt": "the farmhouse at night with warm glowing windows, small silhouettes of children moving inside, snow falling"
+    },
+    {
+      "id": 17,
+      "narration": "The tenth, Joe, was away in the Army.",
+      "image_prompt": "a framed Army photograph of a young soldier in uniform on a mantel beside a burning candle, nobody around"
+    },
+    {
+      "id": 18,
+      "narration": "Five-year-old Betty had new toys from the dime store.",
+      "image_prompt": "a five-year-old girl in a nightgown playing with a new tin wind-up toy under a small Christmas tree, oil-lamp glow"
+    },
+    {
+      "id": 19,
+      "narration": "Her big sister Marion had spent her whole paycheck on them.",
+      "image_prompt": "a smiling teenage girl in a cardigan arranging the toys her paycheck bought, wrapping paper scraps, candlelight"
+    },
+    {
+      "id": 20,
+      "narration": "The five youngest begged to stay up and play.",
+      "image_prompt": "five children of different ages gathered around a lit Christmas tree in a dim farmhouse parlor, playing on the rug"
+    },
+    {
+      "id": 21,
+      "narration": "Their mother Jennie said yes — if the chores got done.",
+      "image_prompt": "Jennie Sodder in an apron pointing gently toward the kitchen door, warm kitchen light, bread on the table",
+      "characters": [
+        "Jennie Sodder"
+      ]
+    },
+    {
+      "id": 22,
+      "narration": "So Maurice, fourteen, fed the cows. Louis, nine, shut the coop.",
+      "image_prompt": "two boys in coats crossing a snowy farmyard at night, the older toward the cows in the barn, the younger toward the chicken coop"
+    },
+    {
+      "id": 23,
+      "narration": "Ordinary chores, on the last ordinary night.",
+      "image_prompt": "the farmhouse under a huge starry night sky, one lantern crossing the yard on the last of the chores, quiet"
+    },
+    {
+      "id": 24,
+      "narration": "Because strange things had circled this family for months.",
+      "image_prompt": "the family's lonely farmhouse seen from far across a dark snowy field, as if watched from the treeline, deserted foreground"
+    },
+    {
+      "id": 25,
+      "narration": "In October, an insurance salesman had come to the door.",
+      "image_prompt": "a man in a long dark coat and hat standing at the farmhouse front door at dusk, briefcase in hand"
+    },
+    {
+      "id": 26,
+      "narration": "George turned him down. The man's face changed.",
+      "image_prompt": "the salesman leaning in close with a raised finger, George Sodder's jaw set hard in the doorway",
+      "characters": [
+        "George Sodder"
+      ]
+    },
+    {
+      "id": 27,
+      "narration": "Your house will go up in smoke, he warned.",
+      "image_prompt": "the salesman's long shadow stretched across the porch toward the house door, a thin line of chimney smoke above, dusk"
+    },
+    {
+      "id": 28,
+      "narration": "Your children, he said, are going to be *destroyed*.",
+      "image_prompt": "Jennie Sodder frozen in the kitchen, hand stopped on a dish towel, the children's laughter felt through the wall",
+      "characters": [
+        "Jennie Sodder"
+      ]
+    },
+    {
+      "id": 29,
+      "narration": "The reason he gave: George's dirty remarks about Mussolini.",
+      "image_prompt": "George Sodder's reading table: a crumpled Italian-language newspaper beside an oil lamp, deep shadows, nobody around"
+    },
+    {
+      "id": 30,
+      "narration": "George was loud about hating the dictator. Fayetteville's Italians had noticed.",
+      "image_prompt": "George Sodder arguing outside a general store with two other men, jabbing a finger at a folded newspaper",
+      "characters": [
+        "George Sodder"
+      ]
+    },
+    {
+      "id": 31,
+      "narration": "Weeks later, a stranger came asking for hauling work.",
+      "image_prompt": "a stranger with a tool bag peering around the back corner of the farmhouse, grey afternoon"
+    },
+    {
+      "id": 32,
+      "narration": "He wandered to the back and studied the fuse boxes.",
+      "image_prompt": "two metal fuse boxes on a clapboard wall, a gloved hand reaching toward them, overcast light"
+    },
+    {
+      "id": 33,
+      "narration": "These will cause a fire someday, the stranger said.",
+      "image_prompt": "the stranger's face shadowed under a hat brim, eyes fixed on the wiring, close and uneasy"
+    },
+    {
+      "id": 34,
+      "narration": "Odd — the power company had just passed that new wiring as safe.",
+      "image_prompt": "fresh electrical wiring stapled neatly along a farmhouse beam with a small paper inspection tag wired to it, nobody around"
+    },
+    {
+      "id": 35,
+      "narration": "And before Christmas, the older boys noticed a parked car.",
+      "image_prompt": "a dark 1940s sedan parked on a highway shoulder above the farm, exhaust curling in cold air"
+    },
+    {
+      "id": 36,
+      "narration": "The men inside watched the younger children walk home from school.",
+      "image_prompt": "view through a car windshield of small children walking a snowy road ahead, wipers still, ominous framing"
+    },
+    {
+      "id": 37,
+      "narration": "Nobody thought to write down the plate.",
+      "image_prompt": "the dark sedan driving away down a grey mountain road, its rear plate unreadable in the dark, red taillights shrinking"
+    },
+    {
+      "id": 38,
+      "narration": "Half past midnight. The phone rang.",
+      "image_prompt": "a black rotary wall telephone mid-ring in a dark farmhouse hallway, moonlight through a window, nobody around"
+    },
+    {
+      "id": 39,
+      "narration": "Jennie answered. A woman asked for a name she didn't know.",
+      "image_prompt": "Jennie Sodder in a nightgown holding the receiver, candlestick in her other hand, hallway darkness around her",
+      "characters": [
+        "Jennie Sodder"
+      ]
+    },
+    {
+      "id": 40,
+      "narration": "Glasses clinked behind the voice. Then a strange, wrong laugh.",
+      "image_prompt": "extreme close-up of the telephone earpiece against Jennie Sodder's ear as the strange laugh crackles through, her eyes wide",
+      "characters": [
+        "Jennie Sodder"
+      ]
+    },
+    {
+      "id": 41,
+      "narration": "Wrong number, Jennie said, and hung up.",
+      "image_prompt": "Jennie Sodder setting the receiver down slowly, staring at the telephone",
+      "characters": [
+        "Jennie Sodder"
+      ]
+    },
+    {
+      "id": 42,
+      "narration": "Walking back, she noticed the downstairs lights still burning.",
+      "image_prompt": "an empty farmhouse hallway downstairs with lamplight burning from a doorway, deep shadows, nobody visible"
+    },
+    {
+      "id": 43,
+      "narration": "The curtains open. The front door *unlocked*.",
+      "image_prompt": "a farmhouse front door ajar one inch, cold blue night through the gap, latch hanging unlocked"
+    },
+    {
+      "id": 44,
+      "narration": "Marion was asleep on the sofa. Everything else seemed normal.",
+      "image_prompt": "a teenage girl asleep on a parlor sofa under a quilt, Christmas tree glowing softly beside her"
+    },
+    {
+      "id": 45,
+      "narration": "So Jennie went back to bed, and the clock kept moving.",
+      "image_prompt": "Jennie Sodder climbing dark stairs with a candle, a clock face glowing faint in the hall below",
+      "characters": [
+        "Jennie Sodder"
+      ]
+    },
+    {
+      "id": 46,
+      "narration": "One a.m. A hard *thump* hit the roof.",
+      "image_prompt": "the farmhouse roofline against the stars, a burst of snow sliding from one point of impact"
+    },
+    {
+      "id": 47,
+      "narration": "Then a rolling sound, like a rubber ball, down the shingles.",
+      "image_prompt": "close-up of dark roof shingles with a round shadowed object mid-roll, moonlight, motion"
+    },
+    {
+      "id": 48,
+      "narration": "Then silence. Jennie half woke, listened, and drifted off.",
+      "image_prompt": "Jennie Sodder's face half awake on a pillow, eyes opening toward the ceiling, candle out",
+      "characters": [
+        "Jennie Sodder"
+      ]
+    },
+    {
+      "id": 49,
+      "narration": "Half past one. She woke again — to smoke.",
+      "image_prompt": "thin grey smoke curling under a bedroom door, orange light flickering through the gap"
+    },
+    {
+      "id": 50,
+      "narration": "George's office was burning. The stairway was next.",
+      "image_prompt": "flames climbing a wooden desk and a wall of papers in a small farmhouse office, violent orange light"
+    },
+    {
+      "id": 51,
+      "narration": "Six people made it out into the snow.",
+      "image_prompt": "a barefoot family huddled in a snowy yard at night, lit orange by their burning house, clutching each other",
+      "characters": [
+        "George Sodder",
+        "Jennie Sodder"
+      ]
+    },
+    {
+      "id": 52,
+      "narration": "Upstairs, five children slept behind one dark window.",
+      "image_prompt": "an upstairs farmhouse window still dark above spreading firelight, flame reaching up the wall"
+    },
+    {
+      "id": 53,
+      "narration": "Maurice. Martha. Louis. Little Jennie. Betty.",
+      "image_prompt": "five oval framed portraits of children — Maurice, Martha, Louis, little Jennie, Betty — on a papered wall, firelight flickering across them"
+    },
+    {
+      "id": 54,
+      "narration": "George screamed their names. The fire answered.",
+      "image_prompt": "George Sodder mid-scream toward the burning house, embers streaming past his face, snow around his feet",
+      "characters": [
+        "George Sodder"
+      ]
+    },
+    {
+      "id": 55,
+      "narration": "He ran for the ladder that always leaned against the house.",
+      "image_prompt": "George Sodder sprinting along the farmhouse wall in firelight toward an empty stretch of clapboard",
+      "characters": [
+        "George Sodder"
+      ]
+    },
+    {
+      "id": 56,
+      "narration": "*Gone.* On this night of all nights.",
+      "image_prompt": "bare clapboard wall in firelight, a clean ladder-shaped mark in the frost — gone, nothing leaning there tonight"
+    },
+    {
+      "id": 57,
+      "narration": "It was found later, thrown down an embankment, seventy-five feet away.",
+      "image_prompt": "a wooden ladder lying in dead brush at the bottom of a steep embankment, pale dawn, frost"
+    },
+    {
+      "id": 58,
+      "narration": "So George ran for his coal trucks, to climb from their roofs.",
+      "image_prompt": "George Sodder yanking open the door of a 1940s coal truck, fire reflected in the windshield",
+      "characters": [
+        "George Sodder"
+      ]
+    },
+    {
+      "id": 59,
+      "narration": "Both had run perfectly that afternoon. Now neither would *start*.",
+      "image_prompt": "two dead coal trucks that will not start, dark hoods in a snowy yard, the house blazing huge behind them"
+    },
+    {
+      "id": 60,
+      "narration": "George tore his arm open smashing back in through a window.",
+      "image_prompt": "George Sodder's silhouette punching through a ground-floor window, glass shards catching red light",
+      "characters": [
+        "George Sodder"
+      ]
+    },
+    {
+      "id": 61,
+      "narration": "The water barrel had frozen solid.",
+      "image_prompt": "a wooden rain barrel capped with a thick disc of ice, flames reflected in the frozen surface"
+    },
+    {
+      "id": 62,
+      "narration": "Marion ran through the snow to phone from the neighbors.",
+      "image_prompt": "a teenage girl running barefoot through deep snow toward a lit neighboring farmhouse, night"
+    },
+    {
+      "id": 63,
+      "narration": "The operator never answered. Not for her. Not for anyone.",
+      "image_prompt": "an unattended telephone switchboard with cords hanging dead, an empty operator's chair, one small lamp"
+    },
+    {
+      "id": 64,
+      "narration": "A passing driver saw the flames and tried a tavern phone.",
+      "image_prompt": "a man gripping a wall telephone inside a dim roadside tavern, urgency in his posture, beer glasses abandoned"
+    },
+    {
+      "id": 65,
+      "narration": "Still nothing. The town slept on.",
+      "image_prompt": "very wide shot of the burning farm tiny against black hills, the sleeping town's single road empty, no headlights"
+    },
+    {
+      "id": 66,
+      "narration": "The firehouse stood two and a half miles away.",
+      "image_prompt": "a small brick firehouse at night, engine parked inside dark bay doors, lights off, deserted street"
+    },
+    {
+      "id": 67,
+      "narration": "Help arrived at *eight in the morning*.",
+      "image_prompt": "a 1940s fire engine finally arriving in morning daylight before a smoking foundation — help, hours too late"
+    },
+    {
+      "id": 68,
+      "narration": "Seven hours. For a fire that finished in forty-five.",
+      "image_prompt": "firemen at the edge of an ash pit with hats off and heads down, thin smoke rising past them"
+    },
+    {
+      "id": 69,
+      "narration": "What the ashes did not hold was stranger than the fire.",
+      "image_prompt": "a long iron rake dragging slowly through fine grey ash, finding nothing, close low angle"
+    },
+    {
+      "id": 70,
+      "narration": "Five children. Not one bone.",
+      "image_prompt": "five small empty wooden chairs around a kitchen table dusted in ash light, deserted"
+    },
+    {
+      "id": 71,
+      "narration": "The state fire marshal blamed faulty wiring.",
+      "image_prompt": "the state fire marshal in a long coat writing on a clipboard beside charred wiring in the burned foundation, grey morning"
+    },
+    {
+      "id": 72,
+      "narration": "But the family had watched the lights burn bright through the fire.",
+      "image_prompt": "the burning farmhouse with downstairs window lights glowing steady white while flames climb the roof"
+    },
+    {
+      "id": 73,
+      "narration": "Dead wiring does not keep the lights on.",
+      "image_prompt": "a single glowing light bulb in a window frame with fire raging behind it, impossible calm light, faulty wiring myth"
+    },
+    {
+      "id": 74,
+      "narration": "Six days after Christmas Eve, the five were declared dead.",
+      "image_prompt": "five paper certificates fanned across a dark desk under a banker's lamp, a wax seal, nobody around"
+    },
+    {
+      "id": 75,
+      "narration": "And on the coroner's jury that called it an accident —",
+      "image_prompt": "a row of seated jurymen on a wooden bench in a small courtroom, faces in shadow"
+    },
+    {
+      "id": 76,
+      "narration": "sat the salesman who promised their house would burn.",
+      "image_prompt": "one juryman turned away into shadow — the salesman's profile, hat on his knee, the bench lit around him"
+    },
+    {
+      "id": 77,
+      "narration": "His threat was two months old. Nobody asked him about it.",
+      "image_prompt": "the farmhouse porch where the threat was spoken, winter light, door shut, a long shadow remembered across the boards"
+    },
+    {
+      "id": 78,
+      "narration": "George couldn't bear to look at the pit. So he buried it.",
+      "image_prompt": "George Sodder driving a bulldozer, pushing dark earth into the black foundation hole, grey sky",
+      "characters": [
+        "George Sodder"
+      ]
+    },
+    {
+      "id": 79,
+      "narration": "Five feet of fresh dirt, for a memorial garden.",
+      "image_prompt": "a smooth rectangle of fresh dirt where a house once stood, one small pine at the center of the new memorial garden, deserted"
+    },
+    {
+      "id": 80,
+      "narration": "He didn't know he was sealing the evidence under it.",
+      "image_prompt": "the buried garden plot under silent snowfall at dusk — the evidence sealed somewhere beneath, fence posts, nobody around"
+    },
+    {
+      "id": 81,
+      "narration": "Grief believes what it's told. Jennie *tested* it.",
+      "image_prompt": "Jennie Sodder kneeling at a small backyard fire at night, feeding bones into the flames, face set hard",
+      "characters": [
+        "Jennie Sodder"
+      ]
+    },
+    {
+      "id": 82,
+      "narration": "She burned animal bones in the yard, again and again.",
+      "image_prompt": "close-up of blackened animal bones lying whole among glowing embers in a backyard fire"
+    },
+    {
+      "id": 83,
+      "narration": "Every single time, the bones survived.",
+      "image_prompt": "charred but intact bones laid in a row on a scorched tin sheet, backyard dark around them"
+    },
+    {
+      "id": 84,
+      "narration": "A crematorium worker finally told her why.",
+      "image_prompt": "a crematorium worker in coveralls speaking beside an open furnace door, orange glow across his face"
+    },
+    {
+      "id": 85,
+      "narration": "Bones outlast *two thousand degrees* — for two full hours.",
+      "image_prompt": "a furnace temperature gauge needle buried deep in the red, two thousand degrees of roaring light below"
+    },
+    {
+      "id": 86,
+      "narration": "Her house had burned for forty-five minutes.",
+      "image_prompt": "Jennie Sodder standing at the garden fence, arms crossed, staring at the soil where her house burned",
+      "characters": [
+        "Jennie Sodder"
+      ]
+    },
+    {
+      "id": 87,
+      "narration": "Then the telephone man brought worse news.",
+      "image_prompt": "a telephone lineman's spiked boots climbing a pole, coil of wire over his shoulder, grey sky"
+    },
+    {
+      "id": 88,
+      "narration": "The line never burned. It was sliced clean.",
+      "image_prompt": "a cleanly cut telephone line end held up in a gloved hand, copper bright at the slice"
+    },
+    {
+      "id": 89,
+      "narration": "Cut by someone who climbed fourteen feet, in the dark, mid-fire.",
+      "image_prompt": "a shadowed figure climbing high on the telephone pole against the dark night sky, a house burning small in the distance"
+    },
+    {
+      "id": 90,
+      "narration": "That same night, a man was seen hauling off their block and tackle.",
+      "image_prompt": "a figure dragging heavy block and tackle away from a farm shed, edge-lit by distant firelight"
+    },
+    {
+      "id": 91,
+      "narration": "He admitted stealing it. He denied everything else.",
+      "image_prompt": "a sullen man in a sheriff's office chair, hat in his hands, the tackle he admitted stealing on the desk beside him"
+    },
+    {
+      "id": 92,
+      "narration": "The pieces sat there for anyone to count.",
+      "image_prompt": "evidence pieces laid out to count on a farmhouse table: cut wire, a toy, a photograph, an insurance paper, lamplight, nobody around"
+    },
+    {
+      "id": 93,
+      "narration": "Then the sightings began.",
+      "image_prompt": "a two-lane mountain road disappearing into cold morning fog where the first sighting was reported, deserted"
+    },
+    {
+      "id": 94,
+      "narration": "A woman watching the fire swore she saw the children — in a passing car.",
+      "image_prompt": "from a dark hillside: a 1940s sedan passing the burning farm, small pale children's faces in its rear window"
+    },
+    {
+      "id": 95,
+      "narration": "Fifty miles west, a tourist stop served five children breakfast the next morning.",
+      "image_prompt": "five children at a roadside diner counter at dawn, a woman pouring cocoa, steam rising, wary quiet"
+    },
+    {
+      "id": 96,
+      "narration": "The owner was sure of the faces. Five of them. Quiet. Watched over.",
+      "image_prompt": "close-up of five cocoa cups on the diner counter and small quiet hands around them, watched from off-frame, morning light"
+    },
+    {
+      "id": 97,
+      "narration": "A week later, a Charleston hotel worker recognized four of them.",
+      "image_prompt": "a 1940s hotel lobby at night, four children seated stiff on a bench, two adults standing over them"
+    },
+    {
+      "id": 98,
+      "narration": "The adults with them spoke Italian — and shut her questions down.",
+      "image_prompt": "a stern Italian-speaking man raising a flat hand to stop her questions, the children silent behind him, lobby shadows"
+    },
+    {
+      "id": 99,
+      "narration": "By morning, the whole party was gone.",
+      "image_prompt": "the empty hotel bench in the morning light, one small forgotten mitten on the floor — everyone gone, deserted lobby"
+    },
+    {
+      "id": 100,
+      "narration": "George and Jennie begged the FBI to take the case.",
+      "image_prompt": "George and Jennie Sodder at a post office counter mailing a thick envelope, winter coats, resolve",
+      "characters": [
+        "George Sodder",
+        "Jennie Sodder"
+      ]
+    },
+    {
+      "id": 101,
+      "narration": "J. Edgar Hoover replied: only if local officials invite us in.",
+      "image_prompt": "an official government envelope held in Jennie Sodder's hands at a doorway, her thumb over the seal",
+      "characters": [
+        "Jennie Sodder"
+      ]
+    },
+    {
+      "id": 102,
+      "narration": "The local officials declined.",
+      "image_prompt": "a town official's closed office door with frosted glass, hat rack beside it, empty corridor, silence"
+    },
+    {
+      "id": 103,
+      "narration": "So the family hired private detectives instead.",
+      "image_prompt": "a private detective's desk: a map with pins, photographs, a full ashtray, one green lamp, nobody in the chair"
+    },
+    {
+      "id": 104,
+      "narration": "Then the fire chief made a confession of his own.",
+      "image_prompt": "a dented fire chief's helmet resting on a wooden table in low light, nobody around"
+    },
+    {
+      "id": 105,
+      "narration": "He'd found a heart in the ashes, he said — and buried it in a box.",
+      "image_prompt": "a small wooden box half-buried in ash inside a lantern circle, night"
+    },
+    {
+      "id": 106,
+      "narration": "The family made him dig it back up.",
+      "image_prompt": "men with shovels digging the small box back up from the ash garden inside a ring of lantern light, long shadows"
+    },
+    {
+      "id": 107,
+      "narration": "A funeral director opened it. Beef liver. Untouched by fire.",
+      "image_prompt": "an opened small box on a mortuary table, men recoiling in lamplight, clinical tiles behind"
+    },
+    {
+      "id": 108,
+      "narration": "A plant, meant to end the questions. It multiplied them.",
+      "image_prompt": "the planted box with its lid ajar, alone on the table — a trick that raised more questions, long shadows"
+    },
+    {
+      "id": 109,
+      "narration": "In 1949, the family dug up the garden with a pathologist.",
+      "image_prompt": "men excavating a neat trench in the memorial garden plot, wooden screens and trays beside them, overcast"
+    },
+    {
+      "id": 110,
+      "narration": "They sifted every shovelful of that dirt.",
+      "image_prompt": "dark soil pouring through a wooden sifting screen, careful fingers picking through what remains"
+    },
+    {
+      "id": 111,
+      "narration": "Coins. A scorched dictionary. And four small vertebrae.",
+      "image_prompt": "a metal specimen tray holding four small vertebrae beside a cleaning brush and burned coins, cold light"
+    },
+    {
+      "id": 112,
+      "narration": "The Smithsonian Institution examined the bones.",
+      "image_prompt": "white-gloved museum hands examining the bones under a large magnifying lens in a laboratory"
+    },
+    {
+      "id": 113,
+      "narration": "One person. Sixteen to twenty-two years old. *Never touched by fire*.",
+      "image_prompt": "extreme close-up through the magnifier: one pale unburned vertebra, clinical light"
+    },
+    {
+      "id": 114,
+      "narration": "Too old for the children — and most likely carried in with the fill dirt.",
+      "image_prompt": "a dump truck tipping a load of fill dirt, flat grey recollection, deserted site"
+    },
+    {
+      "id": 115,
+      "narration": "Five children do not burn down into four borrowed bones.",
+      "image_prompt": "the five oval child portraits rehung above a mantel in a new small house, lamplight, nobody around"
+    },
+    {
+      "id": 116,
+      "narration": "So in 1952, George built the billboard.",
+      "image_prompt": "George Sodder hammering the frame of a giant roadside billboard beside a mountain highway, sleeves rolled",
+      "characters": [
+        "George Sodder"
+      ]
+    },
+    {
+      "id": 117,
+      "narration": "Five painted faces. One question. A reward that grew to ten thousand dollars.",
+      "image_prompt": "a huge roadside billboard bearing five painted child portraits and one painted question, mountain road curving past, 1950s cars small below"
+    },
+    {
+      "id": 118,
+      "narration": "It stood on Route sixteen for thirty-seven years.",
+      "image_prompt": "the Route sixteen billboard standing through the years in deep winter, snow piled along its ledge, bare trees, empty road"
+    },
+    {
+      "id": 119,
+      "narration": "Drivers slowed for it. Nobody ever collected.",
+      "image_prompt": "drivers' headlights sweeping across the billboard's five faces at night, nobody stopping to collect, empty two-lane road"
+    },
+    {
+      "id": 120,
+      "narration": "Then, in 1968, an envelope arrived with no return address.",
+      "image_prompt": "a plain envelope lying on a doormat inside a shadowed hallway, light from the door seam"
+    },
+    {
+      "id": 121,
+      "narration": "Inside was a photograph of a man in his mid-twenties.",
+      "image_prompt": "weathered hands holding a small black-and-white photograph of a young man, lamplight",
+      "characters": [
+        "Jennie Sodder"
+      ]
+    },
+    {
+      "id": 122,
+      "narration": "Louis's eyes. Louis's hair. Twenty-three years older.",
+      "image_prompt": "the new photograph propped beside the old portrait of nine-year-old Louis, side by side under a lamp"
+    },
+    {
+      "id": 123,
+      "narration": "On the back, careful handwriting: Louis Sodder. I love brother Frankie.",
+      "image_prompt": "the back of a photograph with faint soft-focus handwriting, held in trembling weathered fingers"
+    },
+    {
+      "id": 124,
+      "narration": "And a string of letters and numbers nobody ever decoded.",
+      "image_prompt": "Jennie Sodder with a magnifying glass over the coded letters and numbers on the photograph, lamplight, midnight kitchen",
+      "characters": [
+        "Jennie Sodder"
+      ]
+    },
+    {
+      "id": 125,
+      "narration": "They hired a detective and sent him to Kentucky.",
+      "image_prompt": "the hired detective boarding a Kentucky-bound bus with a suitcase at a rural depot, exhaust in cold air"
+    },
+    {
+      "id": 126,
+      "narration": "He took their money and was *never heard from again*.",
+      "image_prompt": "the detective's abandoned office — phone off the hook, unopened mail under the door slot, the money gone, dust in the light"
+    },
+    {
+      "id": 127,
+      "narration": "The Sodders never published the details. What if it put Louis in danger?",
+      "image_prompt": "George and Jennie Sodder by the fireplace at night, speaking low, the photograph between them",
+      "characters": [
+        "George Sodder",
+        "Jennie Sodder"
+      ]
+    },
+    {
+      "id": 128,
+      "narration": "They enlarged the photo and hung it over the fireplace.",
+      "image_prompt": "a framed enlarged photo of the young man above a stone fireplace, two worn armchairs below, fire low"
+    },
+    {
+      "id": 129,
+      "narration": "So what happened that night? Two theories refuse to die.",
+      "image_prompt": "the farmhouse evidence table seen from above — every strange piece of that night in one lamplit ring, nobody around"
+    },
+    {
+      "id": 130,
+      "narration": "The first points to extortion — the old country's mafia, and a man who wouldn't pay.",
+      "image_prompt": "an old extortion letter sealed with a black handprint lying on a doormat, dread, low light"
+    },
+    {
+      "id": 131,
+      "narration": "Burn the house for the insult. Take the children for the debt.",
+      "image_prompt": "five small children's silhouettes led through snow toward a dark sedan at night, doors open"
+    },
+    {
+      "id": 132,
+      "narration": "The second theory is stranger: the children were saved, not stolen.",
+      "image_prompt": "a car door held open for children by an unseen adult, warm light inside the car, falling snow"
+    },
+    {
+      "id": 133,
+      "narration": "Spirited away to Italy, raised under other names, forbidden to write.",
+      "image_prompt": "an Italian coastal village street at dusk, five small figures walking away up the hill, warm windows"
+    },
+    {
+      "id": 134,
+      "narration": "No theory has ever produced a body — or a grown child, come home.",
+      "image_prompt": "the farmhouse gate standing open at dusk, the road beyond empty, nobody coming home, long shadows"
+    },
+    {
+      "id": 135,
+      "narration": "George died in 1969, still writing letters.",
+      "image_prompt": "George Sodder asleep at a desk buried in letters, pen still in his fingers, lamp burned low",
+      "characters": [
+        "George Sodder"
+      ]
+    },
+    {
+      "id": 136,
+      "narration": "Jennie wore black every day for the rest of her life.",
+      "image_prompt": "Jennie Sodder in a black mourning dress at the garden fence, white-haired, mountains behind",
+      "characters": [
+        "Jennie Sodder"
+      ]
+    },
+    {
+      "id": 137,
+      "narration": "When she died in 1989, the billboard finally came down.",
+      "image_prompt": "workmen lowering the weathered billboard face into a truck bed, grey sky, the five painted faces tilted"
+    },
+    {
+      "id": 138,
+      "narration": "Sylvia, the baby carried from the fire, kept asking until 2021.",
+      "image_prompt": "Sylvia as an elderly woman by a window, holding the old family photograph from before the fire, morning light on her hands"
+    },
+    {
+      "id": 139,
+      "narration": "She never believed her brothers and sisters died that night.",
+      "image_prompt": "close-up of an aged hand resting gently over the five brothers' and sisters' faces in an old photograph"
+    },
+    {
+      "id": 140,
+      "narration": "The fire took forty-five minutes.",
+      "image_prompt": "the fire's ash pit once more, brief and dark, a single ember glowing in the grey"
+    },
+    {
+      "id": 141,
+      "narration": "The waiting took seventy-six years. It's still waiting.",
+      "image_prompt": "the dark carnival exhibit pedestal again, spotlight on, the frame now empty, red curtain still"
+    }
+  ]
+}

@@ -1,0 +1,470 @@
+{
+  "video": {
+    "title": "The Man Who Sold the Eiffel Tower. Twice.",
+    "niche": "true-story mini documentary",
+    "format": "YouTube mid-form",
+    "aspect_ratio": "16:9",
+    "total_runtime": "2:05",
+    "total_runtime_sec": 125,
+    "global_style_suffix": "flat 2D cartoon explainer illustration in a Cyanide-and-Happiness style: simple minimal bodies (rounded torsos with thin noodle/stick limbs and small simple hands) but expressive, detailed faces with clear eyes, eyebrows and mouth shapes conveying real emotion; bold clean uniform black outlines, flat solid color fills, soft cell-shading with simple drop shadows and gentle directional lighting, no gradients, no photorealism, no 3D, clean vector look, simple uncluttered background",
+    "global_negative_prompt": "photorealistic, real photograph, 3d render, caption text, paragraph text, watermark, signature, logo, blurry, grainy, deformed hands, extra fingers, extra limbs, distorted face, cluttered, messy background, oversaturated, low quality"
+  },
+  "character_bible": [
+    {
+      "name": "Victor Lustig",
+      "aliases": [
+        "Lustig",
+        "the con man",
+        "the count"
+      ],
+      "description": "a slim confident con man with a thin black mustache and a sly half-smile, wearing a sharp charcoal three-piece suit, dark red tie, dark fedora and a gold pocket-watch chain",
+      "palette": "charcoal grey, cream, dark red, gold accents"
+    },
+    {
+      "name": "Andre Poisson",
+      "aliases": [
+        "Poisson",
+        "the dealer"
+      ],
+      "description": "a short round eager businessman with a bushy brown mustache and flushed pink cheeks, wearing a brown suit, a bowler hat and a monocle",
+      "palette": "warm browns, russet, pink cheeks"
+    },
+    {
+      "name": "Al Capone",
+      "aliases": [
+        "Capone",
+        "the mob boss"
+      ],
+      "description": "a heavyset intimidating cartoon mob boss with a wide jaw and a fat cigar, wearing a white fedora and a cream pinstripe suit with a red carnation",
+      "palette": "cream, white, deep red"
+    }
+  ],
+  "scenes": [
+    {
+      "id": 1,
+      "act": "Hook",
+      "type": "scene",
+      "narration": "Paris. 1925.",
+      "image_prompt": "Wide establishing shot of the Eiffel Tower rising over the Paris skyline at golden hour, dramatic warm clouds, a flock of birds scattering past the tower",
+      "on_screen_text": "PARIS · 1925",
+      "text_anim": "slams down like a stamp",
+      "transition": "smash cut",
+      "audio_cue": "deep impact boom",
+      "motion_type": "ambient",
+      "motion_prompt": "the clouds drift slowly, the birds flap across the sky, the camera holds steady",
+      "characters": []
+    },
+    {
+      "id": 2,
+      "act": "Hook",
+      "type": "scene",
+      "narration": "A man in a very expensive suit just sold the Eiffel Tower.",
+      "image_prompt": "A confident con man stands at the base of the Eiffel Tower proudly hanging a huge blank price tag on one of its iron legs, smug grin, chest puffed out",
+      "on_screen_text": "SOLD: THE EIFFEL TOWER",
+      "text_anim": "slams down",
+      "transition": "whip-pan right",
+      "audio_cue": "quick whoosh",
+      "motion_type": "ambient",
+      "motion_prompt": "the giant price tag swings gently on its string, his coat flutters slightly in the breeze",
+      "characters": [
+        "Victor Lustig"
+      ]
+    },
+    {
+      "id": 3,
+      "act": "Hook",
+      "type": "scene",
+      "narration": "For scrap metal.",
+      "image_prompt": "A huge pile of rusty iron beams, bolts and girders stacked on the ground, a small blank paper tag sitting on top of the heap",
+      "on_screen_text": "FOR SCRAP.",
+      "text_anim": "stamps down",
+      "transition": "punch-in",
+      "audio_cue": "metallic clank impact",
+      "motion_type": "",
+      "motion_prompt": "",
+      "characters": []
+    },
+    {
+      "id": 4,
+      "act": "Hook",
+      "type": "scene",
+      "narration": "The buyer handed over a briefcase full of cash.",
+      "image_prompt": "An open leather briefcase overflowing with thick stacks of green banknotes being slid across a polished wooden table by two eager hands",
+      "on_screen_text": "",
+      "text_anim": "",
+      "transition": "whip-pan left",
+      "audio_cue": "quick whoosh",
+      "motion_type": "",
+      "motion_prompt": "",
+      "characters": []
+    },
+    {
+      "id": 5,
+      "act": "Hook",
+      "type": "scene",
+      "narration": "For a tower he did not own.",
+      "image_prompt": "A short round businessman lovingly hugging a tiny souvenir model of the Eiffel Tower, cartoon hearts floating around his head, eyes closed in bliss",
+      "on_screen_text": "",
+      "text_anim": "",
+      "transition": "hard cut",
+      "audio_cue": "",
+      "motion_type": "",
+      "motion_prompt": "",
+      "characters": [
+        "Andre Poisson"
+      ]
+    },
+    {
+      "id": 6,
+      "act": "Hook",
+      "type": "scene",
+      "narration": "And when nobody came to arrest him,",
+      "image_prompt": "The con man peeking slyly over the top of an open newspaper in a Parisian cafe, one eyebrow raised, a tiny espresso cup on the table",
+      "on_screen_text": "",
+      "text_anim": "",
+      "transition": "hard cut",
+      "audio_cue": "",
+      "motion_type": "",
+      "motion_prompt": "",
+      "characters": [
+        "Victor Lustig"
+      ]
+    },
+    {
+      "id": 7,
+      "act": "Hook",
+      "type": "scene",
+      "narration": "he came back,",
+      "image_prompt": "A vintage steam train racing toward the city at dusk, thick smoke trailing behind, the silhouette of the Eiffel Tower on the horizon",
+      "on_screen_text": "",
+      "text_anim": "",
+      "transition": "whip-pan right",
+      "audio_cue": "quick whoosh",
+      "motion_type": "",
+      "motion_prompt": "",
+      "characters": []
+    },
+    {
+      "id": 8,
+      "act": "Hook",
+      "type": "scene",
+      "narration": "and he sold it again.",
+      "image_prompt": "The con man hanging a second huge blank price tag on the Eiffel Tower while winking at the viewer, green banknotes fluttering down around him like confetti",
+      "on_screen_text": "...TWICE.",
+      "text_anim": "slams down like a stamp",
+      "transition": "smash cut",
+      "audio_cue": "deep impact boom",
+      "motion_type": "ambient",
+      "motion_prompt": "banknotes flutter down slowly around him like falling leaves, he holds his wink",
+      "characters": [
+        "Victor Lustig"
+      ]
+    },
+    {
+      "id": 9,
+      "act": "Hook",
+      "type": "scene",
+      "narration": "This is the story of the greatest con man who ever lived.",
+      "image_prompt": "A dramatic portrait of the con man tipping his fedora inside an ornate golden picture frame, a single warm spotlight from above, dark elegant background",
+      "on_screen_text": "THE MAN WHO SOLD PARIS",
+      "text_anim": "pops in",
+      "transition": "flash cut",
+      "audio_cue": "shimmering riser",
+      "motion_type": "ambient",
+      "motion_prompt": "he slowly tips his fedora, the spotlight glows softly",
+      "characters": [
+        "Victor Lustig"
+      ]
+    },
+    {
+      "id": 10,
+      "act": "The Setup",
+      "type": "scene",
+      "narration": "His name was Victor Lustig. And his favorite weapon was the morning newspaper.",
+      "image_prompt": "The con man relaxing in a leather armchair calmly reading a large newspaper, steam curling up from a coffee cup on a side table",
+      "on_screen_text": "",
+      "text_anim": "",
+      "transition": "fade",
+      "audio_cue": "",
+      "motion_type": "",
+      "motion_prompt": "",
+      "characters": [
+        "Victor Lustig"
+      ]
+    },
+    {
+      "id": 11,
+      "act": "The Setup",
+      "type": "scene",
+      "narration": "See, in 1925, Paris could barely afford to maintain the Eiffel Tower. It was rusting.",
+      "image_prompt": "The Eiffel Tower drawn with sad droopy cartoon eyes, patches of orange rust on its iron legs, a few bolts popping loose, one tiny worried maintenance worker looking up from below",
+      "on_screen_text": "PROBLEM: RUST",
+      "text_anim": "pops in",
+      "transition": "push-in",
+      "audio_cue": "",
+      "motion_type": "",
+      "motion_prompt": "",
+      "characters": []
+    },
+    {
+      "id": 12,
+      "act": "The Setup",
+      "type": "scene",
+      "narration": "So Lustig printed himself fake government stationery,",
+      "image_prompt": "Close-up of white-gloved hands holding an official-looking blank document with a red wax seal and elegant flourishes, a vintage printing press looming in the background",
+      "on_screen_text": "",
+      "text_anim": "",
+      "transition": "hard cut",
+      "audio_cue": "",
+      "motion_type": "",
+      "motion_prompt": "",
+      "characters": []
+    },
+    {
+      "id": 13,
+      "act": "The Setup",
+      "type": "scene",
+      "narration": "booked the fanciest hotel in Paris,",
+      "image_prompt": "The grand facade of a luxurious Parisian hotel with gold trim, red awnings and a doorman bowing deeply at the entrance",
+      "on_screen_text": "",
+      "text_anim": "",
+      "transition": "whip-pan right",
+      "audio_cue": "quick whoosh",
+      "motion_type": "",
+      "motion_prompt": "",
+      "characters": []
+    },
+    {
+      "id": 14,
+      "act": "The Setup",
+      "type": "scene",
+      "narration": "and invited the five biggest scrap metal dealers in the city to a very secret meeting.",
+      "image_prompt": "Five nervous businessmen in suits seated around a long table in an opulent hotel suite, the con man standing at the head of the table with his arms spread wide in welcome",
+      "on_screen_text": "TOP SECRET",
+      "text_anim": "stamps down",
+      "transition": "iris",
+      "audio_cue": "soft impact",
+      "motion_type": "",
+      "motion_prompt": "",
+      "characters": [
+        "Victor Lustig"
+      ]
+    },
+    {
+      "id": 15,
+      "act": "The Con",
+      "type": "scene",
+      "narration": "The government, he whispered, was secretly selling the Eiffel Tower for scrap.",
+      "image_prompt": "The con man leaning in close with one hand cupped beside his mouth, five businessmen leaning toward him with huge shocked eyes and open mouths",
+      "on_screen_text": "",
+      "text_anim": "",
+      "transition": "push-in",
+      "audio_cue": "",
+      "motion_type": "",
+      "motion_prompt": "",
+      "characters": [
+        "Victor Lustig"
+      ]
+    },
+    {
+      "id": 16,
+      "act": "The Con",
+      "type": "scene",
+      "narration": "One dealer, Andre Poisson, wanted the deal so badly, he even slipped Lustig a bribe on top.",
+      "image_prompt": "A short round businessman sweating with excitement while stuffing bundles of cash into the con man's open hands under a table, the con man looking away innocently",
+      "on_screen_text": "",
+      "text_anim": "",
+      "transition": "hard cut",
+      "audio_cue": "cash register ding",
+      "motion_type": "",
+      "motion_prompt": "",
+      "characters": [
+        "Andre Poisson",
+        "Victor Lustig"
+      ]
+    },
+    {
+      "id": 17,
+      "act": "The Con",
+      "type": "scene",
+      "narration": "Lustig cashed everything, and vanished to Vienna.",
+      "image_prompt": "The con man sprinting onto a departing steam train clutching an overstuffed suitcase, loose banknotes trailing behind him in the wind",
+      "on_screen_text": "",
+      "text_anim": "",
+      "transition": "whip-pan left",
+      "audio_cue": "quick whoosh",
+      "motion_type": "",
+      "motion_prompt": "",
+      "characters": [
+        "Victor Lustig"
+      ]
+    },
+    {
+      "id": 18,
+      "act": "The Con",
+      "type": "scene",
+      "narration": "And Poisson? He was so embarrassed, he never even told the police.",
+      "image_prompt": "The short round businessman standing alone and tiny beneath the enormous Eiffel Tower, blushing bright red, holding a single worthless piece of paper that droops in his hand",
+      "on_screen_text": "",
+      "text_anim": "",
+      "transition": "pull-back",
+      "audio_cue": "",
+      "motion_type": "",
+      "motion_prompt": "",
+      "characters": [
+        "Andre Poisson"
+      ]
+    },
+    {
+      "id": 19,
+      "act": "The Con",
+      "type": "scene",
+      "narration": "So six months later, Lustig strolled right back into Paris, and ran the exact same con again.",
+      "image_prompt": "The con man strolling confidently across a Paris square twirling a cane, the Eiffel Tower behind him, a few pigeons scattering out of his way",
+      "on_screen_text": "ROUND 2",
+      "text_anim": "slams down",
+      "transition": "smash cut",
+      "audio_cue": "deep impact boom",
+      "motion_type": "",
+      "motion_prompt": "",
+      "characters": [
+        "Victor Lustig"
+      ]
+    },
+    {
+      "id": 20,
+      "act": "The Legend",
+      "type": "scene",
+      "narration": "He fled to America, where he sold a magic wooden box that printed perfect hundred dollar bills.",
+      "image_prompt": "A polished wooden box with brass dials and a hand crank slowly pushing out a single crisp green banknote, little sparkles around it, sitting on a deep red velvet cloth",
+      "on_screen_text": "$46,000 A BOX",
+      "text_anim": "counts up like an odometer",
+      "transition": "fade",
+      "audio_cue": "shimmering riser",
+      "motion_type": "ambient",
+      "motion_prompt": "the crank turns slowly, the banknote slides out smoothly, the sparkles twinkle",
+      "characters": []
+    },
+    {
+      "id": 21,
+      "act": "The Legend",
+      "type": "scene",
+      "narration": "The box printed exactly two bills. Both real. He had loaded them inside himself.",
+      "image_prompt": "A cutaway diagram of the wooden money box revealing just two real banknotes hidden in a secret inner slot, a bold arrow pointing at the empty machinery inside",
+      "on_screen_text": "IT WAS EMPTY",
+      "text_anim": "pops in",
+      "transition": "punch-in",
+      "audio_cue": "pop",
+      "motion_type": "",
+      "motion_prompt": "",
+      "characters": []
+    },
+    {
+      "id": 22,
+      "act": "The Legend",
+      "type": "scene",
+      "narration": "He even conned Al Capone, and walked away with a five thousand dollar reward for his honesty.",
+      "image_prompt": "A heavyset mob boss behind a huge oak desk laughing warmly while handing cash to the calm smiling con man, two bodyguards glowering in the shadows behind them",
+      "on_screen_text": "$5,000 FOR \"HONESTY\"",
+      "text_anim": "pops in",
+      "transition": "hard cut",
+      "audio_cue": "cash register ding",
+      "motion_type": "ambient",
+      "motion_prompt": "cigar smoke drifts upward, the mob boss chuckles gently",
+      "characters": [
+        "Al Capone",
+        "Victor Lustig"
+      ]
+    },
+    {
+      "id": 23,
+      "act": "The Fall",
+      "type": "scene",
+      "narration": "But in 1935, the Secret Service finally caught him. Counterfeiting, millions.",
+      "image_prompt": "Two stern federal agents in trench coats snapping handcuffs onto the con man's wrists, a stack of counterfeit printing plates on the table beside them, his fedora tilted",
+      "on_screen_text": "BUSTED",
+      "text_anim": "stamps down",
+      "transition": "shake",
+      "audio_cue": "deep impact boom",
+      "motion_type": "",
+      "motion_prompt": "",
+      "characters": [
+        "Victor Lustig"
+      ]
+    },
+    {
+      "id": 24,
+      "act": "The Fall",
+      "type": "scene",
+      "narration": "The day before his trial, he cut up his bedsheets, and climbed out of a New York jail window.",
+      "image_prompt": "The con man calmly climbing down the outside wall of a tall jail building on a rope of knotted white bedsheets at dusk, completely unbothered",
+      "on_screen_text": "",
+      "text_anim": "",
+      "transition": "push-in",
+      "audio_cue": "rising whoosh",
+      "motion_type": "ambient",
+      "motion_prompt": "the bedsheet rope sways gently as he slowly descends",
+      "characters": [
+        "Victor Lustig"
+      ]
+    },
+    {
+      "id": 25,
+      "act": "The Fall",
+      "type": "scene",
+      "narration": "And pretended to be a window washer. He even waved at the crowd below.",
+      "image_prompt": "The con man dangling on the bedsheet rope cheerfully wiping a jail window with a rag while waving down at a small confused crowd pointing up at him",
+      "on_screen_text": "HE WAVED.",
+      "text_anim": "pops in",
+      "transition": "hard cut",
+      "audio_cue": "pop",
+      "motion_type": "",
+      "motion_prompt": "",
+      "characters": [
+        "Victor Lustig"
+      ]
+    },
+    {
+      "id": 26,
+      "act": "The End",
+      "type": "scene",
+      "narration": "They sent him to Alcatraz. The one prison you cannot talk your way out of.",
+      "image_prompt": "The grim silhouette of Alcatraz island prison on its lonely rock in cold grey fog, seagulls circling above, small dark waves below",
+      "on_screen_text": "",
+      "text_anim": "",
+      "transition": "crossfade",
+      "audio_cue": "soft impact",
+      "motion_type": "ambient",
+      "motion_prompt": "the fog drifts slowly, seagulls circle, the waves lap gently",
+      "characters": []
+    },
+    {
+      "id": 27,
+      "act": "The End",
+      "type": "scene",
+      "narration": "He died in prison in 1947.",
+      "image_prompt": "An empty prison cell with a neatly made bed, a single dark fedora resting on the pillow, one soft shaft of light falling through the barred window",
+      "on_screen_text": "",
+      "text_anim": "",
+      "transition": "fade",
+      "audio_cue": "",
+      "motion_type": "",
+      "motion_prompt": "",
+      "characters": []
+    },
+    {
+      "id": 28,
+      "act": "The End",
+      "type": "scene",
+      "narration": "And on his death certificate, under occupation, someone wrote... apprentice salesman.",
+      "image_prompt": "Extreme close-up of a fountain pen finishing a single flowing line on an official cream document beside a round government stamp, warm lamplight, shallow simple background",
+      "on_screen_text": "OCCUPATION: \"APPRENTICE SALESMAN\"",
+      "text_anim": "types on like a headline",
+      "transition": "fade",
+      "audio_cue": "ding",
+      "motion_type": "",
+      "motion_prompt": "",
+      "characters": []
+    }
+  ]
+}

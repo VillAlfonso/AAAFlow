@@ -2,7 +2,7 @@
   "id": "064989f21649",
   "name": "The Light Went Out. So Did the Men Watching It.",
   "created": 1783676227.184687,
-  "updated": 1783676906.4569314,
+  "updated": 1783677493.3532221,
   "channel": "menagerie",
   "video": {
     "title": "The Light Went Out. So Did the Men Watching It.",
@@ -114,13 +114,17 @@
       "fx": [],
       "date_chip": "1900",
       "end_image_file": null,
-      "video_file": null,
+      "video_file": "video/scene_0001.mp4",
       "transcript": null,
       "status": {
         "audio": "none",
         "image": "ready",
-        "video": "none",
+        "video": "ready",
         "transcript": "none"
+      },
+      "video_meta": {
+        "restored_from": "wan_00020_.mp4",
+        "enhanced": true
       }
     },
     {
@@ -198,13 +202,17 @@
       "emphasis": [],
       "fx": [],
       "end_image_file": null,
-      "video_file": null,
+      "video_file": "video/scene_0003.mp4",
       "transcript": null,
       "status": {
         "audio": "none",
         "image": "ready",
-        "video": "none",
+        "video": "ready",
         "transcript": "none"
+      },
+      "video_meta": {
+        "restored_from": "wan_00021_.mp4",
+        "enhanced": true
       }
     },
     {
@@ -546,13 +554,17 @@
       "emphasis": [],
       "fx": [],
       "end_image_file": null,
-      "video_file": null,
+      "video_file": "video/scene_0011.mp4",
       "transcript": null,
       "status": {
         "audio": "none",
         "image": "ready",
-        "video": "none",
+        "video": "ready",
         "transcript": "none"
+      },
+      "video_meta": {
+        "restored_from": "wan_00022_.mp4",
+        "enhanced": true
       }
     },
     {
@@ -804,13 +816,17 @@
       "emphasis": [],
       "fx": [],
       "end_image_file": null,
-      "video_file": null,
+      "video_file": "video/scene_0017.mp4",
       "transcript": null,
       "status": {
         "audio": "none",
         "image": "ready",
-        "video": "none",
+        "video": "ready",
         "transcript": "none"
+      },
+      "video_meta": {
+        "restored_from": "wan_00023_.mp4",
+        "enhanced": true
       }
     },
     {
@@ -936,13 +952,17 @@
       "emphasis": [],
       "fx": [],
       "end_image_file": null,
-      "video_file": null,
+      "video_file": "video/scene_0020.mp4",
       "transcript": null,
       "status": {
         "audio": "none",
         "image": "ready",
-        "video": "none",
+        "video": "ready",
         "transcript": "none"
+      },
+      "video_meta": {
+        "restored_from": "wan_00024_.mp4",
+        "enhanced": true
       }
     },
     {
@@ -978,13 +998,17 @@
       "emphasis": [],
       "fx": [],
       "end_image_file": null,
-      "video_file": null,
+      "video_file": "video/scene_0021.mp4",
       "transcript": null,
       "status": {
         "audio": "none",
         "image": "ready",
-        "video": "none",
+        "video": "ready",
         "transcript": "none"
+      },
+      "video_meta": {
+        "restored_from": "wan_00025_.mp4",
+        "enhanced": true
       }
     },
     {
@@ -1110,13 +1134,17 @@
       ],
       "fx": [],
       "end_image_file": null,
-      "video_file": null,
+      "video_file": "video/scene_0024.mp4",
       "transcript": null,
       "status": {
         "audio": "none",
         "image": "ready",
-        "video": "none",
+        "video": "ready",
         "transcript": "none"
+      },
+      "video_meta": {
+        "restored_from": "wan_00026_.mp4",
+        "enhanced": true
       }
     },
     {
@@ -1625,13 +1653,17 @@
       ],
       "fx": [],
       "end_image_file": null,
-      "video_file": null,
+      "video_file": "video/scene_0036.mp4",
       "transcript": null,
       "status": {
         "audio": "none",
         "image": "ready",
-        "video": "none",
+        "video": "ready",
         "transcript": "none"
+      },
+      "video_meta": {
+        "restored_from": "wan_00027_.mp4",
+        "enhanced": true
       }
     },
     {
@@ -1667,13 +1699,17 @@
       "emphasis": [],
       "fx": [],
       "end_image_file": null,
-      "video_file": null,
+      "video_file": "video/scene_0037.mp4",
       "transcript": null,
       "status": {
         "audio": "none",
         "image": "ready",
-        "video": "none",
+        "video": "ready",
         "transcript": "none"
+      },
+      "video_meta": {
+        "restored_from": "wan_00028_.mp4",
+        "enhanced": true
       }
     }
   ],

@@ -2,7 +2,7 @@
   "id": "fa73fad238cd",
   "name": "The Man Who Sold the Eiffel Tower. Twice.",
   "created": 1783676227.1002996,
-  "updated": 1783676746.1491494,
+  "updated": 1783677529.6634002,
   "channel": "main",
   "video": {
     "title": "The Man Who Sold the Eiffel Tower. Twice.",
@@ -162,13 +162,17 @@
       "emphasis": [],
       "fx": [],
       "end_image_file": null,
-      "video_file": null,
+      "video_file": "video/scene_0002.mp4",
       "transcript": null,
       "status": {
         "audio": "none",
         "image": "ready",
-        "video": "none",
+        "video": "ready",
         "transcript": "none"
+      },
+      "video_meta": {
+        "restored_from": "wan_00010_.mp4",
+        "enhanced": true
       }
     },
     {
@@ -422,13 +426,17 @@
       "emphasis": [],
       "fx": [],
       "end_image_file": null,
-      "video_file": null,
+      "video_file": "video/scene_0008.mp4",
       "transcript": null,
       "status": {
         "audio": "none",
         "image": "ready",
-        "video": "none",
+        "video": "ready",
         "transcript": "none"
+      },
+      "video_meta": {
+        "restored_from": "wan_00011_.mp4",
+        "enhanced": true
       }
     },
     {
@@ -466,13 +474,17 @@
       "emphasis": [],
       "fx": [],
       "end_image_file": null,
-      "video_file": null,
+      "video_file": "video/scene_0009.mp4",
       "transcript": null,
       "status": {
         "audio": "none",
         "image": "ready",
-        "video": "none",
+        "video": "ready",
         "transcript": "none"
+      },
+      "video_meta": {
+        "restored_from": "wan_00012_.mp4",
+        "enhanced": true
       }
     },
     {
@@ -953,13 +965,17 @@
       "emphasis": [],
       "fx": [],
       "end_image_file": null,
-      "video_file": null,
+      "video_file": "video/scene_0020.mp4",
       "transcript": null,
       "status": {
         "audio": "none",
         "image": "ready",
-        "video": "none",
+        "video": "ready",
         "transcript": "none"
+      },
+      "video_meta": {
+        "restored_from": "wan_00013_.mp4",
+        "enhanced": true
       }
     },
     {
@@ -1042,13 +1058,17 @@
       ],
       "fx": [],
       "end_image_file": null,
-      "video_file": null,
+      "video_file": "video/scene_0022.mp4",
       "transcript": null,
       "status": {
         "audio": "none",
         "image": "ready",
-        "video": "none",
+        "video": "ready",
         "transcript": "none"
+      },
+      "video_meta": {
+        "restored_from": "wan_00014_.mp4",
+        "enhanced": true
       }
     },
     {
@@ -1131,13 +1151,17 @@
       "emphasis": [],
       "fx": [],
       "end_image_file": null,
-      "video_file": null,
+      "video_file": "video/scene_0024.mp4",
       "transcript": null,
       "status": {
         "audio": "none",
         "image": "ready",
-        "video": "none",
+        "video": "ready",
         "transcript": "none"
+      },
+      "video_meta": {
+        "restored_from": "wan_00015_.mp4",
+        "enhanced": true
       }
     },
     {
@@ -1217,13 +1241,17 @@
       "emphasis": [],
       "fx": [],
       "end_image_file": null,
-      "video_file": null,
+      "video_file": "video/scene_0026.mp4",
       "transcript": null,
       "status": {
         "audio": "none",
         "image": "ready",
-        "video": "none",
+        "video": "ready",
         "transcript": "none"
+      },
+      "video_meta": {
+        "restored_from": "wan_00016_.mp4",
+        "enhanced": true
       }
     },
     {

@@ -2,7 +2,7 @@
   "id": "285510242ead",
   "name": "Five Children Went Upstairs. The Fire Left No Bones.",
   "created": 1783676227.2910883,
-  "updated": 1783676984.175349,
+  "updated": 1783677592.2534285,
   "channel": "menagerie",
   "video": {
     "title": "Five Children Went Upstairs. The Fire Left No Bones.",
@@ -113,13 +113,17 @@
       ],
       "fx": [],
       "end_image_file": null,
-      "video_file": null,
+      "video_file": "video/scene_0001.mp4",
       "transcript": null,
       "status": {
         "audio": "none",
         "image": "ready",
-        "video": "none",
+        "video": "ready",
         "transcript": "none"
+      },
+      "video_meta": {
+        "restored_from": "wan_00037_.mp4",
+        "enhanced": true
       }
     },
     {
@@ -3441,13 +3445,17 @@
       "emphasis": [],
       "fx": [],
       "end_image_file": null,
-      "video_file": null,
+      "video_file": "video/scene_0078.mp4",
       "transcript": null,
       "status": {
         "audio": "none",
         "image": "ready",
-        "video": "none",
+        "video": "ready",
         "transcript": "none"
+      },
+      "video_meta": {
+        "restored_from": "wan_00038_.mp4",
+        "enhanced": true
       }
     },
     {
@@ -3959,13 +3967,17 @@
       "emphasis": [],
       "fx": [],
       "end_image_file": null,
-      "video_file": null,
+      "video_file": "video/scene_0090.mp4",
       "transcript": null,
       "status": {
         "audio": "none",
         "image": "ready",
-        "video": "none",
+        "video": "ready",
         "transcript": "none"
+      },
+      "video_meta": {
+        "restored_from": "wan_00039_.mp4",
+        "enhanced": true
       }
     },
     {
@@ -4127,13 +4139,17 @@
       "emphasis": [],
       "fx": [],
       "end_image_file": null,
-      "video_file": null,
+      "video_file": "video/scene_0094.mp4",
       "transcript": null,
       "status": {
         "audio": "none",
         "image": "ready",
-        "video": "none",
+        "video": "ready",
         "transcript": "none"
+      },
+      "video_meta": {
+        "restored_from": "wan_00040_.mp4",
+        "enhanced": true
       }
     },
     {
@@ -4171,13 +4187,17 @@
       ],
       "fx": [],
       "end_image_file": null,
-      "video_file": null,
+      "video_file": "video/scene_0095.mp4",
       "transcript": null,
       "status": {
         "audio": "none",
         "image": "ready",
-        "video": "none",
+        "video": "ready",
         "transcript": "none"
+      },
+      "video_meta": {
+        "restored_from": "wan_00041_.mp4",
+        "enhanced": true
       }
     },
     {
@@ -4213,13 +4233,17 @@
       "emphasis": [],
       "fx": [],
       "end_image_file": null,
-      "video_file": null,
+      "video_file": "video/scene_0096.mp4",
       "transcript": null,
       "status": {
         "audio": "none",
         "image": "ready",
-        "video": "none",
+        "video": "ready",
         "transcript": "none"
+      },
+      "video_meta": {
+        "restored_from": "wan_00042_.mp4",
+        "enhanced": true
       }
     },
     {
@@ -4588,9 +4612,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0105.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "aaaflow_7a0d148e8f.png"
+      },
       "type": "scene",
       "motion_type": "ambient",
       "end_image_prompt": "",
@@ -4600,13 +4626,17 @@
       "emphasis": [],
       "fx": [],
       "end_image_file": null,
-      "video_file": null,
+      "video_file": "video/scene_0105.mp4",
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
-        "video": "none",
+        "image": "ready",
+        "video": "ready",
         "transcript": "none"
+      },
+      "video_meta": {
+        "restored_from": "wan_00043_.mp4",
+        "enhanced": true
       }
     },
     {
@@ -4985,13 +5015,17 @@
       "emphasis": [],
       "fx": [],
       "end_image_file": null,
-      "video_file": null,
+      "video_file": "video/scene_0114.mp4",
       "transcript": null,
       "status": {
         "audio": "none",
         "image": "ready",
-        "video": "none",
+        "video": "ready",
         "transcript": "none"
+      },
+      "video_meta": {
+        "restored_from": "wan_00044_.mp4",
+        "enhanced": true
       }
     },
     {
@@ -5118,13 +5152,17 @@
       ],
       "fx": [],
       "end_image_file": null,
-      "video_file": null,
+      "video_file": "video/scene_0117.mp4",
       "transcript": null,
       "status": {
         "audio": "none",
         "image": "ready",
-        "video": "none",
+        "video": "ready",
         "transcript": "none"
+      },
+      "video_meta": {
+        "restored_from": "wan_00045_.mp4",
+        "enhanced": true
       }
     },
     {
@@ -5554,13 +5592,17 @@
       "emphasis": [],
       "fx": [],
       "end_image_file": null,
-      "video_file": null,
+      "video_file": "video/scene_0127.mp4",
       "transcript": null,
       "status": {
         "audio": "none",
         "image": "ready",
-        "video": "none",
+        "video": "ready",
         "transcript": "none"
+      },
+      "video_meta": {
+        "restored_from": "wan_00046_.mp4",
+        "enhanced": true
       }
     },
     {
@@ -5682,13 +5724,17 @@
       ],
       "fx": [],
       "end_image_file": null,
-      "video_file": null,
+      "video_file": "video/scene_0130.mp4",
       "transcript": null,
       "status": {
         "audio": "none",
         "image": "ready",
-        "video": "none",
+        "video": "ready",
         "transcript": "none"
+      },
+      "video_meta": {
+        "restored_from": "wan_00047_.mp4",
+        "enhanced": true
       }
     },
     {
@@ -5850,13 +5896,17 @@
       "emphasis": [],
       "fx": [],
       "end_image_file": null,
-      "video_file": null,
+      "video_file": "video/scene_0134.mp4",
       "transcript": null,
       "status": {
         "audio": "none",
         "image": "ready",
-        "video": "none",
+        "video": "ready",
         "transcript": "none"
+      },
+      "video_meta": {
+        "restored_from": "wan_00048_.mp4",
+        "enhanced": true
       }
     },
     {

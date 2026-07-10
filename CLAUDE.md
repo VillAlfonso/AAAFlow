@@ -371,6 +371,10 @@ get a TTS-drift lint warning; spot-check the one-take QA extra carefully.
   `ref: false` blocks.
 - **No em dashes in ANY new writing (user, 2026-07-10).** Narration, titles,
   SEO copy, docs, UI text, code comments: use commas or periods instead.
+  Enforced in code: `autodirect` rewrites em dashes in narration on every
+  import (trailing to a period, internal to a comma) because they are an AI
+  tell and the TTS stumbles on them; `packaging` no longer joins titles,
+  taglines or sources with them.
 
 ## Operational rules
 - Backend (`app/*.py`) edits: **hot-reload first, restart second** (user rule
@@ -418,6 +422,18 @@ get a TTS-drift lint warning; spot-check the one-take QA extra carefully.
   141-scene board as `sodder.py` in that session's temp scratchpad. All
   four projects were rebuilt from those and re-produced; the boards are
   archived in `scratchpad/recovered/`.
+  **The IMAGES and the WAN CLIPS came back too**: `ComfyUI_windows_portable/`
+  is gitignored, so its `output/` cache was untouched, and every artifact
+  carries its own graph. Each krea2 PNG embeds the prompt that made it
+  (`scratchpad/restore_images.py` matches the prompt prefix to a scene's
+  `image_prompt`); each `output/AAAFlow/wan_*.mp4` carries the whole i2v
+  graph in its mp4 `prompt` tag, whose positive text is
+  "<style>. <scene image_prompt>. <motion suffix>"
+  (`scratchpad/restore_clips.py`), and its `LoadImage` start frame still sits
+  in `ComfyUI/input/`. Result: 242/242 images + all 36 hero clips recovered
+  bit-for-bit, zero GPU. **Always check that cache before re-rendering.**
+  The `tools/realesrgan/` binary died in the same wipe (models survived) and
+  was re-downloaded; without the exe the enhance chain silently no-ops.
   **Now protected four ways:** (1) git TRACKS what defines the studio —
   `channel.json`, `ui/`, `brand/graphs/`, every `project.json` /
   `source.json` / `HANDOFF.md`, and the effects dictionaries — while media

@@ -2,7 +2,7 @@
   "id": "61b473b72123",
   "name": "Every House Burned. The Painting Never Did.",
   "created": 1783676227.141016,
-  "updated": 1783676907.9498055,
+  "updated": 1783677447.0093203,
   "channel": "menagerie",
   "video": {
     "title": "Every House Burned. The Painting Never Did.",
@@ -114,13 +114,17 @@
       "emphasis": [],
       "fx": [],
       "end_image_file": null,
-      "video_file": null,
+      "video_file": "video/scene_0001.mp4",
       "transcript": null,
       "status": {
         "audio": "none",
         "image": "ready",
-        "video": "none",
+        "video": "ready",
         "transcript": "none"
+      },
+      "video_meta": {
+        "restored_from": "wan_00029_.mp4",
+        "enhanced": true
       }
     },
     {
@@ -475,13 +479,17 @@
       "fx": [],
       "date_chip": "1985",
       "end_image_file": null,
-      "video_file": null,
+      "video_file": "video/scene_0009.mp4",
       "transcript": null,
       "status": {
         "audio": "none",
         "image": "ready",
-        "video": "none",
+        "video": "ready",
         "transcript": "none"
+      },
+      "video_meta": {
+        "restored_from": "wan_00030_.mp4",
+        "enhanced": true
       }
     },
     {
@@ -698,13 +706,17 @@
       "emphasis": [],
       "fx": [],
       "end_image_file": null,
-      "video_file": null,
+      "video_file": "video/scene_0014.mp4",
       "transcript": null,
       "status": {
         "audio": "none",
         "image": "ready",
-        "video": "none",
+        "video": "ready",
         "transcript": "none"
+      },
+      "video_meta": {
+        "restored_from": "wan_00031_.mp4",
+        "enhanced": true
       }
     },
     {
@@ -1096,13 +1108,17 @@
       "emphasis": [],
       "fx": [],
       "end_image_file": null,
-      "video_file": null,
+      "video_file": "video/scene_0023.mp4",
       "transcript": null,
       "status": {
         "audio": "none",
         "image": "ready",
-        "video": "none",
+        "video": "ready",
         "transcript": "none"
+      },
+      "video_meta": {
+        "restored_from": "wan_00032_.mp4",
+        "enhanced": true
       }
     },
     {
@@ -1144,13 +1160,17 @@
         "letterbox"
       ],
       "end_image_file": null,
-      "video_file": null,
+      "video_file": "video/scene_0024.mp4",
       "transcript": null,
       "status": {
         "audio": "none",
         "image": "ready",
-        "video": "none",
+        "video": "ready",
         "transcript": "none"
+      },
+      "video_meta": {
+        "restored_from": "wan_00033_.mp4",
+        "enhanced": true
       }
     },
     {
@@ -1370,13 +1390,17 @@
       "emphasis": [],
       "fx": [],
       "end_image_file": null,
-      "video_file": null,
+      "video_file": "video/scene_0029.mp4",
       "transcript": null,
       "status": {
         "audio": "none",
         "image": "ready",
-        "video": "none",
+        "video": "ready",
         "transcript": "none"
+      },
+      "video_meta": {
+        "restored_from": "wan_00034_.mp4",
+        "enhanced": true
       }
     },
     {
@@ -1547,13 +1571,17 @@
       ],
       "fx": [],
       "end_image_file": null,
-      "video_file": null,
+      "video_file": "video/scene_0033.mp4",
       "transcript": null,
       "status": {
         "audio": "none",
         "image": "ready",
-        "video": "none",
+        "video": "ready",
         "transcript": "none"
+      },
+      "video_meta": {
+        "restored_from": "wan_00035_.mp4",
+        "enhanced": true
       }
     },
     {
@@ -1683,13 +1711,17 @@
       ],
       "fx": [],
       "end_image_file": null,
-      "video_file": null,
+      "video_file": "video/scene_0036.mp4",
       "transcript": null,
       "status": {
         "audio": "none",
         "image": "ready",
-        "video": "none",
+        "video": "ready",
         "transcript": "none"
+      },
+      "video_meta": {
+        "restored_from": "wan_00036_.mp4",
+        "enhanced": true
       }
     }
   ],

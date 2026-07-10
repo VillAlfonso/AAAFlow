@@ -302,6 +302,18 @@ def direct(raw: Dict, *, default_style: str | None = None,
             fixes.append(f"scene {sid}: emphasis markup -> "
                          f"{', '.join(marked) if marked else 'stripped'}")
 
+        # No em dashes in narration (user rule, 2026-07-10): they read as an
+        # AI tell and the TTS stumbles on them. A trailing dash becomes a full
+        # stop; an internal one becomes the comma a narrator would breathe on.
+        if "—" in narr or "–" in narr:
+            fixed = re.sub(r"\s*[—–]\s*([.!?])", r"\1", narr)     # "accident —." -> "accident."
+            fixed = re.sub(r"\s*[—–]\s*$", ".", fixed)             # trailing dash -> period
+            fixed = re.sub(r"\s*[—–]\s*", ", ", fixed)             # internal -> comma
+            fixed = re.sub(r",\s*([.!?])", r"\1", fixed)
+            if fixed != narr:
+                s["narration"] = narr = fixed
+                fixes.append(f"scene {sid}: em dash in narration -> comma/period")
+
         # TTS-safe punctuation: trailing commas invite hallucinated continuations
         if narr.endswith(","):
             s["narration"] = narr[:-1] + "."

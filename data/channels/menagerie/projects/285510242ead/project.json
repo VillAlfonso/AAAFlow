@@ -2,7 +2,7 @@
   "id": "285510242ead",
   "name": "Five Children Went Upstairs. The Fire Left No Bones.",
   "created": 1783676227.2910883,
-  "updated": 1783676227.3225126,
+  "updated": 1783676984.175349,
   "channel": "menagerie",
   "video": {
     "title": "Five Children Went Upstairs. The Fire Left No Bones.",
@@ -97,9 +97,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0001.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00298_.png"
+      },
       "type": "scene",
       "motion_type": "ambient",
       "end_image_prompt": "",
@@ -115,7 +117,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -139,9 +141,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0002.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00299_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -155,7 +159,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -179,9 +183,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0003.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00300_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -197,7 +203,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -221,9 +227,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0004.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00301_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -239,7 +247,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -263,9 +271,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0005.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00302_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -279,7 +289,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -303,9 +313,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0006.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00303_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -321,7 +333,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -345,9 +357,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0007.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00304_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -361,7 +375,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -385,9 +399,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0008.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00305_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -403,7 +419,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -427,9 +443,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0009.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00306_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -443,7 +461,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -467,9 +485,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0010.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00307_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -486,7 +506,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -510,9 +530,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0011.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00308_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -526,7 +548,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -550,9 +572,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0012.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00309_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -570,7 +594,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -594,9 +618,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0013.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00310_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -610,7 +636,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -634,9 +660,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0014.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00311_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -654,7 +682,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -678,9 +706,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0015.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00312_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -696,7 +726,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -720,9 +750,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0016.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00313_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -738,7 +770,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -762,9 +794,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0017.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00314_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -778,7 +812,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -802,9 +836,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0018.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00315_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -820,7 +856,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -844,9 +880,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0019.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00316_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -860,7 +898,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -884,9 +922,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0020.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00317_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -902,7 +942,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -911,7 +951,7 @@
       "act": "",
       "shot": "close-up",
       "timecode": "",
-      "narration": "Their mother Jennie said yes — if the chores got done.",
+      "narration": "Their mother Jennie said yes, if the chores got done.",
       "visual": "",
       "image_prompt": "Jennie Sodder in an apron pointing gently toward the kitchen door, warm kitchen light, bread on the table",
       "on_screen_text": "",
@@ -926,9 +966,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0021.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00318_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -944,7 +986,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -968,9 +1010,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0022.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00319_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -986,7 +1030,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -1010,9 +1054,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0023.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00320_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -1026,7 +1072,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -1050,9 +1096,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0024.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00321_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -1066,7 +1114,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -1090,9 +1138,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0025.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00322_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -1106,7 +1156,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -1130,9 +1180,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0026.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00323_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -1148,7 +1200,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -1172,9 +1224,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0027.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00324_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -1188,7 +1242,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -1212,9 +1266,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0028.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00325_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -1232,7 +1288,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -1256,9 +1312,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0029.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00326_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -1274,7 +1332,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -1298,9 +1356,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0030.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00327_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -1316,7 +1376,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -1340,9 +1400,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0031.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00328_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -1356,7 +1418,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -1380,9 +1442,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0032.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00329_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -1396,7 +1460,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -1420,9 +1484,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0033.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00330_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -1436,7 +1502,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -1445,7 +1511,7 @@
       "act": "",
       "shot": "low angle",
       "timecode": "",
-      "narration": "Odd — the power company had just passed that new wiring as safe.",
+      "narration": "Odd, the power company had just passed that new wiring as safe.",
       "visual": "",
       "image_prompt": "fresh electrical wiring stapled neatly along a farmhouse beam with a small paper inspection tag wired to it, nobody around",
       "on_screen_text": "",
@@ -1460,9 +1526,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0034.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00331_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -1476,7 +1544,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -1500,9 +1568,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0035.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00332_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -1516,7 +1586,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -1540,9 +1610,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0036.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00333_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -1556,7 +1628,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -1580,9 +1652,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0037.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00334_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -1598,7 +1672,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -1622,9 +1696,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0038.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00335_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -1638,7 +1714,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -1662,9 +1738,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0039.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00336_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -1680,7 +1758,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -1704,9 +1782,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0040.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00337_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -1724,7 +1804,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -1748,9 +1828,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0041.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00338_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -1766,7 +1848,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -1790,9 +1872,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0042.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00339_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -1806,7 +1890,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -1830,9 +1914,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0043.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00340_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -1848,7 +1934,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -1872,9 +1958,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0044.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00341_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -1888,7 +1976,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -1912,9 +2000,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0045.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00342_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -1930,7 +2020,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -1954,9 +2044,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0046.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00343_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -1972,7 +2064,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -1996,9 +2088,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0047.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00344_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -2012,7 +2106,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -2036,9 +2130,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0048.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00345_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -2054,7 +2150,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -2063,7 +2159,7 @@
       "act": "",
       "shot": "wide establishing",
       "timecode": "",
-      "narration": "Half past one. She woke again — to smoke.",
+      "narration": "Half past one. She woke again, to smoke.",
       "visual": "",
       "image_prompt": "thin grey smoke curling under a bedroom door, orange light flickering through the gap",
       "on_screen_text": "",
@@ -2078,9 +2174,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0049.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00346_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -2094,7 +2192,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -2118,9 +2216,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0050.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00347_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -2136,7 +2236,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -2160,9 +2260,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0051.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00348_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -2181,7 +2283,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -2205,9 +2307,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0052.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00349_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -2221,7 +2325,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -2245,9 +2349,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0053.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00350_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -2263,7 +2369,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -2287,9 +2393,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0054.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00351_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -2305,7 +2413,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -2329,9 +2437,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0055.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00352_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -2347,7 +2457,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -2371,9 +2481,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0056.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00353_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -2389,7 +2501,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -2413,9 +2525,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0057.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00354_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -2429,7 +2543,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -2453,9 +2567,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0058.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00355_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -2471,7 +2587,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -2495,9 +2611,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0059.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00356_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -2513,7 +2631,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -2537,9 +2655,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0060.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00357_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -2555,7 +2675,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -2579,9 +2699,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0061.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00358_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -2595,7 +2717,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -2619,9 +2741,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0062.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00359_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -2635,7 +2759,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -2659,9 +2783,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0063.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00360_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -2677,7 +2803,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -2701,9 +2827,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0064.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00361_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -2717,7 +2845,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -2741,9 +2869,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0065.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00362_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -2759,7 +2889,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -2783,9 +2913,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0066.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00363_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -2799,7 +2931,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -2823,9 +2955,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0067.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00364_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -2841,7 +2975,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -2865,9 +2999,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0068.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00365_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -2881,7 +3017,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -2905,9 +3041,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0069.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00366_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -2921,7 +3059,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -2945,9 +3083,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0070.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00367_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -2963,7 +3103,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -2987,9 +3127,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0071.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00368_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -3003,7 +3145,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -3027,9 +3169,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0072.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00369_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -3043,7 +3187,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -3067,9 +3211,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0073.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00370_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -3085,7 +3231,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -3109,9 +3255,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0074.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00371_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -3125,7 +3273,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -3134,7 +3282,7 @@
       "act": "",
       "shot": "close-up",
       "timecode": "",
-      "narration": "And on the coroner's jury that called it an accident —.",
+      "narration": "And on the coroner's jury that called it an accident.",
       "visual": "",
       "image_prompt": "a row of seated jurymen on a wooden bench in a small courtroom, faces in shadow",
       "on_screen_text": "",
@@ -3149,9 +3297,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0075.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00372_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -3165,7 +3315,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -3189,9 +3339,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0076.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00373_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -3205,7 +3357,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -3229,9 +3381,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0077.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00374_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -3247,7 +3401,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -3271,9 +3425,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0078.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00375_.png"
+      },
       "type": "scene",
       "motion_type": "ambient",
       "end_image_prompt": "",
@@ -3289,7 +3445,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -3313,9 +3469,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0079.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00376_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -3331,7 +3489,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -3355,9 +3513,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0080.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00377_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -3371,7 +3531,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -3395,9 +3555,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0081.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00378_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -3415,7 +3577,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -3439,9 +3601,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0082.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00379_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -3455,7 +3619,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -3479,9 +3643,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0083.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00380_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -3497,7 +3663,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -3521,9 +3687,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0084.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00381_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -3537,7 +3705,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -3546,7 +3714,7 @@
       "act": "",
       "shot": "wide establishing",
       "timecode": "",
-      "narration": "Bones outlast two thousand degrees — for two full hours.",
+      "narration": "Bones outlast two thousand degrees, for two full hours.",
       "visual": "",
       "image_prompt": "a furnace temperature gauge needle buried deep in the red, two thousand degrees of roaring light below",
       "on_screen_text": "",
@@ -3561,9 +3729,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0085.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00382_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -3579,7 +3749,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -3603,9 +3773,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0086.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00383_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -3621,7 +3793,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -3645,9 +3817,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0087.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00384_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -3661,7 +3835,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -3685,9 +3859,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0088.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00385_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -3703,7 +3879,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -3727,9 +3903,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0089.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00386_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -3743,7 +3921,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -3767,9 +3945,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0090.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00387_.png"
+      },
       "type": "scene",
       "motion_type": "ambient",
       "end_image_prompt": "",
@@ -3783,7 +3963,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -3807,9 +3987,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0091.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00388_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -3823,7 +4005,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -3847,9 +4029,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0092.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00389_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -3863,7 +4047,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -3887,9 +4071,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0093.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00390_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -3903,7 +4089,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -3912,7 +4098,7 @@
       "act": "",
       "shot": "low angle",
       "timecode": "",
-      "narration": "A woman watching the fire swore she saw the children — in a passing car.",
+      "narration": "A woman watching the fire swore she saw the children, in a passing car.",
       "visual": "",
       "image_prompt": "from a dark hillside: a 1940s sedan passing the burning farm, small pale children's faces in its rear window",
       "on_screen_text": "",
@@ -3927,9 +4113,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0094.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00391_.png"
+      },
       "type": "scene",
       "motion_type": "ambient",
       "end_image_prompt": "",
@@ -3943,7 +4131,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -3967,9 +4155,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0095.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00392_.png"
+      },
       "type": "scene",
       "motion_type": "ambient",
       "end_image_prompt": "",
@@ -3985,7 +4175,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -4009,9 +4199,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0096.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00393_.png"
+      },
       "type": "scene",
       "motion_type": "ambient",
       "end_image_prompt": "",
@@ -4025,7 +4217,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -4049,9 +4241,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0097.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00394_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -4067,7 +4261,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -4076,7 +4270,7 @@
       "act": "",
       "shot": "medium",
       "timecode": "",
-      "narration": "The adults with them spoke Italian — and shut her questions down.",
+      "narration": "The adults with them spoke Italian, and shut her questions down.",
       "visual": "",
       "image_prompt": "a stern Italian-speaking man raising a flat hand to stop her questions, the children silent behind him, lobby shadows",
       "on_screen_text": "",
@@ -4091,9 +4285,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0098.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00395_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -4107,7 +4303,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -4131,9 +4327,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0099.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00396_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -4149,7 +4347,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -4173,9 +4371,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0100.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00397_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -4192,7 +4392,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -4216,9 +4416,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0101.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00398_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -4236,7 +4438,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -4260,9 +4462,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0102.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00399_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -4276,7 +4480,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -4300,9 +4504,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0103.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00400_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -4316,7 +4522,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -4340,9 +4546,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0104.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00401_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -4356,7 +4564,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -4365,7 +4573,7 @@
       "act": "",
       "shot": "close-up",
       "timecode": "",
-      "narration": "He'd found a heart in the ashes, he said — and buried it in a box.",
+      "narration": "He'd found a heart in the ashes, he said, and buried it in a box.",
       "visual": "",
       "image_prompt": "a small wooden box half-buried in ash inside a lantern circle, night",
       "on_screen_text": "",
@@ -4420,9 +4628,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0106.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00403_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -4436,7 +4646,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -4460,9 +4670,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0107.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00404_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -4476,7 +4688,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -4500,9 +4712,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0108.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00405_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -4516,7 +4730,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -4540,9 +4754,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0109.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00406_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -4559,7 +4775,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -4583,9 +4799,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0110.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00407_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -4599,7 +4817,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -4623,9 +4841,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0111.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00408_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -4641,7 +4861,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -4665,9 +4885,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0112.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00409_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -4681,7 +4903,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -4705,9 +4927,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0113.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00410_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -4723,7 +4947,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -4732,7 +4956,7 @@
       "act": "",
       "shot": "three-quarter medium",
       "timecode": "",
-      "narration": "Too old for the children — and most likely carried in with the fill dirt.",
+      "narration": "Too old for the children, and most likely carried in with the fill dirt.",
       "visual": "",
       "image_prompt": "a dump truck tipping a load of fill dirt, flat grey recollection, deserted site",
       "on_screen_text": "",
@@ -4747,9 +4971,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0114.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00411_.png"
+      },
       "type": "scene",
       "motion_type": "ambient",
       "end_image_prompt": "",
@@ -4763,7 +4989,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -4787,9 +5013,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0115.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00412_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -4805,7 +5033,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -4829,9 +5057,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0116.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00413_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -4848,7 +5078,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -4872,9 +5102,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0117.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00414_.png"
+      },
       "type": "scene",
       "motion_type": "ambient",
       "end_image_prompt": "",
@@ -4890,7 +5122,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -4914,9 +5146,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0118.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00415_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -4930,7 +5164,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -4954,9 +5188,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0119.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00416_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -4972,7 +5208,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -4996,9 +5232,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0120.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00417_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -5013,7 +5251,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -5037,9 +5275,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0121.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00418_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -5055,7 +5295,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -5079,9 +5319,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0122.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00419_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -5097,7 +5339,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -5121,9 +5363,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0123.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00420_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -5137,7 +5381,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -5161,9 +5405,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0124.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00421_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -5181,7 +5427,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -5205,9 +5451,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0125.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00422_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -5221,7 +5469,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -5245,9 +5493,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0126.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00423_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -5263,7 +5513,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -5287,9 +5537,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0127.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00424_.png"
+      },
       "type": "scene",
       "motion_type": "ambient",
       "end_image_prompt": "",
@@ -5306,7 +5558,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -5330,9 +5582,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0128.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00425_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -5346,7 +5600,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -5370,9 +5624,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0129.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00426_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -5386,7 +5642,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -5395,7 +5651,7 @@
       "act": "",
       "shot": "low angle",
       "timecode": "",
-      "narration": "The first points to extortion — the old country's mafia, and a man who wouldn't pay.",
+      "narration": "The first points to extortion, the old country's mafia, and a man who wouldn't pay.",
       "visual": "",
       "image_prompt": "an old extortion letter sealed with a black handprint lying on a doormat, dread, low light",
       "on_screen_text": "",
@@ -5410,9 +5666,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0130.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00427_.png"
+      },
       "type": "scene",
       "motion_type": "ambient",
       "end_image_prompt": "",
@@ -5428,7 +5686,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -5452,9 +5710,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0131.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00428_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -5468,7 +5728,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -5492,9 +5752,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0132.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00429_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -5508,7 +5770,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -5532,9 +5794,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0133.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00430_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -5548,7 +5812,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -5557,7 +5821,7 @@
       "act": "",
       "shot": "medium",
       "timecode": "",
-      "narration": "No theory has ever produced a body — or a grown child, come home.",
+      "narration": "No theory has ever produced a body, or a grown child, come home.",
       "visual": "",
       "image_prompt": "the farmhouse gate standing open at dusk, the road beyond empty, nobody coming home, long shadows",
       "on_screen_text": "",
@@ -5572,9 +5836,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0134.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00431_.png"
+      },
       "type": "scene",
       "motion_type": "ambient",
       "end_image_prompt": "",
@@ -5588,7 +5854,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -5612,9 +5878,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0135.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00432_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -5633,7 +5901,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -5657,9 +5925,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0136.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00433_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -5675,7 +5945,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -5699,9 +5969,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0137.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00434_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -5718,7 +5990,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -5742,9 +6014,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0138.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00435_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -5758,7 +6032,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -5782,9 +6056,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0139.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00436_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -5800,7 +6076,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -5824,9 +6100,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0140.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00437_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -5840,7 +6118,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -5864,9 +6142,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0141.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00438_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -5882,7 +6162,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -6194,19 +6474,19 @@
     ],
     "sources": [
       {
-        "title": "Wikipedia — Sodder children disappearance",
+        "title": "Wikipedia: Sodder children disappearance",
         "url": "https://en.wikipedia.org/wiki/Sodder_children_disappearance"
       },
       {
-        "title": "Smithsonian Magazine — What Happened to the Sodder Children?",
+        "title": "Smithsonian Magazine: What Happened to the Sodder Children?",
         "url": "https://www.smithsonianmag.com/history/what-happened-sodder-children-siblings-who-went-up-in-smoke-west-virginia-house-fire-172429802/"
       },
       {
-        "title": "NPR — Mystery of Missing Children Haunts W.Va. Town",
+        "title": "NPR: Mystery of Missing Children Haunts W.Va. Town",
         "url": "https://www.npr.org/2005/12/23/5067563/mystery-of-missing-children-haunts-w-va-town"
       },
       {
-        "title": "Legends of America — Missing Sodder Children",
+        "title": "Legends of America: Missing Sodder Children",
         "url": "https://www.legendsofamerica.com/missing-sodder-children/"
       }
     ],
@@ -6224,5 +6504,185 @@
       "smithsonian vertebrae analysis"
     ]
   },
-  "recovered": "rebuilt 2026-07-10 from the recovered storyboard after the 2026-07-09 data loss"
+  "recovered": "rebuilt 2026-07-10 from the recovered storyboard after the 2026-07-09 data loss",
+  "seo": {
+    "titles": [
+      "Five Children Went Upstairs. The Fire Left No Bones",
+      "Five children went upstairs on Christmas Eve. They never came down",
+      "Five Children Went Upstairs. The Fire Left No Bones: Every exhibit was real"
+    ],
+    "description": "Five children went upstairs on Christmas Eve. They never came down.\nRewind to ten p.m., December 24th, 1945.\nMaurice. Martha. Louis. Little Jennie. Betty.\n\nThe Midnight Menagerie — Every exhibit was real.\n\nChapters:\n0:00 Five children went upstairs on Christmas\n0:25 The ladder that always leaned on\n0:53 Whatever George ran from\n1:20 Their mother Jennie said yes\n1:47 Your children\n2:12 Odd\n2:41 Wrong number\n3:09 Then silence\n3:37 Gone\n4:06 The operator never answered\n4:34 Five children\n5:00 His threat was two months old\n5:27 Every single time\n5:57 He admitted stealing it\n6:23 A week later\n6:49 Then the fire chief made a\n7:16 They sifted every shovelful of that\n7:44 Five painted faces\n8:09 On the back\n8:36 So what happened that night\n9:01 No theory has ever produced a\n9:28 The fire took forty-five minutes\n\nSources:\n- Wikipedia — Sodder children disappearance | https://en.wikipedia.org/wiki/Sodder_children_disappearance\n- Smithsonian Magazine — What Happened to the Sodder Children? | https://www.smithsonianmag.com/history/what-happened-sodder-children-siblings-who-went-up-in-smoke-west-virginia-house-fire-172429802/\n- NPR — Mystery of Missing Children Haunts W.Va. Town | https://www.npr.org/2005/12/23/5067563/mystery-of-missing-children-haunts-w-va-town\n- Legends of America — Missing Sodder Children | https://www.legendsofamerica.com/missing-sodder-children/\n\n#jennie #george #christmaseve",
+    "tags": [
+      "jennie",
+      "george",
+      "christmas eve",
+      "sodder",
+      "italy",
+      "1945",
+      "1949",
+      "sodder children",
+      "sodder children disappearance",
+      "sodder fire 1945",
+      "fayetteville west virginia",
+      "george sodder",
+      "jennie sodder",
+      "louis sodder",
+      "christmas eve 1945",
+      "sodder billboard",
+      "unsolved disappearance",
+      "five children",
+      "children went",
+      "went upstairs",
+      "upstairs fire",
+      "fire left",
+      "left no",
+      "no bones",
+      "forty-five minutes",
+      "fire took",
+      "took forty-five",
+      "ladder always",
+      "children",
+      "fire",
+      "five",
+      "never",
+      "house",
+      "night",
+      "bones",
+      "said",
+      "back",
+      "years",
+      "true story",
+      "macabre history"
+    ],
+    "hashtags": [
+      "#jennie",
+      "#george",
+      "#christmaseve"
+    ],
+    "chapters": [
+      {
+        "time": 0.0,
+        "stamp": "0:00",
+        "label": "Five children went upstairs on Christmas"
+      },
+      {
+        "time": 25.48,
+        "stamp": "0:25",
+        "label": "The ladder that always leaned on"
+      },
+      {
+        "time": 52.53,
+        "stamp": "0:53",
+        "label": "Whatever George ran from"
+      },
+      {
+        "time": 79.56,
+        "stamp": "1:20",
+        "label": "Their mother Jennie said yes"
+      },
+      {
+        "time": 107.36,
+        "stamp": "1:47",
+        "label": "Your children"
+      },
+      {
+        "time": 132.46,
+        "stamp": "2:12",
+        "label": "Odd"
+      },
+      {
+        "time": 161.43,
+        "stamp": "2:41",
+        "label": "Wrong number"
+      },
+      {
+        "time": 188.84,
+        "stamp": "3:09",
+        "label": "Then silence"
+      },
+      {
+        "time": 217.43,
+        "stamp": "3:37",
+        "label": "Gone"
+      },
+      {
+        "time": 246.4,
+        "stamp": "4:06",
+        "label": "The operator never answered"
+      },
+      {
+        "time": 273.82,
+        "stamp": "4:34",
+        "label": "Five children"
+      },
+      {
+        "time": 300.47,
+        "stamp": "5:00",
+        "label": "His threat was two months old"
+      },
+      {
+        "time": 327.1,
+        "stamp": "5:27",
+        "label": "Every single time"
+      },
+      {
+        "time": 357.23,
+        "stamp": "5:57",
+        "label": "He admitted stealing it"
+      },
+      {
+        "time": 382.71,
+        "stamp": "6:23",
+        "label": "A week later"
+      },
+      {
+        "time": 408.97,
+        "stamp": "6:49",
+        "label": "Then the fire chief made a"
+      },
+      {
+        "time": 436.38,
+        "stamp": "7:16",
+        "label": "They sifted every shovelful of that"
+      },
+      {
+        "time": 463.8,
+        "stamp": "7:44",
+        "label": "Five painted faces"
+      },
+      {
+        "time": 489.28,
+        "stamp": "8:09",
+        "label": "On the back"
+      },
+      {
+        "time": 515.92,
+        "stamp": "8:36",
+        "label": "So what happened that night"
+      },
+      {
+        "time": 541.39,
+        "stamp": "9:01",
+        "label": "No theory has ever produced a"
+      },
+      {
+        "time": 567.64,
+        "stamp": "9:28",
+        "label": "The fire took forty-five minutes"
+      }
+    ],
+    "thumbnail": "thumbnail.png",
+    "thumbnail_variants": {
+      "spotlight": "video/thumbs/spotlight.png",
+      "case-file": "video/thumbs/case-file.png",
+      "reveal": "video/thumbs/reveal.png",
+      "split": "video/thumbs/split.png",
+      "bar": "video/thumbs/bar.png",
+      "poster": "video/thumbs/poster.png",
+      "big-word": "video/thumbs/big-word.png"
+    },
+    "thumb_template": "big-word",
+    "thumb_mood": "calm",
+    "built": 1783676904.9614105
+  }
 }

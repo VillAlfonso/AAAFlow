@@ -2,7 +2,7 @@
   "id": "fa73fad238cd",
   "name": "The Man Who Sold the Eiffel Tower. Twice.",
   "created": 1783676227.1002996,
-  "updated": 1783676227.1002996,
+  "updated": 1783676746.1491494,
   "channel": "main",
   "video": {
     "title": "The Man Who Sold the Eiffel Tower. Twice.",
@@ -101,9 +101,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0001.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00188_.png"
+      },
       "type": "scene",
       "motion_type": "ambient",
       "end_image_prompt": "",
@@ -120,7 +122,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -144,9 +146,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0002.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00189_.png"
+      },
       "type": "scene",
       "motion_type": "ambient",
       "end_image_prompt": "",
@@ -162,7 +166,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -186,9 +190,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0003.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00190_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -202,7 +208,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -226,9 +232,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0004.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00191_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -242,7 +250,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -266,9 +274,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0005.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00192_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -284,7 +294,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -308,9 +318,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0006.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00193_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -328,7 +340,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -352,9 +364,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0007.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00194_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -368,7 +382,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -392,9 +406,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0008.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00195_.png"
+      },
       "type": "scene",
       "motion_type": "ambient",
       "end_image_prompt": "",
@@ -410,7 +426,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -434,9 +450,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0009.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00196_.png"
+      },
       "type": "scene",
       "motion_type": "ambient",
       "end_image_prompt": "",
@@ -452,7 +470,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -476,9 +494,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0010.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00197_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -494,7 +514,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -518,9 +538,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0011.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00217_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -536,7 +558,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -560,9 +582,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0012.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00199_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -576,7 +600,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -600,9 +624,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0013.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00200_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -616,7 +642,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -640,9 +666,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0014.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00201_.png"
+      },
       "type": "scene",
       "motion_type": "ambient",
       "end_image_prompt": "",
@@ -662,7 +690,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -686,9 +714,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0015.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00202_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -704,7 +734,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -728,9 +758,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0016.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00203_.png"
+      },
       "type": "scene",
       "motion_type": "ambient",
       "end_image_prompt": "",
@@ -747,7 +779,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -771,9 +803,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0017.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00204_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -791,7 +825,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -815,9 +849,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0018.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00205_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -833,7 +869,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -857,9 +893,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0019.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00206_.png"
+      },
       "type": "scene",
       "motion_type": "ambient",
       "end_image_prompt": "",
@@ -877,7 +915,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -901,9 +939,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0020.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00218_.png"
+      },
       "type": "scene",
       "motion_type": "ambient",
       "end_image_prompt": "",
@@ -917,7 +957,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -941,9 +981,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0021.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00222_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -957,7 +999,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -981,9 +1023,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0022.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00209_.png"
+      },
       "type": "scene",
       "motion_type": "ambient",
       "end_image_prompt": "",
@@ -1002,7 +1046,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -1026,9 +1070,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0023.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00210_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -1045,7 +1091,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -1069,9 +1115,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0024.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00211_.png"
+      },
       "type": "scene",
       "motion_type": "ambient",
       "end_image_prompt": "",
@@ -1087,7 +1135,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -1111,9 +1159,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0025.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00212_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -1129,7 +1179,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -1153,9 +1203,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0026.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00223_.png"
+      },
       "type": "scene",
       "motion_type": "ambient",
       "end_image_prompt": "",
@@ -1169,7 +1221,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -1193,9 +1245,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0027.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00214_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -1212,7 +1266,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }
@@ -1236,9 +1290,11 @@
       "audio_file": null,
       "audio_dur": null,
       "audio_voice": null,
-      "image_file": null,
+      "image_file": "images/scene_0028.png",
       "image_seed": null,
-      "image_meta": null,
+      "image_meta": {
+        "restored_from": "AAAFlow_00215_.png"
+      },
       "type": "scene",
       "motion_type": "",
       "end_image_prompt": "",
@@ -1252,7 +1308,7 @@
       "transcript": null,
       "status": {
         "audio": "none",
-        "image": "none",
+        "image": "ready",
         "video": "none",
         "transcript": "none"
       }

@@ -267,8 +267,9 @@ def build(pid: str, thumb_text: Optional[str] = None,
         for t in _curiosity_titles(title, hook, narration, seed=seed):
             _add_title(t)
     _add_title(title)
-    _add_title(f"{title} — {ch['tagline'].rstrip('.')}" if ch and ch.get("tagline")
-               else f"{title} — The Full Story")
+    # no em dashes in anything the audience reads (user rule, 2026-07-10)
+    _add_title(f"{title}: {ch['tagline'].rstrip('.')}" if ch and ch.get("tagline")
+               else f"{title}: The Full Story")
 
     chapters = _chapters(p)
     tags = _tags(p, ch)
@@ -279,7 +280,7 @@ def build(pid: str, thumb_text: Optional[str] = None,
     desc_lines = ([hook + "."] if hook else [])
     desc_lines += _specific_lines(scenes, skip=hook)
     if ch and ch.get("tagline"):
-        desc_lines += ["", f"{ch.get('name')} — {ch['tagline'].rstrip('.')}."]
+        desc_lines += ["", f"{ch.get('name')}. {ch['tagline'].rstrip('.')}."]
     desc_lines += [""]
     if len(chapters) >= 3:
         desc_lines += ["Chapters:"] + [f"{c['stamp']} {c['label']}" for c in chapters] + [""]
@@ -288,7 +289,7 @@ def build(pid: str, thumb_text: Optional[str] = None,
             if isinstance(s, dict) and (s.get("title") or s.get("url"))]
     if srcs:
         desc_lines += ["Sources:"] + [
-            "- " + " — ".join(x for x in (s.get("title"), s.get("url")) if x)
+            "- " + " | ".join(x for x in (s.get("title"), s.get("url")) if x)
             for s in srcs[:6]] + [""]
     # Auto-attribution: any CC-licensed music/SFX the scorer used must be credited
     # here (CC0 needs none, but the scorer only lists what actually requires it).

@@ -405,18 +405,29 @@ get a TTS-drift lint warning; spot-check the one-take QA extra carefully.
   images/ video/); `data/projects/` is only the legacy/standalone fallback.
   Always resolve paths via `projects.project_dir(pid)` — never build them.
   Long builds keep a `HANDOFF.md` there, updated as stages finish.
-- **DATA SAFETY (incident 2026-07-09; safeguards 2026-07-10).** `data/channels/`
-  was wiped outside the app (git-clean signature: untracked non-ignored files
-  died, ignored/tracked survived) and the app silently re-migrated a bare
-  "main" from the legacy backup. Menagerie was rebuilt from its surviving
-  ComfyUI brand graphs + secrets vault; its produced videos were lost
-  locally. Now protected three ways: channel.json + ui/ + brand graphs are
-  TRACKED in git (per-channel project media is gitignored so `git add .`
-  stays safe), every channel write snapshots ALL records to
-  `data/channels.backup.json` (gitignored, `_migrate` restores from it
-  first), and every `save_project` mirrors project.json to
-  `data/backups/projects/` (gitignored). NEVER run `git clean` here without
-  `-n` first; nothing under data/ is disposable.
+- **DATA SAFETY (incident 2026-07-09; safeguards + recovery 2026-07-10).**
+  `data/channels/` was wiped outside the app while untangling a failing
+  GitHub push (untracked non-ignored files died; ignored + tracked survived;
+  the app then silently re-migrated a bare "main"). **Windows Previous
+  Versions did NOT save it**: the one VSS snapshot (2026-07-05 11:29) had the
+  right file names and sizes but ZEROED data blocks, because freed clusters
+  were TRIMmed on the SSD. Renders, narration wavs and project.json were
+  unrecoverable; carving would find nothing either. What DID survive was
+  text outside `data/`: two storyboards mined out of Claude session
+  transcripts (`~/.claude/projects/C--AAAFlow/*.jsonl`) and Sodder's
+  141-scene board as `sodder.py` in that session's temp scratchpad. All
+  four projects were rebuilt from those and re-produced; the boards are
+  archived in `scratchpad/recovered/`.
+  **Now protected four ways:** (1) git TRACKS what defines the studio —
+  `channel.json`, `ui/`, `brand/graphs/`, every `project.json` /
+  `source.json` / `HANDOFF.md`, and the effects dictionaries — while media
+  (audio/images/video/caches) and `data/secrets/` stay ignored, so
+  `git add .` stays small and safe; (2) every channel write snapshots all
+  records to `data/channels.backup.json`, and `_migrate` restores from it
+  before the legacy merge; (3) every `save_project` mirrors project.json to
+  `data/backups/projects/`; (4) session transcripts are the last resort.
+  NEVER run `git clean` here without `-n` first, and never `git reset --hard`
+  a commit that added data/.
 - **Storage is precious** (2026-07-03 purge freed ~100 GB: last LTX remnant,
   training-only raw weights, superseded SDXL/IP-Adapter caches — everything
   re-downloads on demand; see `trainers/weights/README.md`). Disk janitor:

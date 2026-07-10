@@ -101,11 +101,68 @@ def _api_error(exc: urllib.error.HTTPError) -> str:
         return f"HTTP {exc.code}"
 
 
+def _probe_height(path) -> int:
+    import subprocess
+    from pathlib import Path as _P
+    probe = str(_P(config.FFMPEG).with_name("ffprobe.exe"))
+    if not _P(probe).exists():
+        probe = "ffprobe"
+    try:
+        r = subprocess.run([probe, "-v", "error", "-select_streams", "v:0",
+                            "-show_entries", "stream=height", "-of", "csv=p=0",
+                            str(path)], capture_output=True, text=True, timeout=60)
+        return int(r.stdout.strip().splitlines()[0])
+    except Exception:  # noqa: BLE001
+        return 0
+
+
+def _youtube_master(src, progress):
+    """YouTube starves 1080p uploads of bitrate; the SAME video uploaded at
+    1440p lands in a much better codec tier (user, 2026-07-10: "youtube is
+    messing up the quality"). Flat art upscales cleanly with lanczos, so
+    uploads default to a cached 2560x1440 master."""
+    import subprocess
+    from pathlib import Path as _P
+    src = _P(src)
+    if _probe_height(src) >= 1440:
+        return src
+    dst = src.with_name(src.stem + "_yt1440.mp4")
+    if dst.exists() and dst.stat().st_mtime >= src.stat().st_mtime:
+        return dst
+    progress("Building the 1440p YouTube master (bitrate-tier trick)", 0.03)
+    head = [config.FFMPEG, "-y", "-i", str(src),
+            "-vf", "scale=2560:1440:flags=lanczos",
+            "-c:a", "copy", "-movflags", "+faststart"]
+    for vcodec in (["-c:v", "h264_nvenc", "-preset", "p5", "-rc", "vbr",
+                    "-cq", "16", "-b:v", "0", "-pix_fmt", "yuv420p"],
+                   ["-c:v", "libx264", "-preset", "medium", "-crf", "15",
+                    "-pix_fmt", "yuv420p"]):
+        r = subprocess.run(head + vcodec + [str(dst)], capture_output=True,
+                           timeout=3600)
+        if r.returncode == 0 and dst.exists():
+            return dst
+    raise RuntimeError("1440p master encode failed")
+
+
+def _publish_at_rfc3339(v) -> Optional[str]:
+    """Local 'YYYY-MM-DDTHH:MM' (the datetime-local input) -> RFC3339 UTC."""
+    v = (v or "").strip()
+    if not v:
+        return None
+    import datetime as _dt
+    t = _dt.datetime.fromisoformat(v)
+    if t.tzinfo is None:
+        t = t.astimezone()                      # interpret as local time
+    return t.astimezone(_dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
 def submit_upload(pid: str, opts: Optional[Dict] = None) -> str:
     """Upload a project render (default: newest final) to its channel's YouTube.
 
     opts: file (project-relative mp4), title, description, tags, privacy,
-    thumbnail (bool, default True).
+    thumbnail (bool, default True), master (bool, default True: upload a
+    1440p upscale), publish_at (local datetime: YouTube flips the private
+    upload public at that time).
     """
     opts = opts or {}
     project = projects.get_project(pid)
@@ -138,18 +195,32 @@ def submit_upload(pid: str, opts: Optional[Dict] = None) -> str:
     tags = opts.get("tags") or seo.get("tags") or []
     privacy = opts.get("privacy") or yt.get("privacy") or "private"
     category = str(yt.get("category_id") or "27")
+    publish_at = _publish_at_rfc3339(opts.get("publish_at")
+                                     or seo.get("publish_at") or "")
+    want_master = opts.get("master", True)
 
     def task(progress) -> Dict:
-        progress("Refreshing access token", 0.02)
+        up_src = src
+        if want_master:
+            try:
+                up_src = _youtube_master(src, progress)
+            except Exception as exc:  # noqa: BLE001 - original still uploads
+                progress(f"1440p master skipped ({exc})", 0.03)
+        progress("Refreshing access token", 0.04)
         token = _access_token(yt)
+        status = {"privacyStatus": privacy, "selfDeclaredMadeForKids": False}
+        if publish_at:
+            # the YouTube way: upload PRIVATE with publishAt; YouTube flips it
+            # public at that moment (needs a verified OAuth app to stick)
+            status["privacyStatus"] = "private"
+            status["publishAt"] = publish_at
         meta = {
             "snippet": {"title": title, "description": description,
                         "tags": tags[:60], "categoryId": category},
-            "status": {"privacyStatus": privacy,
-                       "selfDeclaredMadeForKids": False},
+            "status": status,
         }
         progress("Starting resumable upload", 0.05)
-        size = src.stat().st_size
+        size = up_src.stat().st_size
         init = urllib.request.Request(
             f"{config.YOUTUBE['upload_url']}?uploadType=resumable&part=snippet,status",
             data=json.dumps(meta).encode(), method="POST",
@@ -168,7 +239,7 @@ def submit_upload(pid: str, opts: Optional[Dict] = None) -> str:
         chunk = config.YOUTUBE["chunk_bytes"]
         sent = 0
         video = None
-        with open(src, "rb") as f:
+        with open(up_src, "rb") as f:
             while sent < size:
                 blob = f.read(chunk)
                 end = sent + len(blob) - 1
@@ -209,7 +280,10 @@ def submit_upload(pid: str, opts: Optional[Dict] = None) -> str:
         proj = projects.get_project(pid)
         proj.setdefault("uploads", []).insert(0, {
             "video_id": vid, "url": url, "file": rel, "title": title,
-            "privacy": privacy, "channel": ch["id"], "uploaded": time.time()})
+            "privacy": ("scheduled" if publish_at else privacy),
+            "publish_at": publish_at,
+            "master_1440": str(up_src) != str(src),
+            "channel": ch["id"], "uploaded": time.time()})
         projects.save_project(proj)
         return {"video_id": vid, "url": url, "privacy": privacy}
 

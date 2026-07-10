@@ -331,6 +331,17 @@ preset p5 (cq19 unchanged).
   memory, `upsert()` diverts them — channel.json never holds credentials. The
   channel editor carries an idiot-proof connect guide (console links,
   Desktop-app OAuth client, test user).
+- **SCHEDULED POSTS + the 1440p bitrate trick (user, 2026-07-10).** The
+  Publish page has a "Goes public" datetime: the upload goes up PRIVATE with
+  YouTube `publishAt`, and YouTube itself flips it public at that moment
+  (needs the OAuth app verified to stick; until then it may stay private).
+  The chosen time persists as `seo.publish_at` and shows as a "goes live"
+  chip on every upload row. Quality: uploads default to a cached **1440p
+  master** (`youtube._youtube_master`, lanczos + NVENC cq16) because YouTube
+  starves 1080p uploads of bitrate; 1440p lands in a better codec tier.
+  `master: false` uploads the original. The channel Videos page opens with a
+  **channel preview** (brand banner + avatar + live YouTube stats + all
+  videos as thumbnail cards).
 - **APP-LEVEL OAuth (user, 2026-07-10: "publish this as an app").** The
   studio's own Google client lives in `data/secrets/app_oauth.json`
   (gitignored); every channel without its own creds inherits it in

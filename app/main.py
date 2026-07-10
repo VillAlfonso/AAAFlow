@@ -1018,6 +1018,8 @@ class UploadReq(BaseModel):
     tags: Optional[List[str]] = None
     privacy: Optional[str] = None     # private (default) | unlisted | public
     thumbnail: bool = True
+    master: Optional[bool] = None     # upload the 1440p master (default True)
+    publish_at: Optional[str] = None  # local datetime -> YouTube publishAt
 
 
 @app.post("/api/projects/{pid}/upload")

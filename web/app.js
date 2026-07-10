@@ -415,6 +415,36 @@ async function renderProjects(host) {
   };
   api.get(`/api/channels/${ch.id}/autopilot`).then(apDraw).catch(() => { });
 
+  // CHANNEL PREVIEW: the channel the way a viewer would see it — banner,
+  // avatar, live YouTube stats, and every video as a thumbnail card.
+  const cp = el("div", "card"); cp.style.padding = "0"; cp.style.overflow = "hidden";
+  const cpT = Date.now();
+  cp.innerHTML = `
+    <div style="height:148px;background:#101014 center/cover no-repeat url('/channels/${ch.id}/brand/banner.png?t=${cpT}')"></div>
+    <div style="display:flex;gap:14px;align-items:center;padding:10px 18px 4px">
+      <img src="/channels/${ch.id}/brand/profile.png?t=${cpT}" onerror="this.style.display='none'"
+           style="width:68px;height:68px;border-radius:50%;margin-top:-46px;border:3px solid #0b0b0e;background:#1a1a20;object-fit:cover"/>
+      <div style="min-width:0">
+        <b style="font-size:16px">${esc(ch.name)}</b>
+        <div class="muted" style="font-size:11.5px;max-width:640px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(ch.niche || "")}</div>
+      </div>
+      <div class="muted mono" id="cpStats" style="margin-left:auto;font-size:12px;text-align:right"></div>
+    </div>
+    <div id="cpGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:14px;padding:12px 18px 18px"></div>`;
+  page.appendChild(cp);
+  $("#cpGrid", cp).innerHTML = (state.projects || []).map(pr => `
+    <a href="#/p/${pr.id}/preview" style="text-decoration:none;color:inherit;min-width:0">
+      <img src="/projects/${pr.id}/thumbnail.png?t=${cpT}"
+           onerror="this.onerror=null;this.src='/projects/${pr.id}/images/scene_0001.png'"
+           style="width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:9px;background:#141418"/>
+      <div style="font-size:12.5px;font-weight:600;line-height:1.35;margin-top:6px">${esc(pr.title || pr.name)}</div>
+      <div class="muted" style="font-size:11px">${pr.timeline_dur ? Math.round(pr.timeline_dur / 60) + " min · " : ""}${pr.scenes} scenes · ${pr.renders ? "rendered ✓" : "draft"} · ${fmtAgo(pr.updated)}</div>
+    </a>`).join("") || `<span class="muted" style="font-size:12px">No videos yet — type an idea into Autopilot above.</span>`;
+  api.get(`/api/channels/${ch.id}/youtube/channels`).then(d => {
+    const c0 = (d.channels || [])[0]; if (!c0) return;
+    $("#cpStats", cp).innerHTML = `<b>${esc(String(c0.subs ?? 0))}</b> subs · ${esc(String(c0.videos ?? 0))} on YouTube · ${esc(String(c0.views ?? 0))} views<br/><span style="font-size:10.5px">${esc(c0.custom_url || "")}</span>`;
+  }).catch(() => { });
+
   // import card
   const imp = el("div", "card");
   imp.innerHTML = `
@@ -3866,11 +3896,16 @@ async function renderPublish(host) {
             <div class="muted">${esc(d1.slice(0, 110))}${d1.length > 110 ? "…" : ""}</div>
             <div class="muted mono" style="font-size:11px">${tags.length} tags · thumbnail ${seo.thumbnail ? "✓" : "—"} · title, description, tags and thumbnail attach automatically</div>
           </div></div>
-        <div class="muted" style="font-size:11px;margin-top:6px">Private by default — review on YouTube, publish there. Edit anything in the SEO card above first; Post always uses the saved version.</div>
+        <div class="row" style="gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap">
+          <label class="muted" style="font-size:12px">🕑 Goes public</label>
+          <input type="datetime-local" id="ytWhen" value="${esc((seo.publish_at || ""))}" style="width:auto"/>
+          <span class="muted" style="font-size:11px">blank = stays ${esc(yt.privacy || "private")} until you flip it. With a time set, the upload goes up private and <b>YouTube itself publishes it at that moment</b>.</span>
+        </div>
+        <div class="muted" style="font-size:11px;margin-top:6px">📈 Quality: a <b>1440p master</b> is built and uploaded automatically — YouTube gives 1440p a much higher bitrate tier than 1080p, which fixes the mushy look. Edit anything in the SEO card above first; Post always uses the saved version.</div>
         ${ups.length ? `<div style="margin-top:10px">${ups.map(u => `
           <div class="row" style="gap:10px;padding:5px 0;border-top:1px solid rgba(255,255,255,.06);font-size:12.5px">
             <a href="${esc(u.url)}" target="_blank" class="mono">${esc(u.url)}</a>
-            <span class="muted">${esc(u.title || "")} · ${esc(u.privacy)} · ${fmtAgo(u.uploaded)}</span></div>`).join("")}</div>` : ""}`;
+            <span class="muted">${esc(u.title || "")} · ${u.publish_at ? `<b>🕑 goes live ${new Date(u.publish_at).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}</b>` : esc(u.privacy)}${u.master_1440 ? " · 1440p" : ""} · ${fmtAgo(u.uploaded)}</span></div>`).join("")}</div>` : ""}`;
     }
     ytC.innerHTML = `<div class="section-title">YouTube ${ch ? "· " + esc(ch.name) : ""}</div>${body}`;
     const editBtn = $("#ytEditCh", ytC); if (editBtn) editBtn.onclick = () => editChannelModal(ch);
@@ -3880,10 +3915,14 @@ async function renderPublish(host) {
       catch (e) { toast(e.message, "err"); }
     };
     const upBtn = $("#ytUpload", ytC);
-    if (upBtn) upBtn.onclick = () => {
+    if (upBtn) upBtn.onclick = async () => {
       const sel = $("#ytFile", ytC);
+      const when = ($("#ytWhen", ytC) || {}).value || "";
       const opts = { privacy: $("#ytPriv", ytC).value };
       if (sel && sel.value) opts.file = sel.value;
+      try {   // the uploader reads seo.publish_at (works before + after restart)
+        await api.put(`/api/projects/${p.id}/seo`, { publish_at: when || null });
+      } catch (e) { }
       doUpload(opts);
     };
   }

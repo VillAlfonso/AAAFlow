@@ -122,3 +122,6 @@ scratchpad/
 # the storyboards recovered from the 2026-07-09 loss: keep them in git forever
 !scratchpad/recovered/
 !scratchpad/recovered/**
+
+# nested repo (vendored trainer)
+trainers/musubi-tuner/

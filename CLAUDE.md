@@ -232,10 +232,17 @@ generations sound cut-up and out of tone; only prosody *within* a take is good.
 One call runs 2→7: `POST /api/projects/{pid}/produce` (UI: Assemble →
 "Produce everything"); poll `GET /api/projects/{pid}/produce`.
 
-**Long videos (11-20 min) are supported**: >40 scenes auto-switches the
-assembler to SEGMENTED mode (parts of ~24 scenes, NVENC-encoded, lossless
+**Long videos (11-20 min) are supported**: >24 scenes auto-switches the
+assembler to SEGMENTED mode (parts of ~18 scenes, NVENC-encoded, lossless
 concat, one audio-mix mux) — flat memory, ~linear time. Scripts >650 words
 get a TTS-drift lint warning; spot-check the one-take QA extra carefully.
+**Parts encode IN PARALLEL (user, 2026-07-10: "assemble is so slow")**: 3
+spawned worker processes compose+encode parts concurrently (the moviepy
+per-frame loop is the bottleneck, so this is the ~2-3x lever); a parallax
+pre-pass runs in the parent so workers never load the depth model; any pool
+failure falls back to the sequential path automatically. Assemble-opt knobs:
+`parallel_parts` (0 disables), `segment_scenes`, `segment_threshold`. NVENC
+preset p5 (cq19 unchanged).
 
 ## Hard rules
 - **NO on-screen text is ever burned into the video.** Narration + visuals

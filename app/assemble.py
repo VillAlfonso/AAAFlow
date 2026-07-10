@@ -237,6 +237,16 @@ def submit_assemble(pid: str, opts: Optional[Dict] = None) -> str:
     return jobs.submit("assemble", task, pid=pid)
 
 
+def _part_worker(pid: str, opts: Dict, idx_list: List[int],
+                 out_path: str) -> Dict:
+    """Spawned-process entry for one video part: composes + encodes the given
+    scene indices via _render's part-worker mode and returns the audio events
+    (emphasis/chip/ref times) the parent needs for the one-pass mix."""
+    os.environ.setdefault("IMAGEIO_FFMPEG_EXE", config.FFMPEG)
+    return _render(pid, {**(opts or {}), "_part_only": [idx_list, out_path]},
+                   lambda s, f: None)
+
+
 def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
     os.environ.setdefault("IMAGEIO_FFMPEG_EXE", config.FFMPEG)
     from moviepy import (AudioArrayClip, ColorClip, CompositeAudioClip,
@@ -438,12 +448,15 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
     # the one-pass audio mix is muxed on. Compositing a 15-minute video as a
     # single moviepy object would take hours and blow RAM; parts keep memory
     # flat and make long (11-20 min) videos practical.
-    seg_limit = int(asm.get("segment_scenes", 24))
-    segmented = n > int(asm.get("segment_threshold", 40))
+    # Segmentation now doubles as the PARALLEL unit (user, 2026-07-10:
+    # "assemble is so slow"): parts encode on worker processes, so the
+    # threshold dropped from 40 to 24 scenes and parts got smaller.
+    seg_limit = int(asm.get("segment_scenes", 18))
+    segmented = n > int(asm.get("segment_threshold", 24))
     encoder = str(asm.get("encoder", "nvenc")).lower()
     work: Optional[Path] = None
     parts: List[Path] = []
-    if segmented:
+    if segmented and not asm.get("_part_only"):
         import tempfile as _tf
         (pdir / "video").mkdir(parents=True, exist_ok=True)
         work = Path(_tf.mkdtemp(prefix="aaaflow_seg_", dir=str(pdir / "video")))
@@ -454,8 +467,9 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
         akw = dict(audio_codec="aac") if with_sound else dict(audio=False)
         if encoder == "nvenc":
             try:
+                # p5 ≈ p6 quality on flat art at cq19, ~25% faster encode
                 vclip.write_videofile(
-                    str(path), codec="h264_nvenc", preset="p6",
+                    str(path), codec="h264_nvenc", preset="p5",
                     ffmpeg_params=["-pix_fmt", "yuv420p", "-rc", "vbr",
                                    "-cq", "19", "-b:v", "0"], **kw, **akw)
                 return
@@ -488,9 +502,10 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
     end_fade = max(0.0, float(asm.get("end_fade", preset.get("end_fade", 1.2))))
     end_pad = max(0.0, float(asm.get("end_pad", preset.get("end_pad", 1.0))))
 
-    for i, s in enumerate(scenes):
-        progress(f"Composing scene {s['id']} ({i + 1}/{n})",
-                 0.04 + (0.56 if segmented else 0.60) * i / max(n, 1))
+    def compose_one(i: int, s: Dict):
+        """One scene's fully-dressed clip (visual + fx + transition +
+        emphasis + chip + ref card + filter). Appends the audio events."""
+        nonlocal durs_sum
         dur = float(rows.get(str(s["id"]), {}).get("dur") or s.get("planned_dur") or 2.0)
         v = visual(s, dur, i)
         if i == n - 1 and end_fade > 0:
@@ -506,7 +521,7 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
         hits = _emphasis_hits(s, row, words, win_t0, emph_cfg, i, offset=emph_off)
         if hits:
             v = transitions.apply_emphasis(v, hits, W=W, H=H)
-            emph_events += [float(row["start"]) + h["t"] for h in hits]
+            emph_events.extend(float(row["start"]) + h["t"] for h in hits)
         chip = (s.get("date_chip") or "").strip()
         if chip and FONT:
             v = _date_chip(v, chip, W, H)
@@ -532,16 +547,101 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
                 print(f"[assemble] ref card failed scene {s.get('id')}: {exc}")
         if film_filter:
             v = transitions.apply_filter(v, film_filter, W=W, H=H, cfg=filter_cfg)
-        clips.append(v)
         durs_sum += dur
-        if segmented and len(clips) >= seg_limit:
-            progress(f"Encoding part {len(parts) + 1}", 0.04 + 0.56 * i / max(n, 1))
-            _flush_segment()
+        return v
 
-    if end_pad > 0 and not window:      # shorts windows keep their hard out
-        clips.append(ColorClip(size=(W, H), color=(0, 0, 0))
-                     .with_duration(end_pad))
-        durs_sum += end_pad
+    # --- PART-WORKER MODE: compose+encode just these scenes, return events --
+    part_req = asm.get("_part_only")
+    if part_req:
+        idxs, out_p = list(part_req[0]), Path(part_req[1])
+        for i in idxs:
+            clips.append(compose_one(i, scenes[i]))
+        if (n - 1) in idxs and end_pad > 0 and not window:
+            clips.append(ColorClip(size=(W, H), color=(0, 0, 0))
+                         .with_duration(end_pad))
+            durs_sum += end_pad
+        seg = concatenate_videoclips(clips, method="compose")
+        _write_video(seg, out_p)
+        return {"part": str(out_p), "durs": durs_sum,
+                "emph_events": emph_events, "chip_events": chip_events,
+                "ref_events": ref_events, "with_images": with_images,
+                "with_videos": with_videos, "with_parallax": with_parallax}
+
+    # --- PARALLEL PARTS (default on): compose+encode chunks on workers -----
+    par_n = asm.get("parallel_parts", 3)
+    parallel_done = False
+    if segmented and par_n and not window and int(par_n) >= 2:
+        try:
+            # parallax pre-pass in THIS process so workers only hit the cache
+            # (three depth models at once would blow the 16 GB)
+            if "parallax" in sources:
+                from .parallax import parallax_engine
+                for i, s in enumerate(scenes):
+                    if s.get("video_file") and (pdir / s["video_file"]).exists():
+                        continue
+                    dur_i = float(rows.get(str(s["id"]), {}).get("dur")
+                                  or s.get("planned_dur") or 2.0)
+                    progress(f"Camera moves {i + 1}/{n}", 0.04 + 0.18 * i / max(n, 1))
+                    try:
+                        parallax_engine.ensure_scene_clip(
+                            pdir, s, dur=dur_i, width=W, height=H, fps=fps,
+                            idx=i, amplitude=float(plx_cfg.get("amplitude", 0.018)))
+                    except Exception:  # noqa: BLE001 - worker falls to stills
+                        pass
+
+            import multiprocessing
+            from concurrent.futures import ProcessPoolExecutor
+            chunks = [list(range(a, min(a + seg_limit, n)))
+                      for a in range(0, n, seg_limit)]
+            wopts = {k: v for k, v in (opts or {}).items()
+                     if not str(k).startswith("_")}
+            ctx = multiprocessing.get_context("spawn")
+            results: List[Optional[Dict]] = [None] * len(chunks)
+            done_ct = 0
+            with ProcessPoolExecutor(max_workers=min(int(par_n), len(chunks)),
+                                     mp_context=ctx) as ex:
+                futs = {ex.submit(_part_worker, pid, wopts, chunks[j],
+                                  str(work / f"part_{j:04d}.mp4")): j
+                        for j in range(len(chunks))}
+                from concurrent.futures import as_completed
+                for fut in as_completed(futs):
+                    j = futs[fut]
+                    results[j] = fut.result()      # worker errors raise here
+                    done_ct += 1
+                    progress(f"Encoding parts ({done_ct}/{len(chunks)}, "
+                             f"{min(int(par_n), len(chunks))} workers)",
+                             0.22 + 0.42 * done_ct / len(chunks))
+            for j, r in enumerate(results):
+                parts.append(Path(r["part"]))
+                durs_sum += r["durs"]
+                emph_events += r["emph_events"]
+                chip_events += r["chip_events"]
+                ref_events += r["ref_events"]
+                with_images += r["with_images"]
+                with_videos += r["with_videos"]
+                with_parallax += r["with_parallax"]
+            parallel_done = True
+        except Exception as exc:  # noqa: BLE001 - the sequential path
+            print(f"[assemble] parallel parts failed ({exc}); sequential fallback")
+            parts, clips = [], []
+            durs_sum = 0.0
+            emph_events.clear(); chip_events.clear(); ref_events.clear()
+            with_images = with_videos = with_parallax = 0
+
+    if not parallel_done:
+        for i, s in enumerate(scenes):
+            progress(f"Composing scene {s['id']} ({i + 1}/{n})",
+                     0.04 + (0.56 if segmented else 0.60) * i / max(n, 1))
+            clips.append(compose_one(i, s))
+            if segmented and len(clips) >= seg_limit:
+                progress(f"Encoding part {len(parts) + 1}",
+                         0.04 + 0.56 * i / max(n, 1))
+                _flush_segment()
+
+        if end_pad > 0 and not window:  # shorts windows keep their hard out
+            clips.append(ColorClip(size=(W, H), color=(0, 0, 0))
+                         .with_duration(end_pad))
+            durs_sum += end_pad
 
     progress("Mixing audio", 0.66)
     # Per-scene transitions are self-contained entrances, so clips join cleanly.

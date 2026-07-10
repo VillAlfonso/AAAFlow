@@ -2,7 +2,7 @@
   "id": "285510242ead",
   "name": "Five Children Went Upstairs. The Fire Left No Bones.",
   "created": 1783676227.2910883,
-  "updated": 1783691323.7423186,
+  "updated": 1783692221.374757,
   "channel": "menagerie",
   "video": {
     "title": "Five Children Went Upstairs. The Fire Left No Bones.",
@@ -7698,13 +7698,13 @@
   "recovered": "rebuilt 2026-07-10 from the recovered storyboard after the 2026-07-09 data loss",
   "seo": {
     "titles": [
-      "The Sodder Children: A 1945 Mystery",
-      "The Unburned House of Fayetteville",
-      "Five Children Vanished in 1945",
+      "The Sodder Children's 1945 Fire Mystery",
+      "Fayetteville's Unexplained Fire That Ate Five Kids",
+      "The Unburned House of the Sodder Kids",
       "Five Children Went Upstairs. The Fire Left No Bones",
       "Five children went upstairs on Christmas Eve. They never came down"
     ],
-    "description": "In 1945, five children vanished during a Christmas Eve fire in Fayetteville, West Virginia. Their home burned completely, yet no remains were found. The ladder was missing, the phone line cut,mysteries remain unsolved. Months prior, warnings about the house’s wiring and a stranger’s unsettling remarks hinted at danger. Despite escape attempts, the family’s fate remains unknown, eight decades later.\n\nChapters:\n0:00 Five children went upstairs on Christmas\n0:27 The ladder that always leaned on\n0:55 He left Sardinia at thirteen\n1:23 The five youngest begged to stay\n1:49 George turned him down\n2:14 He wandered to the back and\n2:41 Jennie answered\n3:10 One a\n3:37 Maurice\n4:05 Both had run perfectly that afternoon\n4:33 The firehouse stood two and a\n4:59 Dead wiring does not keep the\n5:27 He didn't know he was sealing\n5:55 Then the telephone man brought worse\n6:22 A woman watching the fire swore\n6:49 By morning\n7:17 The family made him dig it\n7:43 The Smithsonian Institution examined the bones\n8:13 It stood on Route sixteen for\n8:41 And a string of letters and\n9:09 Burn the house for the insult\n9:35 Jennie wore black every day for\n\nSources:\n- Wikipedia: Sodder children disappearance | https://en.wikipedia.org/wiki/Sodder_children_disappearance\n- Smithsonian Magazine: What Happened to the Sodder Children? | https://www.smithsonianmag.com/history/what-happened-sodder-children-siblings-who-went-up-in-smoke-west-virginia-house-fire-172429802/\n- NPR: Mystery of Missing Children Haunts W.Va. Town | https://www.npr.org/2005/12/23/5067563/mystery-of-missing-children-haunts-w-va-town\n- Legends of America: Missing Sodder Children | https://www.legendsofamerica.com/missing-sodder-children/\n\n#jennie #george #christmaseve",
+    "description": "Five children vanished in a 1945 fire in Fayetteville, WV. Their home was reduced to ash, but no remains were found. An insurance salesman had warned George Sodder his house would burn, linking it to his anti-Mussolini remarks. A stranger later noted the fuse boxes might cause a fire. The ladder was missing, and the trucks wouldn't start. The firehouse was two miles away, and no one answered calls. The town slept through the disaster. The mystery remains unsolved, with no explanation for the children's disappearance or the fire's origin.\n\nChapters:\n0:00 Five children went upstairs on Christmas\n0:27 The ladder that always leaned on\n0:55 He left Sardinia at thirteen\n1:23 The five youngest begged to stay\n1:49 George turned him down\n2:14 He wandered to the back and\n2:41 Jennie answered\n3:10 One a\n3:37 Maurice\n4:05 Both had run perfectly that afternoon\n4:33 The firehouse stood two and a\n4:59 Dead wiring does not keep the\n5:27 He didn't know he was sealing\n5:55 Then the telephone man brought worse\n6:22 A woman watching the fire swore\n6:49 By morning\n7:17 The family made him dig it\n7:43 The Smithsonian Institution examined the bones\n8:13 It stood on Route sixteen for\n8:41 And a string of letters and\n9:09 Burn the house for the insult\n9:35 Jennie wore black every day for\n\nSources:\n- Wikipedia: Sodder children disappearance | https://en.wikipedia.org/wiki/Sodder_children_disappearance\n- Smithsonian Magazine: What Happened to the Sodder Children? | https://www.smithsonianmag.com/history/what-happened-sodder-children-siblings-who-went-up-in-smoke-west-virginia-house-fire-172429802/\n- NPR: Mystery of Missing Children Haunts W.Va. Town | https://www.npr.org/2005/12/23/5067563/mystery-of-missing-children-haunts-w-va-town\n- Legends of America: Missing Sodder Children | https://www.legendsofamerica.com/missing-sodder-children/\n\n#jennie #george #christmaseve",
     "tags": [
       "jennie",
       "george",
@@ -7872,11 +7872,12 @@
       "split": "video/thumbs/split.png",
       "bar": "video/thumbs/bar.png",
       "poster": "video/thumbs/poster.png",
-      "big-word": "video/thumbs/big-word.png"
+      "big-word": "video/thumbs/big-word.png",
+      "plain": "video/thumbs/plain.png"
     },
-    "thumb_template": "spotlight",
+    "thumb_template": "case-file",
     "thumb_mood": "calm",
-    "built": 1783691323.7423186
+    "built": 1783692221.374757
   },
   "narration": {
     "file": "audio/narration.wav",

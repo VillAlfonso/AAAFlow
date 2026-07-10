@@ -877,6 +877,16 @@ class RefsReq(BaseModel):
     entities: List[dict]     # [{label, kind: person|place|item, query?, aliases?}]
 
 
+@app.get("/api/projects/{pid}/refs")
+def get_research_refs(pid: str):
+    """The reference-image manifest + which scene first mentions each ref."""
+    from . import refcards
+    try:
+        return refcards.plan_for(pid)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
+
+
 @app.post("/api/projects/{pid}/research/refs")
 def fetch_research_refs(pid: str, req: RefsReq):
     """Download reference images (Wikipedia lead images, license recorded)
@@ -884,6 +894,20 @@ def fetch_research_refs(pid: str, req: RefsReq):
     mention as a floating ref card."""
     try:
         return {"job_id": webresearch.submit_fetch_refs(pid, req.entities)}
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
+class ThumbPickReq(BaseModel):
+    template: str
+
+
+@app.post("/api/projects/{pid}/thumbnail")
+def pick_thumbnail(pid: str, req: ThumbPickReq):
+    """Promote one rendered variant (video/thumbs/<t>.png) to thumbnail.png."""
+    from . import thumbs as _thumbs
+    try:
+        return _thumbs.choose_variant(pid, req.template)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
 

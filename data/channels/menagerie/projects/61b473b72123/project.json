@@ -2,7 +2,7 @@
   "id": "61b473b72123",
   "name": "Every House Burned. The Painting Never Did.",
   "created": 1783676227.141016,
-  "updated": 1783683902.9078,
+  "updated": 1783691891.2435753,
   "channel": "menagerie",
   "video": {
     "title": "Every House Burned. The Painting Never Did.",
@@ -2181,11 +2181,13 @@
   ],
   "seo": {
     "titles": [
+      "The Crying Boy Who Couldn't Burn",
+      "The Painting That Defied Fire",
+      "The Fire-Proof Crying Boy",
       "Every House Burned. The Painting Never Did",
-      "The house burned to the studs. The painting didn't even blister",
-      "Every House Burned. The Painting Never Did: Every exhibit was real"
+      "The house burned to the studs. The painting didn't even blister"
     ],
-    "description": "The house burned to the studs. The painting didn't even blister.\nRotherham, England. 1985. Ron and May Hall's kitchen. One chip pan.\nThen a newspaper made him famous. Front page. The curse of the Crying Boy.\n\nThe Midnight Menagerie. Every exhibit was real.\n\nChapters:\n0:00 The house burned to the studs\n0:26 Why wouldn't the Crying Boy burn\n0:54 Then a newspaper made him famous\n1:21 Fire followed the child\n1:48 Here's the twist\n2:14 Twenty-five years later\n2:42 Buyers still turn him to face\n\n#cryingboy #1985 #everyhouse",
+    "description": "In Rotherham, England, 1985, a painting of a crying boy survived house fires despite flames devouring kitchens and ceilings. Firefighters noted the boy’s unburned face, sparking rumors of a curse. A newspaper fueled the legend, but the truth unraveled: the boy was a catalog of paintings, not a single child. A fire lab test revealed fire-retardant varnish, exposing the myth. The boy still appears in charity shops, face-down under lacquer, unchanged by time.\n\nChapters:\n0:00 The house burned to the studs\n0:26 Why wouldn't the Crying Boy burn\n0:54 Then a newspaper made him famous\n1:21 Fire followed the child\n1:48 Here's the twist\n2:14 Twenty-five years later\n2:42 Buyers still turn him to face\n\n#cryingboy #1985 #everyhouse",
     "tags": [
       "crying boy",
       "1985",
@@ -2268,11 +2270,12 @@
       "split": "video/thumbs/split.png",
       "bar": "video/thumbs/bar.png",
       "poster": "video/thumbs/poster.png",
-      "big-word": "video/thumbs/big-word.png"
+      "big-word": "video/thumbs/big-word.png",
+      "plain": "video/thumbs/plain.png"
     },
-    "thumb_template": "spotlight",
+    "thumb_template": "case-file",
     "thumb_mood": "dark",
-    "built": 1783681914.2746193
+    "built": 1783691891.2435753
   },
   "narration": {
     "file": "audio/narration.wav",

@@ -78,6 +78,21 @@ def plan(project: Dict, pdir: Path) -> Dict[str, Dict]:
     return out
 
 
+def plan_for(pid: str) -> Dict:
+    """UI-friendly view: the ref manifest + which scene first mentions each.
+    {"refs": [...], "plan": {scene_id: {label, file, sync, kind}}}"""
+    from . import projects
+    p = projects.get_project(pid)
+    if not p:
+        raise ValueError("project not found")
+    pdir = projects.project_dir(pid)
+    pl = plan(p, pdir)
+    return {"refs": load_refs(pdir),
+            "plan": {k: {kk: v.get(kk) for kk in
+                         ("label", "file", "sync", "kind")}
+                     for k, v in pl.items()}}
+
+
 def mention_time(aliases: List[str], row: Optional[Dict], words: List,
                  win_t0: float) -> Optional[float]:
     """Seconds into the scene when the ref's phrase is SPOKEN (else None)."""
@@ -162,7 +177,8 @@ def _card_arrays(img_path: Path, label: str, W: int, H: int):
 
 
 def overlay(base_clip, img_path: Path, label: str, *, dur: float,
-            t0: Optional[float], W: int, H: int, kind: str = ""):
+            t0: Optional[float], W: int, H: int, kind: str = "",
+            engine: str = ""):
     """Composite the ref card over a scene clip. Returns (clip, t_shown)."""
     from moviepy import CompositeVideoClip, ImageClip
     from moviepy.video.fx import CrossFadeIn, CrossFadeOut
@@ -172,6 +188,28 @@ def overlay(base_clip, img_path: Path, label: str, *, dur: float,
     show = min(4.2, dur - t_in - 0.15)
     if show < 1.2:            # not enough scene left for a readable card
         return base_clip, None
+
+    if engine == "remotion":
+        # spring-animated Remotion RefCard as a transparent full-frame webm;
+        # any failure falls straight through to the built-in PIL card
+        try:
+            import tempfile
+            from moviepy import VideoFileClip
+            from . import remotion_engine
+            out = Path(tempfile.mkstemp(suffix=".webm")[1])
+            got = remotion_engine.render_overlay(
+                "RefCard",
+                {"img": Path(img_path).resolve().as_uri(), "label": label,
+                 "accent": "#c9a227", "tilt": 2.2, "side": "right"},
+                out, seconds=show, width=W, height=H)
+            if got:
+                oc = (VideoFileClip(str(got), has_mask=True)
+                      .with_start(t_in).with_duration(show))
+                comp = CompositeVideoClip([base_clip, oc], size=(W, H)) \
+                    .with_duration(base_clip.duration)
+                return comp, t_in
+        except Exception as exc:  # noqa: BLE001
+            print(f"[refcards] remotion overlay failed ({exc}); using PIL")
 
     rgb, alpha = _card_arrays(Path(img_path), label, W, H)
     card = ImageClip(rgb).with_mask(ImageClip(alpha, is_mask=True))

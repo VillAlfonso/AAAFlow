@@ -520,10 +520,12 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
                 t_loc = _rc.mention_time(
                     [rc.get("sync")] if rc.get("sync") else (rc.get("match") or []),
                     row, words, win_t0)
-                v, t_shown = _rc.overlay(v, pdir / rc["file"],
-                                         rc.get("label") or "", dur=dur,
-                                         t0=t_loc, W=W, H=H,
-                                         kind=rc.get("kind", ""))
+                v, t_shown = _rc.overlay(
+                    v, pdir / rc["file"], rc.get("label") or "", dur=dur,
+                    t0=t_loc, W=W, H=H, kind=rc.get("kind", ""),
+                    engine=str(asm.get("overlay_engine",
+                                       preset.get("overlay_engine", ""))
+                               or "").lower())
                 if row is not None and t_shown is not None:
                     ref_events.append(float(row["start"]) + t_shown)
             except Exception as exc:  # noqa: BLE001

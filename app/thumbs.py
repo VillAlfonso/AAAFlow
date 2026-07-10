@@ -405,19 +405,27 @@ def _t_casefile(frames, ctx):
     _vignette(base, max(float(tp.get("vignette", 0.5)),
                         ctx["grade"].get("vignette", 0.4)))
     draw = ImageDraw.Draw(base)
-    font, lines = _fit(draw, ctx["title"], ctx["title_font"], W - 160, 2, 138)
+    # half-width block on the face-free side (centered portraits were getting
+    # type across the eyes, 2026-07-10)
+    text_left = _warm_mass(base, True) <= _warm_mass(base, False)
+    # a narrow corner column: centered subjects leave no half free, so the
+    # type hugs the quiet edge instead of crossing the middle
+    box_w = int(W * 0.40)
+    font, lines = _fit(draw, ctx["title"], ctx["title_font"], box_w, 3, 104,
+                       floor=48)
     asc, desc = font.getmetrics()
     block_h = int((asc + desc) * 1.08) * len(lines)
-    # bottom scrim so the title never fights busy art behind it
+    # corner scrim so the title never fights busy art behind it
     from PIL import Image
-    sc_h = block_h + 120
+    sc_h = block_h + 130
     grad = Image.new("L", (1, sc_h), 0)
     for yy in range(sc_h):
-        grad.putpixel((0, yy), int(215 * (yy / sc_h) ** 1.2))
+        grad.putpixel((0, yy), int(235 * (yy / sc_h) ** 1.2))
     scrim = Image.new("RGBA", (W, sc_h), (7, 8, 12, 255))
     scrim.putalpha(grad.resize((W, sc_h)))
     base.alpha_composite(scrim, (0, H - sc_h))
-    _text_block(base, lines, font, 64, H - block_h - 56)
+    _text_block(base, lines, font, 44 if text_left else W - box_w - 44,
+                H - block_h - 44)
     if ctx["kicker"]:
         _kicker_tag(base, ctx["kicker"], ctx["accent"], 40, 44,
                     angle=float(tp.get("tag_angle", -5)),
@@ -572,9 +580,20 @@ def _t_bigword(frames, ctx):
     return base
 
 
+def _t_plain(frames, ctx):
+    """No text at all: the emotion frame, graded + vignetted. For when the
+    art IS the thumbnail (user, 2026-07-10: the fixed text formats grate).
+    Never auto-chosen; picked by hand from the variants row."""
+    W, H = ctx["size"]
+    base = _cover(frames[0], W, H)
+    _grade(base, ctx["grade"])
+    _vignette(base, max(0.5, ctx["grade"].get("vignette", 0.4)))
+    return base
+
+
 _TEMPLATES = {"spotlight": _t_spotlight, "case-file": _t_casefile,
               "reveal": _t_reveal, "split": _t_split, "bar": _t_bar,
-              "poster": _t_poster, "big-word": _t_bigword}
+              "poster": _t_poster, "big-word": _t_bigword, "plain": _t_plain}
 
 
 # --- entry point ----------------------------------------------------------------
@@ -615,6 +634,24 @@ def _thumb_no(p: Dict) -> int:
     return n
 
 
+def choose_variant(pid: str, template: str) -> Dict:
+    """Make an already-rendered variant THE thumbnail (Publish page picker)."""
+    p = projects.get_project(pid)
+    if not p:
+        raise ValueError("project not found")
+    pdir = projects.project_dir(pid)
+    src = pdir / "video" / "thumbs" / f"{template}.png"
+    if not src.exists():
+        raise ValueError(f"no rendered variant named {template!r} - "
+                         "regenerate the SEO package first")
+    shutil.copy2(src, pdir / "thumbnail.png")
+    seo = p.setdefault("seo", {})
+    seo["thumbnail"] = "thumbnail.png"
+    seo["thumb_template"] = template
+    projects.save_project(p)
+    return {"thumbnail": "thumbnail.png", "template": template}
+
+
 def build_for_project(p: Dict, text: Optional[str] = None,
                       template: Optional[str] = None,
                       size: Tuple[int, int] = (1280, 720)) -> Dict:
@@ -638,12 +675,13 @@ def build_for_project(p: Dict, text: Optional[str] = None,
     if kicker and "{n}" in kicker:
         kicker = kicker.replace("{n}", str(_thumb_no(p)))
     if not kicker:
-        # variance: channel's own kicker pool (if any) + the mood's true-of-any-
-        # video lines, picked per project — consecutive videos read differently
-        ks = list(tconf.get("kicker_pool") or []) + list(grade.get("kickers") or [])
+        # Kickers come ONLY from the channel's own pool (user, 2026-07-10:
+        # the built-in mood lines like "STRANGER THAN IT SEEMS" read canned).
+        # No pool, no kicker; "off" disables even a pool.
+        ks = list(tconf.get("kicker_pool") or [])
         kicker = ks[_seed(p["id"]) % len(ks)] if ks else ""
-        if _seed(p["id"]) % 4 == 3:            # sometimes NO kicker at all
-            kicker = ""
+    if str(tconf.get("kicker") or "").lower() == "off":
+        kicker = ""
 
     title = _headline(text or p.get("video", {}).get("title") or p.get("name") or "",
                       int(params.get("max_words", 5)))
@@ -674,10 +712,16 @@ def build_for_project(p: Dict, text: Optional[str] = None,
     chosen = template or tconf.get("template")
     if not chosen:
         # HIGH VARIANCE (user mandate): rotate the pool per video, never
-        # repeating the previous video's template on this channel.
+        # repeating the previous video's template on this channel. And a
+        # REGENERATE must actually change something (user, 2026-07-10):
+        # if this project already chose a template, step to the next one.
         pool = [t for t in (params.get("variance_pool") or list(_TEMPLATES))
                 if t in variants] or list(variants)
-        k = _seed(p["id"]) % len(pool)
+        cur_own = ((p.get("seo") or {}).get("thumb_template"))
+        if cur_own in pool and len(pool) > 1:
+            k = (pool.index(cur_own) + 1) % len(pool)
+        else:
+            k = _seed(p["id"]) % len(pool)
         if pool[k] == _prev_template(p) and len(pool) > 1:
             k = (k + 1) % len(pool)
         chosen = pool[k]

@@ -1718,6 +1718,10 @@ async function renderAssemble(host) {
     </div>
     <div class="grid3">
       <div class="field"><label>FPS</label><select id="asFps">${[24, 30, 60].map(f => `<option ${opts.fps === f ? "selected" : ""}>${f}</option>`).join("")}</select></div>
+      <div class="field"><label>Overlays <span class="hint">(ref cards, date chips)</span></label><select id="asOverlay">
+        <option value="" ${!opts.overlay_engine ? "selected" : ""}>Built-in (fast)</option>
+        <option value="remotion" ${opts.overlay_engine === "remotion" ? "selected" : ""}>Remotion (spring-animated, experimental)</option>
+      </select></div>
       <div class="field" style="justify-content:flex-end"><label>&nbsp;</label>
         <div class="row" style="gap:18px">
           <label class="switch"><input type="checkbox" id="asTrans" ${opts.transitions ? "checked" : ""}/><span class="track"></span> Transitions</label>
@@ -1775,6 +1779,10 @@ async function renderAssemble(host) {
 
   $("#asRes", page).onchange = e => { const [w, h] = e.target.value.split("x").map(Number); opts.width = w; opts.height = h; };
   $("#asFps", page).onchange = e => opts.fps = +e.target.value;
+  $("#asOverlay", page).onchange = e => {
+    if (e.target.value) opts.overlay_engine = e.target.value;
+    else delete opts.overlay_engine;
+  };
   $("#asTrans", page).onchange = e => opts.transitions = e.target.checked;
   $("#asSfx", page).onchange = e => opts.sfx = e.target.checked;
   $("#asSources", page).onchange = e => {
@@ -3605,10 +3613,56 @@ async function renderEdit(host) {
         <div class="muted mono" id="aePrevInfo" style="font-size:11px;margin-top:4px"></div>
       </div>
     </div>
+    <div class="card">
+      <div class="section-title">🖼 Reference images — real photos, edited in at first mention</div>
+      <p class="desc" style="margin:4px 0 8px">The webscraper fetches real Wikipedia photos of the story's people / places / items (license auto-credited). The assembler floats each one in as a tilted card <b>exactly when the narrator first says that name</b> (word-synced, soft pop). Autopilot does this automatically; here you can do it by hand.</p>
+      <div class="row" style="gap:8px;flex-wrap:wrap;align-items:center">
+        <input type="text" id="refWho" placeholder='e.g. "George Sodder, Jennie Sodder, Fayetteville:place"' style="flex:1;min-width:260px"/>
+        <button class="btn btn-primary btn-sm" id="refFetch">${icon("i-wand")} Fetch reference images</button>
+        <span class="muted mono" id="refMsg" style="font-size:12px"></span>
+      </div>
+      <div id="refList" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px"></div>
+    </div>
     <div class="card"><div class="section-title">The edit plan — scene by scene</div>
       <div style="overflow-x:auto"><table class="table" id="aeTable" style="font-size:12px"></table></div>
     </div>`;
   host.appendChild(wrap);
+
+  async function drawRefs() {
+    let data = null;
+    try { data = await api.get(`/api/projects/${p.id}/refs`); }
+    catch (e) {
+      try { data = (await api.post("/api/dev/call", { module: "refcards", func: "plan_for", kwargs: { pid: p.id } })).result; }
+      catch (e2) { data = null; }
+    }
+    const box = $("#refList", wrap); if (!box) return;
+    const refs = (data || {}).refs || [];
+    const plan = (data || {}).plan || {};
+    const sceneOf = {}; Object.entries(plan).forEach(([sid, r]) => { sceneOf[r.file] = sid; });
+    box.innerHTML = refs.length ? refs.map(r => `
+      <div style="text-align:center;max-width:120px">
+        <img src="/projects/${p.id}/${esc(r.file)}" style="width:110px;border-radius:6px;display:block"/>
+        <div class="mono" style="font-size:10.5px;margin-top:3px">${esc(r.label)}</div>
+        <div class="muted" style="font-size:10px">${sceneOf[r.file] ? `→ scene ${esc(sceneOf[r.file])} (first mention)` : "no scene says this name"}${r.license ? ` · ${esc(r.license)}` : ""}</div>
+      </div>`).join("")
+      : `<span class="muted" style="font-size:12px">No reference images yet — type the names above (add :place or :item after non-people) and fetch.</span>`;
+  }
+  $("#refFetch", wrap).onclick = async () => {
+    const raw = $("#refWho", wrap).value.trim();
+    if (!raw) { toast("Type at least one name first", "err"); return; }
+    const entities = raw.split(",").map(s => s.trim()).filter(Boolean).map(s => {
+      const m = s.split(":"); return { label: m[0].trim(), kind: (m[1] || "person").trim() };
+    });
+    const msg = $("#refMsg", wrap);
+    try {
+      const { job_id } = await api.post(`/api/projects/${p.id}/research/refs`, { entities });
+      msg.textContent = "fetching…";
+      const res = await pollJob(job_id, j => { msg.textContent = j.stage || "fetching…"; });
+      msg.textContent = `${(res.found || []).length} found, ${(res.missed || []).length} missed`;
+      await loadProject(p.id); drawRefs();
+    } catch (e) { msg.textContent = ""; toast(e.message, "err"); }
+  };
+  drawRefs();
   async function preview(sceneId) {
     const msg = $("#aeMsg", wrap);
     msg.textContent = sceneId ? `rendering preview around scene ${sceneId}…` : "rendering the hook preview…";
@@ -3696,9 +3750,28 @@ async function renderPublish(host) {
         </div>
         <div>
           ${s.thumbnail ? `<img src="/projects/${p.id}/${s.thumbnail}?t=${Date.now()}" style="max-width:100%;border-radius:8px"/>` : `<div class="muted">no thumbnail (render images first)</div>`}
+          ${Object.keys(s.thumbnail_variants || {}).length ? `
+          <div class="muted" style="font-size:11px;margin-top:8px">Pick any look — click a variant to make it THE thumbnail:</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">${Object.entries(s.thumbnail_variants).map(([tn, rel]) => `
+            <div class="thumbPick" data-t="${esc(tn)}" title="${esc(tn)}" style="cursor:pointer;text-align:center">
+              <img src="/projects/${p.id}/${esc(rel)}?t=${Date.now()}" style="width:104px;border-radius:5px;display:block;border:2px solid ${tn === s.thumb_template ? "var(--accent, #e6a94b)" : "transparent"}"/>
+              <span class="muted mono" style="font-size:9.5px">${esc(tn)}${tn === s.thumb_template ? " ✓" : ""}</span>
+            </div>`).join("")}</div>` : ""}
           <div class="muted" style="font-size:11px;margin-top:6px">Also written: <span class="mono">video/youtube_package.md</span> · <a href="/projects/${p.id}/video/recipe.md" target="_blank">🧾 recipe.md</a> — the exact ingredients of this video (script · card · voice · edit · sound · sources)</div>
         </div>
       </div>`;
+    $$(".thumbPick", seoCard).forEach(elp => elp.onclick = async () => {
+      const t = elp.dataset.t;
+      try {
+        try {
+          await api.post(`/api/projects/${p.id}/thumbnail`, { template: t });
+        } catch (e) {   // route lands on next restart; dev/call works today
+          await api.post("/api/dev/call", { module: "thumbs", func: "choose_variant",
+                                            kwargs: { pid: p.id, template: t } });
+        }
+        await reload(); drawSeo(); toast(`Thumbnail → ${t}`);
+      } catch (e) { toast(e.message, "err"); }
+    });
     $("#seoSave", seoCard).onclick = async () => {
       try {
         const titles = [($("#seoTitle", seoCard).value || "").trim(), ...(state.project.seo.titles || []).slice(1)];

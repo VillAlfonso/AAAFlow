@@ -928,6 +928,18 @@ def send_thumbnail_to_youtube(pid: str, req: ThumbSetReq = ThumbSetReq()):
         raise HTTPException(status_code=502, detail=str(exc))
 
 
+@app.get("/api/projects/{pid}/youtube/status")
+def youtube_video_status(pid: str, fresh: int = 0):
+    """Live YouTube-side state of every upload row (title/privacy/processing/
+    deleted), one batched videos.list, cached ~20 s. fresh=1 bypasses the cache."""
+    try:
+        return youtube.video_status(pid, max_age=0 if fresh else 20)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    except Exception as exc:  # noqa: BLE001 - surface YouTube API errors to the UI
+        raise HTTPException(status_code=502, detail=str(exc))
+
+
 @app.post("/api/projects/{pid}/youtube/sync")
 def sync_seo_to_youtube(pid: str, req: ThumbSetReq = ThumbSetReq()):
     """Push the saved SEO title/description/tags onto an uploaded video, so

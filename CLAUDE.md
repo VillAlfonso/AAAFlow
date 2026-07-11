@@ -354,6 +354,13 @@ preset p5 (cq19 unchanged).
   carries **⟳ Sync SEO** (`POST /api/projects/{pid}/youtube/sync`,
   `youtube.sync_seo`) that pushes the saved title/description/tags onto the
   live video (2026-07-12, user: "what I set up didn't match what uploaded").
+  The Publish page is LIVE (2026-07-12, user: "real time ajax"): a 4 s tick
+  watches the project's jobs and refreshes every card (upload stage/% shows
+  even when started elsewhere), and upload rows show YouTube-side TRUTH from
+  `GET /api/projects/{pid}/youtube/status` (`youtube.video_status`, one
+  batched videos.list, ~20 s cache): live title with a drift flag vs saved
+  SEO, privacy, ⏳ processing vs ✓ processed, 🗑 removed-on-YouTube. Redraws
+  never clobber a card the user is interacting with.
   Pre-2026-07-10 uploads were plain 1080p and stay bitrate-starved forever;
   the only fix is re-upload (the master path is now the default).
 - **APP-LEVEL OAuth (user, 2026-07-10: "publish this as an app").** The

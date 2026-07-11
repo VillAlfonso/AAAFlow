@@ -254,6 +254,49 @@ def _safe_tags(ts):
     return out
 
 
+_STATUS_CACHE: Dict[str, tuple] = {}   # pid -> (ts, result); protects API quota
+
+
+def video_status(pid: str, max_age: float = 20.0) -> Dict:
+    """What YouTube ACTUALLY has right now for every upload row, in ONE
+    batched videos.list call: live title, privacy, processing state, and
+    whether the video still exists. The Publish page polls this so app-side
+    state and YouTube-side truth stay visibly in sync."""
+    now = time.time()
+    hit = _STATUS_CACHE.get(pid)
+    if hit and now - hit[0] < max_age:
+        return hit[1]
+    project = projects.get_project(pid)
+    if not project:
+        raise ValueError("Project not found.")
+    ch = channels.get(project.get("channel"))
+    yt = _effective_youtube_creds((ch or {}).get("youtube") or {})
+    ids = [u.get("video_id") for u in (project.get("uploads") or [])
+           if u.get("video_id")]
+    res = {"videos": {}, "checked": now}
+    if ids and yt.get("client_id") and yt.get("refresh_token"):
+        token = _access_token(yt)
+        data = _authed_json(yt, "GET", f"{config.YOUTUBE['api_url']}/videos",
+                            token=token,
+                            params={"part": "snippet,status,processingDetails",
+                                    "id": ",".join(ids[:50])})
+        for it in data.get("items", []):
+            sn = it.get("snippet") or {}
+            stt = it.get("status") or {}
+            pd = it.get("processingDetails") or {}
+            res["videos"][it["id"]] = {
+                "title": sn.get("title"),
+                "privacy": stt.get("privacyStatus"),
+                "publish_at": stt.get("publishAt"),
+                "processing": pd.get("processingStatus"),   # processing | succeeded
+            }
+        for vid in ids:
+            if vid not in res["videos"]:
+                res["videos"][vid] = {"missing": True}      # deleted on YouTube
+    _STATUS_CACHE[pid] = (now, res)
+    return res
+
+
 def sync_seo(pid: str, video_id: str = "") -> Dict:
     """Push the project's CURRENT saved SEO (title/description/tags) onto an
     already-uploaded video. Re-packaging after an upload rewrites the SEO,
@@ -282,6 +325,7 @@ def sync_seo(pid: str, video_id: str = "") -> Dict:
             u["title"] = title
             u["seo_synced"] = time.time()
     projects.save_project(project)
+    _STATUS_CACHE.pop(pid, None)
     return {"video_id": vid, "title": title, "synced": True}
 
 
@@ -307,6 +351,7 @@ def set_thumbnail(pid: str, video_id: str = "") -> Dict:
         if u.get("video_id") == vid:
             u["thumbnail"] = "set" if not err else f"failed: {err}"
     projects.save_project(project)
+    _STATUS_CACHE.pop(pid, None)
     if err:
         raise RuntimeError(err)
     return {"video_id": vid, "thumbnail": "set"}

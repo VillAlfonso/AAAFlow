@@ -3861,7 +3861,19 @@ async function renderPublish(host) {
   /* --- YouTube card --- */
   const ytC = el("div", "card"); ytC.style.marginTop = "16px";
   page.appendChild(ytC);
+  let ytLive = null;   // YouTube-side truth for the upload rows (live title/privacy/processing)
+  async function refreshLive(fresh) {
+    if (!ch) return;
+    try {
+      const r = await api.get(`/api/projects/${p.id}/youtube/status${fresh ? "?fresh=1" : ""}`);
+      const changed = JSON.stringify(r.videos) !== JSON.stringify((ytLive || {}).videos);
+      ytLive = r;
+      if (changed && !ytC.contains(document.activeElement)) drawYt();
+    } catch (e) { }
+  }
   function drawYt() {
+    const keep = { file: ($("#ytFile", ytC) || {}).value, priv: ($("#ytPriv", ytC) || {}).value,
+                   when: ($("#ytWhen", ytC) || {}).value, stage: ($("#ytStage", ytC) || {}).textContent };
     const yt = (ch || {}).youtube || {};
     const ups = state.project.uploads || [];
     let body;
@@ -3904,14 +3916,35 @@ async function renderPublish(host) {
         </div>
         <div class="muted" style="font-size:11px;margin-top:6px">📈 Quality: a <b>1440p master</b> is built and uploaded automatically — YouTube gives 1440p a much higher bitrate tier than 1080p, which fixes the mushy look. Edit anything in the SEO card above first; Post always uses the saved version. Note: right after an upload YouTube only has a low-res encode; the sharp 1440p version appears once processing finishes (minutes to a few hours).</div>
         <div class="muted" style="font-size:11px;margin-top:4px">🖼 Custom thumbnails need a one-time phone verification of the YouTube channel (<b>youtube.com/verify</b>). If an upload row says "thumb not set", verify, then hit Retry thumbnail.</div>
-        ${ups.length ? `<div style="margin-top:10px">${ups.map(u => `
-          <div class="row" style="gap:10px;padding:5px 0;border-top:1px solid rgba(255,255,255,.06);font-size:12.5px;flex-wrap:wrap">
+        ${ups.length ? `<div style="margin-top:10px">${ups.map(u => {
+          const lv = ((ytLive || {}).videos || {})[u.video_id] || null;
+          const gone = !!(lv && lv.missing);
+          const drift = lv && !gone && lv.title && lv.title !== upTitle;
+          const thumbBit = u.thumbnail === "set" ? " · 🖼✓"
+            : (String(u.thumbnail || "").startsWith("failed") ? ` · <span title="${esc(u.thumbnail)}" style="color:#e6a94b">🖼 thumb not set</span>` : "");
+          let liveBit;
+          if (gone) liveBit = ` · <span>🗑 removed on YouTube</span>`;
+          else if (lv) {
+            const sched = lv.publish_at && lv.privacy !== "public" ? `<b>🕑 goes live ${new Date(lv.publish_at).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}</b> · ` : "";
+            liveBit = ` · ${sched}${esc(lv.privacy || "")}${lv.processing === "succeeded"
+              ? ` · <span style="color:#7bc47f" title="YouTube finished its sharp encodes">✓ processed</span>`
+              : ` · <span style="color:#e6a94b" title="YouTube is still building the sharp encodes — the video plays blurry until this finishes">⏳ processing</span>`}${drift
+              ? ` · <span style="color:#e6a94b" title="YouTube shows: ${esc(lv.title)}">title ≠ app — hit ⟳ Sync SEO</span>` : ""}`;
+          } else liveBit = ` · ${u.publish_at ? `<b>🕑 goes live ${new Date(u.publish_at).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}</b>` : esc(u.privacy)}`;
+          return `
+          <div class="row" style="gap:10px;padding:5px 0;border-top:1px solid rgba(255,255,255,.06);font-size:12.5px;flex-wrap:wrap${gone ? ";opacity:.55" : ""}">
             <a href="${esc(u.url)}" target="_blank" class="mono">${esc(u.url)}</a>
-            <span class="muted">${esc(u.title || "")} · ${u.publish_at ? `<b>🕑 goes live ${new Date(u.publish_at).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}</b>` : esc(u.privacy)}${u.master_1440 ? " · 1440p" : ""}${u.thumbnail === "set" ? " · 🖼✓" : (String(u.thumbnail || "").startsWith("failed") ? ` · <span title="${esc(u.thumbnail)}" style="color:#e6a94b">🖼 thumb not set</span>` : "")} · ${fmtAgo(u.uploaded)}</span>
-            ${String(u.thumbnail || "").startsWith("failed") || (u.thumbnail === undefined && u.video_id) ? `<button class="btn btn-ghost btn-sm ytThumbRetry" data-vid="${esc(u.video_id)}">🖼 Retry thumbnail</button>` : ""}
-            ${u.video_id ? `<button class="btn btn-ghost btn-sm ytSeoSync" data-vid="${esc(u.video_id)}" title="Push the saved SEO title, description and tags onto this YouTube video (fixes title drift after a re-package)">⟳ Sync SEO</button>` : ""}</div>`).join("")}</div>` : ""}`;
+            <span class="muted">${esc((lv && !gone && lv.title) || u.title || "")}${liveBit}${u.master_1440 ? " · 1440p" : ""}${gone ? "" : thumbBit} · ${fmtAgo(u.uploaded)}</span>
+            ${!gone && (String(u.thumbnail || "").startsWith("failed") || (u.thumbnail === undefined && u.video_id)) ? `<button class="btn btn-ghost btn-sm ytThumbRetry" data-vid="${esc(u.video_id)}">🖼 Retry thumbnail</button>` : ""}
+            ${!gone && u.video_id ? `<button class="btn btn-ghost btn-sm ytSeoSync" data-vid="${esc(u.video_id)}" title="Push the saved SEO title, description and tags onto this YouTube video (fixes title drift after a re-package)">⟳ Sync SEO</button>` : ""}</div>`;
+        }).join("")}</div>` : ""}`;
     }
     ytC.innerHTML = `<div class="section-title">YouTube ${ch ? "· " + esc(ch.name) : ""}</div>${body}`;
+    // live redraws must never eat what the user already picked or a running upload's stage
+    const kf = $("#ytFile", ytC); if (kf && keep.file) kf.value = keep.file;
+    const kp = $("#ytPriv", ytC); if (kp && keep.priv) kp.value = keep.priv;
+    const kw = $("#ytWhen", ytC); if (kw && keep.when) kw.value = keep.when;
+    const ks = $("#ytStage", ytC); if (ks && keep.stage) ks.textContent = keep.stage;
     const editBtn = $("#ytEditCh", ytC); if (editBtn) editBtn.onclick = () => editChannelModal(ch);
     const conBtn = $("#ytConnect", ytC);
     if (conBtn) conBtn.onclick = async () => {
@@ -3922,7 +3955,7 @@ async function renderPublish(host) {
       b.disabled = true; b.textContent = "sending…";
       try {
         await api.post(`/api/projects/${p.id}/youtube/thumbnail`, { video_id: b.dataset.vid });
-        toast("Thumbnail set on YouTube"); await reload(); drawYt();
+        toast("Thumbnail set on YouTube"); await reload(); drawYt(); refreshLive(true);
       } catch (e) {
         toast(e.message, "err");
         b.disabled = false; b.textContent = "🖼 Retry thumbnail";
@@ -3933,7 +3966,7 @@ async function renderPublish(host) {
       b.disabled = true; b.textContent = "syncing…";
       try {
         const r = await api.post(`/api/projects/${p.id}/youtube/sync`, { video_id: b.dataset.vid });
-        toast(`YouTube video updated: "${r.title}"`); await reload(); drawYt();
+        toast(`YouTube video updated: "${r.title}"`); await reload(); drawYt(); refreshLive(true);
       } catch (e) {
         toast(e.message, "err");
         b.disabled = false; b.textContent = "⟳ Sync SEO";
@@ -3957,12 +3990,47 @@ async function renderPublish(host) {
     try {
       const { job_id } = await api.post(`/api/projects/${p.id}/upload`, opts || {});
       const st = $("#ytStage", ytC); if (st) st.textContent = "uploading…";
-      const res = await pollJob(job_id, j => { const s = $("#ytStage", ytC); if (s) s.textContent = j.stage || ""; });
-      await reload(); drawYt();
+      const res = await pollJob(job_id, j => {
+        const s = $("#ytStage", ytC);
+        if (s) s.textContent = (j.stage || "uploading…") + (j.progress ? ` · ${Math.round(j.progress * 100)}%` : "");
+      });
+      await reload(); drawYt(); refreshLive(true);
+      const s2 = $("#ytStage", ytC); if (s2) s2.textContent = "";
       toast(`Uploaded (${res.privacy}) — ${res.url}`);
     } catch (e) { const s = $("#ytStage", ytC); if (s) s.textContent = ""; toast(e.message, "err"); }
   }
   drawYt();
+  refreshLive();
+  /* Live page: a 4 s tick watches this project's jobs — any state change
+     refreshes every card (renders, shorts, upload rows), and a running
+     upload's stage/% shows even when it was started elsewhere. YouTube-side
+     truth re-checks on a slow lane (quota-friendly). Redraws skip whatever
+     card the user is interacting with; timers die with the page. */
+  let qKey = null;   // null = first tick: record the baseline, don't refresh
+  const timer = setInterval(async () => {
+    if (!document.body.contains(page)) { clearInterval(timer); return; }
+    try {
+      const q = await api.get("/api/queue");
+      const mine = (q.jobs || []).filter(j => j.pid === p.id);
+      const up = mine.find(j => j.kind === "upload" && ["queued", "running", "cancelling"].includes(j.status));
+      const st = $("#ytStage", ytC);
+      if (up && st) st.textContent = `${up.stage || up.status}${up.progress ? ` · ${Math.round(up.progress * 100)}%` : ""}`;
+      const key = mine.map(j => j.id + ":" + j.status).join("|");
+      if (qKey === null) { qKey = key; return; }
+      if (key !== qKey) {
+        qKey = key;
+        await reload();
+        if (!seoCard.contains(document.activeElement)) drawSeo();
+        drawShorts();
+        if (!ytC.contains(document.activeElement)) drawYt();
+        refreshLive(true);
+      }
+    } catch (e) { }
+  }, 4000);
+  const slow = setInterval(() => {
+    if (!document.body.contains(page)) { clearInterval(slow); return; }
+    refreshLive();
+  }, 45000);
   host.appendChild(page);
 }
 

@@ -130,3 +130,4 @@ trainers/musubi-tuner/
 
 # remotion overlay renderer deps
 tools/remotion/node_modules/
+data/server.log*

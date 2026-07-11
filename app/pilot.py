@@ -45,6 +45,37 @@ _state: Dict[str, Dict] = {}
 _lock = threading.Lock()
 
 
+class _Cancelled(Exception):
+    """Raised inside a run when the user cancels it from the Queue page."""
+
+
+def cancel(aid: str) -> bool:
+    """Flag a running autopilot; the run stops at its next stage boundary.
+    Any produce job currently working for it is cancelled immediately."""
+    with _lock:
+        st = _state.get(aid)
+        if not st or st.get("status") != "running":
+            return False
+        st["cancel"] = True
+        pid = st.get("project_id")
+    try:
+        from . import jobs as _j
+        from . import produce as _pr
+        ps = (_pr.status(pid) or {}) if pid else {}
+        if ps.get("job_id"):
+            _j.cancel(ps["job_id"])
+    except Exception:  # noqa: BLE001
+        pass
+    _log(aid, "cancel requested")
+    return True
+
+
+def _ck(aid: str) -> None:
+    with _lock:
+        if (_state.get(aid) or {}).get("cancel"):
+            raise _Cancelled("cancelled from the Queue page")
+
+
 # --- state ------------------------------------------------------------------
 def status(aid: str) -> Optional[Dict]:
     with _lock:
@@ -193,6 +224,7 @@ def submit(cid: str, idea: str, opts: Optional[Dict] = None) -> str:
             _log(aid, f"topic: {plan['topic']}")
 
             # 2 research ----------------------------------------------------
+            _ck(aid)
             _set(aid, stage="research")
             _log(aid, f"researching: {', '.join(plan['wikipedia'])}")
             research = webresearch.research_topic(plan["wikipedia"])
@@ -200,6 +232,7 @@ def submit(cid: str, idea: str, opts: Optional[Dict] = None) -> str:
                       f"{len(research['keywords'])} keywords")
 
             # 3 script ------------------------------------------------------
+            _ck(aid)
             _set(aid, stage="script")
             _log(aid, "writing the storyboard (local LLM)")
             prompt = _script_prompt(ch, plan, research, minutes)
@@ -218,6 +251,7 @@ def submit(cid: str, idea: str, opts: Optional[Dict] = None) -> str:
                 encoding="utf-8")
 
             # 4 import (assisted: the director may rewrite structure) --------
+            _ck(aid)
             _set(aid, stage="import")
             project = projects.create_project(
                 board, name=plan["topic"], channel=cid,
@@ -255,6 +289,7 @@ def submit(cid: str, idea: str, opts: Optional[Dict] = None) -> str:
                     _log(aid, f"refs skipped ({exc})")
 
             # 6 produce -------------------------------------------------------
+            _ck(aid)
             _set(aid, stage="produce")
             _log(aid, "producing (voice, images, score, animate, assemble, grade)")
             produce.submit_produce(pid)
@@ -272,6 +307,7 @@ def submit(cid: str, idea: str, opts: Optional[Dict] = None) -> str:
                     raise RuntimeError(f"produce failed: {st.get('error')}")
                 if time.time() - t0 > 6 * 3600:
                     raise RuntimeError("produce timed out (6 h)")
+                _ck(aid)
                 time.sleep(3)
             _log(aid, "produce finished")
 
@@ -301,6 +337,9 @@ def submit(cid: str, idea: str, opts: Optional[Dict] = None) -> str:
                       "seo_title": seo_title}
             _set(aid, status="done", stage="done", result=result)
             _log(aid, f"DONE: {result.get('url') or pid}")
+        except _Cancelled:
+            _set(aid, status="cancelled", stage="cancelled")
+            _log(aid, "CANCELLED")
         except Exception as exc:  # noqa: BLE001
             traceback.print_exc()
             _set(aid, status="error", error=f"{type(exc).__name__}: {exc}")

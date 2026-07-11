@@ -267,6 +267,12 @@ def _backup_registry() -> None:
 
 def _write(ch: Dict) -> Dict:
     rec = {k: v for k, v in ch.items() if k != "ui"}   # ui/ folder is the truth
+    if isinstance(rec.get("youtube"), dict):
+        # belt (2026-07-11 GitHub push-protection block): no matter which
+        # path built this record, credentials are vaulted here so they can
+        # never reach the git-tracked channel.json again
+        rec["youtube"] = dict(rec["youtube"])          # keep the caller's copy intact
+        _split_secrets(rec)
     ensure_dirs(rec["id"])
     storage.write_json(_record_file(rec["id"]), rec)
     _backup_registry()

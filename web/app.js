@@ -152,6 +152,7 @@ const state = {
    Two contexts: the HUB (pick a channel, shared tools) and a CHANNEL WORKSPACE
    (that channel's videos + the numbered pipeline, ordered like production). */
 const TOOL_NAV = [
+  { id: "queue", label: "Queue", icon: "i-clock" },
   { id: "transcribe", label: "Script → JSON", icon: "i-clock" },
   { id: "voices", label: "Voice Lab", icon: "i-voices" },
   { id: "history", label: "History", icon: "i-history" },
@@ -3901,11 +3902,13 @@ async function renderPublish(host) {
           <input type="datetime-local" id="ytWhen" value="${esc((seo.publish_at || ""))}" style="width:auto"/>
           <span class="muted" style="font-size:11px">blank = stays ${esc(yt.privacy || "private")} until you flip it. With a time set, the upload goes up private and <b>YouTube itself publishes it at that moment</b>.</span>
         </div>
-        <div class="muted" style="font-size:11px;margin-top:6px">📈 Quality: a <b>1440p master</b> is built and uploaded automatically — YouTube gives 1440p a much higher bitrate tier than 1080p, which fixes the mushy look. Edit anything in the SEO card above first; Post always uses the saved version.</div>
+        <div class="muted" style="font-size:11px;margin-top:6px">📈 Quality: a <b>1440p master</b> is built and uploaded automatically — YouTube gives 1440p a much higher bitrate tier than 1080p, which fixes the mushy look. Edit anything in the SEO card above first; Post always uses the saved version. Note: right after an upload YouTube only has a low-res encode; the sharp 1440p version appears once processing finishes (minutes to a few hours).</div>
+        <div class="muted" style="font-size:11px;margin-top:4px">🖼 Custom thumbnails need a one-time phone verification of the YouTube channel (<b>youtube.com/verify</b>). If an upload row says "thumb not set", verify, then hit Retry thumbnail.</div>
         ${ups.length ? `<div style="margin-top:10px">${ups.map(u => `
-          <div class="row" style="gap:10px;padding:5px 0;border-top:1px solid rgba(255,255,255,.06);font-size:12.5px">
+          <div class="row" style="gap:10px;padding:5px 0;border-top:1px solid rgba(255,255,255,.06);font-size:12.5px;flex-wrap:wrap">
             <a href="${esc(u.url)}" target="_blank" class="mono">${esc(u.url)}</a>
-            <span class="muted">${esc(u.title || "")} · ${u.publish_at ? `<b>🕑 goes live ${new Date(u.publish_at).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}</b>` : esc(u.privacy)}${u.master_1440 ? " · 1440p" : ""} · ${fmtAgo(u.uploaded)}</span></div>`).join("")}</div>` : ""}`;
+            <span class="muted">${esc(u.title || "")} · ${u.publish_at ? `<b>🕑 goes live ${new Date(u.publish_at).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}</b>` : esc(u.privacy)}${u.master_1440 ? " · 1440p" : ""}${u.thumbnail === "set" ? " · 🖼✓" : (String(u.thumbnail || "").startsWith("failed") ? ` · <span title="${esc(u.thumbnail)}" style="color:#e6a94b">🖼 thumb not set</span>` : "")} · ${fmtAgo(u.uploaded)}</span>
+            ${String(u.thumbnail || "").startsWith("failed") || (u.thumbnail === undefined && u.video_id) ? `<button class="btn btn-ghost btn-sm ytThumbRetry" data-vid="${esc(u.video_id)}">🖼 Retry thumbnail</button>` : ""}</div>`).join("")}</div>` : ""}`;
     }
     ytC.innerHTML = `<div class="section-title">YouTube ${ch ? "· " + esc(ch.name) : ""}</div>${body}`;
     const editBtn = $("#ytEditCh", ytC); if (editBtn) editBtn.onclick = () => editChannelModal(ch);
@@ -3914,6 +3917,17 @@ async function renderPublish(host) {
       try { const { url } = await api.get(`/api/channels/${ch.id}/youtube/auth_url`, { reconnect: true }); window.open(url, "_blank"); }
       catch (e) { toast(e.message, "err"); }
     };
+    ytC.querySelectorAll(".ytThumbRetry").forEach(b => b.onclick = async () => {
+      b.disabled = true; b.textContent = "sending…";
+      try {
+        await api.post(`/api/projects/${p.id}/youtube/thumbnail`, { video_id: b.dataset.vid });
+        toast("Thumbnail set on YouTube"); await reload(); drawYt();
+      } catch (e) {
+        toast(e.message, "err");
+        b.disabled = false; b.textContent = "🖼 Retry thumbnail";
+        await reload(); drawYt();   // the row now carries the recorded failure reason
+      }
+    });
     const upBtn = $("#ytUpload", ytC);
     if (upBtn) upBtn.onclick = async () => {
       const sel = $("#ytFile", ytC);
@@ -3941,12 +3955,72 @@ async function renderPublish(host) {
   host.appendChild(page);
 }
 
+async function renderQueue(host) {
+  topbar("Queue", "Everything in flight — one GPU means ONE job runs at a time; the rest wait here. Cancel anything.", []);
+  const page = el("div", "page");
+  page.innerHTML = `
+    <div class="card"><div class="section-title">Jobs <span class="hint">(the single worker runs top to bottom)</span></div><div id="qJobs"><div class="muted">loading…</div></div></div>
+    <div class="card" style="margin-top:14px"><div class="section-title">Produce pipelines <span class="hint">(voice → images → score → animate → assemble → grade)</span></div><div id="qProd"></div></div>
+    <div class="card" style="margin-top:14px"><div class="section-title">Autopilot runs</div><div id="qAuto"></div></div>`;
+  host.appendChild(page);
+
+  async function fetchSnap() {
+    try { return await api.get("/api/queue"); }
+    catch (e) {   // route lands on next restart; dev/call works today
+      return (await api.post("/api/dev/call", { module: "service", func: "queue_snapshot", kwargs: {} })).result;
+    }
+  }
+  const pLink = (pid, name) => pid ? `<a href="#/p/${pid}/assemble" style="color:inherit">${esc(name || pid)}</a>` : "";
+  async function draw() {
+    if (!document.body.contains(page)) { clearInterval(timer); return; }
+    let d; try { d = await fetchSnap(); } catch (e) { return; }
+    $("#qJobs", page).innerHTML = (d.jobs || []).length ? d.jobs.map(j => `
+      <div class="row" style="gap:10px;padding:6px 0;border-top:1px solid rgba(255,255,255,.06);font-size:12.5px;align-items:center">
+        <b style="min-width:130px">${esc(j.kind)}</b>
+        <span class="badge ${j.status === "running" ? "good" : j.status === "error" ? "warn" : ""}" style="min-width:64px;text-align:center">${esc(j.status)}</span>
+        <span class="muted" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${pLink(j.pid, j.project)}${j.stage && !["done", "queued"].includes(j.stage) ? " · " + esc(j.stage) : ""}${j.error ? " · " + esc(j.error) : ""}</span>
+        ${j.status === "running" && j.progress ? `<span class="mono muted">${Math.round(j.progress * 100)}%</span>` : ""}
+        <span class="muted mono" style="font-size:11px">${fmtAgo(j.created)}</span>
+        ${["queued", "running"].includes(j.status) ? `<button class="btn btn-ghost btn-sm qCancel" data-id="${esc(j.id)}">✕ Cancel</button>` : ""}
+      </div>`).join("") : `<div class="muted">Nothing queued or running — the GPU is free.</div>`;
+    $("#qProd", page).innerHTML = (d.produce || []).length ? d.produce.map(pr => `
+      <div class="row" style="gap:10px;padding:6px 0;border-top:1px solid rgba(255,255,255,.06);font-size:12.5px;align-items:center">
+        <span class="badge ${pr.status === "running" ? "good" : pr.status === "error" ? "warn" : ""}" style="min-width:64px;text-align:center">${esc(pr.status || "")}</span>
+        <span class="muted" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${pLink(pr.pid, pr.project)} · ${esc(pr.stage || "")}${pr.error ? " · " + esc(pr.error) : ""}</span>
+        <span class="muted mono" style="font-size:11px">${pr.started ? fmtAgo(pr.started) : ""}</span>
+        ${pr.status === "running" && pr.job_id ? `<button class="btn btn-ghost btn-sm qCancel" data-id="${esc(pr.job_id)}" title="cancels the pipeline's current job, which stops the pipeline">✕ Cancel</button>` : ""}
+      </div>`).join("") : `<div class="muted">No pipelines.</div>`;
+    $("#qAuto", page).innerHTML = (d.autopilot || []).length ? d.autopilot.map(a => `
+      <div class="row" style="gap:10px;padding:6px 0;border-top:1px solid rgba(255,255,255,.06);font-size:12.5px;align-items:center">
+        <span class="badge ${a.status === "running" ? "good" : a.status === "error" ? "warn" : ""}" style="min-width:64px;text-align:center">${esc(a.status || "")}</span>
+        <span class="muted" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(a.stage || "")} · ${pLink(a.project_id, null) || esc((a.idea || "").slice(0, 70))}</span>
+        <span class="muted mono" style="font-size:11px">${a.started ? fmtAgo(a.started) : ""}</span>
+        ${a.status === "running" ? `<button class="btn btn-ghost btn-sm qCancelAp" data-id="${esc(a.id)}">✕ Cancel</button>` : ""}
+      </div>`).join("") : `<div class="muted">No autopilot runs.</div>`;
+    $$(".qCancel", page).forEach(b => b.onclick = async () => {
+      if (!(await confirmModal("Cancel this job?", "It stops at its next checkpoint (~1 scene). A produce pipeline stops with it.", "Cancel job", true))) return;
+      try { await api.post(`/api/jobs/${b.dataset.id}/cancel`, {}); toast("cancel requested"); draw(); }
+      catch (e) { toast(e.message, "err"); }
+    });
+    $$(".qCancelAp", page).forEach(b => b.onclick = async () => {
+      if (!(await confirmModal("Cancel this autopilot run?", "It stops at the next stage boundary; the project it already created stays.", "Cancel run", true))) return;
+      try {
+        try { await api.post(`/api/autopilot/${b.dataset.id}/cancel`, {}); }
+        catch (e) { await api.post("/api/dev/call", { module: "pilot", func: "cancel", kwargs: { aid: b.dataset.id } }); }
+        toast("cancel requested"); draw();
+      } catch (e) { toast(e.message, "err"); }
+    });
+  }
+  const timer = setInterval(draw, 2500);
+  draw();
+}
+
 const Pages = {
   hub: renderHub,
   projects: renderProjects, storyboard: renderStoryboard, characters: renderCharacters,
   voiceover: renderVoiceover, images: renderImages, animate: renderAnimate,
   edit: renderEdit, assemble: renderAssemble, preview: renderPreview, publish: renderPublish,
-  history: renderHistory,
+  history: renderHistory, queue: renderQueue,
   voices: renderVoiceLab, transcribe: renderTranscribe, training: renderTraining,
   settings: renderSettings,
 };

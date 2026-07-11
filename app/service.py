@@ -15,6 +15,55 @@ from .voices import display_name, preview_text
 ProgressFn = Callable[[str, float], None]
 
 
+def queue_snapshot(limit: int = 40) -> Dict:
+    """Everything in flight, for the Queue page: every job (queued/running
+    first, then the newest finished), the produce pipelines, the autopilot
+    runs. Read-only; cancel through POST /api/jobs/{id}/cancel and
+    pilot.cancel."""
+    from . import pilot as _pl
+    from . import produce as _pr
+    from . import projects as _p
+
+    names: Dict = {}
+
+    def pname(pid):
+        if not pid:
+            return None
+        if pid not in names:
+            try:
+                names[pid] = (_p.get_project(pid) or {}).get("name")
+            except Exception:  # noqa: BLE001
+                names[pid] = None
+        return names[pid]
+
+    with jobs._lock:
+        rows = [dict(j) for j in jobs._jobs.values()]
+    active = sorted([r for r in rows if r["status"] in ("queued", "running")],
+                    key=lambda r: r["created"])
+    finished = sorted([r for r in rows if r["status"] not in ("queued", "running")],
+                      key=lambda r: r.get("finished") or r["created"],
+                      reverse=True)
+    out_jobs = []
+    for r in active + finished[: max(0, limit - len(active))]:
+        row = {k: r.get(k) for k in ("id", "kind", "pid", "status", "stage",
+                                     "progress", "created", "finished", "error")}
+        row["project"] = pname(r.get("pid"))
+        out_jobs.append(row)
+
+    with _pr._lock:
+        prod = [{"pid": k, "project": pname(k),
+                 **{kk: (v or {}).get(kk) for kk in
+                    ("status", "stage", "job_id", "started", "error")}}
+                for k, v in _pr._state.items()]
+
+    with _pl._lock:
+        auto = [{k: st.get(k) for k in ("id", "channel", "idea", "status",
+                                        "stage", "project_id", "started",
+                                        "error")}
+                for st in _pl._state.values()]
+    return {"jobs": out_jobs, "produce": prod, "autopilot": auto}
+
+
 def _scaled(progress: ProgressFn, lo: float, hi: float) -> ProgressFn:
     def cb(stage: str, frac: float) -> None:
         progress(stage, lo + (hi - lo) * max(0.0, min(1.0, frac)))

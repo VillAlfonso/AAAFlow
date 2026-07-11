@@ -2,7 +2,7 @@
   "id": "61b473b72123",
   "name": "Every House Burned. The Painting Never Did.",
   "created": 1783676227.141016,
-  "updated": 1783691891.2435753,
+  "updated": 1783694043.043019,
   "channel": "menagerie",
   "video": {
     "title": "Every House Burned. The Painting Never Did.",
@@ -22,9 +22,10 @@
     "voice": {
       "mode": "clone",
       "speaker": "Ryan",
-      "voice_id": "219d864d04ec",
+      "voice_id": "40eddc03223b",
       "language": "English",
-      "instruct": "Speak calmly and quietly, almost flat, like a tired keeper walking one guest through the exhibits after closing. Slow, even pace, small natural pauses, soft breaths between sentences; tiny hesitations and worn edges are welcome. Never theatrical, never excited. Let the facts do the frightening."
+      "instruct": "Calm, intelligent documentary narration for one intelligent listener. Steady pace, consistent energy, natural pauses between ideas; every sentence part of one continuous explanation; subtle emphasis only where the script gives genuinely surprising information; clarity over emotion; no hype, never theatrical. Begin with quiet curiosity, settle into a relaxed rhythm, and as the story approaches its end soften and slow slightly so the final sentence lands with a complete, falling, conclusive cadence, then silence.",
+      "humanize": "natural"
     },
     "image": {
       "model": "krea2",

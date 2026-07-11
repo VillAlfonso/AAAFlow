@@ -101,6 +101,18 @@ def _api_error(exc: urllib.error.HTTPError) -> str:
         return f"HTTP {exc.code}"
 
 
+def _probe_duration(path) -> float:
+    import subprocess
+    from pathlib import Path as _P
+    probe = str(_P(config.FFMPEG).with_name("ffprobe.exe"))
+    if not _P(probe).exists():
+        probe = "ffprobe"
+    r = subprocess.run([probe, "-v", "error", "-show_entries",
+                        "format=duration", "-of", "csv=p=0", str(path)],
+                       capture_output=True, text=True, timeout=60)
+    return float(r.stdout.strip().splitlines()[0])
+
+
 def _probe_height(path) -> int:
     import subprocess
     from pathlib import Path as _P
@@ -128,19 +140,34 @@ def _youtube_master(src, progress):
         return src
     dst = src.with_name(src.stem + "_yt1440.mp4")
     if dst.exists() and dst.stat().st_mtime >= src.stat().st_mtime:
-        return dst
+        # trust the cache only if it is a WHOLE mp4 at a sane bitrate (a
+        # cancelled build once left a moov-less 60 Mbps partial behind)
+        try:
+            dur = _probe_duration(dst)
+            if dur > 1 and dst.stat().st_size / dur < 5.0e6:   # < ~40 Mbps
+                return dst
+        except Exception:  # noqa: BLE001
+            pass
+        dst.unlink(missing_ok=True)
     progress("Building the 1440p YouTube master (bitrate-tier trick)", 0.03)
+    tmp = dst.with_name(dst.stem + ".part.mp4")
     head = [config.FFMPEG, "-y", "-i", str(src),
             "-vf", "scale=2560:1440:flags=lanczos",
             "-c:a", "copy", "-movflags", "+faststart"]
+    # cq19 capped near YouTube's recommended 1440p rate: transparent on this
+    # art, and the upload stays ~1.5-2 GB instead of 4+
     for vcodec in (["-c:v", "h264_nvenc", "-preset", "p5", "-rc", "vbr",
-                    "-cq", "16", "-b:v", "0", "-pix_fmt", "yuv420p"],
-                   ["-c:v", "libx264", "-preset", "medium", "-crf", "15",
+                    "-cq", "19", "-b:v", "0", "-maxrate", "30M",
+                    "-bufsize", "60M", "-pix_fmt", "yuv420p"],
+                   ["-c:v", "libx264", "-preset", "medium", "-crf", "17",
+                    "-maxrate", "30M", "-bufsize", "60M",
                     "-pix_fmt", "yuv420p"]):
-        r = subprocess.run(head + vcodec + [str(dst)], capture_output=True,
+        r = subprocess.run(head + vcodec + [str(tmp)], capture_output=True,
                            timeout=3600)
-        if r.returncode == 0 and dst.exists():
+        if r.returncode == 0 and tmp.exists():
+            tmp.replace(dst)
             return dst
+    tmp.unlink(missing_ok=True)
     raise RuntimeError("1440p master encode failed")
 
 
@@ -154,6 +181,86 @@ def _publish_at_rfc3339(v) -> Optional[str]:
     if t.tzinfo is None:
         t = t.astimezone()                      # interpret as local time
     return t.astimezone(_dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+_THUMB_LIMIT = 2 * 1024 * 1024          # YouTube's hard cap for custom thumbnails
+
+
+def _thumb_payload(pdir) -> Optional[tuple]:
+    """The project's chosen thumbnail as (bytes, mime). Recodes to JPEG when
+    the PNG would blow YouTube's 2 MB cap."""
+    src = pdir / "thumbnail.png"
+    if not src.exists():
+        tdir = pdir / "video" / "thumbs"
+        cand = sorted(tdir.glob("*.png"), key=lambda f: f.stat().st_mtime) \
+            if tdir.is_dir() else []
+        if not cand:
+            return None
+        src = cand[-1]
+    data = src.read_bytes()
+    if len(data) <= _THUMB_LIMIT:
+        return data, "image/png"
+    try:
+        from io import BytesIO
+        from PIL import Image
+        im = Image.open(src).convert("RGB")
+        for q in (92, 85, 78, 70):
+            buf = BytesIO()
+            im.save(buf, "JPEG", quality=q, optimize=True)
+            if buf.tell() <= _THUMB_LIMIT:
+                return buf.getvalue(), "image/jpeg"
+    except Exception:  # noqa: BLE001 - fall through to "no payload"
+        pass
+    return None
+
+
+def _push_thumb(token: str, vid: str, pdir) -> str:
+    """thumbnails/set for one video; '' on success, a readable error on failure."""
+    payload = _thumb_payload(pdir)
+    if not payload:
+        return "no thumbnail.png in the project (generate SEO or pick a variant first)"
+    data, mime = payload
+    req = urllib.request.Request(
+        f"{config.YOUTUBE['thumb_url']}?videoId={vid}&uploadType=media",
+        data=data, method="POST",
+        headers={"Authorization": f"Bearer {token}", "Content-Type": mime})
+    try:
+        urllib.request.urlopen(req, timeout=120).read()
+        return ""
+    except urllib.error.HTTPError as exc:
+        err = _api_error(exc)
+        if "thumbnail" in err.lower() and "permission" in err.lower():
+            err += (" | YouTube unlocks custom thumbnails once the channel is "
+                    "phone-verified at youtube.com/verify (one time, instant); "
+                    "verify, then hit Retry thumbnail on the upload row.")
+        return err
+
+
+def set_thumbnail(pid: str, video_id: str = "") -> Dict:
+    """Set (or RETRY) the custom thumbnail on an already-uploaded video: the
+    fix-up path for uploads that 403'd before the channel had the
+    custom-thumbnail feature (phone verification)."""
+    project = projects.get_project(pid)
+    if not project:
+        raise ValueError("Project not found.")
+    ch = channels.get(project.get("channel"))
+    if not ch:
+        raise ValueError("This project has no channel.")
+    yt = _effective_youtube_creds(ch.get("youtube") or {})
+    if not (yt.get("client_id") and yt.get("refresh_token")):
+        raise ValueError("Channel isn't connected to YouTube yet.")
+    ups = project.get("uploads") or []
+    vid = video_id or (ups[0].get("video_id") if ups else "")
+    if not vid:
+        raise ValueError("No uploaded video to set a thumbnail on.")
+    err = _push_thumb(_access_token(yt), vid, projects.project_dir(pid))
+    for u in ups:
+        if u.get("video_id") == vid:
+            u["thumbnail"] = "set" if not err else f"failed: {err}"
+    projects.save_project(project)
+    if err:
+        raise RuntimeError(err)
+    return {"video_id": vid, "thumbnail": "set"}
 
 
 def submit_upload(pid: str, opts: Optional[Dict] = None) -> str:
@@ -192,7 +299,25 @@ def submit_upload(pid: str, opts: Optional[Dict] = None) -> str:
     title = (opts.get("title") or (seo.get("titles") or [None])[0]
              or project.get("video", {}).get("title") or project.get("name"))[:100]
     description = (opts.get("description") or seo.get("description") or "")[:4900]
-    tags = opts.get("tags") or seo.get("tags") or []
+
+    def _clean_tags(ts):
+        """YouTube rejects the whole upload (400 invalidTags) when the tag
+        LIST passes ~500 characters total (spaces cost 2 extra for implied
+        quotes) or any tag is too long. Keep the best-first prefix that fits."""
+        import re as _re
+        out, total = [], 0
+        for t in ts or []:
+            t = _re.sub(r"[<>]", "", str(t)).strip()
+            if not t or len(t) > 90:
+                continue
+            cost = len(t) + (2 if " " in t else 0) + (1 if out else 0)
+            if total + cost > 470:
+                break
+            out.append(t)
+            total += cost
+        return out
+
+    tags = _clean_tags(opts.get("tags") or seo.get("tags") or [])
     privacy = opts.get("privacy") or yt.get("privacy") or "private"
     category = str(yt.get("category_id") or "27")
     publish_at = _publish_at_rfc3339(opts.get("publish_at")
@@ -262,19 +387,13 @@ def submit_upload(pid: str, opts: Optional[Dict] = None) -> str:
             raise RuntimeError("Upload finished but YouTube returned no video id.")
         vid = video["id"]
 
+        thumb_state = "skipped"
         if opts.get("thumbnail", True):
-            thumb = pdir / "thumbnail.png"
-            if thumb.exists():
-                progress("Setting thumbnail", 0.93)
-                treq = urllib.request.Request(
-                    f"{config.YOUTUBE['thumb_url']}?videoId={vid}",
-                    data=thumb.read_bytes(), method="POST",
-                    headers={"Authorization": f"Bearer {token}",
-                             "Content-Type": "image/png"})
-                try:
-                    urllib.request.urlopen(treq, timeout=120).read()
-                except urllib.error.HTTPError as exc:
-                    print(f"[youtube] thumbnail set failed: {_api_error(exc)}")
+            progress("Setting thumbnail", 0.93)
+            terr = _push_thumb(token, vid, pdir)
+            thumb_state = "set" if not terr else f"failed: {terr}"
+            if terr:
+                print(f"[youtube] thumbnail set failed: {terr}")
 
         url = f"https://youtu.be/{vid}"
         proj = projects.get_project(pid)
@@ -283,9 +402,11 @@ def submit_upload(pid: str, opts: Optional[Dict] = None) -> str:
             "privacy": ("scheduled" if publish_at else privacy),
             "publish_at": publish_at,
             "master_1440": str(up_src) != str(src),
+            "thumbnail": thumb_state,
             "channel": ch["id"], "uploaded": time.time()})
         projects.save_project(proj)
-        return {"video_id": vid, "url": url, "privacy": privacy}
+        return {"video_id": vid, "url": url, "privacy": privacy,
+                "thumbnail": thumb_state}
 
     return jobs.submit("youtube_upload", task, pid=pid)
 

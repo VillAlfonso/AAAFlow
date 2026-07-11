@@ -912,6 +912,22 @@ def pick_thumbnail(pid: str, req: ThumbPickReq):
         raise HTTPException(status_code=400, detail=str(exc))
 
 
+class ThumbSetReq(BaseModel):
+    video_id: str = ""                # default: the newest upload
+
+
+@app.post("/api/projects/{pid}/youtube/thumbnail")
+def send_thumbnail_to_youtube(pid: str, req: ThumbSetReq = ThumbSetReq()):
+    """Set/retry the custom thumbnail on an uploaded video (YouTube 403s
+    until the channel is phone-verified at youtube.com/verify)."""
+    try:
+        return youtube.set_thumbnail(pid, req.video_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    except Exception as exc:  # noqa: BLE001 - surface YouTube API errors to the UI
+        raise HTTPException(status_code=502, detail=str(exc))
+
+
 @app.put("/api/projects/{pid}/seo")
 def put_seo(pid: str, patch: dict):
     """Persist user edits to the SEO package (title/description/tags…)."""
@@ -965,6 +981,17 @@ def autopilot_status(aid: str):
     if not st:
         raise HTTPException(status_code=404, detail="autopilot run not found")
     return st
+
+
+@app.post("/api/autopilot/{aid}/cancel")
+def autopilot_cancel(aid: str):
+    return {"cancelled": pilot.cancel(aid)}
+
+
+@app.get("/api/queue")
+def queue_page():
+    """Everything in flight (jobs + produce pipelines + autopilot runs)."""
+    return service.queue_snapshot()
 
 
 @app.get("/api/channels/{cid}/autopilot")

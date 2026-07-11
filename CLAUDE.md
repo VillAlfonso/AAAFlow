@@ -330,7 +330,10 @@ preset p5 (cq19 unchanged).
   `data/secrets/<cid>.json` (`.gitignore`d); `channels.get()` merges them in
   memory, `upsert()` diverts them — channel.json never holds credentials. The
   channel editor carries an idiot-proof connect guide (console links,
-  Desktop-app OAuth client, test user).
+  Desktop-app OAuth client, test user). `channels._write` splits secrets
+  itself too (belt, 2026-07-11: a pre-vault menagerie record in commit
+  452c403 tripped GitHub push protection; the unpushed history was scrubbed
+  in place with filter-branch, nothing reached GitHub).
 - **SCHEDULED POSTS + the 1440p bitrate trick (user, 2026-07-10).** The
   Publish page has a "Goes public" datetime: the upload goes up PRIVATE with
   YouTube `publishAt`, and YouTube itself flips it public at that moment
@@ -341,7 +344,12 @@ preset p5 (cq19 unchanged).
   starves 1080p uploads of bitrate; 1440p lands in a better codec tier.
   `master: false` uploads the original. The channel Videos page opens with a
   **channel preview** (brand banner + avatar + live YouTube stats + all
-  videos as thumbnail cards).
+  videos as thumbnail cards). Custom thumbnails 403 until the channel is
+  phone-verified (youtube.com/verify, one time, a CHANNEL feature, not app
+  verification); every upload row records `thumbnail: set/failed` with a
+  Retry button (`POST /api/projects/{pid}/youtube/thumbnail`). Right after
+  an upload YouTube serves a low-res encode; the sharp 1440p tier appears
+  when processing finishes.
 - **APP-LEVEL OAuth (user, 2026-07-10: "publish this as an app").** The
   studio's own Google client lives in `data/secrets/app_oauth.json`
   (gitignored); every channel without its own creds inherits it in
@@ -439,6 +447,12 @@ preset p5 (cq19 unchanged).
   taglines or sources with them.
 
 ## Operational rules
+- **Queue page**: tool-rail 🗂 Queue lists every job, produce pipeline and
+  autopilot run (`GET /api/queue`) with cancel buttons — check it before
+  wondering why a button seems stuck. Start the server DETACHED
+  (`Start-Process`), never as a Claude-Code background child: background
+  children die when the CC process restarts (that is what killed the
+  2026-07-10 re-voice pass mid-take).
 - Backend (`app/*.py`) edits: **hot-reload first, restart second** (user rule
   2026-07-05 "make it so it's not that way"). `POST /api/dev/reload
   {"modules": ["assemble", ...]}` swaps pure-logic modules on the LIVE server

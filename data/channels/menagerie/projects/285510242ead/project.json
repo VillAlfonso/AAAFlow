@@ -2,7 +2,7 @@
   "id": "285510242ead",
   "name": "Five Children Went Upstairs. The Fire Left No Bones.",
   "created": 1783676227.2910883,
-  "updated": 1783693871.6027997,
+  "updated": 1783703616.5258434,
   "channel": "menagerie",
   "video": {
     "title": "Five Children Went Upstairs. The Fire Left No Bones.",
@@ -22,9 +22,10 @@
     "voice": {
       "mode": "clone",
       "speaker": "Ryan",
-      "voice_id": "219d864d04ec",
+      "voice_id": "40eddc03223b",
       "language": "English",
-      "instruct": "Speak calmly and quietly, almost flat, like a tired keeper walking one guest through the exhibits after closing. Slow, even pace, small natural pauses, soft breaths between sentences; tiny hesitations and worn edges are welcome. Never theatrical, never excited. Let the facts do the frightening."
+      "instruct": "Calm, intelligent documentary narration for one intelligent listener. Steady pace, consistent energy, natural pauses between ideas; every sentence part of one continuous explanation; subtle emphasis only where the script gives genuinely surprising information; clarity over emotion; no hype, never theatrical. Begin with quiet curiosity, settle into a relaxed rhythm, and as the story approaches its end soften and slow slightly so the final sentence lands with a complete, falling, conclusive cadence, then silence.",
+      "humanize": "natural"
     },
     "image": {
       "model": "krea2",
@@ -7646,6 +7647,21 @@
   },
   "renders": [
     {
+      "id": "46729ff2f4cd",
+      "created": 1783694036.9227612,
+      "file": "video/final_20260710_221509_graded.mp4",
+      "duration": 599.53,
+      "width": 1920,
+      "height": 1080,
+      "fps": 30,
+      "scenes": 141,
+      "with_audio": 141,
+      "with_images": 0,
+      "with_videos": 12,
+      "graded": "ember",
+      "grade_encoder": "h264_nvenc"
+    },
+    {
       "id": "e9178d533a12",
       "created": 1783692952.276284,
       "file": "video/final_20260710_221509.mp4",
@@ -7945,5 +7961,18 @@
     "cues_placed": 0,
     "attribution": [],
     "scored": 1783685597.0123107
-  }
+  },
+  "uploads": [
+    {
+      "video_id": "z5jJEf9Tncw",
+      "url": "https://youtu.be/z5jJEf9Tncw",
+      "file": "video/final_20260710_221509_graded.mp4",
+      "title": "When 5 children never came back",
+      "privacy": "public",
+      "publish_at": null,
+      "master_1440": true,
+      "channel": "menagerie",
+      "uploaded": 1783703616.5258434
+    }
+  ]
 }

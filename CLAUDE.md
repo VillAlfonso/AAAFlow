@@ -349,7 +349,13 @@ preset p5 (cq19 unchanged).
   verification); every upload row records `thumbnail: set/failed` with a
   Retry button (`POST /api/projects/{pid}/youtube/thumbnail`). Right after
   an upload YouTube serves a low-res encode; the sharp 1440p tier appears
-  when processing finishes.
+  when processing finishes. Uploads send `seo.titles[0]` as the title;
+  re-packaging AFTER an upload rewrites the SEO, so every upload row also
+  carries **⟳ Sync SEO** (`POST /api/projects/{pid}/youtube/sync`,
+  `youtube.sync_seo`) that pushes the saved title/description/tags onto the
+  live video (2026-07-12, user: "what I set up didn't match what uploaded").
+  Pre-2026-07-10 uploads were plain 1080p and stay bitrate-starved forever;
+  the only fix is re-upload (the master path is now the default).
 - **APP-LEVEL OAuth (user, 2026-07-10: "publish this as an app").** The
   studio's own Google client lives in `data/secrets/app_oauth.json`
   (gitignored); every channel without its own creds inherits it in
@@ -449,7 +455,10 @@ preset p5 (cq19 unchanged).
 ## Operational rules
 - **Queue page**: tool-rail 🗂 Queue lists every job, produce pipeline and
   autopilot run (`GET /api/queue`) with cancel buttons — check it before
-  wondering why a button seems stuck. Start the server DETACHED
+  wondering why a button seems stuck. Cancel feedback is instant
+  (2026-07-12): the button flips to "cancelling…" and `service.queue_snapshot`
+  reports display-only `cancelling`/`stopping` states until the job's next
+  checkpoint actually stops it. Start the server DETACHED
   (`Start-Process`), never as a Claude-Code background child: background
   children die when the CC process restarts (that is what killed the
   2026-07-10 re-voice pass mid-take).

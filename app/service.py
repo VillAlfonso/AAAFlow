@@ -44,17 +44,26 @@ def queue_snapshot(limit: int = 40) -> Dict:
                       key=lambda r: r.get("finished") or r["created"],
                       reverse=True)
     out_jobs = []
+    by_id = {r["id"]: r for r in rows}
     for r in active + finished[: max(0, limit - len(active))]:
         row = {k: r.get(k) for k in ("id", "kind", "pid", "status", "stage",
                                      "progress", "created", "finished", "error")}
+        # cancel() only flips status at the next checkpoint; show intent now
+        if r.get("cancel") and row["status"] == "running":
+            row["status"] = "cancelling"
         row["project"] = pname(r.get("pid"))
         out_jobs.append(row)
 
     with _pr._lock:
-        prod = [{"pid": k, "project": pname(k),
-                 **{kk: (v or {}).get(kk) for kk in
-                    ("status", "stage", "job_id", "started", "error")}}
-                for k, v in _pr._state.items()]
+        prod = []
+        for k, v in _pr._state.items():
+            prow = {"pid": k, "project": pname(k),
+                    **{kk: (v or {}).get(kk) for kk in
+                       ("status", "stage", "job_id", "started", "error")}}
+            j = by_id.get(prow.get("job_id") or "")
+            if prow.get("status") == "running" and j and j.get("cancel"):
+                prow["status"] = "stopping"
+            prod.append(prow)
 
     with _pl._lock:
         auto = [{k: st.get(k) for k in ("id", "channel", "idea", "status",

@@ -2,7 +2,7 @@
   "id": "285510242ead",
   "name": "Five Children Went Upstairs. The Fire Left No Bones.",
   "created": 1783676227.2910883,
-  "updated": 1783703616.5258434,
+  "updated": 1783785966.4161131,
   "channel": "menagerie",
   "video": {
     "title": "Five Children Went Upstairs. The Fire Left No Bones.",
@@ -7972,7 +7972,9 @@
       "publish_at": null,
       "master_1440": true,
       "channel": "menagerie",
-      "uploaded": 1783703616.5258434
+      "uploaded": 1783703616.5258434,
+      "thumbnail": "failed: 403 forbidden: The authenticated user doesn't have permissions to upload and set custom video thumbnails. | YouTube unlocks custom thumbnails once the channel is phone-verified at youtube.com/verify (one time, instant); verify, then hit Retry thumbnail on the upload row.",
+      "seo_synced": 1783785966.4161131
     }
   ]
 }

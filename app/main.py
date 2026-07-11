@@ -928,6 +928,18 @@ def send_thumbnail_to_youtube(pid: str, req: ThumbSetReq = ThumbSetReq()):
         raise HTTPException(status_code=502, detail=str(exc))
 
 
+@app.post("/api/projects/{pid}/youtube/sync")
+def sync_seo_to_youtube(pid: str, req: ThumbSetReq = ThumbSetReq()):
+    """Push the saved SEO title/description/tags onto an uploaded video, so
+    the live video catches up when the SEO changed after the upload."""
+    try:
+        return youtube.sync_seo(pid, req.video_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    except Exception as exc:  # noqa: BLE001 - surface YouTube API errors to the UI
+        raise HTTPException(status_code=502, detail=str(exc))
+
+
 @app.put("/api/projects/{pid}/seo")
 def put_seo(pid: str, patch: dict):
     """Persist user edits to the SEO package (title/description/tags…)."""

@@ -236,6 +236,55 @@ def _push_thumb(token: str, vid: str, pdir) -> str:
         return err
 
 
+def _safe_tags(ts):
+    """YouTube rejects the whole request (400 invalidTags) when the tag
+    LIST passes ~500 characters total (spaces cost 2 extra for implied
+    quotes) or any tag is too long. Keep the best-first prefix that fits."""
+    import re as _re
+    out, total = [], 0
+    for t in ts or []:
+        t = _re.sub(r"[<>]", "", str(t)).strip()
+        if not t or len(t) > 90:
+            continue
+        cost = len(t) + (2 if " " in t else 0) + (1 if out else 0)
+        if total + cost > 470:
+            break
+        out.append(t)
+        total += cost
+    return out
+
+
+def sync_seo(pid: str, video_id: str = "") -> Dict:
+    """Push the project's CURRENT saved SEO (title/description/tags) onto an
+    already-uploaded video. Re-packaging after an upload rewrites the SEO,
+    which used to leave the live video on stale copy with no way to catch up
+    short of re-uploading."""
+    project = projects.get_project(pid)
+    if not project:
+        raise ValueError("Project not found.")
+    cid = project.get("channel")
+    if not cid:
+        raise ValueError("This project has no channel.")
+    ups = project.get("uploads") or []
+    vid = video_id or (ups[0].get("video_id") if ups else "")
+    if not vid:
+        raise ValueError("No uploaded video to sync.")
+    seo = project.get("seo") or {}
+    title = ((seo.get("titles") or [None])[0]
+             or project.get("video", {}).get("title") or project.get("name"))[:100]
+    update_video(cid, vid, {
+        "title": title,
+        "description": (seo.get("description") or "")[:4900],
+        "tags": _safe_tags(seo.get("tags") or []),
+    })
+    for u in ups:
+        if u.get("video_id") == vid:
+            u["title"] = title
+            u["seo_synced"] = time.time()
+    projects.save_project(project)
+    return {"video_id": vid, "title": title, "synced": True}
+
+
 def set_thumbnail(pid: str, video_id: str = "") -> Dict:
     """Set (or RETRY) the custom thumbnail on an already-uploaded video: the
     fix-up path for uploads that 403'd before the channel had the
@@ -300,24 +349,7 @@ def submit_upload(pid: str, opts: Optional[Dict] = None) -> str:
              or project.get("video", {}).get("title") or project.get("name"))[:100]
     description = (opts.get("description") or seo.get("description") or "")[:4900]
 
-    def _clean_tags(ts):
-        """YouTube rejects the whole upload (400 invalidTags) when the tag
-        LIST passes ~500 characters total (spaces cost 2 extra for implied
-        quotes) or any tag is too long. Keep the best-first prefix that fits."""
-        import re as _re
-        out, total = [], 0
-        for t in ts or []:
-            t = _re.sub(r"[<>]", "", str(t)).strip()
-            if not t or len(t) > 90:
-                continue
-            cost = len(t) + (2 if " " in t else 0) + (1 if out else 0)
-            if total + cost > 470:
-                break
-            out.append(t)
-            total += cost
-        return out
-
-    tags = _clean_tags(opts.get("tags") or seo.get("tags") or [])
+    tags = _safe_tags(opts.get("tags") or seo.get("tags") or [])
     privacy = opts.get("privacy") or yt.get("privacy") or "private"
     category = str(yt.get("category_id") or "27")
     publish_at = _publish_at_rfc3339(opts.get("publish_at")

@@ -3908,7 +3908,8 @@ async function renderPublish(host) {
           <div class="row" style="gap:10px;padding:5px 0;border-top:1px solid rgba(255,255,255,.06);font-size:12.5px;flex-wrap:wrap">
             <a href="${esc(u.url)}" target="_blank" class="mono">${esc(u.url)}</a>
             <span class="muted">${esc(u.title || "")} · ${u.publish_at ? `<b>🕑 goes live ${new Date(u.publish_at).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}</b>` : esc(u.privacy)}${u.master_1440 ? " · 1440p" : ""}${u.thumbnail === "set" ? " · 🖼✓" : (String(u.thumbnail || "").startsWith("failed") ? ` · <span title="${esc(u.thumbnail)}" style="color:#e6a94b">🖼 thumb not set</span>` : "")} · ${fmtAgo(u.uploaded)}</span>
-            ${String(u.thumbnail || "").startsWith("failed") || (u.thumbnail === undefined && u.video_id) ? `<button class="btn btn-ghost btn-sm ytThumbRetry" data-vid="${esc(u.video_id)}">🖼 Retry thumbnail</button>` : ""}</div>`).join("")}</div>` : ""}`;
+            ${String(u.thumbnail || "").startsWith("failed") || (u.thumbnail === undefined && u.video_id) ? `<button class="btn btn-ghost btn-sm ytThumbRetry" data-vid="${esc(u.video_id)}">🖼 Retry thumbnail</button>` : ""}
+            ${u.video_id ? `<button class="btn btn-ghost btn-sm ytSeoSync" data-vid="${esc(u.video_id)}" title="Push the saved SEO title, description and tags onto this YouTube video (fixes title drift after a re-package)">⟳ Sync SEO</button>` : ""}</div>`).join("")}</div>` : ""}`;
     }
     ytC.innerHTML = `<div class="section-title">YouTube ${ch ? "· " + esc(ch.name) : ""}</div>${body}`;
     const editBtn = $("#ytEditCh", ytC); if (editBtn) editBtn.onclick = () => editChannelModal(ch);
@@ -3926,6 +3927,16 @@ async function renderPublish(host) {
         toast(e.message, "err");
         b.disabled = false; b.textContent = "🖼 Retry thumbnail";
         await reload(); drawYt();   // the row now carries the recorded failure reason
+      }
+    });
+    ytC.querySelectorAll(".ytSeoSync").forEach(b => b.onclick = async () => {
+      b.disabled = true; b.textContent = "syncing…";
+      try {
+        const r = await api.post(`/api/projects/${p.id}/youtube/sync`, { video_id: b.dataset.vid });
+        toast(`YouTube video updated: "${r.title}"`); await reload(); drawYt();
+      } catch (e) {
+        toast(e.message, "err");
+        b.disabled = false; b.textContent = "⟳ Sync SEO";
       }
     });
     const upBtn = $("#ytUpload", ytC);
@@ -3977,7 +3988,7 @@ async function renderQueue(host) {
     $("#qJobs", page).innerHTML = (d.jobs || []).length ? d.jobs.map(j => `
       <div class="row" style="gap:10px;padding:6px 0;border-top:1px solid rgba(255,255,255,.06);font-size:12.5px;align-items:center">
         <b style="min-width:130px">${esc(j.kind)}</b>
-        <span class="badge ${j.status === "running" ? "good" : j.status === "error" ? "warn" : ""}" style="min-width:64px;text-align:center">${esc(j.status)}</span>
+        <span class="badge ${j.status === "running" ? "good" : ["error", "cancelling"].includes(j.status) ? "warn" : ""}" style="min-width:64px;text-align:center">${esc(j.status)}</span>
         <span class="muted" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${pLink(j.pid, j.project)}${j.stage && !["done", "queued"].includes(j.stage) ? " · " + esc(j.stage) : ""}${j.error ? " · " + esc(j.error) : ""}</span>
         ${j.status === "running" && j.progress ? `<span class="mono muted">${Math.round(j.progress * 100)}%</span>` : ""}
         <span class="muted mono" style="font-size:11px">${fmtAgo(j.created)}</span>
@@ -3985,7 +3996,7 @@ async function renderQueue(host) {
       </div>`).join("") : `<div class="muted">Nothing queued or running — the GPU is free.</div>`;
     $("#qProd", page).innerHTML = (d.produce || []).length ? d.produce.map(pr => `
       <div class="row" style="gap:10px;padding:6px 0;border-top:1px solid rgba(255,255,255,.06);font-size:12.5px;align-items:center">
-        <span class="badge ${pr.status === "running" ? "good" : pr.status === "error" ? "warn" : ""}" style="min-width:64px;text-align:center">${esc(pr.status || "")}</span>
+        <span class="badge ${pr.status === "running" ? "good" : ["error", "stopping"].includes(pr.status) ? "warn" : ""}" style="min-width:64px;text-align:center">${esc(pr.status || "")}</span>
         <span class="muted" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${pLink(pr.pid, pr.project)} · ${esc(pr.stage || "")}${pr.error ? " · " + esc(pr.error) : ""}</span>
         <span class="muted mono" style="font-size:11px">${pr.started ? fmtAgo(pr.started) : ""}</span>
         ${pr.status === "running" && pr.job_id ? `<button class="btn btn-ghost btn-sm qCancel" data-id="${esc(pr.job_id)}" title="cancels the pipeline's current job, which stops the pipeline">✕ Cancel</button>` : ""}
@@ -3999,16 +4010,18 @@ async function renderQueue(host) {
       </div>`).join("") : `<div class="muted">No autopilot runs.</div>`;
     $$(".qCancel", page).forEach(b => b.onclick = async () => {
       if (!(await confirmModal("Cancel this job?", "It stops at its next checkpoint (~1 scene). A produce pipeline stops with it.", "Cancel job", true))) return;
-      try { await api.post(`/api/jobs/${b.dataset.id}/cancel`, {}); toast("cancel requested"); draw(); }
-      catch (e) { toast(e.message, "err"); }
+      b.disabled = true; b.textContent = "cancelling…";
+      try { await api.post(`/api/jobs/${b.dataset.id}/cancel`, {}); toast("cancelling — it stops at the next checkpoint"); draw(); }
+      catch (e) { toast(e.message, "err"); b.disabled = false; b.textContent = "✕ Cancel"; }
     });
     $$(".qCancelAp", page).forEach(b => b.onclick = async () => {
       if (!(await confirmModal("Cancel this autopilot run?", "It stops at the next stage boundary; the project it already created stays.", "Cancel run", true))) return;
+      b.disabled = true; b.textContent = "cancelling…";
       try {
         try { await api.post(`/api/autopilot/${b.dataset.id}/cancel`, {}); }
         catch (e) { await api.post("/api/dev/call", { module: "pilot", func: "cancel", kwargs: { aid: b.dataset.id } }); }
-        toast("cancel requested"); draw();
-      } catch (e) { toast(e.message, "err"); }
+        toast("cancelling — it stops at the next stage boundary"); draw();
+      } catch (e) { toast(e.message, "err"); b.disabled = false; b.textContent = "✕ Cancel"; }
     });
   }
   const timer = setInterval(draw, 2500);

@@ -223,10 +223,16 @@ generations sound cut-up and out of tone; only prosody *within* a take is good.
    `POST .../shorts` cuts vertical 9:16 hook + payoff at scene boundaries.
    **Upload** `POST .../upload` sends a render to the channel's own YouTube
    account (per-channel OAuth in the channel editor; defaults to PRIVATE —
-   publish manually on YouTube after review). The Publish page's **Post
-   video** button (2026-07-10) previews exactly what attaches automatically
-   (saved SEO title, description, tags, thumbnail) and can pick any render.
-   Thumbnails MAY carry text —
+   publish manually on YouTube after review). **Post video = REVIEW, not send
+   (user, 2026-07-12: "I changed the thumbnail and title, the upload preview
+   did not change").** The upload preview is a LIVE mirror of the SEO card
+   (`seoDraft()`), unsaved keystrokes included, badged "unsaved edits"; every
+   SEO mutation (save, regenerate, thumbnail pick) redraws it, and the 4 s
+   tick never redraws over a dirty draft. Clicking **Post video** opens a
+   *Review before posting* modal (nothing is sent yet): the exact payload,
+   still editable (title, description, tags, thumbnail variant strip, render,
+   privacy, publish-at). Its one button SAVES the SEO, then uploads, so the
+   live video and the app can't disagree. Thumbnails MAY carry text —
    the no-text rule is only about frames inside the video.
 
 One call runs 2→7: `POST /api/projects/{pid}/produce` (UI: Assemble →
@@ -345,8 +351,10 @@ preset p5 (cq19 unchanged).
   `master: false` uploads the original. The channel Videos page opens with a
   **channel preview** (brand banner + avatar + live YouTube stats + all
   videos as thumbnail cards). Custom thumbnails 403 until the channel is
-  phone-verified (youtube.com/verify, one time, a CHANNEL feature, not app
-  verification); every upload row records `thumbnail: set/failed` with a
+  phone-verified (youtube.com/verify on ANY device incl. the phone, signed in
+  as the channel's Google account, SMS code; one time, a CHANNEL feature, not
+  app verification, and nothing the app can do on the user's behalf — the
+  Publish page links it); every upload row records `thumbnail: set/failed` with a
   Retry button (`POST /api/projects/{pid}/youtube/thumbnail`). Right after
   an upload YouTube serves a low-res encode; the sharp 1440p tier appears
   when processing finishes. Uploads send `seo.titles[0]` as the title;
@@ -460,6 +468,22 @@ preset p5 (cq19 unchanged).
   taglines or sources with them.
 
 ## Operational rules
+- **Data Gatherer page (2026-07-12, user: integrate AAADataGatherer).**
+  Tool-rail 📥 Data Gatherer (hub + channel): paste YouTube links, each
+  becomes an EVIDENCE PACK under `data/gatherer/<gid>/`: report.md (paste
+  into any Claude: transcript with word-level pauses, shot/cut timeline with
+  motion labels, loudness, SEO + engagement signals), report.json, labeled
+  frame sheets, pack.pdf (report + sheets, attachable). `app/gatherer.py`
+  (hot-reload safe); jobs run as kind "gather" through the shared queue, so
+  Whisper serializes with GPU work, shows on the Queue page, cancels
+  cleanly. Whisper model chosen per run (large-v3 default; cache shared at
+  `models/whisper/`, auto-unloads after the batch and in `gpu.release_all`).
+  API: `GET/POST /api/gatherer`, `{gid}/cancel`, `DELETE {gid}`,
+  `{gid}/file/{name}`, `/api/gatherer/prompt`. `RULE_EXTRACTION_PROMPT.md`
+  (repo root; "Copy rule-extraction prompt" button) turns 5-15 packs into
+  numeric style rules for the studio. The standalone `AAADataGatherer/` app
+  (port 8765, which `gpu.kill_ace` shoots on sight) is SUPERSEDED and
+  gitignored; its packs + its 2.9 GB large-v3 cache were migrated in.
 - **Queue page**: tool-rail 🗂 Queue lists every job, produce pipeline and
   autopilot run (`GET /api/queue`) with cancel buttons — check it before
   wondering why a button seems stuck. Cancel feedback is instant

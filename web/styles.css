@@ -302,4 +302,26 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .muted{color:var(--muted)}.mono{font-family:var(--font-mono)}
 .mt0{margin-top:0}.mb0{margin-bottom:0}
 .divider{height:1px;background:var(--line);margin:18px 0}
+
+/* data gatherer — evidence pack rows */
+.gth-job{border:1px solid var(--line);border-radius:var(--r-sm);margin-bottom:10px;overflow:hidden;background:var(--panel-2)}
+.gth-head{display:flex;align-items:center;gap:12px;padding:11px 14px;cursor:pointer}
+.gth-head:hover{background:var(--panel-3)}
+.gth-title{flex:1;min-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;font-size:13.5px}
+.gth-stats{color:var(--muted);font-family:var(--font-mono);font-size:12px;white-space:nowrap}
+.gth-stats b{color:var(--text);font-weight:500}
+.gth-track{display:flex;gap:3px;padding:0 14px 10px}
+.gth-track .seg{flex:1;height:5px;background:var(--panel-4);border-radius:2px;position:relative;overflow:hidden}
+.gth-track .seg .fill{position:absolute;inset:0;width:0;background:var(--accent)}
+.gth-track .seg.done .fill{width:100%;opacity:.45}
+.gth-job.is-done .gth-track .seg .fill{width:100%;background:var(--good);opacity:.4}
+.gth-job.is-error .gth-track .seg.done .fill,.gth-job.is-cancelled .gth-track .seg.done .fill{background:var(--danger);opacity:.5}
+.gth-stage{padding:0 14px 11px;color:var(--muted);font-family:var(--font-mono);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gth-detail{border-top:1px solid var(--line);padding:14px}
+.gth-report{background:var(--panel-4);border:1px solid var(--line);border-radius:var(--r-sm);padding:12px;font:12px/1.55 var(--font-mono);max-height:420px;overflow:auto;white-space:pre;margin:12px 0 0;color:var(--text)}
+.gth-sheets{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-top:12px}
+.gth-sheets a{display:block;border:1px solid var(--line);border-radius:var(--r-sm);overflow:hidden}
+.gth-sheets a:hover{border-color:var(--accent)}
+.gth-sheets img{width:100%;display:block}
+
 @media(max-width:1100px){.import-grid,.scene-detail{grid-template-columns:1fr}.app{grid-template-columns:64px 1fr}.brand-name,.nav-item span,.rail-foot{display:none}}

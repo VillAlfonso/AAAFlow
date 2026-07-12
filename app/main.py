@@ -9,16 +9,16 @@ from typing import List, Optional
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import (FileResponse, HTMLResponse, JSONResponse,
-                               RedirectResponse)
+                               PlainTextResponse, RedirectResponse)
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from . import (animate, assemble, audiolib, brandkit, captions, channels,
-               characters, config, effects, gpu, grade, grammar, humanize,
-               images, janitor, jobs, music, packaging, pilot, produce,
-               projects, recipe, roulette, scenes, score, service, sfx,
-               shorts, storage, style_refs, training, transcribe, voiceover,
-               webresearch, writer, youtube)
+               characters, config, effects, gatherer, gpu, grade, grammar,
+               humanize, images, janitor, jobs, music, packaging, pilot,
+               produce, projects, recipe, roulette, scenes, score, service,
+               sfx, shorts, storage, style_refs, training, transcribe,
+               voiceover, webresearch, writer, youtube)
 from .audio import ffmpeg_ok
 from .engine import engine
 from .image_engine import image_engine
@@ -675,6 +675,71 @@ def storage_clean(req: CleanReq):
     return janitor.clean(req.actions)
 
 
+# --- API: data gatherer (YouTube -> evidence pack) ---------------------------
+class GatherReq(BaseModel):
+    urls: str
+    model: str = "large-v3"
+    quality: int = 720
+    sampling: str = "2s"                  # shots | 2s | 1s
+    keep_video: bool = False
+    include_words: bool = False
+
+
+@app.get("/api/gatherer")
+def gatherer_list():
+    return {"jobs": gatherer.list_records(), "models": gatherer.ALLOWED_MODELS}
+
+
+@app.post("/api/gatherer")
+def gatherer_create(req: GatherReq):
+    if req.model not in gatherer.ALLOWED_MODELS:
+        raise HTTPException(status_code=400,
+                            detail=f"model must be one of {gatherer.ALLOWED_MODELS}")
+    if req.sampling not in gatherer.SAMPLING:
+        raise HTTPException(status_code=400,
+                            detail=f"sampling must be one of {list(gatherer.SAMPLING)}")
+    urls = [u.strip() for u in req.urls.replace(",", "\n").splitlines() if u.strip()]
+    if not urls:
+        raise HTTPException(status_code=400, detail="no URLs given")
+    opts = {"model": req.model, "quality": int(req.quality), "sampling": req.sampling,
+            "keep_video": req.keep_video, "include_words": req.include_words}
+    return {"ids": gatherer.submit(urls, opts)}
+
+
+@app.get("/api/gatherer/prompt")
+def gatherer_prompt():
+    """The rule-extraction prompt to hand an AI along with evidence packs."""
+    return {"text": gatherer.rule_prompt()}
+
+
+@app.post("/api/gatherer/{gid}/cancel")
+def gatherer_cancel(gid: str):
+    try:
+        return {"ok": gatherer.cancel(gid)}
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
+
+
+@app.delete("/api/gatherer/{gid}")
+def gatherer_delete(gid: str):
+    try:
+        gatherer.delete(gid)
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc))
+    return {"ok": True}
+
+
+@app.get("/api/gatherer/{gid}/file/{name}")
+def gatherer_file(gid: str, name: str):
+    try:
+        path = gatherer.file_path(gid, name)
+    except ValueError:
+        raise HTTPException(status_code=404, detail="no such file")
+    if path.suffix == ".md":
+        return PlainTextResponse(path.read_text(encoding="utf-8"))
+    return FileResponse(str(path))
+
+
 # --- API: YouTube packaging (SEO) ---------------------------------------------
 class PackageReq(BaseModel):
     thumb_text: Optional[str] = None      # thumbnail headline (default: from title)
@@ -705,7 +770,7 @@ def dev_reload(req: DevReloadReq):
     Safe for the pure-logic modules (grammar, autodirect, transitions,
     receipts, sfx, thumbs, packaging, recipe, assemble, score, humanize,
     animate, images, voiceover, scenes, projects, channels, brandkit,
-    roulette). DO NOT reload engine singletons (engine, comfy_engine,
+    roulette, gatherer). DO NOT reload engine singletons (engine, comfy_engine,
     wan_engine, image_engine, music_engine) or jobs/produce/main — they hold
     live threads/models."""
     import importlib

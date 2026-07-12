@@ -2,7 +2,7 @@
   "id": "064989f21649",
   "name": "The Light Went Out. So Did the Men Watching It.",
   "created": 1783676227.184687,
-  "updated": 1783738230.256817,
+  "updated": 1783836967.5472283,
   "channel": "menagerie",
   "video": {
     "title": "The Light Went Out. So Did the Men Watching It.",
@@ -2217,13 +2217,10 @@
   ],
   "seo": {
     "titles": [
-      "The Three Keepers of Eilean Mor",
-      "The Light That Went Dark",
-      "A Freak Wave Took Them All",
       "The Light Went Out. So Did the Men Watching It",
       "The Light Went Out. So Did the Men Watching It: Every exhibit was real"
     ],
-    "description": "On December 15, 1900, the Eilean Mor lighthouse vanished without a distress call. Three keepers,James Ducat, Thomas Marshall, and Donald MacArthur,were last seen alive. A storm thwarted rescue efforts, leaving only a cold stove, a stopped clock, and MacArthur’s unmarked coat. The lamp remained filled, as if waiting for a light that never came. Investigation revealed bent railings and a smashed rope box at the landing. A ton of stone was moved, suggesting a freak wave took Ducat and Marshall. MacArthur, the only survivor, may have died warning others. No bodies were found, but the lamp stayed ready, a silent testament to the storm’s fury.\n\nChapters:\n0:00 Three men watched this light\n0:27 Someone always stays inside\n0:56 That night\n1:23 Joseph Moore rowed ashore alone and\n1:52 You've heard what the logbook supposedly\n2:18 The sea had climbed higher that\n\n#december #ducat #marshall",
+    "description": "Three men watched this light. On December fifteenth, 1900, it went dark.\nEilean Mor. Seventeen miles off Scotland. A rock the gulls own.\nBoxing Day, 1900. The Hesperus finally reached the island.\n\nThe Midnight Menagerie. Every exhibit was real.\n\nChapters:\n0:00 Three men watched this light\n0:27 Someone always stays inside\n0:56 That night\n1:23 Joseph Moore rowed ashore alone and\n1:52 You've heard what the logbook supposedly\n2:18 The sea had climbed higher that\n\n#december #ducat #marshall",
     "tags": [
       "december",
       "ducat",
@@ -2308,9 +2305,9 @@
       "big-word": "video/thumbs/big-word.png",
       "plain": "video/thumbs/plain.png"
     },
-    "thumb_template": "split",
+    "thumb_template": "case-file",
     "thumb_mood": "dark",
-    "built": 1783738230.256817
+    "built": 1783836967.5472283
   },
   "narration": {
     "file": "audio/narration.wav",

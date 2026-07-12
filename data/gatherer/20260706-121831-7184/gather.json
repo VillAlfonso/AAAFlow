@@ -1,0 +1,70 @@
+{
+ "id": "20260706-121831-7184",
+ "url": "https://www.youtube.com/watch?v=jNQXAC9IVRw",
+ "status": "done",
+ "stage": "report",
+ "pct": 100.0,
+ "msg": "complete",
+ "created": 1783311511.552604,
+ "options": {
+  "model": "large-v3",
+  "quality": 480,
+  "sampling": "2s",
+  "keep_video": false,
+  "include_words": false
+ },
+ "meta": {
+  "title": "Me at the zoo",
+  "channel": "jawed",
+  "upload_date": "20050424",
+  "duration": 19.0,
+  "views": 398195557,
+  "url": "https://www.youtube.com/watch?v=jNQXAC9IVRw",
+  "video_id": "jNQXAC9IVRw",
+  "description": "Microplastics are accumulating in human brains at an alarming rate\nhttps://www.youtube.com/watch?v=0PT5c1z3LL8\n\n“Nanoplastics and Human Health” with Matthew J Campen, PhD, MSPH\nhttps://www.youtube.com/watch?v=RRBN_4L09Mg\n\n00:00 Intro\n00:05 The cool thing\n00:17 End",
+  "tags": [
+   "me at the zoo",
+   "jawed karim",
+   "first youtube video"
+  ],
+  "categories": [
+   "Film & Animation"
+  ],
+  "likes": 19115943,
+  "comments": 10000000,
+  "subs": 6270000,
+  "chapters": [
+   {
+    "t": 0.0,
+    "title": "Intro"
+   },
+   {
+    "t": 5.0,
+    "title": "The cool thing"
+   },
+   {
+    "t": 17.0,
+    "title": "End"
+   }
+  ],
+  "thumbnail_url": "https://i.ytimg.com/vi/jNQXAC9IVRw/hqdefault.jpg?sqp=-oaymwEmCOADEOgC8quKqQMa8AEB-AG-AoAC8AGKAgwIABABGFUgWShlMA8=&rs=AOn4CLA9eLBatYv9WbkD4BbZ2Im-biSPTw"
+ },
+ "summary": {
+  "duration": 19.0,
+  "shots": 1,
+  "cuts_per_min": 0.0,
+  "wpm_speaking": 176,
+  "words": 38,
+  "sheets": 1,
+  "report_kb": 2.3,
+  "pack_mb": 0.16
+ },
+ "outputs": [
+  "pack.pdf",
+  "report.md",
+  "report.json",
+  "sheet_01.jpg",
+  "thumbnail.jpg"
+ ],
+ "error": null
+}

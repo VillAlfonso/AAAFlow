@@ -34,6 +34,13 @@ imageio-ffmpeg
 # Pulls ctranslate2 + av. No numba, so it's clean on numpy 2.x.
 faster-whisper>=1.1
 
+# data gatherer — YouTube evidence packs (app/gatherer.py: download,
+# shot detection, motion labels, contact sheets, pack.pdf)
+yt-dlp
+scenedetect
+opencv-python
+fpdf2
+
 # Pinned/transitive (listed for clarity):
 # transformers==4.57.3, accelerate, torch==2.11.0+cu128, torchaudio, librosa, soundfile, numpy, pillow
 # Also required on PATH: ffmpeg / ffprobe (e.g. C:\ffmpeg\)

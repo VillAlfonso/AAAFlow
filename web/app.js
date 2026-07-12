@@ -153,6 +153,7 @@ const state = {
    (that channel's videos + the numbered pipeline, ordered like production). */
 const TOOL_NAV = [
   { id: "queue", label: "Queue", icon: "i-clock" },
+  { id: "gatherer", label: "Data Gatherer", icon: "i-download" },
   { id: "transcribe", label: "Script → JSON", icon: "i-clock" },
   { id: "voices", label: "Voice Lab", icon: "i-voices" },
   { id: "history", label: "History", icon: "i-history" },
@@ -303,7 +304,7 @@ async function setChannel(cid) {
   applyChannelTheme(state.channel);
   return !!ch;
 }
-const TOOL_PAGES = new Set(["transcribe", "voices", "history", "training", "settings"]);
+const TOOL_PAGES = new Set(["transcribe", "voices", "history", "training", "settings", "gatherer"]);
 async function render() {
   const { page, pid, cid } = parseHash();
   state.page = page;
@@ -3794,32 +3795,53 @@ async function renderPublish(host) {
     $$(".thumbPick", seoCard).forEach(elp => elp.onclick = async () => {
       const t = elp.dataset.t;
       try {
-        try {
-          await api.post(`/api/projects/${p.id}/thumbnail`, { template: t });
-        } catch (e) {   // route lands on next restart; dev/call works today
-          await api.post("/api/dev/call", { module: "thumbs", func: "choose_variant",
-                                            kwargs: { pid: p.id, template: t } });
-        }
-        await reload(); drawSeo(); toast(`Thumbnail → ${t}`);
+        await pickThumb(t);
+        await reload(); drawSeo(); drawYt(); toast(`Thumbnail → ${t}`);
       } catch (e) { toast(e.message, "err"); }
     });
     $("#seoSave", seoCard).onclick = async () => {
       try {
-        const titles = [($("#seoTitle", seoCard).value || "").trim(), ...(state.project.seo.titles || []).slice(1)];
-        await api.put(`/api/projects/${p.id}/seo`, {
-          titles, description: $("#seoDesc", seoCard).value,
-          tags: $("#seoTags", seoCard).value.split(",").map(t => t.trim()).filter(Boolean),
-        });
-        await reload(); toast("SEO saved — Upload will use it.");
+        await saveSeo(seoDraft());
+        await reload(); drawSeo(); drawYt(); toast("SEO saved. Post video will use it.");
       } catch (e) { toast(e.message, "err"); }
     };
+    // the post preview below is a LIVE mirror of these fields, unsaved edits included
+    ["#seoTitle", "#seoDesc", "#seoTags"].forEach(sel => {
+      const f = $(sel, seoCard); if (f) f.oninput = () => paintPreview();
+    });
   }
+  /* the SEO the user is actually looking at — saved package + whatever is typed but not saved yet */
+  function seoDraft() {
+    const s = state.project.seo || {};
+    const ti = $("#seoTitle", seoCard);
+    if (!ti) return { ...s, dirty: false };
+    const title = (ti.value || "").trim();
+    const description = $("#seoDesc", seoCard).value;
+    const tags = $("#seoTags", seoCard).value.split(",").map(t => t.trim()).filter(Boolean);
+    const dirty = title !== ((s.titles || [""])[0] || "")
+      || description !== (s.description || "")
+      || tags.join(",") !== (s.tags || []).join(",");
+    return { ...s, titles: [title, ...(s.titles || []).slice(1)], description, tags, dirty };
+  }
+  const saveSeo = (d, extra) => api.put(`/api/projects/${p.id}/seo`, {
+    titles: d.titles, description: d.description, tags: d.tags, ...(extra || {}),
+  });
+  const pickThumb = async (t) => {
+    try { await api.post(`/api/projects/${p.id}/thumbnail`, { template: t }); }
+    catch (e) {   // route lands on next restart; dev/call works today
+      await api.post("/api/dev/call", { module: "thumbs", func: "choose_variant",
+                                        kwargs: { pid: p.id, template: t } });
+    }
+    state.thumbV = Date.now();   // thumbnail.png was rewritten in place — bust every <img> cache
+  };
+  state.thumbV = Date.now();
   drawSeo();
   $("#pkGen", seoCard).onclick = async () => {
     try {
       const t = $("#pkThumbTxt", seoCard).value.trim();
       await api.post(`/api/projects/${p.id}/package`, { thumb_text: t || null });
-      await reload(); drawSeo(); toast("SEO package built");
+      state.thumbV = Date.now();
+      await reload(); drawSeo(); drawYt(); toast("SEO package built");
     } catch (e) { toast(e.message, "err"); }
   };
 
@@ -3888,11 +3910,9 @@ async function renderPublish(host) {
         <button class="btn btn-primary btn-sm" id="ytConnect" style="margin-top:8px">${icon("i-upload")} Connect YouTube</button>
         <div class="muted" style="font-size:11px;margin-top:6px">A Google consent tab opens; pick the channel's account, approve, then refresh this page.</div>`;
     } else {
-      const seo = state.project.seo || {};
+      const seo = seoDraft();
+      const upTitle = ((state.project.seo || {}).titles || [])[0] || p.name;   // SAVED title: what an upload row is compared against
       const rlist = (state.project.renders || []).filter(r => r.file);
-      const tags = seo.tags || [];
-      const upTitle = (seo.titles || [])[0] || p.name;
-      const d1 = (seo.description || "").split("\n")[0];
       body = `<div class="row" style="gap:8px;align-items:center;flex-wrap:wrap">
           <span class="badge good">Connected ✓</span>
           <select id="ytFile" style="max-width:240px" title="which render to post">${rlist.length
@@ -3902,20 +3922,14 @@ async function renderPublish(host) {
           <button class="btn btn-primary" id="ytUpload">${icon("i-upload")} Post video</button>
           <button class="btn btn-ghost btn-sm" id="ytConnect">${icon("i-upload")} Reconnect</button>
           <div class="muted" id="ytStage" style="font-size:12px"></div></div>
-        <div class="row" style="gap:12px;margin-top:10px;align-items:flex-start">
-          ${seo.thumbnail ? `<img src="/projects/${p.id}/${esc(seo.thumbnail)}?t=${Date.now()}" style="width:124px;border-radius:6px;flex:none"/>` : ""}
-          <div style="font-size:12px;line-height:1.6;min-width:0">
-            <div><b>${esc(upTitle)}</b></div>
-            <div class="muted">${esc(d1.slice(0, 110))}${d1.length > 110 ? "…" : ""}</div>
-            <div class="muted mono" style="font-size:11px">${tags.length} tags · thumbnail ${seo.thumbnail ? "✓" : "—"} · title, description, tags and thumbnail attach automatically</div>
-          </div></div>
+        <div id="ytPrev">${previewHtml(seo)}</div>
         <div class="row" style="gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap">
           <label class="muted" style="font-size:12px">🕑 Goes public</label>
           <input type="datetime-local" id="ytWhen" value="${esc((seo.publish_at || ""))}" style="width:auto"/>
           <span class="muted" style="font-size:11px">blank = stays ${esc(yt.privacy || "private")} until you flip it. With a time set, the upload goes up private and <b>YouTube itself publishes it at that moment</b>.</span>
         </div>
-        <div class="muted" style="font-size:11px;margin-top:6px">📈 Quality: a <b>1440p master</b> is built and uploaded automatically — YouTube gives 1440p a much higher bitrate tier than 1080p, which fixes the mushy look. Edit anything in the SEO card above first; Post always uses the saved version. Note: right after an upload YouTube only has a low-res encode; the sharp 1440p version appears once processing finishes (minutes to a few hours).</div>
-        <div class="muted" style="font-size:11px;margin-top:4px">🖼 Custom thumbnails need a one-time phone verification of the YouTube channel (<b>youtube.com/verify</b>). If an upload row says "thumb not set", verify, then hit Retry thumbnail.</div>
+        <div class="muted" style="font-size:11px;margin-top:6px">📈 Quality: a <b>1440p master</b> is built and uploaded automatically — YouTube gives 1440p a much higher bitrate tier than 1080p, which fixes the mushy look. Note: right after an upload YouTube only has a low-res encode; the sharp 1440p version appears once processing finishes (minutes to a few hours).</div>
+        <div class="muted" style="font-size:11px;margin-top:4px">🖼 Custom thumbnails need a one-time phone verification of the YouTube channel. Open <b><a href="https://www.youtube.com/verify" target="_blank">youtube.com/verify</a></b> on your phone (or any browser) while signed in as <b>${esc(ch.name)}</b>'s Google account and verify by SMS. It is a one-time channel feature, nothing to do with this app. If an upload row says "thumb not set", verify, then hit Retry thumbnail.</div>
         ${ups.length ? `<div style="margin-top:10px">${ups.map(u => {
           const lv = ((ytLive || {}).videos || {})[u.video_id] || null;
           const gone = !!(lv && lv.missing);
@@ -3973,15 +3987,103 @@ async function renderPublish(host) {
       }
     });
     const upBtn = $("#ytUpload", ytC);
-    if (upBtn) upBtn.onclick = async () => {
-      const sel = $("#ytFile", ytC);
-      const when = ($("#ytWhen", ytC) || {}).value || "";
-      const opts = { privacy: $("#ytPriv", ytC).value };
-      if (sel && sel.value) opts.file = sel.value;
-      try {   // the uploader reads seo.publish_at (works before + after restart)
-        await api.put(`/api/projects/${p.id}/seo`, { publish_at: when || null });
-      } catch (e) { }
-      doUpload(opts);
+    if (upBtn) upBtn.onclick = () => postModal();   // nothing is sent until the modal's button
+  }
+  /* The post preview = exactly what will go up, INCLUDING edits that are still
+     unsaved in the SEO card (typing repaints it live, so it can never lie). */
+  function previewHtml(d) {
+    const tags = d.tags || [];
+    const d1 = (d.description || "").split("\n").find(l => l.trim()) || "";
+    return `<div class="row" style="gap:12px;margin-top:10px;align-items:flex-start">
+      ${d.thumbnail ? `<img src="/projects/${p.id}/${esc(d.thumbnail)}?t=${state.thumbV || 0}" style="width:124px;border-radius:6px;flex:none"/>` : ""}
+      <div style="font-size:12px;line-height:1.6;min-width:0">
+        <div><b>${esc((d.titles || [])[0] || p.name)}</b>${d.dirty ? ` <span class="badge warn" title="typed in the SEO card but not saved yet. Post video saves it for you.">unsaved edits</span>` : ""}</div>
+        <div class="muted">${esc(d1.slice(0, 110))}${d1.length > 110 ? "…" : ""}</div>
+        <div class="muted mono" style="font-size:11px">${tags.length} tags · thumbnail ${d.thumbnail ? "✓" : "—"} · Post video opens a review step first; nothing uploads until you confirm there.</div>
+      </div></div>`;
+  }
+  function paintPreview() {
+    const box = $("#ytPrev", ytC); if (box) box.innerHTML = previewHtml(seoDraft());
+  }
+  /* Review before posting: the payload, still fully editable, then one button sends it. */
+  function postModal() {
+    const d = seoDraft();
+    const s = state.project.seo || {};
+    const yt = (ch || {}).youtube || {};
+    const rlist = (state.project.renders || []).filter(r => r.file);
+    const file0 = ($("#ytFile", ytC) || {}).value || (rlist[0] || {}).file || "";
+    const priv0 = ($("#ytPriv", ytC) || {}).value || yt.privacy || "private";
+    const when0 = ($("#ytWhen", ytC) || {}).value || s.publish_at || "";
+    const vars = s.thumbnail_variants || {};
+    const card = openModal(`
+      <div class="modal-head"><h2 class="mb0">Review before posting</h2>
+        <button class="btn-icon" id="pmClose">${icon("i-x")}</button></div>
+      <p class="muted" style="margin:-6px 0 12px;line-height:1.5">Nothing has been sent to YouTube yet. This is the exact payload. Change anything here, then post.</p>
+      <div style="display:grid;grid-template-columns:260px 1fr;gap:16px">
+        <div>
+          <img id="pmThumb" src="${d.thumbnail ? `/projects/${p.id}/${esc(d.thumbnail)}?t=${Date.now()}` : ""}"
+               style="width:100%;border-radius:8px;${d.thumbnail ? "" : "display:none"}"/>
+          ${Object.keys(vars).length ? `
+          <div class="muted" style="font-size:11px;margin-top:8px">Thumbnail (click one to switch):</div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:5px">${Object.entries(vars).map(([tn, rel]) => `
+            <img class="pmPick" data-t="${esc(tn)}" title="${esc(tn)}" src="/projects/${p.id}/${esc(rel)}?t=${Date.now()}"
+                 style="width:74px;border-radius:4px;cursor:pointer;border:2px solid ${tn === s.thumb_template ? "var(--accent, #e6a94b)" : "transparent"}"/>`).join("")}</div>` : ""}
+        </div>
+        <div>
+          <div class="field"><label>Title <span class="hint">(what YouTube shows)</span></label>
+            <input id="pmTitle" maxlength="100" value="${esc((d.titles || [])[0] || p.name)}"/></div>
+          <div class="field"><label>Description</label>
+            <textarea id="pmDesc" style="min-height:110px;font-family:var(--font-mono);font-size:11px">${esc(d.description || "")}</textarea></div>
+          <div class="field"><label>Tags <span class="hint">(comma separated)</span></label>
+            <textarea id="pmTags" style="min-height:44px;font-family:var(--font-mono);font-size:11px">${esc((d.tags || []).join(", "))}</textarea></div>
+          <div class="row" style="gap:8px;flex-wrap:wrap">
+            <select id="pmFile" style="max-width:230px" title="which render to post">${rlist.length
+              ? rlist.map(r => `<option value="${esc(r.file)}" ${r.file === file0 ? "selected" : ""}>${esc((r.file || "").replace("video/", ""))} · ${(r.duration || 0).toFixed(0)}s</option>`).join("")
+              : `<option value="">newest final render</option>`}</select>
+            <select id="pmPriv" style="width:auto" title="privacy">${["private", "unlisted", "public"].map(v => `<option ${priv0 === v ? "selected" : ""}>${v}</option>`).join("")}</select>
+            <input type="datetime-local" id="pmWhen" value="${esc(when0)}" style="width:auto" title="goes public at (blank = none)"/>
+          </div>
+        </div>
+      </div>
+      <div class="row" style="margin-top:18px;gap:8px;align-items:center">
+        <div class="muted" id="pmMsg" style="flex:1;font-size:11.5px">The edits here are saved to the project first, so the upload and the SEO card can never disagree.</div>
+        <button class="btn btn-ghost" id="pmCancel">Cancel</button>
+        <button class="btn btn-primary" id="pmGo">${icon("i-upload")} Save + post to YouTube</button>
+      </div>`);
+    $("#pmClose", card).onclick = closeModal;
+    $("#pmCancel", card).onclick = closeModal;
+    $$(".pmPick", card).forEach(im => im.onclick = async () => {
+      const t = im.dataset.t;
+      $("#pmMsg", card).textContent = `switching thumbnail → ${t}…`;
+      try {
+        await pickThumb(t); await reload();
+        state.thumbV = Date.now();
+        const now = state.project.seo || {};
+        $("#pmThumb", card).src = `/projects/${p.id}/${now.thumbnail}?t=${state.thumbV}`;
+        $("#pmThumb", card).style.display = "";
+        $$(".pmPick", card).forEach(o => o.style.borderColor = o.dataset.t === t ? "var(--accent, #e6a94b)" : "transparent");
+        $("#pmMsg", card).textContent = `thumbnail: ${t}`;
+        drawSeo(); paintPreview();
+      } catch (e) { $("#pmMsg", card).textContent = ""; toast(e.message, "err"); }
+    });
+    $("#pmGo", card).onclick = async () => {
+      const go = $("#pmGo", card); go.disabled = true;
+      $("#pmMsg", card).textContent = "saving the package…";
+      const file = $("#pmFile", card).value, privacy = $("#pmPriv", card).value;
+      const when = $("#pmWhen", card).value || "";
+      try {
+        await saveSeo({
+          titles: [($("#pmTitle", card).value || "").trim(), ...((state.project.seo || {}).titles || []).slice(1)],
+          description: $("#pmDesc", card).value,
+          tags: $("#pmTags", card).value.split(",").map(t => t.trim()).filter(Boolean),
+        }, { publish_at: when || null });   // the uploader reads seo.publish_at
+        await reload(); drawSeo(); drawYt();
+        closeModal();
+        doUpload({ ...(file ? { file } : {}), privacy });
+      } catch (e) {
+        toast(e.message, "err");
+        go.disabled = false; $("#pmMsg", card).textContent = "";
+      }
     };
   }
   async function doUpload(opts) {
@@ -4019,8 +4121,9 @@ async function renderPublish(host) {
       if (qKey === null) { qKey = key; return; }
       if (key !== qKey) {
         qKey = key;
+        const draft = seoDraft();   // never let a redraw eat text the user typed but has not saved
         await reload();
-        if (!seoCard.contains(document.activeElement)) drawSeo();
+        if (!seoCard.contains(document.activeElement) && !draft.dirty) drawSeo();
         drawShorts();
         if (!ytC.contains(document.activeElement)) drawYt();
         refreshLive(true);
@@ -4032,6 +4135,243 @@ async function renderPublish(host) {
     refreshLive();
   }, 45000);
   host.appendChild(page);
+}
+
+/* ============================================================
+   PAGE: DATA GATHERER — YouTube link → evidence pack
+   (transcript + shot timeline + contact sheets + pack.pdf, for
+   reverse-engineering a creator's style with an AI)
+   ============================================================ */
+async function renderGatherer(host) {
+  topbar("Data Gatherer", "YouTube link → evidence pack: transcript, shot-by-shot timeline, motion labels, loudness and frame sheets, sized for an AI context window.",
+    `<button class="btn btn-ghost" id="tbRulePrompt">${icon("i-wand")} Copy rule-extraction prompt</button>`);
+  const GSTAGES = ["download", "transcribe", "shots", "motion", "frames", "audio", "report"];
+  const GLABEL = { download: "Download", transcribe: "Transcribe", shots: "Cuts", motion: "Motion", frames: "Frames", audio: "Audio", report: "Report" };
+  const page = el("div", "page");
+  page.innerHTML = `
+    <div class="card">
+      <div class="section-title">Analyze videos</div>
+      <textarea id="gUrls" placeholder="Paste YouTube links, one per line&#10;https://www.youtube.com/watch?v=..." spellcheck="false" style="min-height:64px"></textarea>
+      <div class="row" style="gap:16px;margin-top:12px;align-items:flex-end">
+        <div class="field" style="margin:0"><label>Whisper model</label>
+          <select id="gModel">
+            <option value="large-v3" selected>large-v3 — best quality</option>
+            <option value="large-v2">large-v2</option>
+            <option value="distil-large-v3">distil-large-v3 — fast, English</option>
+            <option value="medium">medium</option>
+            <option value="small">small</option>
+            <option value="base">base</option>
+            <option value="tiny">tiny — test runs</option>
+          </select></div>
+        <div class="field" style="margin:0"><label>Download quality</label>
+          <select id="gQuality">
+            <option value="480">480p</option>
+            <option value="720" selected>720p — recommended</option>
+            <option value="1080">1080p</option>
+          </select></div>
+        <div class="field" style="margin:0"><label>Frame sampling</label>
+          <select id="gSampling">
+            <option value="2s" selected>Every cut + 1 frame / 2s</option>
+            <option value="1s">Every cut + 1 frame / 1s</option>
+            <option value="shots">Cuts only — leanest</option>
+          </select></div>
+        <label class="switch" style="margin-bottom:8px"><input type="checkbox" id="gKeep"/><span class="track"></span> Keep video file</label>
+        <label class="switch" style="margin-bottom:8px"><input type="checkbox" id="gWords"/><span class="track"></span> Word timings in JSON</label>
+        <div style="flex:1"></div>
+        <button class="btn btn-primary" id="gGo" style="margin-bottom:2px">${icon("i-download")} Gather evidence</button>
+      </div>
+      <div class="hint" style="margin-top:10px">Each video becomes one <b>report.md</b> (transcript + editing timeline + SEO + metrics — paste into any Claude) plus <b>pack.pdf</b> (same report with the frame sheets inside, for attachments). Analyze 5–15 videos of one niche, then hand Claude the packs with the rule-extraction prompt (top right) to get numeric style rules back. Rough context cost for 10 min of video: cuts-only ≈ 10–20k tokens, /2s ≈ 30–40k, /1s ≈ 50–70k. Jobs share the studio's queue, so they wait politely behind renders.</div>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <div class="section-title">Evidence packs <span class="hint">(newest first — click a row for the report + sheets)</span></div>
+      <div id="gList"><div class="muted">loading…</div></div>
+    </div>`;
+  host.appendChild(page);
+
+  const gOpen = renderGatherer._open || (renderGatherer._open = new Set());
+  const repCache = {};
+  let jobsNow = [], lastSig = {}, pollT = null;
+  const gf = (id, n) => `/api/gatherer/${id}/file/${encodeURIComponent(n)}`;
+  const fmtDur = s => { s = Math.round(s || 0); const m = Math.floor(s / 60), h = Math.floor(m / 60); return h ? `${h}:${pad(m % 60)}:${pad(s % 60)}` : `${m}:${pad(s % 60)}`; };
+  const badgeCls = st => st === "done" ? "good" : st === "running" ? "gold" : ["error", "cancelled"].includes(st) ? "warn" : "";
+
+  $("#tbRulePrompt").onclick = async () => {
+    try {
+      const { text } = await api.get("/api/gatherer/prompt");
+      if (!text) return toast("RULE_EXTRACTION_PROMPT.md not found", "err");
+      await navigator.clipboard.writeText(text);
+      toast("Rule-extraction prompt copied — paste it into Claude with your packs");
+    } catch (e) { toast(e.message, "err"); }
+  };
+
+  $("#gGo", page).onclick = async () => {
+    const btn = $("#gGo", page);
+    const urls = $("#gUrls", page).value.trim();
+    if (!urls) return toast("Paste at least one YouTube link first", "err");
+    btn.disabled = true;
+    try {
+      const r = await api.post("/api/gatherer", {
+        urls,
+        model: $("#gModel", page).value,
+        quality: +$("#gQuality", page).value,
+        sampling: $("#gSampling", page).value,
+        keep_video: $("#gKeep", page).checked,
+        include_words: $("#gWords", page).checked,
+      });
+      $("#gUrls", page).value = "";
+      toast(`${r.ids.length} video${r.ids.length > 1 ? "s" : ""} queued`);
+      poll(true);
+    } catch (e) { toast(e.message, "err"); }
+    btn.disabled = false;
+  };
+
+  function rowHtml(j) {
+    const stageIdx = GSTAGES.indexOf(j.stage);
+    const segs = GSTAGES.map((s, i) => {
+      let cls = "seg", w = 0;
+      if (j.status === "done" || i < stageIdx) { cls += " done"; w = 100; }
+      else if (i === stageIdx && j.status === "running") w = j.pct || 0;
+      return `<div class="${cls}" title="${GLABEL[s]}"><div class="fill" style="width:${w}%"></div></div>`;
+    }).join("");
+    const title = j.meta && j.meta.title ? esc(j.meta.title) : `<span class="mono muted" style="font-weight:400">${esc(j.url)}</span>`;
+    let stats = "";
+    if (j.status === "done" && j.summary && j.summary.shots != null) {
+      const s = j.summary;
+      stats = `${fmtDur(s.duration)} · <b>${s.shots}</b> shots · <b>${s.cuts_per_min}</b> cuts/min · <b>${s.wpm_speaking}</b> wpm · ${s.report_kb} KB`;
+    } else if (j.status === "queued") stats = "queued";
+    let stageLine = "";
+    if (j.status === "running")
+      stageLine = `<div class="gth-stage"><span style="color:var(--accent)">${GLABEL[j.stage] || ""} ${Math.round(j.pct || 0)}%</span> — ${esc(j.msg || "")}</div>`;
+    else if (j.status === "error" || j.status === "cancelled")
+      stageLine = `<div class="gth-stage" style="color:var(--danger);white-space:normal">${esc(j.msg || j.error || j.status)}</div>`;
+    return `
+      <div class="gth-head" data-toggle="${j.id}" title="Click to show the report and frame sheets">
+        <span class="badge ${badgeCls(j.status)}" style="min-width:64px;text-align:center">${esc(j.status)}</span>
+        <span class="gth-title">${title}</span>
+        <span class="gth-stats">${stats}</span>
+      </div>
+      <div class="gth-track">${segs}</div>
+      ${stageLine}
+      <div class="gth-detail" id="gDetail-${j.id}" ${gOpen.has(j.id) ? "" : "hidden"}></div>`;
+  }
+
+  function detailHtml(j) {
+    const m = j.meta || {};
+    const sheets = (j.outputs || []).filter(n => n.startsWith("sheet_"));
+    let h = `<div class="muted" style="font-size:12.5px;margin-bottom:12px">${esc(m.channel || "")} · <a href="${esc(m.url || j.url)}" target="_blank" rel="noopener" style="color:var(--accent)">watch on YouTube</a> · pack ${esc(j.id)} · ${fmtAgo(j.created)}</div>`;
+    if (j.status === "done" && j.summary && j.summary.shots != null) {
+      const s = j.summary;
+      h += `<div class="row" style="gap:8px;margin-bottom:12px">
+        <span class="badge">duration <b>${fmtDur(s.duration)}</b></span>
+        <span class="badge">shots <b>${s.shots}</b></span>
+        <span class="badge">cuts/min <b>${s.cuts_per_min}</b></span>
+        <span class="badge">words <b>${s.words}</b></span>
+        <span class="badge">wpm <b>${s.wpm_speaking}</b></span>
+        <span class="badge">sheets <b>${s.sheets}</b></span>
+        <span class="badge">pack <b>${s.pack_mb ?? "?"} MB</b></span></div>`;
+    }
+    h += `<div class="row" style="gap:8px;margin-bottom:4px">`;
+    if (["running", "queued"].includes(j.status))
+      h += `<button class="btn btn-ghost btn-sm gCancel" data-id="${j.id}">✕ Cancel</button>`;
+    if (j.status === "done")
+      h += `<button class="btn btn-primary btn-sm gCopy" data-id="${j.id}">Copy report — paste into any Claude</button>
+        <a class="btn btn-ghost btn-sm" href="${gf(j.id, "report.md")}" target="_blank" rel="noopener">report.md</a>
+        <a class="btn btn-ghost btn-sm" href="${gf(j.id, "pack.pdf")}" target="_blank" rel="noopener">pack.pdf — text + frames</a>
+        <a class="btn btn-ghost btn-sm" href="${gf(j.id, "report.json")}" target="_blank" rel="noopener">report.json</a>`;
+    if (j.status !== "running")
+      h += `<button class="btn btn-ghost btn-sm btn-danger gDel" data-id="${j.id}">${icon("i-trash")} Delete</button>`;
+    h += `</div>`;
+    if (j.status === "done")
+      h += repCache[j.id] ? `<pre class="gth-report">${esc(repCache[j.id])}</pre>`
+                          : `<div class="muted" style="margin-top:10px">Loading report…</div>`;
+    if (sheets.length)
+      h += `<div class="gth-sheets">${sheets.map(n =>
+        `<a href="${gf(j.id, n)}" target="_blank" rel="noopener"><img loading="lazy" src="${gf(j.id, n)}" alt="${esc(n)}"></a>`).join("")}</div>`;
+    return h;
+  }
+
+  const fetching = new Set();
+  function ensureReport(id) {
+    if (repCache[id] || fetching.has(id)) return;
+    fetching.add(id);
+    fetch(gf(id, "report.md")).then(r => r.ok ? r.text() : "")
+      .then(t => { if (t) { repCache[id] = t; lastSig = {}; draw(jobsNow); } })
+      .catch(() => {}).finally(() => fetching.delete(id));
+  }
+
+  function draw(jobsList) {
+    jobsNow = jobsList;
+    const list = $("#gList", page);
+    if (!list) return;
+    if (!jobsList.length) {
+      list.innerHTML = `<div class="muted" style="padding:20px 0;text-align:center">No evidence packs yet. Paste a YouTube link above and press <b>Gather evidence</b> — you get back a compact report + labeled contact sheets ready to drop into an AI context window.</div>`;
+      lastSig = {};
+      return;
+    }
+    const seen = new Set();
+    for (const j of jobsList) {
+      seen.add(j.id);
+      const sig = JSON.stringify(j) + (gOpen.has(j.id) ? "+o" + (repCache[j.id] ? "r" : "") : "");
+      if (lastSig[j.id] === sig) continue;
+      lastSig[j.id] = sig;
+      let node = document.getElementById("gjob-" + j.id);
+      if (!node) {
+        node = el("div");
+        node.id = "gjob-" + j.id;
+        const before = jobsList.slice(0, jobsList.indexOf(j)).map(x => "gjob-" + x.id);
+        let anchor = null;
+        for (const ch of list.children) if (before.includes(ch.id)) anchor = ch;
+        anchor ? anchor.after(node) : list.prepend(node);
+      }
+      node.className = `gth-job is-${j.status}` + (gOpen.has(j.id) ? " open" : "");
+      node.innerHTML = rowHtml(j);
+      if (gOpen.has(j.id)) {
+        $("#gDetail-" + j.id, node).innerHTML = detailHtml(j);
+        if (j.status === "done") ensureReport(j.id);
+      }
+    }
+    for (const ch of [...list.children])   // stale rows + the initial placeholder
+      if (!ch.id || !ch.id.startsWith("gjob-") || !seen.has(ch.id.slice(5))) ch.remove();
+  }
+
+  page.addEventListener("click", async e => {
+    const t = e.target.closest("[data-toggle],.gCancel,.gDel,.gCopy");
+    if (!t) return;
+    if (t.dataset.toggle) {
+      const id = t.dataset.toggle;
+      gOpen.has(id) ? gOpen.delete(id) : gOpen.add(id);
+      lastSig = {};
+      return draw(jobsNow);
+    }
+    const id = t.dataset.id;
+    if (t.classList.contains("gCancel")) {
+      t.disabled = true; t.textContent = "cancelling…";
+      try { await api.post(`/api/gatherer/${id}/cancel`, {}); toast("cancelling — it stops at the next checkpoint"); poll(true); }
+      catch (err) { toast(err.message, "err"); t.disabled = false; t.textContent = "✕ Cancel"; }
+    } else if (t.classList.contains("gDel")) {
+      if (!(await confirmModal("Delete this evidence pack?", "Removes the report, sheets and pack.pdf from disk. The video can always be re-analyzed from its URL.", "Delete pack", true))) return;
+      try { await api.del(`/api/gatherer/${id}`); gOpen.delete(id); toast("Pack deleted"); poll(true); }
+      catch (err) { toast(err.message, "err"); }
+    } else if (t.classList.contains("gCopy")) {
+      const was = t.textContent;
+      if (!repCache[id]) { try { repCache[id] = await (await fetch(gf(id, "report.md"))).text(); } catch (err) { } }
+      try { await navigator.clipboard.writeText(repCache[id] || ""); t.textContent = "Copied ✓"; setTimeout(() => t.textContent = was, 1500); }
+      catch (err) { toast("Clipboard unavailable — open report.md and copy from there", "err"); }
+    }
+  });
+
+  async function poll(now) {
+    clearTimeout(pollT);
+    if (!document.body.contains(page)) return;
+    try {
+      const d = await api.get("/api/gatherer");
+      if (!document.body.contains(page)) return;
+      draw(d.jobs || []);
+      const busy = (d.jobs || []).some(j => ["running", "queued"].includes(j.status));
+      pollT = setTimeout(poll, busy ? 1800 : 5000);
+    } catch (e) { pollT = setTimeout(poll, 4000); }
+  }
+  poll(true);
 }
 
 async function renderQueue(host) {
@@ -4101,7 +4441,7 @@ const Pages = {
   projects: renderProjects, storyboard: renderStoryboard, characters: renderCharacters,
   voiceover: renderVoiceover, images: renderImages, animate: renderAnimate,
   edit: renderEdit, assemble: renderAssemble, preview: renderPreview, publish: renderPublish,
-  history: renderHistory, queue: renderQueue,
+  history: renderHistory, queue: renderQueue, gatherer: renderGatherer,
   voices: renderVoiceLab, transcribe: renderTranscribe, training: renderTraining,
   settings: renderSettings,
 };

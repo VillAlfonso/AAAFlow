@@ -42,6 +42,10 @@ ComfyUI_windows_portable/
 LTX-Video/
 ACE-Step-1.5/
 
+# --- Standalone AAADataGatherer (own nested repo; superseded by
+# app/gatherer.py + the Data Gatherer page, kept only as reference) ---
+AAADataGatherer/
+
 # ============================================================
 # data/ — the important half of this file
 # ============================================================
@@ -69,6 +73,11 @@ data/channels/*/projects/**
 !data/channels/*/projects/*/project.json
 !data/channels/*/projects/*/source.json
 !data/channels/*/projects/*/HANDOFF.md
+
+# --- Data gatherer evidence packs: media ignored, the tiny gather.json
+# record (URL + options + summary = the full re-run recipe) stays tracked ---
+data/gatherer/*/*
+!data/gatherer/*/gather.json
 
 # --- Generated media / runtime state (regenerable, often multi-GB) ---
 data/projects/

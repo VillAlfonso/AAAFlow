@@ -57,6 +57,16 @@ def release_whisper() -> bool:
         return False
 
 
+def release_gatherer() -> bool:
+    try:
+        from . import gatherer
+        was = gatherer.unload_model()
+        _cuda_empty()
+        return bool(was)
+    except Exception:  # noqa: BLE001
+        return False
+
+
 def release_depth() -> bool:
     try:
         from .parallax import parallax_engine
@@ -121,6 +131,8 @@ def release_all(reason: str = "") -> Dict:
         freed.append("tts")
     if release_whisper():
         freed.append("whisper")
+    if release_gatherer():
+        freed.append("gatherer")
     if release_depth():
         freed.append("depth")
     if release_diffusers():

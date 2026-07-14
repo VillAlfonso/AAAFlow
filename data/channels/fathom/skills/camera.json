@@ -1,0 +1,13 @@
+{
+  "motion_mix": {"hand": [0.18, 0.29], "static": [0.12, 0.26], "zoom-in": [0.14, 0.25], "zoom-out": [0.11, 0.20], "pan": [0.05, 0.15], "motion": [0.06, 0.11]},
+  "types": [
+    {"type": "establisher-push", "use_when": "chapter opens, new locations", "prompt_words": "slow aerial push-in toward, cinematic drone shot"},
+    {"type": "detail-zoom-in", "use_when": "narration names a specific object, line, or person", "prompt_words": "slow push-in on, shallow focus, deliberate zoom"},
+    {"type": "reveal-zoom-out", "use_when": "aftermath, scale, consequence lines", "prompt_words": "slow pull-back revealing, widening"},
+    {"type": "handheld-drift", "use_when": "documents, screenshots, photos, evidence", "prompt_words": "subtle handheld drift, slight sway, documentary feel"},
+    {"type": "lateral-pan", "use_when": "maps, timelines, between anchored points", "prompt_words": "slow lateral pan across, steady tracking"},
+    {"type": "static-hold", "use_when": "typeset cards, stamps, held archival moments", "prompt_words": "locked-off static shot"},
+    {"type": "fly-through", "use_when": "3d reconstruction storytelling", "prompt_words": "smooth camera glide through, orbiting"}
+  ],
+  "rules": ["one motion per shot", "speed always slow/subtle/deliberate", "approach=zoom-in, reveal=zoom-out, traverse=pan", "never the same motion type more than twice in a row"]
+}

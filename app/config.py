@@ -186,6 +186,12 @@ WAN = {
     "vae": "wan_2.1_vae.safetensors",                                  # vae
     "lora_high": "wan2.2_i2v_lightx2v_4steps_lora_v1_high_noise.safetensors",  # loras
     "lora_low": "wan2.2_i2v_lightx2v_4steps_lora_v1_low_noise.safetensors",
+    # Text-to-video experts + their own 4-step lightning LoRAs (i2v LoRAs do
+    # NOT transfer): the krea2-free per-scene path (user, 2026-07-13).
+    "t2v_high_noise": "wan2.2_t2v_high_noise_14B_fp8_scaled.safetensors",
+    "t2v_low_noise": "wan2.2_t2v_low_noise_14B_fp8_scaled.safetensors",
+    "t2v_lora_high": "wan2.2_t2v_lightx2v_4steps_lora_v1.1_high_noise.safetensors",
+    "t2v_lora_low": "wan2.2_t2v_lightx2v_4steps_lora_v1.1_low_noise.safetensors",
     "lora_strength": 1.0,
     "shift": 5.0,                  # ModelSamplingSD3
     "sampler": "euler", "scheduler": "simple",
@@ -216,6 +222,17 @@ WAN = {
         "warping, morphing, boiling lines, shimmering, wobbling outlines, jitter, "
         "flickering, blurry, uncanny, extra limbs, messy, low quality, jpeg "
         "artifacts, watermark, text"
+    ),
+    # HARD RULE (user, 2026-07-14): Wan renders CONTENT ONLY, never text. Every
+    # generation appends this block — no channel, preset or storyboard can
+    # forget it. All legitimate on-screen text is typeset by Remotion later.
+    # (Doubly needed for the fern LoRA: 214/225 of its training clips carried
+    # burned-in captions, so the model has a learned prior toward glyphs.)
+    "negative_text": (
+        "text, letters, words, writing, typography, caption, captions, "
+        "subtitles, title card, lower third, on-screen text, overlay text, "
+        "watermark, logo, signage, labels, numbers, gibberish text, "
+        "garbled letters, handwriting, credits"
     ),
     # generic style-hold tail appended to every clip prompt (the project's own
     # global style leads; see animate.py)
@@ -319,6 +336,18 @@ def wan_ready() -> bool:
             and _big_enough(m / "vae" / WAN["vae"], 50 * 1024**2)
             and _big_enough(m / "loras" / WAN["lora_high"], 50 * 1024**2)
             and _big_enough(m / "loras" / WAN["lora_low"], 50 * 1024**2))
+
+
+def wan_t2v_ready() -> bool:
+    """True when the Wan 2.2 t2v experts + their lightning LoRAs are present
+    (shares encoder/VAE with i2v)."""
+    m = comfy_models_dir()
+    return (_big_enough(m / "diffusion_models" / WAN["t2v_high_noise"], 13 * 1024**3)
+            and _big_enough(m / "diffusion_models" / WAN["t2v_low_noise"], 13 * 1024**3)
+            and _big_enough(m / "text_encoders" / WAN["text_encoder"], 1 * 1024**3)
+            and _big_enough(m / "vae" / WAN["vae"], 50 * 1024**2)
+            and _big_enough(m / "loras" / WAN["t2v_lora_high"], 50 * 1024**2)
+            and _big_enough(m / "loras" / WAN["t2v_lora_low"], 50 * 1024**2))
 
 
 def enhance_ready() -> bool:

@@ -1,0 +1,69 @@
+{
+  "id": "unruly",
+  "name": "Unruly History",
+  "niche": "Extreme true human stories from history, outlaws, revenge, last stands and people pushed too far, told as deadpan hand-inked comic storytelling",
+  "tagline": "The past, behaving badly.",
+  "audience": "Viewers who want wild-but-true history stories with dry humor and fast, dense storytelling; fans of animated story-time history compilations",
+  "cadence": "as produced",
+  "brief": "Compilation show: 3-4 self-contained true stories per video around one superlative theme. The bowler-hat mascot hosts a one-line cold open on a cream void, then each story gets a typeset number card and name card, drops into present-tense immersive scenes, escalates to the payoff, and lands one dry epilogue line. Facts carry the color; legend is hedged as legend; the last two scenes wind down to a quiet ironic close.",
+  "defaults": {
+    "image_model": "krea2",
+    "animate_engine": "none",
+    "quality": "balanced",
+    "preset": "cinematic",
+    "authoring": "assisted",
+    "coverage": "heroes",
+    "grade": "warm",
+    "voice": "Ryan",
+    "language": "English",
+    "voice_speed": 1.25,
+    "voice_instruct": "Very fast storyteller tempo, clipped and continuous, racing straight from sentence to sentence with almost no gaps, twice as fast as a calm documentary narrator. Conversational and dry, flat even pitch, a hint of amusement under a straight face, no dramatics, no announcer voice. Keep the racing tempo through the entire read. Only the final two sentences ease off, settling to a quiet conclusive close.",
+    "voice_humanize": "natural",
+    "voice_outro": "on",
+    "style_suffix": "hand-inked storybook comic illustration, warm cream paper texture background, thick charcoal ink outlines, flat muted two-tone shading in dusty blue grey and umber, one dried-blood red accent object per scene, pale expressive round faces with simple dot eyes on slim dark limbs, soft painted watercolor backdrops, generous negative space, dry deadpan humor, clean uncluttered composition",
+    "negative_style": "photorealistic, 3d render, neon colors, oversaturated, realistic human faces, readable text, gibberish letters, watermark, cluttered, glossy plastic, modern clothing",
+    "music_vibe": "sparse dry percussion, plucked strings, quiet sardonic tension, understated period folk, minimal and unhurried",
+    "voice_gap_ms": 120,
+    "voice_paragraph_gap_ms": 300
+  },
+  "topic_bank": [
+    "The Most Polite Outlaws in History",
+    "History's Most Expensive Mistakes",
+    "People Who Declared War on Animals and Lost",
+    "The Most Stubborn Soldiers in History",
+    "When Quiet Neighbors Turned Out to Be Legends"
+  ],
+  "seo_keywords": [
+    "unruly history",
+    "animated history",
+    "hand drawn history",
+    "true stories from history",
+    "history compilation",
+    "outlaws",
+    "dark history",
+    "funny history"
+  ],
+  "trained_from": {
+    "study": "20260712-222826-b6b2",
+    "reference": "Serious History (inspired-by, prompt DNA + skills only)"
+  },
+  "youtube": {},
+  "stats": {
+    "projects": 1,
+    "last_project": "849cf1959164"
+  },
+  "created": 1783874488.4701176,
+  "updated": 1783959962.3326283,
+  "kicker_pool": [
+    "HE SAID PLEASE",
+    "ROBBED POLITELY",
+    "WITH MANNERS",
+    "THE POLITE ONE",
+    "SAID THANK YOU"
+  ],
+  "auto_upload": {
+    "enabled": true,
+    "hour": 18,
+    "every_days": 1
+  }
+}

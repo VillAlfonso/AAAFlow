@@ -1,0 +1,30 @@
+{
+  "formulas": [
+    {"t": "Most Epic {plural_category} in History", "evidence": "8/30 top titles, 1.0M-6.2M views", "weight": 3},
+    {"t": "Extreme {category} in History", "evidence": "5.9M/2.6M/1.1M", "weight": 2},
+    {"t": "When {sympathetic_subject} Snapped in History", "evidence": "3.5M/3.3M/1.4M", "weight": 2},
+    {"t": "Your Life as {historical_figure}", "evidence": "3.5M on 12.6m runtime, best views-per-minute", "weight": 2},
+    {"t": "{Superlative} {category} in History | {Specific_Event}", "evidence": "1.2M-1.8M, underperforms compilations", "weight": 1},
+    {"t": "{group} Who Refused to {verb} in History", "evidence": "1.4M", "weight": 1}
+  ],
+  "length": {"min": 4, "max": 9, "median": 6},
+  "rules": [
+    "Title Case always; no terminal punctuation except comedic ellipsis",
+    "no listicle numbers; superlatives carry the count",
+    "human verbs and human subjects over academic phrasing",
+    "specific names only in pipe subtitles or Your-Life-as",
+    "our twist: superlative-category + concrete paradox to open a curiosity gap",
+    "use the 'in History' suffix at most every other video; adjacent, not cloned"
+  ],
+  "examples_theirs": [
+    "Most Epic Deaths in History",
+    "Extreme Vigilante Justice in History",
+    "When Nice People Snapped in History",
+    "Your Life as Miyamoto Musashi"
+  ],
+  "examples_ours": [
+    "The Nicest Man in History Was a One-Man Army",
+    "History's Most Polite Killers",
+    "The Beggar Who Out-Bluffed an Empire"
+  ]
+}

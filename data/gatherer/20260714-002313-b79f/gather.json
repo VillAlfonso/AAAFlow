@@ -1,0 +1,21 @@
+{
+ "id": "20260714-002313-b79f",
+ "url": "https://www.youtube.com/watch?v=wkVygetgeRY",
+ "status": "error",
+ "stage": "download",
+ "pct": 0.0,
+ "msg": "DownloadError: ERROR: unable to download video data: HTTP Error 403: Forbidden",
+ "created": 1783959793.8063197,
+ "options": {
+  "model": "large-v3",
+  "quality": 720,
+  "sampling": "1s",
+  "keep_video": true,
+  "include_words": true
+ },
+ "meta": {},
+ "summary": {},
+ "outputs": [],
+ "error": "DownloadError: ERROR: unable to download video data: HTTP Error 403: Forbidden",
+ "job_id": "c762ffb0cce4"
+}

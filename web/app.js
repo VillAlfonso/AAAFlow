@@ -3124,7 +3124,8 @@ function hubCard(c) {
   const voiceLabel = cloneName || d.voice || "Ryan";
   const vids = (state.projects || []).filter(p => p.channel === c.id);
   const last = vids.slice().sort((a, b) => (b.updated || 0) - (a.updated || 0))[0];
-  const yt = (c.youtube || {}).refresh_token;
+  // the API strips secrets; connection state arrives as youtube.connected
+  const yt = c.youtube || {};
   const card = el("div", "hub-card");
   if (ui.accent) card.style.setProperty("--ch-accent", ui.accent);
   card.innerHTML = `
@@ -3138,7 +3139,9 @@ function hubCard(c) {
       <span class="chip ${d.voice_id ? "chip-on" : ""}" title="${d.voice_id ? "cloned voice" + (d.voice ? " · base preset: " + esc(d.voice) : "") : "built-in voice"}">${esc(voiceLabel)}${d.voice_id ? " · cloned" : ""}</span>
       <span class="chip ${d.authoring === "assisted" ? "chip-on" : ""}">${d.authoring === "assisted" ? "assisted" : "pro"} scripts</span>
       ${ui.custom_index ? `<span class="chip chip-on" title="data/channels/${esc(c.id)}/ui/index.html">custom UI</span>` : ""}
-      ${yt ? `<span class="chip chip-on">YouTube ✓</span>` : ""}
+      ${yt.connected
+        ? `<span class="chip chip-on" title="Connected — uploads go to this channel's own YouTube account">YouTube ✓ connected</span>`
+        : `<span class="chip chip-off" title="Not connected to a YouTube account — open Channel setup (gear) → Connect">YouTube · not connected</span>`}
     </div>
     <div class="stats">
       <span>${vids.length} video${vids.length === 1 ? "" : "s"}</span>
@@ -3483,6 +3486,14 @@ async function editChannelModal(c) {
         ${F("Client secret", `<input id="ceYtSecret" type="password" value="${esc(yt.client_secret || "")}"/>`)}
         ${F("Default privacy", `<select id="ceYtPriv">${["private", "unlisted", "public"].map(v => `<option ${(yt.privacy || "private") === v ? "selected" : ""}>${v}</option>`).join("")}</select>`)}
       </div>
+      <div class="grid3">
+        ${F("Auto-upload finished videos", `<select id="ceAutoUp">
+            <option value="off" ${!(c.auto_upload || {}).enabled ? "selected" : ""}>Off — upload manually from Publish</option>
+            <option value="on" ${(c.auto_upload || {}).enabled ? "selected" : ""}>On — every produce uploads itself</option></select>`)}
+        ${F("Goes public at (hour, local)", `<input id="ceAutoHour" type="number" min="0" max="23" value="${(c.auto_upload || {}).hour ?? 18}"/>`)}
+        ${F("Min days between videos", `<input id="ceAutoDays" type="number" min="1" value="${(c.auto_upload || {}).every_days ?? 1}"/>`)}
+      </div>
+      <div class="muted" style="font-size:11px;margin:-2px 0 8px">Auto-upload sends every finished video PRIVATE with a scheduled go-public time (the channel's next free slot). Needs the channel connected; YouTube flips it public itself at the slot.</div>
       <div id="ceYtHub" style="margin-top:12px"></div>
       ${isNew ? "" : `<div class="section-title" style="margin-top:10px">This channel's own UI (vibe-code it)</div>
       <div class="muted mono" style="font-size:11px;line-height:1.6">
@@ -3590,6 +3601,9 @@ async function editChannelModal(c) {
       },
       youtube: { client_id: v("#ceYtId").trim(), client_secret: v("#ceYtSecret").trim(),
                  privacy: v("#ceYtPriv") },
+      auto_upload: { enabled: v("#ceAutoUp") === "on",
+                     hour: Math.max(0, Math.min(23, +v("#ceAutoHour") || 18)),
+                     every_days: Math.max(1, +v("#ceAutoDays") || 1) },
     };
     if (!obj.name) return toast("Give the channel a name.", "err");
     try {
@@ -4183,6 +4197,19 @@ async function renderGatherer(host) {
       <div class="hint" style="margin-top:10px">Each video becomes one <b>report.md</b> (transcript + editing timeline + SEO + metrics — paste into any Claude) plus <b>pack.pdf</b> (same report with the frame sheets inside, for attachments). Analyze 5–15 videos of one niche, then hand Claude the packs with the rule-extraction prompt (top right) to get numeric style rules back. Rough context cost for 10 min of video: cuts-only ≈ 10–20k tokens, /2s ≈ 30–40k, /1s ≈ 50–70k. Jobs share the studio's queue, so they wait politely behind renders.</div>
     </div>
     <div class="card" style="margin-top:14px">
+      <div class="section-title">Channel studies <span class="hint">(architecture v2 — study a reference channel's top videos; skills get distilled from the evidence per SKILL_PACKS.md)</span></div>
+      <div class="row" style="gap:12px;align-items:flex-end">
+        <div class="field" style="margin:0;flex:1;min-width:240px"><label>Reference channel</label>
+          <input type="text" id="stUrl" placeholder="@handle or channel URL" spellcheck="false"></div>
+        <div class="field" style="margin:0"><label>Videos</label>
+          <select id="stCount"><option value="3">top 3</option><option value="5" selected>top 5</option><option value="8">top 8</option></select></div>
+        <label class="switch" style="margin-bottom:8px"><input type="checkbox" id="stGather" checked/><span class="track"></span> Gather immediately</label>
+        <button class="btn btn-primary" id="stGo" style="margin-bottom:2px">${icon("i-wand")} Study channel</button>
+      </div>
+      <div class="hint" style="margin-top:8px">Ranks the channel's ~300 most recent long-form uploads by views, saves the avatar + banner, and runs the top picks through the gatherer at dense 1s sampling. "+ samples" honestly widens the evidence when rules don't converge.</div>
+      <div id="stList" style="margin-top:12px"><div class="muted">loading…</div></div>
+    </div>
+    <div class="card" style="margin-top:14px">
       <div class="section-title">Evidence packs <span class="hint">(newest first — click a row for the report + sheets)</span></div>
       <div id="gList"><div class="muted">loading…</div></div>
     </div>`;
@@ -4202,6 +4229,68 @@ async function renderGatherer(host) {
       await navigator.clipboard.writeText(text);
       toast("Rule-extraction prompt copied — paste it into Claude with your packs");
     } catch (e) { toast(e.message, "err"); }
+  };
+
+  const fmtViews = v => v >= 1e9 ? (v / 1e9).toFixed(1) + "B" : v >= 1e6 ? (v / 1e6).toFixed(1) + "M" : v >= 1e3 ? (v / 1e3).toFixed(0) + "k" : String(v || 0);
+  let lastStuSig = "";
+  function drawStudies(studies) {
+    const box = $("#stList", page);
+    if (!box) return;
+    const sig = JSON.stringify(studies);
+    if (sig === lastStuSig) return;
+    lastStuSig = sig;
+    if (!studies.length) {
+      box.innerHTML = `<div class="muted">No studies yet. Point me at a reference channel and its top videos become evidence packs; I distill the skill packs from there.</div>`;
+      return;
+    }
+    box.innerHTML = studies.map(s => {
+      const ch = s.channel || {};
+      const av = ch.avatar ? `<img src="/studies/${s.id}/${ch.avatar}" style="width:26px;height:26px;border-radius:50%;object-fit:cover" alt="">` : "";
+      const vids = (s.videos || []).map(v => {
+        const g = v.gather;
+        let chip = `<span class="badge">not gathered</span>`;
+        if (g) {
+          if (g.status === "done") chip = `<span class="badge good">✓ ${g.summary.shots ?? "?"} shots · ${g.summary.cuts_per_min ?? "?"} c/min</span>`;
+          else if (g.status === "running") chip = `<span class="badge gold">${esc(g.stage || "")} ${Math.round(g.pct || 0)}%</span>`;
+          else if (g.status === "queued") chip = `<span class="badge">queued</span>`;
+          else chip = `<span class="badge warn">${esc(g.status)}</span>`;
+        }
+        return `<div class="row" style="gap:10px;padding:4px 0;font-size:12.5px">
+          <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(v.title)}</span>
+          <span class="mono muted" style="font-size:11px">${fmtViews(v.views)} views</span>${chip}</div>`;
+      }).join("");
+      const skills = (s.skills || []).length ? `<span class="badge teal">skills: ${s.skills.length}</span>` : "";
+      const stBadge = s.status === "ready" ? `<span class="badge good">ready</span>`
+        : s.status === "resolving" ? `<span class="badge gold">resolving…</span>`
+        : `<span class="badge warn">${esc(s.status)}${s.error ? "" : ""}</span>`;
+      return `<div class="gth-job">
+        <div class="gth-head" style="cursor:default">
+          ${av}<span class="gth-title">${esc(ch.name || s.input)} ${ch.subs ? `<span class="muted mono" style="font-size:11px;font-weight:400">· ${fmtViews(ch.subs)} subs</span>` : ""}</span>
+          ${skills}${stBadge}
+          ${s.status === "ready" ? `<button class="btn btn-ghost btn-sm stMore" data-id="${s.id}">＋ 2 samples</button>` : ""}
+          ${s.status !== "resolving" ? `<button class="btn btn-ghost btn-sm btn-danger stDel" data-id="${s.id}">${icon("i-trash")}</button>` : ""}
+        </div>
+        ${s.error ? `<div class="gth-stage" style="color:var(--danger);white-space:normal">${esc(s.error)}</div>` : ""}
+        ${vids ? `<div style="padding:0 14px 12px">${vids}</div>` : ""}
+      </div>`;
+    }).join("");
+  }
+
+  $("#stGo", page).onclick = async () => {
+    const btn = $("#stGo", page);
+    const channel = $("#stUrl", page).value.trim();
+    if (!channel) return toast("Give me a channel URL or @handle first", "err");
+    btn.disabled = true;
+    try {
+      await api.post("/api/studies", {
+        channel, count: +$("#stCount", page).value,
+        auto_gather: $("#stGather", page).checked,
+      });
+      $("#stUrl", page).value = "";
+      toast("Study started — resolving the channel");
+      poll(true);
+    } catch (e) { toast(e.message, "err"); }
+    btn.disabled = false;
   };
 
   $("#gGo", page).onclick = async () => {
@@ -4335,8 +4424,20 @@ async function renderGatherer(host) {
   }
 
   page.addEventListener("click", async e => {
-    const t = e.target.closest("[data-toggle],.gCancel,.gDel,.gCopy");
+    const t = e.target.closest("[data-toggle],.gCancel,.gDel,.gCopy,.stMore,.stDel");
     if (!t) return;
+    if (t.classList.contains("stMore")) {
+      t.disabled = true;
+      try { const r = await api.post(`/api/studies/${t.dataset.id}/gather`, { more: 2 }); toast(`${r.added.length} more videos queued for gathering`); poll(true); }
+      catch (err) { toast(err.message, "err"); t.disabled = false; }
+      return;
+    }
+    if (t.classList.contains("stDel")) {
+      if (!(await confirmModal("Delete this study?", "Moves the study folder (branding, skill packs) to data/trash. Its evidence packs stay in the gatherer list.", "Delete study", true))) return;
+      try { await api.del(`/api/studies/${t.dataset.id}`); toast("Study moved to trash"); poll(true); }
+      catch (err) { toast(err.message, "err"); }
+      return;
+    }
     if (t.dataset.toggle) {
       const id = t.dataset.toggle;
       gOpen.has(id) ? gOpen.delete(id) : gOpen.add(id);
@@ -4364,10 +4465,12 @@ async function renderGatherer(host) {
     clearTimeout(pollT);
     if (!document.body.contains(page)) return;
     try {
-      const d = await api.get("/api/gatherer");
+      const [d, st] = await Promise.all([api.get("/api/gatherer"), api.get("/api/studies")]);
       if (!document.body.contains(page)) return;
       draw(d.jobs || []);
-      const busy = (d.jobs || []).some(j => ["running", "queued"].includes(j.status));
+      drawStudies(st.studies || []);
+      const busy = (d.jobs || []).some(j => ["running", "queued"].includes(j.status))
+        || (st.studies || []).some(s => s.status === "resolving");
       pollT = setTimeout(poll, busy ? 1800 : 5000);
     } catch (e) { pollT = setTimeout(poll, 4000); }
   }

@@ -79,6 +79,13 @@ data/channels/*/projects/**
 data/gatherer/*/*
 !data/gatherer/*/gather.json
 
+# --- Channel studies: branding images ignored, the record + the distilled
+# SKILL PACKS (the whole point of a study) stay tracked ---
+data/studies/*/*
+!data/studies/*/study.json
+!data/studies/*/skills/
+!data/studies/*/skills/**
+
 # --- Generated media / runtime state (regenerable, often multi-GB) ---
 data/projects/
 data/restored/
@@ -97,6 +104,16 @@ data/roulette/*/*.png
 data/*.log
 data/server*.log
 
+# --- LoRA datasets: the training CLIPS are reference footage (never ship,
+# multi-GB) and the caches/checkpoints are regenerable. The manifest + the
+# dataset.toml + the CAPTIONS are the recipe, so they stay tracked: they are
+# what makes a LoRA reproducible (see the /lora-train skill). ---
+data/lora_datasets/*/clips/*.mp4
+data/lora_datasets/*/clips_captions_v1/
+data/lora_datasets/*/cache/
+data/lora_datasets/*/out/
+data/lora_datasets/*/*.log
+
 # --- Loose runtime json in data/ (settings, history, library indexes) ---
 # The DICTIONARIES that shape every video are tracked explicitly below.
 data/*.json
@@ -105,6 +122,8 @@ data/*.json
 !data/thumb_templates.json
 !data/brandkit_slots.json
 !data/sfx_library.json
+!data/overlay_rules.json
+!data/technique_executors.json
 
 # --- Training scratch ---
 training/**/dataset/

@@ -1,0 +1,8 @@
+{
+  "tense": "present",
+  "cold_open": {"formula": "timestamp+place -> live moment -> stakes -> flat promise", "promise_examples": ["Here is how it unfolded.", "And this is their story."]},
+  "structure": ["scene-first then context within 3-6 lines", "hard signposted time jumps start chapters", "reenacted dialogue at key moments", "1-2 honesty hedges per video", "one in-narration source citation", "one deadpan wit line per act"],
+  "ending": {"types": ["unsettling implication", "reframing judgment", "quiet epilogue fact"], "banned": ["summary", "CTA", "mic drop"]},
+  "sentences": {"words_typical": [6, 14], "spatial_numbers": "both units", "profanity": "only inside real quotes"},
+  "banned": ["you won't believe", "hype adjectives", "rhetorical question stacking", "em dashes"]
+}

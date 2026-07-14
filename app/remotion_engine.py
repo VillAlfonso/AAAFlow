@@ -34,6 +34,11 @@ def render_overlay(comp: str, props: Dict, out: Path, *, seconds: float,
     if not available():
         return None
     frames = max(2, int(seconds * fps))
+    # duration rides in as a prop (Root.tsx calculateMetadata) so any length
+    # works and exit fades land at the real end; --frames beyond a comp's
+    # registered duration hard-errors instead.
+    props = dict(props or {})
+    props["durationInFrames"] = frames
     with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False,
                                      dir=str(RDIR), encoding="utf-8") as fh:
         json.dump(props, fh)
@@ -42,7 +47,8 @@ def render_overlay(comp: str, props: Dict, out: Path, *, seconds: float,
         r = subprocess.run(
             ["npx", "remotion", "render", "src/index.ts", comp, str(out),
              f"--props={props_file}", "--codec=vp8",
-             "--pixel-format=yuva420p", f"--frames=0-{frames - 1}",
+             # alpha needs BOTH: yuva420p pixels AND png intermediate frames
+             "--pixel-format=yuva420p", "--image-format=png",
              "--log=error"],
             cwd=str(RDIR), capture_output=True, text=True, timeout=timeout,
             shell=True)
@@ -62,4 +68,5 @@ def render_overlay(comp: str, props: Dict, out: Path, *, seconds: float,
 
 def status() -> Dict:
     return {"available": available(), "dir": str(RDIR),
-            "compositions": ["RefCard", "DateChip"]}
+            "compositions": ["RefCard", "DateChip", "SegmentCard",
+                             "KineticTitle", "ArrowCallout"]}

@@ -32,6 +32,24 @@ from .voices import display_name
 ProgressFn = Callable[[str, float], None]
 
 
+# Standing performance guardrails (user, 2026-07-13): plain, monotone, human.
+# Appended to EVERY narration instruct so no channel voice can drift into an
+# ad-read, hype, or DJ delivery, whatever its character spec says.
+NARRATION_GUARDRAILS = (
+    "Plain, even, matter-of-fact documentary narration: monotone but human, "
+    "natural breathing. Never sound like a commercial, an advertisement, a "
+    "motivational speaker, or a radio host. No enthusiasm and no dramatic "
+    "emphasis unless the words themselves call for it. Never rush the ending; "
+    "settle, and end every sentence with falling intonation, never mid-thought."
+)
+
+
+def _compose_instruct(user_instruct) -> str:
+    """Channel character first, standing guardrails last (they must win)."""
+    ui = (user_instruct or "").strip().rstrip(".")
+    return (ui + ". " if ui else "") + NARRATION_GUARDRAILS
+
+
 def _counts(project: Dict) -> Dict:
     sc = project.get("scenes", [])
     return {
@@ -72,7 +90,7 @@ def submit_voiceover(pid: str, voice: Dict, scope: str = "missing",
     voice = dict(voice or {})
     mode = voice.get("mode", "custom")
     language = voice.get("language") or settings.get("default_language", "Auto")
-    instruct = (voice.get("instruct") or "").strip() or None
+    instruct = _compose_instruct(voice.get("instruct"))
 
     targets = _select_targets(project["scenes"], scope, scene_id)
     if not targets:
@@ -286,7 +304,7 @@ def submit_onetake(pid: str, voice: Dict) -> str:
     voice = dict(voice or {})
     mode = voice.get("mode", "custom")
     language = voice.get("language") or settings.get("default_language", "Auto")
-    instruct = (voice.get("instruct") or "").strip() or None
+    instruct = _compose_instruct(voice.get("instruct"))
     scenes = [s for s in project.get("scenes", []) if (s.get("narration") or "").strip()]
     if not scenes:
         raise ValueError("No narrated scenes to voice.")
@@ -303,10 +321,18 @@ def submit_onetake(pid: str, voice: Dict) -> str:
     def task(progress: ProgressFn) -> Dict:
         proj = projects.get_project(pid)
         proj["settings"]["voice"] = voice
-        gap = int(settings.get("gap_ms", 180))
-        pgap = int(settings.get("paragraph_gap_ms", 480))
+        ch = channels.get(proj.get("channel")) if proj.get("channel") else None
+        chdef = (ch or {}).get("defaults") or {}
+        # Pace levers (user, 2026-07-13): per-take > channel design > global.
+        gap = int(voice.get("gap_ms") or chdef.get("voice_gap_ms")
+                  or settings.get("gap_ms", 180))
+        pgap = int(voice.get("paragraph_gap_ms")
+                   or chdef.get("voice_paragraph_gap_ms")
+                   or settings.get("paragraph_gap_ms", 480))
         trim = bool(settings.get("trim_silence", True))
         max_chars = int(settings.get("max_chars", 240))
+        speed = max(0.5, min(2.0, float(voice.get("speed")
+                                        or chdef.get("voice_speed") or 1.0)))
 
         script = "\n\n".join((s.get("narration") or "").strip() for s in scenes)
 
@@ -318,8 +344,7 @@ def submit_onetake(pid: str, voice: Dict) -> str:
         # "off" disables, any other string replaces the wind-down wording.
         outro = voice.get("outro")
         if outro is None:
-            ch = channels.get(proj.get("channel")) if proj.get("channel") else None
-            outro = ((ch or {}).get("defaults") or {}).get("voice_outro")
+            outro = chdef.get("voice_outro")
         outro_off = (outro is not None
                      and str(outro).lower() in ("off", "false", "none", "0"))
         n_out = max(1, min(3, round(len(scenes) * 0.10))) if len(scenes) >= 6 else 0
@@ -361,6 +386,10 @@ def submit_onetake(pid: str, voice: Dict) -> str:
                                               outro_instruct)
                 segs += seg2
         stitched = audio.stitch(segs, sr, gap, pgap, trim)
+        if abs(speed - 1.0) > 1e-3:
+            # Before humanize + Whisper, so alignment times the shipped audio.
+            progress(f"Retiming the take (x{speed:.2f})", 0.50)
+            stitched = audio.retime(stitched, sr, speed)
         # The take is done: drop the TTS checkpoint BEFORE Whisper loads so the
         # two never overlap in VRAM (GPU housekeeping, 2026-07-10).
         engine.release()
@@ -378,8 +407,7 @@ def submit_onetake(pid: str, voice: Dict) -> str:
         # "natural"; pass false/"off" to skip.
         hum = voice.get("humanize")
         if hum is None:
-            ch = channels.get(proj.get("channel")) if proj.get("channel") else None
-            hum = ((ch or {}).get("defaults") or {}).get("voice_humanize")
+            hum = chdef.get("voice_humanize")
         if hum is None:
             hum = (settings.get("audio") or {}).get("voice_humanize", "natural")
         applied_hum = None
@@ -450,7 +478,7 @@ def submit_onetake(pid: str, voice: Dict) -> str:
         proj["narration"] = {"file": rel, "dur": round(dur, 3), "voice": label,
                              "source": "onetake", "qa": qa,
                              "words_file": words_rel,
-                             "humanize": applied_hum,
+                             "humanize": applied_hum, "speed": speed,
                              "outro_scenes": n_out if outro_instruct else 0}
         projects.recompute_timeline(proj)
         projects.save_project(proj)

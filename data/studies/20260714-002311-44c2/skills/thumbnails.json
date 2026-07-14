@@ -1,0 +1,15 @@
+{
+  "template_hints": ["case-file", "split", "big-word"],
+  "text_words": {"min": 1, "max": 5},
+  "palette": ["desaturated slate", "documentary neutral", "one signal red or yellow for markup"],
+  "kicker_style": "evidence labels (stamps, badges, map annotations), all caps, attached to visual elements",
+  "face": "real likeness as document, small-to-medium, neutral; never AI faces or reaction shots",
+  "title_thumb_contrast": "title tells the story, thumb text labels the evidence; never repeat title words except a proper noun that IS the evidence; annotation not caption",
+  "evidence_pairs": [
+    {"title": "Mapping the Trump Shooting", "thumb": "SHOOTER TRUMP"},
+    {"title": "The Kids Who Hacked The CIA", "thumb": "Wanted WikiLeaks"},
+    {"title": "The Hunt for the King of the Dark Web", "thumb": "INTERPOL AlphaBay Tor Bangkok WANTED"},
+    {"title": "How an FBI Agent Infiltrated the KKK", "thumb": "FBI"},
+    {"title": "The Hunt for America's Smartest Killer", "thumb": "IQ 170 FBI"}
+  ]
+}

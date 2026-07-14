@@ -1,0 +1,120 @@
+{
+ "id": "20260713-224131-ebcc",
+ "url": "https://www.youtube.com/watch?v=LgUtwxHiSKA",
+ "status": "done",
+ "stage": "report",
+ "pct": 100.0,
+ "msg": "complete",
+ "created": 1783953691.191295,
+ "options": {
+  "model": "large-v3",
+  "quality": 720,
+  "sampling": "1s",
+  "keep_video": false,
+  "include_words": true
+ },
+ "meta": {
+  "title": "Craziest 1v1 Fights in History",
+  "channel": "Serious History",
+  "upload_date": "20241027",
+  "duration": 1053.0,
+  "views": 3138323,
+  "url": "https://www.youtube.com/watch?v=LgUtwxHiSKA",
+  "video_id": "LgUtwxHiSKA",
+  "description": "Subscribe @SeriousHistory\n\nWe animate using these tablets:\n\nHUION KAMVAS Pro 16 https://amzn.to/4hWLg0K\nGAOMON PD1320 https://amzn.to/4gZIExJ\nXPPen Artist12 Pro https://amzn.to/3XoRb6y",
+  "tags": [
+   "serious history",
+   "greatest 1v1 fights",
+   "1v1 fights in history",
+   "greatest duels in history",
+   "epic 1v1 fights in history",
+   "miyamoto musashi",
+   "sasaki kojiro",
+   "andrew jackson",
+   "charles dickinson",
+   "Jean de Carrouges",
+   "Jacques Le Gris",
+   "stick figure animation",
+   "funny stick figure"
+  ],
+  "categories": [
+   "Entertainment"
+  ],
+  "likes": 78968,
+  "comments": 2600,
+  "subs": 794000,
+  "chapters": [
+   {
+    "t": 0.0,
+    "title": "Jean Dearo vs Jacques Le Re"
+   },
+   {
+    "t": 281.0,
+    "title": "The Trial of Combat"
+   },
+   {
+    "t": 497.0,
+    "title": "Mamoto Masashi vs Sasaki Kojiro"
+   },
+   {
+    "t": 784.0,
+    "title": "Andrew Jackson vs Charles Dickinson"
+   }
+  ],
+  "thumbnail_url": "https://i.ytimg.com/vi/LgUtwxHiSKA/maxresdefault.jpg"
+ },
+ "summary": {
+  "duration": 1053.0,
+  "shots": 263,
+  "cuts_per_min": 14.9,
+  "wpm_speaking": 209,
+  "words": 3408,
+  "sheets": 36,
+  "report_kb": 28.4,
+  "pack_mb": 12.51
+ },
+ "outputs": [
+  "pack.pdf",
+  "report.md",
+  "report.json",
+  "sheet_01.jpg",
+  "sheet_02.jpg",
+  "sheet_03.jpg",
+  "sheet_04.jpg",
+  "sheet_05.jpg",
+  "sheet_06.jpg",
+  "sheet_07.jpg",
+  "sheet_08.jpg",
+  "sheet_09.jpg",
+  "sheet_10.jpg",
+  "sheet_11.jpg",
+  "sheet_12.jpg",
+  "sheet_13.jpg",
+  "sheet_14.jpg",
+  "sheet_15.jpg",
+  "sheet_16.jpg",
+  "sheet_17.jpg",
+  "sheet_18.jpg",
+  "sheet_19.jpg",
+  "sheet_20.jpg",
+  "sheet_21.jpg",
+  "sheet_22.jpg",
+  "sheet_23.jpg",
+  "sheet_24.jpg",
+  "sheet_25.jpg",
+  "sheet_26.jpg",
+  "sheet_27.jpg",
+  "sheet_28.jpg",
+  "sheet_29.jpg",
+  "sheet_30.jpg",
+  "sheet_31.jpg",
+  "sheet_32.jpg",
+  "sheet_33.jpg",
+  "sheet_34.jpg",
+  "sheet_35.jpg",
+  "sheet_36.jpg",
+  "thumbnail.jpg"
+ ],
+ "error": null,
+ "job_id": "8c2f912bdad2"
+}

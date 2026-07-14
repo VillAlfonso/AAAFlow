@@ -1,0 +1,19 @@
+{
+  "targets": {
+    "cuts_per_min": [12, 16],
+    "median_shot_s": [2.3, 3.7],
+    "avg_shot_s": [3.7, 5.0],
+    "longest_shot_s": [20, 55],
+    "fast_cut_share_pct": [5, 18],
+    "fade_share_of_transitions": [0.08, 0.15],
+    "speech_share_pct": [70, 83],
+    "onscreen_text_frame_share": [0.75, 0.91]
+  },
+  "grammar": {
+    "transitions": {"default": "cut", "chapter_break": "fade-through-dark", "banned": ["smash", "glitch", "whip", "crash zoom"]},
+    "hold_rule": "one 20-55s uncut hold per act on archival/reenactment/map moments",
+    "air_rule": "17-30% of runtime without narration (montage under music)",
+    "cut_trigger": "new noun/place/actor in narration, never a beat grid",
+    "sfx": "off by default; deliberate diegetic only (standing 2026-07-14 rule)"
+  }
+}

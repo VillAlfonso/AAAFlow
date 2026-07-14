@@ -23,6 +23,205 @@ Still always on: enhance sharpening (interpolation OFF — it ghosts), NVENC
 cq19 final encodes (x264 crf17 fallback), Real-ESRGAN-sharpened stills.
 Never trade visible quality for speed without the user's sign-off.
 
+## Architecture v2: SKILL-TRAINED CHANNELS (user, 2026-07-12)
+The loop: **study → distill → genesis → produce → score.** User names
+reference channels; the STUDY INTAKE (`app/study.py`; Data Gatherer page →
+"Channel studies" card; `GET/POST /api/studies`, `{sid}/gather {more}`,
+DELETE moves to trash) resolves any URL/@handle, ranks the ~300 most recent
+long-form uploads by views, saves avatar + banner to `data/studies/<sid>/`,
+and runs the top 3-5 videos through the gatherer at dense 1s sampling
+("+ samples" honestly widens evidence when rules don't converge; a ranked
+30-candidate pool is kept). Claude then STUDIES the packs and writes seven
+SKILL PACKS (titles, thumbnails, editing, SEO, script, composition,
+narration) into `data/studies/<sid>/skills/` per **`SKILL_PACKS.md`** (repo
+root: formats, evidence rules, consumption points; the packs are git-
+tracked). Channel genesis from a study + per-channel dictionary overlays +
+the scorecard (gather our own render, diff numbers vs editing.json targets)
+are the next build phases. DECIDED 2026-07-12: (1) visual style enters as
+skills + PROMPT DNA ONLY, no LoRA on reference footage ever (reaffirms
+2026-07-05; own/licensed material only, and only if skills prove
+insufficient); (2) the no-burned-text rule is AMENDED: typeset Remotion
+motion graphics are allowed when the study's editing.json documents the
+style uses them (real fonts only, AI glyphs stay banned, existing text
+exceptions unchanged); (3) "hyperframes/hypervisor" = Remotion, to be
+expanded from overlays into a full motion-graphics scene engine. Analysis
+stack: gatherer (deterministic) + local Qwen-VL for bulk shot labels
+(musubi's `caption_images_by_qwen_vl.py` is on disk; Ollama when running) +
+Claude reads the sheets for deep passes. Narration skill designs a voice,
+never clones the reference narrator's. Channels stay inspired-by, never
+impersonations.
+
+**2026-07-13 SMARTER-SYSTEM PASS (user: sample video "formulaic, so AI
+coded" — root causes fixed, not the one video):**
+- **Voice.** `NARRATION_GUARDRAILS` (voiceover.py) is the user's standing
+  Never-list (no ad/motivational/DJ tone, no random emphasis, no rushed or
+  rising ending) auto-appended to EVERY narration instruct. One-take now
+  APPLIES pace: `voice.speed` > channel `defaults.voice_speed` (pitch-safe
+  atempo via `audio.retime`, BEFORE humanize/Whisper) and gap levers
+  `voice_gap_ms`/`voice_paragraph_gap_ms`. Every channel gets a DESIGNED
+  voice at genesis (speaker x instruct x speed x gaps x humanize), never a
+  silent default; Qwen3-TTS has only 2 native-EN speakers (Ryan/Aiden) so
+  identity comes from the design, or a clone from own/licensed recordings.
+  Unruly = Ryan @ speed 1.25, gaps 120/300.
+- **Real SFX.** 65 Kenney CC0 sounds imported (curated tags + diegetic/
+  non-diegetic class in `data/sfx_library.json`, CC0-logged in the ledger);
+  `score._real_sfx_for_cue` counts ANY real source. "riser" still has no
+  real file (stays silent) — a free Freesound key in Settings · Audio is
+  the unlock.
+- **Analyzer v2 (the video eyes).** `app/vlm.py` = local Ollama vision
+  client (use `qwen2.5vl:7b`; qwen3-vl force-thinks through its whole token
+  budget on structured tasks and Ollama's `format:"json"` returns EMPTY for
+  it — both verified). `app/techniques.py` reads a pack's frame sheets →
+  per-tile media/text/device rows + aggregate into report.json, and diffs
+  them against editable `data/technique_executors.json` to write
+  `needs.json` — the machine-readable "what we can't execute yet" list
+  (POST `/api/gatherer/{gid}/techniques`). Studies should run it per pack;
+  skills/genesis consume the needs manifest.
+- **Remotion expanded + FIXED.** Preset libs installed (@remotion/
+  transitions/shapes/motion-blur/noise/google-fonts, remotion-animated);
+  new comps `SegmentCard` (opaque typeset story card), `KineticTitle`
+  (word-by-word emphasis line), `ArrowCallout` (circle+label annotate).
+  `render_overlay` NEVER actually worked before: alpha needs
+  `--image-format=png`, and durations now ride in as a prop
+  (`durationInFrames` via calculateMetadata) so any length renders.
+- **Wan 2.2 t2v direct.** t2v experts + t2v lightning LoRAs in config
+  (`wan_t2v_ready()`), `wan_engine.generate()` (EmptyHunyuanLatentVideo
+  graph), `animate.submit_t2v_visuals` renders EVERY scene as a clip with a
+  poster-frame still; channel/project `animate.engine: "t2v"` makes produce
+  use it as the images stage (animate stage skipped). The krea2-free path
+  the user asked for; i2v remains the default elsewhere.
+- **Archival media (top de-AI lever).** `app/archival.py`: Wikimedia
+  Commons search (PD/CC0 first, CC BY flagged, NC skipped), download to
+  `research/archival/`, `apply_to_scene` locks real paintings/photos/maps
+  as full-frame scene art (`image_locked`) + auto-appends the credit line
+  to research sources. Routes: GET `/api/archival/search`, POST
+  `/api/projects/{pid}/archival {scene,query,pick}`. History channels
+  should MIX archival + generated + typeset cards, never 100% one source —
+  uniformity is the formula smell.
+
+**2026-07-14 (user):** (1) **AUTO-UPLOAD** — `app/autopub.py` runs on every
+produce completion: channels with `auto_upload {enabled, hour, every_days}`
+(default ON for new channels; editor has the controls) package if needed and
+upload PRIVATE with `publishAt` = the channel's next free slot
+(`last_slot` persists on the record). This AMENDS "publish manually": the
+user chose scheduled hands-off publishing; private-first stays the safety.
+Skips quietly when not connected / already uploaded / no render. (2) Hub
+cards show a real **YouTube connected badge** (API exposes
+`youtube.connected`; the old card checked `refresh_token` which the API
+strips, so the badge NEVER showed — fixed). (3) **LoRA rule AMENDED by the
+user** ("train a lora please"): reference footage MAY train Wan style LoRAs
+now; copyright risk was disclosed (gray zone, reused-content risk on
+monetization); dataset stays shot-aligned 2-4 s clips
+(`app/lora_dataset.py` builds it from kept study videos + gatherer shots +
+VLM captions into `data/lora_datasets/<name>/`), channels stay inspired-by.
+musubi CANNOT train from fp8_scaled weights (docs/wan.md) — training base
+must be fp8_e4m3fn (non-scaled) or bf16, low-noise expert first on 16 GB
+(`--fp8_base --blocks_to_swap`), result wired via `WAN["extra_loras"]`.
+(4) Studies can now `keep_video` (study.py passthrough) for LoRA datasets.
+(5) **Fern mission** running: study 20260714-002311-44c2 (@fern-tv, 5 packs
+kept) → techniques → skills → genesis (t2v-only channel) → LoRA → sample.
+(6) **SFX DISABLED globally** (user: "disable it for now"):
+`settings.audio.sfx_enabled=false` silences every stinger/tick in assemble
+and skips scorer fetches; music beds unaffected; the 65-sound library stays
+for re-enable. (7) **Skills are AI-AGNOSTIC** (SKILL_PACKS.md contract):
+plain md+JSON, no tool-specific syntax, INDEX.md entry point — Claude,
+Cline or the local pilot must all be able to run them; transcripts are the
+primary evidence for script.md (the script skill IS the trained writer).
+(8) **Title-vs-thumbnail CONTRAST is required study evidence**: techniques
+pass reads thumbnail text/emotion (`techniques.thumbnail` in report.json);
+Serious History finding: title carries the CATEGORY, thumb text the
+shocking INSTANCE, never repeating (repeats = their weaker videos).
+(9) LoRA training infra READY: musubi venv at
+`trainers/musubi-tuner/.venv` (torch 2.11 cu128, CUDA ok); ComfyUI
+`wan_2.1_vae.safetensors` is musubi-valid; the ComfyUI umt5 fp8_scaled is
+NOT (scale_weight tensors = garbage embeddings; official pth downloaded to
+`trainers/weights/wan/`); DiT training base = t2v low-noise fp16 (28.6 GB,
+on disk) + `--fp8_base`; pip cache purged. (10) **PARALLAX RETIRED**
+(user: "looks so ugly"): removed from every preset (`parallax-slides`
+preset deleted; cinematic/cinematic-vhs = clips + Ken Burns fallback); the
+depth model never loads now; code stays for rollback but nothing calls it.
+Replaced by **skill pack #8 camera** (SKILL_PACKS.md): shot-type + motion
+vocabulary learned per reference channel (gatherer motion labels x
+transcript), with use_when rules + prompt_words feeding Wan motion prompts.
+(11) **The iteration loop + SFX necessity rule** are standing (see their
+sections/memory): critiques become SYSTEM changes; stingers off globally,
+deliberate per-scene use only.
+
+## WAN RENDERS CONTENT, REMOTION RENDERS TEXT (user, 2026-07-14)
+A Wan clip came back with gibberish glyphs burned across the mannequin
+("It'ss.s: st or V:idally"). The rule is now absolute and enforced in code:
+
+- **The video models NEVER draw text.** `config.WAN["negative_text"]` (text,
+  letters, captions, subtitles, watermark, logo, signage, gibberish text…)
+  is force-appended to EVERY Wan render by `wan_engine._no_text()`. No
+  channel, preset or storyboard can opt out.
+- **GLYPH GUARD** (`animate._has_glyphs`): after each t2v clip, a frame goes
+  to the local VLM ("any visible text? YES/NO"); a YES re-rolls the seed
+  (2 retries). Needed because a LoRA trained on caption-heavy reference
+  footage carries a LEARNED prior toward glyphs — the negative prompt alone
+  is not proof. Degrades to a no-op if no VLM is running.
+- **All legitimate on-screen text is TYPESET BY REMOTION** from the SAME
+  storyboard JSON: name/role tags (RefCard), date + location stamps
+  (DateChip), chapter cards (SegmentCard), annotations (ArrowCallout),
+  emphasis lines (KineticTitle). Real fonts only; AI glyphs stay banned.
+  Enable per render with assemble opts `{"overlay_engine": "remotion"}`.
+- **THE OVERLAY DIRECTOR decides WHERE text belongs** (`app/overlays.py`,
+  user 2026-07-14: "a system should be able to read the source.json and
+  determine where remotion comes in"). It runs inside `autodirect.direct()`
+  on every import (and on demand: `POST /api/projects/{pid}/overlays`),
+  reads each scene's narration + the project research, and writes
+  `scene["overlays"] = [{comp, props, sync, seconds, detector}]` — the
+  assembler composites them, landing each on its SPOKEN word via
+  words.json. Detectors: full dates/clock times, City+State locations
+  (merged into one stamp when both are in a line), first-mention person
+  name+role tags (labels mined from research), chapter cards on signposted
+  time jumps, `*starred*` emphasis, author callouts. The whole vocabulary
+  + gating lives in **`data/overlay_rules.json`** (`GET/PUT
+  /api/overlay_rules`, every rule carries its `why`) — teaching the system
+  a new text move is a JSON edit, never a code change. Gating caps typeset
+  moments (default ≤55% of scenes, per-detector budgets + min gaps): we
+  copy the reference's STAMPS, never their baked-in subtitle track.
+  `scene["overlays_locked"]` protects author-set text.
+
+## LoRA CAPTIONS MUST TEACH THE STYLE (user, 2026-07-14)
+A style LoRA can only bind a look to words that appear in its captions. Our
+first fern pass captioned CONTENT only ("a man at a podium") and would have
+taught nothing about the look. Every caption in a dataset now reads:
+
+  `<TRIGGER>, <style clause for that clip's media class>, <content>. <camera>.`
+
+**fern/Fathom TRIGGER = `3d mannequin documentary`** (plain words the T5
+encoder already knows, so it steers Wan even at low LoRA strength). Put the
+trigger at the FRONT of every caption and into the channel's
+`style_suffix`, so generation prompts summon the trained look.
+
+**The fern style DNA (measured, 762 3D-render frames; "mannequin" is the #1
+subject word):** faceless matte humanoid MANNEQUIN figures (no faces, no
+clothing detail) acting out reconstructions inside stylized 3D
+environments; dark low-key lighting with deep shadows; ONE red rim-light /
+accent; surveillance framings (REC overlays, thermal, CCTV); miniature
+diorama city models; red-on-black data maps; intercut real archival
+footage, documents and screenshots. Media-specific style clauses live in
+`scratchpad/restyle_captions.py` (`STYLE` map) and the channel's
+composition skill.
+
+Practical rules for any future dataset: strip the VLM's boilerplate opener
+("The documentary frame is a...") — it teaches nothing and its "document"
+substring wrecks keyword matching; label each clip by its OWN media class
+(gatherer techniques tiles, shot-id matched) so archival clips are never
+captioned as mannequin shots; keep latent caches but ALWAYS rebuild the
+text-encoder cache after editing captions.
+
+## The iteration loop (user, 2026-07-14 — how we work from now on)
+The user asks for a channel + video → watches it and CRITICIZES it the next
+day → Claude translates EVERY critique into SYSTEM changes (skills,
+dictionaries, code, docs — never one-off video fixes) → the user generates
+again → repeat until the formula is right. Finished videos AUTO-UPLOAD
+(app/autopub.py, private-first with scheduled publishAt) once the channel is
+connected — connecting is the one manual step per channel (editor → Connect).
+Criticism days are the most valuable input this project gets: capture every
+point, fix root causes, log what changed.
+
 ## Design principle: the SYSTEM carries the intelligence
 The pipeline must produce a competent, human-looking video even when the
 storyboard came from a small/weak model. Everything that can be decided
@@ -301,13 +500,16 @@ preset p5 (cq19 unchanged).
   type, transition-rotation offset, emphasis rotation, and Ken Burns energy.
   Author-set `video.direction_card` wins; the card shows in lint + recipe.
   Same rules every time, different skeleton every video.
-- **Every video ships auto-SCORED (user rule, 2026-07-03; amended 2026-07-05
-  "procedural SFX sound terrible").** Music bed + SFX placed by `app/score.py`
-  on every produce. Stingers must be REAL sounds (Freesound fetch or imported
-  wavs) — the big procedural synths (whoosh/boom/riser/kaching/ding) are
-  banned; a cue with no real file stays SILENT. Only tiny UI ticks (pop,
-  click) may synth. Beds: Jamendo → ACE-Step → existing. Keep the license
-  ledger + auto-attribution intact; never a copyrighted track.
+- **Music bed auto-scored; SFX are NECESSITY-ONLY (user, 2026-07-14,
+  supersedes the 2026-07-03 every-beat stingers).** Beds keep auto-scoring
+  (Jamendo → ACE-Step → existing). Stingers/ticks are globally OFF
+  (`settings.audio.sfx_enabled=false`) and, when used at all, are DELIBERATE:
+  a sound goes in only when that moment in the video needs it and it makes
+  sense; sounds acquired for one video join `data/sfx_library/` for reuse;
+  a sound existing in the library NEVER obligates its use. When SFX are
+  re-enabled, they stay opt-in per scene (explicit audio_cue with a real
+  file), not grammar-automatic. Real sounds only, procedural synths stay
+  banned; license ledger + auto-attribution stay intact.
 - **New editing furniture (user, 2026-07-05).** `edit` is now step 6 in the UI
   (the ffmpeg-led auto-editor): `POST /api/projects/{pid}/autoedit` re-decides
   every call (transitions/cues/shots/emphasis/fx/date chips) from the grammar
@@ -569,6 +771,14 @@ preset p5 (cq19 unchanged).
   re-download multi-GB weights; character sheets now render on krea2 via
   ComfyUI; the diffusers engine remains only for user-imported checkpoints).
   Never leave duplicate multi-GB weights around.
+
+## Honesty rule (user mandate, 2026-07-12)
+The `/reality-check` skill is STANDING behavior: on any big/vague/pivot
+prompt, give an honest scoping pass first (restate the ask, split
+exists/new/ambiguous, correct misconceptions plainly, name conflicts with
+standing rules, state real constraints with numbers, recommend the v1 cut,
+ask only blocking questions). The user prefers correction over agreement;
+never silently absorb scope or build a version you know is broken.
 
 ## Claude upkeep rule (user mandate, 2026-07-03)
 After ANY user prompt that changes direction, rules, preferences, or adds a

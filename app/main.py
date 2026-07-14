@@ -13,12 +13,13 @@ from fastapi.responses import (FileResponse, HTMLResponse, JSONResponse,
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from . import (animate, assemble, audiolib, brandkit, captions, channels,
-               characters, config, effects, gatherer, gpu, grade, grammar,
-               humanize, images, janitor, jobs, music, packaging, pilot,
-               produce, projects, recipe, roulette, scenes, score, service,
-               sfx, shorts, storage, style_refs, training, transcribe,
-               voiceover, webresearch, writer, youtube)
+from . import (animate, archival, assemble, audiolib, brandkit, captions,
+               channels, characters, config, effects, gatherer, gpu, grade,
+               grammar, humanize, images, janitor, jobs, music, packaging,
+               pilot, produce, projects, recipe, roulette, scenes, score,
+               overlays, service, sfx, shorts, storage, study, style_refs,
+               techniques, training, transcribe, voiceover, webresearch, writer,
+               youtube)
 from .audio import ffmpeg_ok
 from .engine import engine
 from .image_engine import image_engine
@@ -685,6 +686,12 @@ class GatherReq(BaseModel):
     include_words: bool = False
 
 
+class ArchivalReq(BaseModel):
+    scene: int
+    query: str
+    pick: int = 0
+
+
 @app.get("/api/gatherer")
 def gatherer_list():
     return {"jobs": gatherer.list_records(), "models": gatherer.ALLOWED_MODELS}
@@ -710,6 +717,57 @@ def gatherer_create(req: GatherReq):
 def gatherer_prompt():
     """The rule-extraction prompt to hand an AI along with evidence packs."""
     return {"text": gatherer.rule_prompt()}
+
+
+@app.post("/api/gatherer/{gid}/techniques")
+def gatherer_techniques(gid: str):
+    """Technique pass (local VLM): media/device tags per frame + needs.json."""
+    try:
+        return {"job": techniques.submit(gid)}
+    except (ValueError, RuntimeError) as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
+@app.post("/api/projects/{pid}/overlays")
+def project_overlays(pid: str):
+    """Re-run the OVERLAY DIRECTOR: read the narration + research and decide
+    every typeset moment (date/location stamps, name tags, chapter cards,
+    emphasis lines). Remotion renders them; Wan never draws text."""
+    try:
+        return overlays.plan_project(pid)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
+
+
+@app.get("/api/overlay_rules")
+def get_overlay_rules():
+    return overlays.rules()
+
+
+@app.put("/api/overlay_rules")
+def put_overlay_rules(body: dict):
+    storage.write_json(overlays.RULES_FILE, body)
+    return {"ok": True}
+
+
+@app.get("/api/archival/search")
+def archival_search(q: str, limit: int = 12):
+    """Public-domain image search (Wikimedia Commons, license-filtered)."""
+    try:
+        return {"results": archival.search(q, limit=limit)}
+    except Exception as exc:  # noqa: BLE001 — network errors surface plainly
+        raise HTTPException(status_code=502, detail=str(exc))
+
+
+@app.post("/api/projects/{pid}/archival")
+def project_archival(pid: str, req: ArchivalReq):
+    """Lock a real public-domain image in as a scene's full-frame art."""
+    try:
+        return archival.apply_to_scene(pid, req.scene, req.query, req.pick)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
+    except RuntimeError as exc:
+        raise HTTPException(status_code=502, detail=str(exc))
 
 
 @app.post("/api/gatherer/{gid}/cancel")
@@ -738,6 +796,58 @@ def gatherer_file(gid: str, name: str):
     if path.suffix == ".md":
         return PlainTextResponse(path.read_text(encoding="utf-8"))
     return FileResponse(str(path))
+
+
+# --- API: channel studies (architecture v2 skill training) -------------------
+class StudyReq(BaseModel):
+    channel: str                          # URL, @handle, or bare handle/UC id
+    count: int = 5
+    sampling: str = "1s"
+    model: str = "large-v3"
+    auto_gather: bool = True
+
+
+class MoreReq(BaseModel):
+    more: int = 2
+
+
+@app.get("/api/studies")
+def studies_list():
+    return {"studies": study.list_records()}
+
+
+@app.post("/api/studies")
+def studies_create(req: StudyReq):
+    try:
+        return {"id": study.submit(req.channel, req.count, req.sampling,
+                                   req.model, req.auto_gather)}
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
+@app.post("/api/studies/{sid}/gather")
+def studies_gather_more(sid: str, req: MoreReq = MoreReq()):
+    try:
+        return study.gather_more(sid, req.more)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
+@app.delete("/api/studies/{sid}")
+def studies_delete(sid: str):
+    try:
+        study.delete(sid)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
+    return {"ok": True}
+
+
+@app.get("/studies/{sid}/{name:path}")
+def study_asset(sid: str, name: str):
+    try:
+        return FileResponse(str(study.file_path(sid, name)))
+    except ValueError:
+        raise HTTPException(status_code=404, detail="no such file")
 
 
 # --- API: YouTube packaging (SEO) ---------------------------------------------

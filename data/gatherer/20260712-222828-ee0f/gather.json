@@ -1,0 +1,118 @@
+{
+ "id": "20260712-222828-ee0f",
+ "url": "https://www.youtube.com/watch?v=Yctn_C_6cF8",
+ "status": "done",
+ "stage": "report",
+ "pct": 100.0,
+ "msg": "complete",
+ "created": 1783866508.472221,
+ "options": {
+  "model": "large-v3",
+  "quality": 720,
+  "sampling": "1s",
+  "keep_video": false,
+  "include_words": true
+ },
+ "meta": {
+  "title": "Most Epic Deaths in History",
+  "channel": "Serious History",
+  "upload_date": "20240920",
+  "duration": 1107.0,
+  "views": 6247368,
+  "url": "https://www.youtube.com/watch?v=Yctn_C_6cF8",
+  "video_id": "Yctn_C_6cF8",
+  "description": "Take your personal data back with Incogni! Use code SeriousHistory at the link below and get 60% off an annual plan: http://incogni.com/serioushistory\n\nSubscribe! @SeriousHistory\nSupport us on Ko-Fi: https://ko-fi.com/serioushistory \n\nWe animate using these tablets:\n\nHUION KAMVAS Pro 16 https://amzn.to/4hWLg0K\nGAOMON PD1320 https://amzn.to/4gZIExJ\nXPPen Artist12 Pro https://amzn.to/3XoRb6y",
+  "tags": [
+   "serious history",
+   "Epic Deaths in History",
+   "Benkei",
+   "Yi Sun Sin",
+   "Ben Salomon",
+   "Samurai Stories",
+   "Imjin War",
+   "Stick Figure Animation",
+   "stick man history"
+  ],
+  "categories": [
+   "Entertainment"
+  ],
+  "likes": 166812,
+  "comments": 5400,
+  "subs": 793000,
+  "chapters": [
+   {
+    "t": 0.0,
+    "title": "Ben"
+   },
+   {
+    "t": 331.0,
+    "title": "Yun Shin"
+   },
+   {
+    "t": 501.0,
+    "title": "The Battle of Busan"
+   },
+   {
+    "t": 910.0,
+    "title": "Ben L Salomon"
+   }
+  ],
+  "thumbnail_url": "https://i.ytimg.com/vi/Yctn_C_6cF8/maxresdefault.jpg"
+ },
+ "summary": {
+  "duration": 1107.0,
+  "shots": 313,
+  "cuts_per_min": 16.9,
+  "wpm_speaking": 205,
+  "words": 3631,
+  "sheets": 38,
+  "report_kb": 31.2,
+  "pack_mb": 12.95
+ },
+ "outputs": [
+  "pack.pdf",
+  "report.md",
+  "report.json",
+  "sheet_01.jpg",
+  "sheet_02.jpg",
+  "sheet_03.jpg",
+  "sheet_04.jpg",
+  "sheet_05.jpg",
+  "sheet_06.jpg",
+  "sheet_07.jpg",
+  "sheet_08.jpg",
+  "sheet_09.jpg",
+  "sheet_10.jpg",
+  "sheet_11.jpg",
+  "sheet_12.jpg",
+  "sheet_13.jpg",
+  "sheet_14.jpg",
+  "sheet_15.jpg",
+  "sheet_16.jpg",
+  "sheet_17.jpg",
+  "sheet_18.jpg",
+  "sheet_19.jpg",
+  "sheet_20.jpg",
+  "sheet_21.jpg",
+  "sheet_22.jpg",
+  "sheet_23.jpg",
+  "sheet_24.jpg",
+  "sheet_25.jpg",
+  "sheet_26.jpg",
+  "sheet_27.jpg",
+  "sheet_28.jpg",
+  "sheet_29.jpg",
+  "sheet_30.jpg",
+  "sheet_31.jpg",
+  "sheet_32.jpg",
+  "sheet_33.jpg",
+  "sheet_34.jpg",
+  "sheet_35.jpg",
+  "sheet_36.jpg",
+  "sheet_37.jpg",
+  "sheet_38.jpg",
+  "thumbnail.jpg"
+ ],
+ "error": null,
+ "job_id": "5e1fb47694a3"
+}

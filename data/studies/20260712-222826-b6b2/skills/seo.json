@@ -1,0 +1,21 @@
+{
+  "_status": "draft on packs 1-2; refine when 3-5 land",
+  "description_skeleton": [
+    "their style is ULTRA-minimal (300-390 chars): subscribe + support links + affiliate gear, ZERO synopsis",
+    "ours (better): 2-3 line hook quoting the video's most specific narration, then chapters, then Sources block (studio rule), then support links; still SHORT, no essay"
+  ],
+  "tags": {
+    "count": [9, 12],
+    "lead": "brand tags first (channel name, format tags like 'stick figure history'), then per-segment entities (every named person/place/event)",
+    "examples_theirs": ["serious history", "stick man history", "Benkei", "john brown", "harper's ferry", "Gary Plauche"]
+  },
+  "chapters": true,
+  "chapter_naming": "story names, not descriptions (Ben, Yun Shin, The Battle of Busan)",
+  "hashtags": 0,
+  "category": "Entertainment",
+  "engagement_norms": {"like_rate_pct": 2.7, "views_per_day_recent": 42800, "views_to_subs": 7.7},
+  "aaaflow_mapping": {
+    "packaging": "keep description SHORT; entity tags auto-lead via packaging._entities; chapters from scene sections; Sources block stays (our improvement)",
+    "no_boilerplate": "no 'subscribe so...' lines in the description body (studio rule)"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "_evidence": "all 5 top-video thumbnails (see _evidence_notes.md)",
+  "system": "white void + ONE rendered character (more detailed than the in-video stick style) + big black condensed ALL-CAPS text + exactly one red element (blood, arrow, or a red text block) + explicit-comic violence + a face showing rage/grief/fear, never neutral",
+  "templates": [
+    {"id": "punch-arrow", "share": "3/5 (workhorse)", "recipe": "2-4 word punch phrase (NOT the title) top, thick red arrow from text to the payoff object, subject opposite"},
+    {"id": "mascot-react", "share": "1/5", "recipe": "title echo across top, subject center-right, mascot reacting (sweat/gasp) left third"},
+    {"id": "split-title", "share": "1/5", "recipe": "character left, title text right, key phrase line in RED caps, rest black"}
+  ],
+  "text_words": {"min": 2, "max": 5},
+  "palette": ["white void", "black ink", "muted blues/greys/browns", "red accent (single)"],
+  "aaaflow_mapping": {
+    "template_hints": ["big-word", "reveal", "split"],
+    "kicker_style": "2-4 word punch phrase, never the title verbatim",
+    "background": "our cream paper instead of their white void (channel differentiation)",
+    "accent": "dried-blood red #b33a2b as THE one red element",
+    "face": "expressive emotion mandatory (studio emotion rule aligns)",
+    "note": "typeset text only (studio rule); red arrow is a compositing asset, not AI-drawn"
+  }
+}

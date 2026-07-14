@@ -1,0 +1,33 @@
+{
+  "_status": "FINAL on 5/5 packs",
+  "wpm": [
+    190,
+    215
+  ],
+  "speech_share_pct": [
+    92,
+    97
+  ],
+  "pauses": {
+    "per_min": [
+      1.5,
+      2.2
+    ],
+    "avg_s": [
+      0.7,
+      1.1
+    ],
+    "max_s": 3.7,
+    "placement": "before segment starts and after kill/payoff lines; almost never mid-exposition"
+  },
+  "delivery": "fast, even, conversational-dry; energy from pace and wording, never from pitch spikes; no exclamation",
+  "instruct": "Energetic but even storyteller pace, conversational and dry, a hint of amusement under a straight face. Reads fast without rushing, tiny beat before a name or a number, lets one short pause land after each story's payoff line. No dramatics, no announcer voice.",
+  "humanize": "natural",
+  "outro": "settle in the last two scenes: slightly slower, lower, conclusive falling cadence (our wind-down rule; their videos end abruptly, ours improves this)",
+  "aaaflow_mapping": {
+    "voice_speed": 1.06,
+    "voice_speed_note": "our narrator baseline reads ~185 wpm at 1.0 on dense text; 1.06 approaches their 197-205 band without sounding rushed; validate against one-take QA duration and adjust once",
+    "defaults.voice_humanize": "natural",
+    "defaults.voice_outro": "on"
+  }
+}

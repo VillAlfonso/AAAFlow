@@ -1,0 +1,27 @@
+{
+  "_why": "The analyzer's technique pass labels every reference frame (media type + editing device). This dictionary maps each observed label to what OUR pipeline can execute today, so the system can name its own gaps (the needs manifest) instead of silently faking a style. Edit statuses as capabilities land: have | partial | building | missing.",
+  "media": {
+    "real-photo": {"executor": "ref cards + receipt stills (small inserts only)", "status": "partial", "acquire": "archival fetcher: Wikimedia Commons / LOC public-domain search into full-frame scene image_file"},
+    "painting": {"executor": null, "status": "missing", "acquire": "archival fetcher; pre-1900 art is public domain and instantly de-AIs the look"},
+    "engraving-or-print": {"executor": null, "status": "missing", "acquire": "archival fetcher (same as painting)"},
+    "flat-illustration": {"executor": "krea2 stills + channel style_suffix", "status": "have"},
+    "3d-render": {"executor": null, "status": "missing", "acquire": "out of scope; note only"},
+    "map": {"executor": null, "status": "missing", "acquire": "archival fetcher (old maps) + Remotion map-pan comp"},
+    "document": {"executor": "receipts machinery (app/receipts.py)", "status": "have"},
+    "typeset-card": {"executor": "Remotion SegmentCard/KineticTitle", "status": "building"},
+    "meme-or-clipart": {"executor": null, "status": "missing", "acquire": "sanction only if a study documents it; typeset Remotion comps preferred"},
+    "live-footage": {"executor": "Wan 2.2 i2v hero clips; t2v direct path", "status": "building"},
+    "talking-head": {"executor": null, "status": "missing", "acquire": "not planned; channels are narrator-led"},
+    "screenshot": {"executor": "playwright captures + image_locked scenes", "status": "have"}
+  },
+  "technique": {
+    "plain": {"executor": "standard cut", "status": "have"},
+    "zoom-or-punch-in": {"executor": "emphasis micro-zoom + punch-in transition + parallax", "status": "have"},
+    "split-screen": {"executor": null, "status": "missing", "acquire": "assembler split-screen scene_fx"},
+    "overlay-inset": {"executor": "ref cards floating card", "status": "have"},
+    "highlight-or-arrow": {"executor": "receipts marker sweep (documents only)", "status": "partial", "acquire": "Remotion arrow/circle callout comp for any scene"},
+    "caption-card": {"executor": "Remotion SegmentCard", "status": "building"},
+    "transition-frame": {"executor": "transitions catalog (flash/smash/glitch/whiteflash/...)", "status": "have"},
+    "chart-or-diagram": {"executor": null, "status": "missing", "acquire": "Remotion chart comp fed by research facts"}
+  }
+}

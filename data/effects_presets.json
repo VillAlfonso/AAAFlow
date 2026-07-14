@@ -1,81 +1,54 @@
 [
-  {
-    "id": "cinematic",
-    "label": "Cinematic \u2014 animated clips (Wan) + parallax + SFX",
-    "sources": [
-      "clips",
-      "parallax"
-    ],
-    "parallax": {
-      "amplitude": 0.018,
-      "fps": 30
-    },
-    "ken_burns": true,
-    "kb_strength": 1.0,
-    "transitions": true,
-    "sfx": true,
-    "sfx_volume": 0.5,
-    "music_duck": 0.35
-  },
-  {
-    "id": "parallax-slides",
-    "label": "Parallax slides \u2014 2.5D depth moves on every still (no video model)",
-    "sources": [
-      "parallax"
-    ],
-    "parallax": {
-      "amplitude": 0.018,
-      "fps": 30
-    },
-    "ken_burns": true,
-    "kb_strength": 1.0,
-    "transitions": true,
-    "sfx": true,
-    "sfx_volume": 0.45,
-    "music_duck": 0.35
-  },
-  {
-    "id": "dynamic-slides",
-    "label": "Dynamic slides \u2014 varied Ken Burns + transitions + SFX",
-    "sources": [
-      "stills"
-    ],
-    "ken_burns": true,
-    "kb_strength": 1.2,
-    "transitions": true,
-    "sfx": true,
-    "sfx_volume": 0.5,
-    "music_duck": 0.35
-  },
-  {
-    "id": "simple-slides",
-    "label": "Simple slides \u2014 gentle fades, no SFX",
-    "sources": [
-      "stills"
-    ],
-    "ken_burns": true,
-    "kb_strength": 0.6,
-    "transitions": false,
-    "sfx": false,
-    "music_duck": 0.5
-  },
-  {
-    "id": "cinematic-vhs",
-    "label": "Cinematic VHS \u2014 Wan clips + parallax + SFX + analog VHS filter",
-    "sources": [
-      "clips",
-      "parallax"
-    ],
-    "parallax": {
-      "amplitude": 0.018,
-      "fps": 30
-    },
-    "ken_burns": true,
-    "kb_strength": 1.0,
-    "transitions": true,
-    "sfx": true,
-    "sfx_volume": 0.5,
-    "music_duck": 0.35,
-    "filter": "vhs"
-  }
+ {
+  "id": "cinematic",
+  "label": "Cinematic — animated clips (Wan) + Ken Burns fallback",
+  "sources": [
+   "clips"
+  ],
+  "ken_burns": true,
+  "kb_strength": 1.0,
+  "transitions": true,
+  "sfx": true,
+  "sfx_volume": 0.5,
+  "music_duck": 0.35
+ },
+ {
+  "id": "dynamic-slides",
+  "label": "Dynamic slides — varied Ken Burns + transitions + SFX",
+  "sources": [
+   "stills"
+  ],
+  "ken_burns": true,
+  "kb_strength": 1.2,
+  "transitions": true,
+  "sfx": true,
+  "sfx_volume": 0.5,
+  "music_duck": 0.35
+ },
+ {
+  "id": "simple-slides",
+  "label": "Simple slides — gentle fades, no SFX",
+  "sources": [
+   "stills"
+  ],
+  "ken_burns": true,
+  "kb_strength": 0.6,
+  "transitions": false,
+  "sfx": false,
+  "music_duck": 0.5
+ },
+ {
+  "id": "cinematic-vhs",
+  "label": "Cinematic VHS — Wan clips + analog VHS filter",
+  "sources": [
+   "clips"
+  ],
+  "ken_burns": true,
+  "kb_strength": 1.0,
+  "transitions": true,
+  "sfx": true,
+  "sfx_volume": 0.5,
+  "music_duck": 0.35,
+  "filter": "vhs"
+ }
 ]

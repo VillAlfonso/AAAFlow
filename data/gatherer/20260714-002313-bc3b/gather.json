@@ -1,0 +1,80 @@
+{
+ "id": "20260714-002313-bc3b",
+ "url": "https://www.youtube.com/watch?v=aVA7aXOH1pk",
+ "status": "done",
+ "stage": "report",
+ "pct": 100.0,
+ "msg": "complete",
+ "created": 1783959793.8038027,
+ "options": {
+  "model": "large-v3",
+  "quality": 720,
+  "sampling": "1s",
+  "keep_video": true,
+  "include_words": true
+ },
+ "meta": {
+  "title": "Mapping the Trump Shooting",
+  "channel": "fern",
+  "upload_date": "20240716",
+  "duration": 371.0,
+  "views": 21495148,
+  "url": "https://www.youtube.com/watch?v=aVA7aXOH1pk",
+  "video_id": "aVA7aXOH1pk",
+  "description": "We mapped and animated the Trump assassination attempt. Events are still unfolding. \n\nSources: \nhttps://docs.google.com/document/d/10A80bzEE4uvLIoP1IPJ9y7G2QpEW3UmaVBcx1J24uzg/edit\n\nMusic:\n\nLensDistortions:\nTeams - Underscore\nPulse Rate - No Percussion\n\nEpidemicSound:\nA Mellow Mood - Dream Cave\nTransfer Coefficient - Ethan Sloan\nMoonlit Serenity - Martin Landh\n\n\n_____\n\nArmchair documentaries, almost weekly",
+  "tags": [],
+  "categories": [
+   "Entertainment"
+  ],
+  "likes": 390345,
+  "comments": 17000,
+  "subs": 5080000,
+  "chapters": [
+   {
+    "t": 0.0,
+    "title": "Intro"
+   },
+   {
+    "t": 50.0,
+    "title": "Video"
+   },
+   {
+    "t": 292.0,
+    "title": "Questions"
+   }
+  ],
+  "thumbnail_url": "https://i.ytimg.com/vi/aVA7aXOH1pk/maxresdefault.jpg"
+ },
+ "summary": {
+  "duration": 371.0,
+  "shots": 74,
+  "cuts_per_min": 11.8,
+  "wpm_speaking": 213,
+  "words": 915,
+  "sheets": 13,
+  "report_kb": 9.6,
+  "pack_mb": 4.45
+ },
+ "outputs": [
+  "pack.pdf",
+  "report.md",
+  "report.json",
+  "sheet_01.jpg",
+  "sheet_02.jpg",
+  "sheet_03.jpg",
+  "sheet_04.jpg",
+  "sheet_05.jpg",
+  "sheet_06.jpg",
+  "sheet_07.jpg",
+  "sheet_08.jpg",
+  "sheet_09.jpg",
+  "sheet_10.jpg",
+  "sheet_11.jpg",
+  "sheet_12.jpg",
+  "sheet_13.jpg",
+  "thumbnail.jpg",
+  "video.mp4"
+ ],
+ "error": null,
+ "job_id": "78c00cde2042"
+}

@@ -1,0 +1,68 @@
+{
+  "_why": "The OVERLAY DIRECTOR (app/overlays.py) reads the storyboard's narration and research and decides WHERE typeset text belongs and WHICH Remotion composition renders it. Wan never draws text (hard rule 2026-07-14); this dictionary is the whole vocabulary of legitimate on-screen text. Edit it to teach the system new text moves — never hardcode one in a pipeline stage.",
+  "detectors": {
+    "datestamp": {
+      "comp": "DateChip",
+      "why": "A named date or clock time is the documentary's anchor. Stamp it typeset, low-left, on the spoken word.",
+      "matches": ["full dates (the 15th of July, 2020)", "month + year (March 2021)", "bare years (2019)", "clock times (20:17 UTC)"],
+      "format": "upper",
+      "seconds": 2.6,
+      "max_per_video": 8,
+      "min_gap_scenes": 2
+    },
+    "location": {
+      "comp": "DateChip",
+      "why": "Place before event: the viewer must know WHERE before anything happens. Merges with a datestamp in the same scene into one stamp.",
+      "matches": ["City, State", "City, Country", "named counties and districts"],
+      "format": "upper",
+      "seconds": 2.6,
+      "merge_with": "datestamp",
+      "merge_separator": "  ·  ",
+      "max_per_video": 6,
+      "min_gap_scenes": 2
+    },
+    "person": {
+      "comp": "RefCard",
+      "why": "First mention of an integral person gets a name + role tag, so nobody is ever an unlabeled figure on screen.",
+      "matches": ["first mention of a proper name that appears in research facts or the character bible"],
+      "label_from": "research",
+      "seconds": 3.2,
+      "max_per_video": 6,
+      "first_mention_only": true
+    },
+    "chapter": {
+      "comp": "SegmentCard",
+      "why": "A signposted time or place jump is a chapter break: full-frame typeset card, cut in like a shot (the study documents this style uses them).",
+      "matches": ["A year earlier", "Back in <year>", "In <month year>", "On the <n>th of <month>", "Three weeks later", "Meanwhile"],
+      "seconds": 2.2,
+      "max_per_video": 4,
+      "min_gap_scenes": 6,
+      "needs_fade": true
+    },
+    "emphasis": {
+      "comp": "KineticTitle",
+      "why": "The one *starred* phrase of a scene, typeset word-by-word on the spoken word. Use sparingly: it is a punch, not a caption track.",
+      "matches": ["author *markup*"],
+      "seconds": 2.4,
+      "max_per_video": 3,
+      "min_gap_scenes": 5
+    },
+    "callout": {
+      "comp": "ArrowCallout",
+      "why": "Annotate a spot in the frame (evidence, a route, a person in a crowd) the way an investigator marks up a photo.",
+      "matches": ["scene.callout = {x, y, label}"],
+      "seconds": 2.4,
+      "max_per_video": 4
+    }
+  },
+  "gating": {
+    "max_overlays_per_scene": 1,
+    "max_text_share": 0.55,
+    "_why_share": "The reference channel is text-heavy (75-91% of frames), but their text is mostly baked-in subtitles we do NOT copy. Cap our typeset moments so the video reads as designed, not captioned."
+  },
+  "style": {
+    "font": "Georgia, serif",
+    "accent_from_channel_ui": true,
+    "ink": "#f2ede0"
+  }
+}

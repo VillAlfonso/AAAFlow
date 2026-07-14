@@ -28,9 +28,14 @@
   ],
   "youtube": {},
   "created": 1783672401.2514093,
-  "updated": 1783676227.1063004,
+  "updated": 1783959962.3029675,
   "stats": {
     "projects": 2,
     "last_project": "fa73fad238cd"
+  },
+  "auto_upload": {
+    "enabled": true,
+    "hour": 18,
+    "every_days": 1
   }
 }

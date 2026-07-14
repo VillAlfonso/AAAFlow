@@ -124,6 +124,130 @@ def _background_bed(music: Optional[Dict], total_dur: float) -> Optional[np.ndar
     return bed
 
 
+def _render_overlay(clip, ov: Dict, row, words, win_t0: float, dur: float,
+                    W: int, H: int, engine: str = ""):
+    """Composite ONE overlay-director row onto a scene.
+
+    Remotion renders it as a transparent webm when the engine is enabled (real
+    typography, spring animation); otherwise the PIL/moviepy path draws the
+    same information. A SegmentCard is opaque by design: it IS the shot.
+    Landing time comes from the spoken word (words.json) when the row names one.
+    """
+    from moviepy import CompositeVideoClip, VideoFileClip
+    from moviepy.video.fx import CrossFadeIn, CrossFadeOut
+
+    comp = ov.get("comp") or ""
+    props = dict(ov.get("props") or {})
+    secs = min(float(ov.get("seconds", 2.4)), max(1.0, dur - 0.2))
+
+    # when does it land? on the spoken word if the director named one
+    t0 = 0.25
+    sync = ov.get("sync")
+    if sync and row is not None and words:
+        try:
+            from . import refcards as _rc
+            t = _rc.mention_time([sync], row, words, win_t0)
+            if t is not None:
+                t0 = max(0.0, min(float(t), max(0.0, dur - secs)))
+        except Exception:  # noqa: BLE001 — fall back to the scene start
+            pass
+
+    if engine == "remotion":
+        from . import remotion_engine
+        if remotion_engine.available():
+            import tempfile
+            out = Path(tempfile.mktemp(suffix=f"_{comp}.webm"))
+            got = remotion_engine.render_overlay(comp, props, out, seconds=secs,
+                                                 width=W, height=H)
+            if got:
+                lay = VideoFileClip(str(got), has_mask=True).with_duration(secs)
+                if comp == "SegmentCard":       # opaque card: it IS the shot
+                    lay = lay.with_start(0).with_position((0, 0))
+                    return CompositeVideoClip([clip, lay], size=(W, H)) \
+                        .with_duration(clip.duration)
+                lay = (lay.with_start(t0).with_position((0, 0))
+                       .with_effects([CrossFadeIn(0.12), CrossFadeOut(0.3)]))
+                return CompositeVideoClip([clip, lay], size=(W, H)) \
+                    .with_duration(clip.duration)
+
+    # --- PIL / moviepy fallback (always available) ---
+    if comp == "DateChip":
+        return _date_chip(clip, props.get("text", ""), W, H)
+    if comp == "SegmentCard":
+        return _segment_card(clip, props, W, H)
+    if comp in ("RefCard", "KineticTitle"):
+        text = props.get("label") or props.get("text") or ""
+        sub = props.get("sub") or ""
+        return _text_card(clip, text, sub, W, H, t0=t0, secs=secs,
+                          accent=props.get("accent", "#c9a227"))
+    return clip
+
+
+def _segment_card(clip, props: Dict, W: int, H: int):
+    """Full-frame typeset chapter card (opaque) — the study-sanctioned burned
+    text. Drawn over the scene's first seconds, cut in like any other shot."""
+    try:
+        from moviepy import ColorClip, CompositeVideoClip, TextClip
+        from moviepy.video.fx import CrossFadeIn, CrossFadeOut
+        title = (props.get("title") or "").strip()
+        if not title:
+            return clip
+        secs = min(2.2, max(1.0, float(clip.duration) - 0.3))
+        font = next((f for f in ([r"C:\Windows\Fonts\georgiab.ttf"] + _FONTS)
+                     if Path(f).exists()), FONT)
+        bg = (ColorClip(size=(W, H), color=(14, 14, 17))
+              .with_duration(secs).with_start(0)
+              .with_effects([CrossFadeIn(0.2), CrossFadeOut(0.4)]))
+        fs = int(H * 0.085)
+        txt = (TextClip(font=font, text=title, font_size=fs, color="#f2ede0",
+                        method="caption", size=(int(W * 0.8), None),
+                        text_align="center")
+               .with_duration(secs).with_start(0.05)
+               .with_position("center")
+               .with_effects([CrossFadeIn(0.25), CrossFadeOut(0.4)]))
+        return CompositeVideoClip([clip, bg, txt], size=(W, H)) \
+            .with_duration(clip.duration)
+    except Exception:  # noqa: BLE001
+        return clip
+
+
+def _text_card(clip, text: str, sub: str, W: int, H: int, *, t0: float,
+               secs: float, accent: str = "#c9a227"):
+    """Name/role tag or emphasis line, typeset low-left with an accent rule."""
+    try:
+        from moviepy import ColorClip, CompositeVideoClip, TextClip
+        from moviepy.video.fx import CrossFadeIn, CrossFadeOut
+        if not text:
+            return clip
+        font = next((f for f in ([r"C:\Windows\Fonts\georgiab.ttf"] + _FONTS)
+                     if Path(f).exists()), FONT)
+        fs = int(H * 0.05)
+        x, y = int(W * 0.055), int(H * 0.76)
+        rgb = tuple(int((accent or "#c9a227").lstrip("#")[i:i + 2], 16)
+                    for i in (0, 2, 4))
+        parts = [clip]
+        name = (TextClip(font=font, text=text, font_size=fs, color="#f2ede0",
+                         stroke_color="#0a0a10", stroke_width=max(2, fs // 14))
+                .with_duration(secs).with_start(t0).with_position((x, y))
+                .with_effects([CrossFadeIn(0.14), CrossFadeOut(0.3)]))
+        bar = (ColorClip(size=(max(60, int(len(text) * fs * 0.5)), 4), color=rgb)
+               .with_duration(secs).with_start(t0)
+               .with_position((x, y + int(fs * 1.3)))
+               .with_effects([CrossFadeIn(0.14), CrossFadeOut(0.3)]))
+        parts += [name, bar]
+        if sub:
+            sm = (TextClip(font=font, text=sub, font_size=int(fs * 0.5),
+                           color="#c9c3b4", stroke_color="#0a0a10",
+                           stroke_width=1)
+                  .with_duration(secs).with_start(t0 + 0.08)
+                  .with_position((x, y + int(fs * 1.55)))
+                  .with_effects([CrossFadeIn(0.14), CrossFadeOut(0.3)]))
+            parts.append(sm)
+        return CompositeVideoClip(parts, size=(W, H)).with_duration(clip.duration)
+    except Exception:  # noqa: BLE001
+        return clip
+
+
 def _date_chip(clip, text: str, W: int, H: int):
     """Typeset DATE STAMP — the one sanctioned on-screen text besides receipt
     stills (user rule amendment 2026-07-05: dates/backstory jumps carry a small
@@ -271,7 +395,12 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
     W = int(asm.get("width", 1920)); H = int(asm.get("height", 1080)); fps = int(asm.get("fps", 30))
     kb = bool(asm.get("ken_burns", preset.get("ken_burns", True)))
     do_transitions = bool(asm.get("transitions", preset.get("transitions", True)))
-    sfx_on = bool(asm.get("sfx", preset.get("sfx", True)))
+    # global kill switch first (user, 2026-07-14: "disable it for now") —
+    # settings.audio.sfx_enabled false silences ALL stingers/ticks on every
+    # channel; per-render asm.sfx / preset can only turn them off further.
+    _sfx_global = bool((storage.get_settings().get("audio") or {})
+                       .get("sfx_enabled", True))
+    sfx_on = _sfx_global and bool(asm.get("sfx", preset.get("sfx", True)))
     sfx_vol = float(asm.get("sfx_volume", preset.get("sfx_volume", 0.5)))
     duck_gain = float(asm.get("music_duck", preset.get("music_duck", 0.35)))
     sync = project["settings"].get("sync", {})
@@ -522,12 +651,15 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
         if hits:
             v = transitions.apply_emphasis(v, hits, W=W, H=H)
             emph_events.extend(float(row["start"]) + h["t"] for h in hits)
+        # legacy autodirect chip — only when the overlay director planned none
+        # for this scene (otherwise the same date would stamp twice)
+        planned = {o.get("comp") for o in (s.get("overlays") or [])}
         chip = (s.get("date_chip") or "").strip()
-        if chip and FONT:
+        if chip and FONT and "DateChip" not in planned:
             v = _date_chip(v, chip, W, H)
             if row is not None:
                 chip_events.append(float(row["start"]) + 0.25)
-        rc = ref_plan.get(str(s["id"]))
+        rc = ref_plan.get(str(s["id"])) if "RefCard" not in planned else None
         if rc:
             # first-mention reference card, synced to the spoken name
             try:
@@ -545,6 +677,18 @@ def _render(pid: str, opts: Dict, progress: ProgressFn) -> Dict:
                     ref_events.append(float(row["start"]) + t_shown)
             except Exception as exc:  # noqa: BLE001
                 print(f"[assemble] ref card failed scene {s.get('id')}: {exc}")
+        # OVERLAY DIRECTOR plan (app/overlays.py): every typeset moment the
+        # storyboard earned — date/location stamps, name tags, chapter cards,
+        # emphasis lines, callouts. Wan never draws text; this does.
+        for ov in (s.get("overlays") or []):
+            try:
+                v = _render_overlay(v, ov, row, words, win_t0, dur, W, H,
+                                    engine=str(asm.get("overlay_engine",
+                                                       preset.get("overlay_engine", ""))
+                                               or "").lower())
+            except Exception as exc:  # noqa: BLE001 — a card must never kill a render
+                print(f"[assemble] overlay {ov.get('comp')} failed "
+                      f"scene {s.get('id')}: {exc}")
         if film_filter:
             v = transitions.apply_filter(v, film_filter, W=W, H=H, cfg=filter_cfg)
         durs_sum += dur

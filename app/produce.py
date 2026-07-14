@@ -59,7 +59,10 @@ def default_plan(project: Dict) -> Dict:
         # -> ACE-Step -> existing) AND fills/fetches real SFX for every beat.
         # Degrades gracefully (no keys => generation + procedural stingers).
         "score": True,
-        "animate": {"scope": "missing"} if (uses_clips and engine != "none") else False,
+        # engine "t2v": the images stage renders every scene AS a clip
+        # (wan t2v direct, no krea2), so there is nothing left to animate.
+        "animate": ({"scope": "missing"}
+                    if (uses_clips and engine not in ("none", "t2v")) else False),
         "assemble": {},
         "grade": grade_stage,
     }
@@ -102,6 +105,8 @@ def submit_produce(pid: str, plan: Optional[Dict] = None) -> Dict:
                                                   scope="missing")
             return voiceover.submit_onetake(pid, proj["settings"].get("voice") or {})
         if name == "images":
+            if (proj["settings"].get("animate", {}) or {}).get("engine") == "t2v":
+                return animate.submit_t2v_visuals(pid, scope="missing")
             icfg = dict(proj["settings"].get("image") or {})
             return images.submit_images(pid, icfg, scope="missing")
         if name == "score":
@@ -177,6 +182,14 @@ def submit_produce(pid: str, plan: Optional[Dict] = None) -> Dict:
                         raise RuntimeError(f"{name} cancelled by user")
                     time.sleep(2)
             _set(pid, status="done", stage="done", progress=1.0)
+            # hands-off publishing (user, 2026-07-14): channels with
+            # auto_upload enabled queue a PRIVATE upload with the next
+            # schedule slot as publishAt; must never fail the produce
+            try:
+                from . import autopub
+                autopub.maybe_auto_upload(pid)
+            except Exception as exc:  # noqa: BLE001
+                print(f"[autopub] skipped: {exc}")
         except Exception as exc:  # noqa: BLE001
             _set(pid, status="error", error=f"{type(exc).__name__}: {exc}")
         finally:

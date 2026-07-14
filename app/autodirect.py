@@ -503,6 +503,20 @@ def direct(raw: Dict, *, default_style: str | None = None,
 
     sb["video"] = video
     sb["scenes"] = scenes
+
+    # OVERLAY DIRECTOR (2026-07-14): decide every typeset moment from the
+    # narration itself — date/location stamps, name tags, chapter cards.
+    # Wan renders content and never text; Remotion renders these.
+    try:
+        from . import overlays as _ov
+        plan = _ov.plan(sb)
+        if plan:
+            stats["overlays"] = len(plan)
+            fixes.append(f"overlay director: {len(plan)} typeset moment(s) "
+                         + ", ".join(sorted({p['detector'] for p in plan})))
+    except Exception as exc:  # noqa: BLE001 — never block an import
+        warnings.append(f"overlay director skipped ({type(exc).__name__})")
+
     stats["emphasized"] = sum(1 for s in scenes if s.get("emphasis"))
     stats["scene_fx"] = sum(1 for s in scenes if s.get("fx"))
     report = {"fixes": fixes, "warnings": warnings, "stats": stats,

@@ -117,6 +117,10 @@ DEFAULT_CHANNEL: Dict = {
     "topic_bank": [],
     "seo_keywords": ["documentary", "true story", "explained", "history"],
     "youtube": {},
+    # hands-off publishing default (user, 2026-07-14): every produce
+    # auto-uploads PRIVATE with a scheduled go-public slot once the channel
+    # is connected; app/autopub.py skips quietly until then
+    "auto_upload": {"enabled": True, "hour": 18, "every_days": 1},
 }
 
 

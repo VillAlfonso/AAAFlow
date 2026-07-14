@@ -72,6 +72,7 @@ svg{width:1em;height:1em;display:inline-block;vertical-align:middle}
 .chip{font-size:11px;font-family:var(--font-mono);color:var(--muted);background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:4px 8px}
 .chip-on{color:var(--good);border-color:rgba(116,201,138,.35)}
 .chip-warn{color:var(--warn);border-color:rgba(230,184,75,.35)}
+.chip-off{color:var(--muted);border-style:dashed;opacity:.8}
 
 /* ===== main / topbar ===== */
 .main{display:flex;flex-direction:column;min-width:0;height:100vh}

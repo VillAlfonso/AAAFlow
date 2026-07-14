@@ -1,0 +1,19 @@
+{
+  "media_mix_targets": {
+    "live-footage": [0.20, 0.45],
+    "screenshot": [0.10, 0.40],
+    "3d-render": [0.12, 0.22],
+    "typeset-card": [0.05, 0.15],
+    "real-photo": [0.03, 0.10],
+    "map": [0.01, 0.05]
+  },
+  "onscreen_text_frame_share": [0.75, 0.91],
+  "moves": [
+    {"name": "reconstruction", "executor": "wan-t2v space + ArrowCallout labels"},
+    {"name": "document-dive", "executor": "receipts + archival fetcher + highlight"},
+    {"name": "identity-card", "executor": "refcards with real photos, label mandatory"},
+    {"name": "atmosphere-shot", "executor": "wan-t2v held clip, no text, music only"},
+    {"name": "stamp", "executor": "Remotion SegmentCard on time jumps, with fade"}
+  ],
+  "rules": ["never two consecutive scenes of the same media class outside a sequence", "every visual must read as footage, document, or reconstruction", "name+role tag on every first-mention person", "location+date stamp on every scene change"]
+}

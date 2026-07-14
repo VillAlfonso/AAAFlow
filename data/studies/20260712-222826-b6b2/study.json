@@ -1,0 +1,302 @@
+{
+ "id": "20260712-222826-b6b2",
+ "created": 1783866506.6937275,
+ "status": "ready",
+ "error": null,
+ "input": "@SeriousHistory",
+ "options": {
+  "count": 5,
+  "sampling": "1s",
+  "model": "large-v3",
+  "auto_gather": true
+ },
+ "channel": {
+  "name": "Serious History",
+  "channel_id": "UCXI2sj5kaCfMCkYcGk1m44A",
+  "handle": "@SeriousHistory",
+  "url": "https://www.youtube.com/channel/UCXI2sj5kaCfMCkYcGk1m44A",
+  "subs": 793000,
+  "description": "Subscribe if you like serious history!\n\nWe are a team of history fanatics and animators making stories from history fun to watch!",
+  "keywords": [
+   "Stick Figure Animation",
+   "History",
+   "Edutainment",
+   "Animated History",
+   "Serious History"
+  ],
+  "scanned": 58,
+  "avatar": "avatar.jpg",
+  "banner": "banner.jpg"
+ },
+ "videos": [
+  {
+   "id": "Yctn_C_6cF8",
+   "url": "https://www.youtube.com/watch?v=Yctn_C_6cF8",
+   "title": "Most Epic Deaths in History",
+   "views": 6200000,
+   "duration": 1107.0,
+   "gid": "20260712-222828-ee0f"
+  },
+  {
+   "id": "wSyqqTYqUKo",
+   "url": "https://www.youtube.com/watch?v=wSyqqTYqUKo",
+   "title": "Extreme Vigilante Justice in History",
+   "views": 5900000,
+   "duration": 1742.0,
+   "gid": "20260712-222828-ad91"
+  },
+  {
+   "id": "WolmBrbo9-U",
+   "url": "https://www.youtube.com/watch?v=WolmBrbo9-U",
+   "title": "Your Life as Miyamoto Musashi",
+   "views": 3500000,
+   "duration": 753.0,
+   "gid": "20260712-222828-9481"
+  },
+  {
+   "id": "Aw72njNhTe0",
+   "url": "https://www.youtube.com/watch?v=Aw72njNhTe0",
+   "title": "When Nice People Snapped in History",
+   "views": 3500000,
+   "duration": 993.0,
+   "gid": "20260712-222828-98db"
+  },
+  {
+   "id": "7okOsptc4Tg",
+   "url": "https://www.youtube.com/watch?v=7okOsptc4Tg",
+   "title": "More Nice People Who Snapped in History",
+   "views": 3300000,
+   "duration": 1292.0,
+   "gid": "20260712-222828-61be"
+  },
+  {
+   "id": "tWegzv8Ob6o",
+   "url": "https://www.youtube.com/watch?v=tWegzv8Ob6o",
+   "title": "The Greatest Last Stands in History",
+   "views": 3100000,
+   "duration": 1201.0,
+   "gid": "20260713-224131-375e"
+  },
+  {
+   "id": "LgUtwxHiSKA",
+   "url": "https://www.youtube.com/watch?v=LgUtwxHiSKA",
+   "title": "Craziest 1v1 Fights in History",
+   "views": 3100000,
+   "duration": 1054.0,
+   "gid": "20260713-224131-ebcc"
+  }
+ ],
+ "candidates": [
+  {
+   "id": "Yctn_C_6cF8",
+   "url": "https://www.youtube.com/watch?v=Yctn_C_6cF8",
+   "title": "Most Epic Deaths in History",
+   "views": 6200000,
+   "duration": 1107.0
+  },
+  {
+   "id": "wSyqqTYqUKo",
+   "url": "https://www.youtube.com/watch?v=wSyqqTYqUKo",
+   "title": "Extreme Vigilante Justice in History",
+   "views": 5900000,
+   "duration": 1742.0
+  },
+  {
+   "id": "WolmBrbo9-U",
+   "url": "https://www.youtube.com/watch?v=WolmBrbo9-U",
+   "title": "Your Life as Miyamoto Musashi",
+   "views": 3500000,
+   "duration": 753.0
+  },
+  {
+   "id": "Aw72njNhTe0",
+   "url": "https://www.youtube.com/watch?v=Aw72njNhTe0",
+   "title": "When Nice People Snapped in History",
+   "views": 3500000,
+   "duration": 993.0
+  },
+  {
+   "id": "7okOsptc4Tg",
+   "url": "https://www.youtube.com/watch?v=7okOsptc4Tg",
+   "title": "More Nice People Who Snapped in History",
+   "views": 3300000,
+   "duration": 1292.0
+  },
+  {
+   "id": "tWegzv8Ob6o",
+   "url": "https://www.youtube.com/watch?v=tWegzv8Ob6o",
+   "title": "The Greatest Last Stands in History",
+   "views": 3100000,
+   "duration": 1201.0
+  },
+  {
+   "id": "LgUtwxHiSKA",
+   "url": "https://www.youtube.com/watch?v=LgUtwxHiSKA",
+   "title": "Craziest 1v1 Fights in History",
+   "views": 3100000,
+   "duration": 1054.0
+  },
+  {
+   "id": "0fA_SpTVBnE",
+   "url": "https://www.youtube.com/watch?v=0fA_SpTVBnE",
+   "title": "Extreme Stories of Revenge from History",
+   "views": 2600000,
+   "duration": 1049.0
+  },
+  {
+   "id": "VY1O6B1ZskY",
+   "url": "https://www.youtube.com/watch?v=VY1O6B1ZskY",
+   "title": "Most Epic Revenge Stories in History",
+   "views": 2500000,
+   "duration": 1308.0
+  },
+  {
+   "id": "0aqTbXDLYlQ",
+   "url": "https://www.youtube.com/watch?v=0aqTbXDLYlQ",
+   "title": "Real Life Anti-Heroes in History",
+   "views": 2400000,
+   "duration": 1387.0
+  },
+  {
+   "id": "IFNrKCJAHzE",
+   "url": "https://www.youtube.com/watch?v=IFNrKCJAHzE",
+   "title": "Most Epic Rivalry In History | Richard the Lionheart vs Saladin",
+   "views": 2300000,
+   "duration": 1623.0
+  },
+  {
+   "id": "eeiHv_yOgpE",
+   "url": "https://www.youtube.com/watch?v=eeiHv_yOgpE",
+   "title": "MORE Extreme Stories of Revenge from History",
+   "views": 2000000,
+   "duration": 1169.0
+  },
+  {
+   "id": "huF3KZC8ge4",
+   "url": "https://www.youtube.com/watch?v=huF3KZC8ge4",
+   "title": "Most Epic Survival Stories in History",
+   "views": 1800000,
+   "duration": 1293.0
+  },
+  {
+   "id": "_nCbRHWmr1c",
+   "url": "https://www.youtube.com/watch?v=_nCbRHWmr1c",
+   "title": "Most Legendary Battle in History | Battle of Cannae 216 BC",
+   "views": 1800000,
+   "duration": 1545.0
+  },
+  {
+   "id": "70LNrei3vQw",
+   "url": "https://www.youtube.com/watch?v=70LNrei3vQw",
+   "title": "The Worst Things Genghis Khan did to his Enemies",
+   "views": 1800000,
+   "duration": 790.0
+  },
+  {
+   "id": "HZjbmS_PS0I",
+   "url": "https://www.youtube.com/watch?v=HZjbmS_PS0I",
+   "title": "Most Epic Origin Stories in History",
+   "views": 1700000,
+   "duration": 970.0
+  },
+  {
+   "id": "peVsSYsijV4",
+   "url": "https://www.youtube.com/watch?v=peVsSYsijV4",
+   "title": "Worst Deaths in Human History",
+   "views": 1700000,
+   "duration": 748.0
+  },
+  {
+   "id": "TgOpDwgFBbw",
+   "url": "https://www.youtube.com/watch?v=TgOpDwgFBbw",
+   "title": "Greatest Comeback in History | Byzantine Sassanid War",
+   "views": 1600000,
+   "duration": 1073.0
+  },
+  {
+   "id": "AIWpLxBH5Zw",
+   "url": "https://www.youtube.com/watch?v=AIWpLxBH5Zw",
+   "title": "Most Epic Deaths in History (pt. 2)",
+   "views": 1600000,
+   "duration": 1030.0
+  },
+  {
+   "id": "RlJfvq4CzCQ",
+   "url": "https://www.youtube.com/watch?v=RlJfvq4CzCQ",
+   "title": "Your Life as Adrian Carton de Wiart | The Unkillable Soldier",
+   "views": 1500000,
+   "duration": 648.0
+  },
+  {
+   "id": "0Sa7uTLKwfI",
+   "url": "https://www.youtube.com/watch?v=0Sa7uTLKwfI",
+   "title": "People who Refused to Die in History",
+   "views": 1400000,
+   "duration": 1010.0
+  },
+  {
+   "id": "6CbaadPhca8",
+   "url": "https://www.youtube.com/watch?v=6CbaadPhca8",
+   "title": "When Alexander the Great Took Things Personally...",
+   "views": 1400000,
+   "duration": 1112.0
+  },
+  {
+   "id": "dE3wNgaCEDQ",
+   "url": "https://www.youtube.com/watch?v=dE3wNgaCEDQ",
+   "title": "Disturbing Facts About Ancient Japan",
+   "views": 1400000,
+   "duration": 663.0
+  },
+  {
+   "id": "dfv8SzRNtKw",
+   "url": "https://www.youtube.com/watch?v=dfv8SzRNtKw",
+   "title": "Most Epic Comebacks in History",
+   "views": 1300000,
+   "duration": 1048.0
+  },
+  {
+   "id": "sTA1iFBS6ig",
+   "url": "https://www.youtube.com/watch?v=sTA1iFBS6ig",
+   "title": "Most Epic Upset in Medieval History | Battle of Agincourt 1415",
+   "views": 1200000,
+   "duration": 1036.0
+  },
+  {
+   "id": "gJUTifMHBXM",
+   "url": "https://www.youtube.com/watch?v=gJUTifMHBXM",
+   "title": "Napoleon's Epic Final Battle | Battle of Waterloo 1815",
+   "views": 1200000,
+   "duration": 1291.0
+  },
+  {
+   "id": "R11k4Fbicrs",
+   "url": "https://www.youtube.com/watch?v=R11k4Fbicrs",
+   "title": "The Most Disturbing Crusades",
+   "views": 1200000,
+   "duration": 1085.0
+  },
+  {
+   "id": "avDokCr9iDs",
+   "url": "https://www.youtube.com/watch?v=avDokCr9iDs",
+   "title": "Rome's Greatest Revenge | Scipio Vs Hannibal (Punic Wars)",
+   "views": 1100000,
+   "duration": 2139.0
+  },
+  {
+   "id": "sJjKkFzYTXg",
+   "url": "https://www.youtube.com/watch?v=sJjKkFzYTXg",
+   "title": "Extreme Stories of Betrayal from History",
+   "views": 1100000,
+   "duration": 1159.0
+  },
+  {
+   "id": "IZoxr2ZdJpM",
+   "url": "https://www.youtube.com/watch?v=IZoxr2ZdJpM",
+   "title": "Most Epic Last Stands in History",
+   "views": 1000000,
+   "duration": 1352.0
+  }
+ ],
+ "job_id": "7dcb2f67e3fb"
+}

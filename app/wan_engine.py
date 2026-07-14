@@ -24,6 +24,17 @@ from . import config
 from .comfy_engine import comfy_engine
 
 
+def _no_text(negative: Optional[str]) -> str:
+    """Every Wan render carries the no-text negative (user rule, 2026-07-14:
+    "wan should only do content never the texts"). Text is Remotion's job."""
+    w = config.WAN
+    base = negative if negative is not None else w["negative"]
+    block = w.get("negative_text") or ""
+    if block and block.split(",")[0].strip() not in base:
+        base = ", ".join(p for p in (base, block) if p)
+    return base
+
+
 def _snap_length(seconds: float, fps: int) -> int:
     """Wan needs length = 4n+1. Snap a duration to a valid frame count."""
     seconds = max(0.5, min(float(seconds), float(config.WAN["max_seconds"])))
@@ -51,41 +62,56 @@ class WanEngine:
         }
         return {"ready": config.wan_ready(), **present}
 
-    def _workflow(self, prompt: str, negative: str, *, in_name: str, width: int,
-                  height: int, length: int, fps: int, seed: int,
-                  profile: Dict) -> Dict:
+    def _workflow(self, prompt: str, negative: str, *, in_name: Optional[str],
+                  width: int, height: int, length: int, fps: int, seed: int,
+                  profile: Dict, t2v: bool = False,
+                  extra_loras: Optional[list] = None) -> Dict:
         w = config.WAN
         s = int(profile["steps"]); b = int(profile["boundary"])
         cfg = float(profile["cfg"]); use_lora = bool(profile.get("use_lora"))
+        unet_h = w["t2v_high_noise"] if t2v else w["high_noise"]
+        unet_l = w["t2v_low_noise"] if t2v else w["low_noise"]
+        lora_h = w["t2v_lora_high"] if t2v else w["lora_high"]
+        lora_l = w["t2v_lora_low"] if t2v else w["lora_low"]
         wf = {
             "clip": {"class_type": "CLIPLoader",
                      "inputs": {"clip_name": w["text_encoder"], "type": "wan", "device": "default"}},
             "vae": {"class_type": "VAELoader", "inputs": {"vae_name": w["vae"]}},
             "unet_h": {"class_type": "UNETLoader",
-                       "inputs": {"unet_name": w["high_noise"], "weight_dtype": "default"}},
+                       "inputs": {"unet_name": unet_h, "weight_dtype": "default"}},
             "unet_l": {"class_type": "UNETLoader",
-                       "inputs": {"unet_name": w["low_noise"], "weight_dtype": "default"}},
+                       "inputs": {"unet_name": unet_l, "weight_dtype": "default"}},
             "pos": {"class_type": "CLIPTextEncode", "inputs": {"clip": ["clip", 0], "text": prompt}},
             "neg": {"class_type": "CLIPTextEncode", "inputs": {"clip": ["clip", 0], "text": negative}},
-            "img": {"class_type": "LoadImage", "inputs": {"image": in_name}},
-            "i2v": {"class_type": "WanImageToVideo",
-                    "inputs": {"positive": ["pos", 0], "negative": ["neg", 0], "vae": ["vae", 0],
-                               "width": int(width), "height": int(height), "length": int(length),
-                               "batch_size": 1, "start_image": ["img", 0]}},
         }
+        if t2v:
+            # pure text conditioning; the latent is an empty video canvas
+            wf["i2v"] = {"class_type": "EmptyHunyuanLatentVideo",
+                         "inputs": {"width": int(width), "height": int(height),
+                                    "length": int(length), "batch_size": 1}}
+            cond_pos, cond_neg, latent = ["pos", 0], ["neg", 0], ["i2v", 0]
+        else:
+            wf["img"] = {"class_type": "LoadImage", "inputs": {"image": in_name}}
+            wf["i2v"] = {"class_type": "WanImageToVideo",
+                         "inputs": {"positive": ["pos", 0], "negative": ["neg", 0], "vae": ["vae", 0],
+                                    "width": int(width), "height": int(height), "length": int(length),
+                                    "batch_size": 1, "start_image": ["img", 0]}}
+            cond_pos, cond_neg, latent = ["i2v", 0], ["i2v", 1], ["i2v", 2]
         src_h, src_l = "unet_h", "unet_l"
         if use_lora:                      # balanced/fast: 4-step lightning distill
             wf["lora_h"] = {"class_type": "LoraLoaderModelOnly",
-                            "inputs": {"model": ["unet_h", 0], "lora_name": w["lora_high"],
+                            "inputs": {"model": ["unet_h", 0], "lora_name": lora_h,
                                        "strength_model": float(w["lora_strength"])}}
             wf["lora_l"] = {"class_type": "LoraLoaderModelOnly",
-                            "inputs": {"model": ["unet_l", 0], "lora_name": w["lora_low"],
+                            "inputs": {"model": ["unet_l", 0], "lora_name": lora_l,
                                        "strength_model": float(w["lora_strength"])}}
             src_h, src_l = "lora_h", "lora_l"
-        # Optional extra LoRAs (e.g. a HighRes-Fix anti-melt patch): drop the
-        # file in ComfyUI models/loras and list it in config.WAN["extra_loras"]
-        # as {"file": name, "strength": 1.0, "experts": "both"|"high"|"low"}.
-        for i, xl in enumerate(w.get("extra_loras") or []):
+        # Optional extra LoRAs: a channel's own trained style LoRA (channel
+        # defaults "wan_loras", passed in here) or a global patch listed in
+        # config.WAN["extra_loras"]. Each: {"file": name, "strength": 1.0,
+        # "experts": "both"|"high"|"low"}.
+        for i, xl in enumerate(list(extra_loras or [])
+                               + list(w.get("extra_loras") or [])):
             name = xl.get("file")
             if not name:
                 continue
@@ -110,16 +136,16 @@ class WanEngine:
                    "inputs": {"model": ["msm_h", 0], "add_noise": "enable",
                               "noise_seed": int(seed) & 0xFFFFFFFFFFFFFF, "steps": s,
                               "cfg": cfg, "sampler_name": w["sampler"],
-                              "scheduler": w["scheduler"], "positive": ["i2v", 0],
-                              "negative": ["i2v", 1], "latent_image": ["i2v", 2],
+                              "scheduler": w["scheduler"], "positive": cond_pos,
+                              "negative": cond_neg, "latent_image": latent,
                               "start_at_step": 0, "end_at_step": b,
                               "return_with_leftover_noise": "enable"}},
             "k2": {"class_type": "KSamplerAdvanced",
                    "inputs": {"model": ["msm_l", 0], "add_noise": "disable",
                               "noise_seed": int(seed) & 0xFFFFFFFFFFFFFF, "steps": s,
                               "cfg": cfg, "sampler_name": w["sampler"],
-                              "scheduler": w["scheduler"], "positive": ["i2v", 0],
-                              "negative": ["i2v", 1], "latent_image": ["k1", 0],
+                              "scheduler": w["scheduler"], "positive": cond_pos,
+                              "negative": cond_neg, "latent_image": ["k1", 0],
                               "start_at_step": b, "end_at_step": s,
                               "return_with_leftover_noise": "disable"}},
         })
@@ -146,7 +172,7 @@ class WanEngine:
         width = int(width or profile["width"]); height = int(height or profile["height"])
         fps = int(fps or w["fps"])
         length = _snap_length(seconds or w["default_seconds"], fps)
-        negative = negative if negative is not None else w["negative"]
+        negative = _no_text(negative)          # content only, never text
         comfy_engine.ensure_running(progress=progress)
         in_name = self._upload(image_path)
         wf = self._workflow(prompt, negative, in_name=in_name, width=width, height=height,
@@ -161,6 +187,40 @@ class WanEngine:
             wf, want=("images",), client_id=self._cid, timeout=5400,
             progress=progress, prange=(0.15, 0.95),
             stage=f"Animating (Wan 2.2 14B · {quality or w['quality']})")
+        return comfy_engine.fetch(infos[0])
+
+    def generate(self, prompt: str, *, seconds: Optional[float] = None,
+                 negative: Optional[str] = None, width: Optional[int] = None,
+                 height: Optional[int] = None, fps: Optional[int] = None,
+                 seed: int = 0, quality: Optional[str] = None, progress=None,
+                 save_graph: Optional[Path] = None,
+                 extra_loras: Optional[list] = None) -> bytes:
+        """Text-to-video: the scene is BORN as motion, no krea2 still first
+        (user, 2026-07-13: i2v 'always glitches' animating flat stills)."""
+        if not config.wan_t2v_ready():
+            raise RuntimeError("Wan 2.2 t2v weights are missing (experts + "
+                               "t2v lightning LoRAs in ComfyUI models).")
+        w = config.WAN
+        profile = dict(w["quality_profiles"].get(quality or w["quality"],
+                                                 w["quality_profiles"]["max"]))
+        width = int(width or profile["width"]); height = int(height or profile["height"])
+        fps = int(fps or w["fps"])
+        length = _snap_length(seconds or w["default_seconds"], fps)
+        negative = _no_text(negative)          # content only, never text
+        comfy_engine.ensure_running(progress=progress)
+        wf = self._workflow(prompt, negative, in_name=None, width=width,
+                            height=height, length=length, fps=fps, seed=seed,
+                            profile=profile, t2v=True, extra_loras=extra_loras)
+        if save_graph is not None:
+            try:
+                p = Path(save_graph); p.parent.mkdir(parents=True, exist_ok=True)
+                p.write_text(json.dumps(wf, indent=2), encoding="utf-8")
+            except Exception:                      # graph-saving must never fail a render
+                pass
+        infos = comfy_engine.run_workflow(
+            wf, want=("images",), client_id=self._cid, timeout=5400,
+            progress=progress, prange=(0.15, 0.95),
+            stage=f"Generating (Wan 2.2 t2v 14B · {quality or w['quality']})")
         return comfy_engine.fetch(infos[0])
 
     def _upload(self, image_path: str) -> str:

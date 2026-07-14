@@ -67,6 +67,15 @@ def release_gatherer() -> bool:
         return False
 
 
+def release_vlm() -> bool:
+    try:
+        from . import vlm
+        vlm.unload()
+        return False  # frees Ollama-side VRAM; nothing held in this process
+    except Exception:  # noqa: BLE001
+        return False
+
+
 def release_depth() -> bool:
     try:
         from .parallax import parallax_engine
@@ -133,6 +142,7 @@ def release_all(reason: str = "") -> Dict:
         freed.append("whisper")
     if release_gatherer():
         freed.append("gatherer")
+    release_vlm()
     if release_depth():
         freed.append("depth")
     if release_diffusers():

@@ -1,0 +1,56 @@
+{
+  "id": "fathom",
+  "name": "Fathom",
+  "niche": "Investigative true-story documentaries: manhunts, heists, hacks and intelligence operations, reconstructed with maps, documents and archival evidence",
+  "tagline": "True stories, properly investigated.",
+  "audience": "Viewers who want long-form armchair documentaries with journalistic rigor; fans of investigative internet-mystery storytelling",
+  "cadence": "1 video / week",
+  "brief": "Drop into a live moment with a timestamp and a place, then zoom out to the stakes. Present tense. Reconstruct events with maps, documents and named actors. Hedge honestly where evidence is thin. End on a thought, never a summary.",
+  "topic_bank": [
+    "The insider who stole 80 million from a casino with a fish tank thermometer",
+    "How a teenager grounded 1,500 flights with a phone call",
+    "The hunt for the hacker who stole half of Twitter",
+    "How one analyst found a spy ring in plain sight",
+    "The heist crew that tunneled into a bank vault over a holiday weekend"
+  ],
+  "seo_keywords": [],
+  "defaults": {
+    "image_model": "krea2",
+    "animate_engine": "t2v",
+    "quality": "balanced",
+    "preset": "cinematic",
+    "authoring": "assisted",
+    "coverage": "all",
+    "grade": "cinematic",
+    "voice": "Aiden",
+    "language": "English",
+    "voice_speed": 1.28,
+    "voice_gap_ms": 200,
+    "voice_paragraph_gap_ms": 550,
+    "voice_instruct": "Calm, precise male documentary narrator, mid-low register, measured newsreader trust. Present tense storytelling with real pauses: a beat after each reveal, a longer beat before chapter turns. Slightly tighter pace during escalation, settling quiet and thoughtful at the end with falling cadence. Dry humor read completely straight. Quoted dialogue gets a subtle cadence shift, never a character voice.",
+    "voice_humanize": "natural",
+    "voice_outro": "on",
+    "music_vibe": "somber investigative ambient, quiet pulse, restrained tension, minimal piano and low strings",
+    "style_suffix": "3d mannequin documentary, faceless matte humanoid mannequin figures with no facial features, stylized 3d reconstruction environment, dark low-key lighting, deep shadows, one red rim-light accent, desaturated cinematic documentary grade, filmic grain",
+    "negative_style": "cartoon, anime, illustration, flat drawing, detailed human faces, facial features, oversaturated, neon colors, bright cheerful lighting, watermark, readable text, gibberish letters, low quality, deformed",
+    "wan_loras": [
+      {
+        "file": "fern_style_low_v2.safetensors",
+        "strength": 0.85,
+        "experts": "low"
+      }
+    ]
+  },
+  "youtube": {},
+  "stats": {
+    "projects": 1,
+    "last_project": "89a7cc9961a9"
+  },
+  "created": 1783986202.7200952,
+  "updated": 1784017500.8927844,
+  "auto_upload": {
+    "enabled": true,
+    "hour": 18,
+    "every_days": 1
+  }
+}

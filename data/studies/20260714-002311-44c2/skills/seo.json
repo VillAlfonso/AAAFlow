@@ -1,0 +1,11 @@
+{
+  "tags": [],
+  "tags_rule": "ship ZERO tags on this channel (all 5 studied videos have empty tag lists)",
+  "description": {
+    "order": ["sponsor_line_if_any", "one_line_story_summary", "optional_related_link", "sources_block", "music_credits", "divider", "channel_tagline"],
+    "summary_template": "This is the (unbelievable) story of {subject}.",
+    "sources": "public research doc link preferred; else inline list under 'Sources:'",
+    "banned": ["hashtags", "chapter timestamps", "subscribe lines", "emoji", "keyword stuffing"]
+  },
+  "aaaflow_mapping": {"packaging_chapters": false, "packaging_hashtags": false, "tags_from_entities": false}
+}

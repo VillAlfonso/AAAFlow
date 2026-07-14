@@ -1,0 +1,1003 @@
+{
+  "1": {
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "krea2_turbo_fp8_scaled.safetensors",
+      "weight_dtype": "default"
+    }
+  },
+  "2": {
+    "class_type": "CLIPLoader",
+    "inputs": {
+      "clip_name": "qwen3vl_4b_fp8_scaled.safetensors",
+      "type": "krea2",
+      "device": "default"
+    }
+  },
+  "3": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "qwen_image_vae.safetensors"
+    }
+  },
+  "100": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "2",
+        0
+      ],
+      "text": "a single bold iconic channel emblem or mascot logo mark, centered medallion, minimal, symmetrical, high contrast, plain dark background. hand-inked storybook comic illustration, warm cream paper texture background, thick charcoal ink outlines, flat muted two-tone shading in dusty blue grey and umber, one dried-blood red accent object per scene, pale expressive round faces with simple dot eyes on slim dark limbs, soft painted watercolor backdrops, generous negative space, dry deadpan humor, clean uncluttered composition"
+    }
+  },
+  "101": {
+    "class_type": "ConditioningKrea2Rebalance",
+    "inputs": {
+      "conditioning": [
+        "100",
+        0
+      ],
+      "multiplier": 4.0,
+      "per_layer_weights": "1.0,1.0,1.0,1.0,1.0,1.0,1.0,2.5,5.0,1.1,4.0,1.0"
+    }
+  },
+  "102": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "2",
+        0
+      ],
+      "text": "photorealistic, 3d render, neon colors, oversaturated, realistic human faces, readable text, gibberish letters, watermark, cluttered, glossy plastic, modern clothing"
+    }
+  },
+  "103": {
+    "class_type": "ConditioningZeroOut",
+    "inputs": {
+      "conditioning": [
+        "100",
+        0
+      ]
+    }
+  },
+  "104": {
+    "class_type": "EmptyLatentImage",
+    "inputs": {
+      "width": 1024,
+      "height": 1024,
+      "batch_size": 1
+    }
+  },
+  "105": {
+    "class_type": "KSampler",
+    "inputs": {
+      "model": [
+        "1",
+        0
+      ],
+      "positive": [
+        "101",
+        0
+      ],
+      "negative": [
+        "103",
+        0
+      ],
+      "latent_image": [
+        "104",
+        0
+      ],
+      "seed": 1316,
+      "steps": 8,
+      "cfg": 1.0,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 1.0
+    }
+  },
+  "106": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "105",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ]
+    }
+  },
+  "107": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "images": [
+        "106",
+        0
+      ],
+      "filename_prefix": "unruly/profile"
+    }
+  },
+  "110": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "2",
+        0
+      ],
+      "text": "a wide panoramic cinematic establishing hero image for a channel about Extreme true human stories from history, outlaws, revenge, last stands and people pushed too far, told as deadpan hand-inked comic storytelling, deep empty center with room for the channel name, atmospheric, no readable text. hand-inked storybook comic illustration, warm cream paper texture background, thick charcoal ink outlines, flat muted two-tone shading in dusty blue grey and umber, one dried-blood red accent object per scene, pale expressive round faces with simple dot eyes on slim dark limbs, soft painted watercolor backdrops, generous negative space, dry deadpan humor, clean uncluttered composition"
+    }
+  },
+  "111": {
+    "class_type": "ConditioningKrea2Rebalance",
+    "inputs": {
+      "conditioning": [
+        "110",
+        0
+      ],
+      "multiplier": 4.0,
+      "per_layer_weights": "1.0,1.0,1.0,1.0,1.0,1.0,1.0,2.5,5.0,1.1,4.0,1.0"
+    }
+  },
+  "112": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "2",
+        0
+      ],
+      "text": "photorealistic, 3d render, neon colors, oversaturated, realistic human faces, readable text, gibberish letters, watermark, cluttered, glossy plastic, modern clothing"
+    }
+  },
+  "113": {
+    "class_type": "ConditioningZeroOut",
+    "inputs": {
+      "conditioning": [
+        "110",
+        0
+      ]
+    }
+  },
+  "114": {
+    "class_type": "EmptyLatentImage",
+    "inputs": {
+      "width": 1280,
+      "height": 720,
+      "batch_size": 1
+    }
+  },
+  "115": {
+    "class_type": "KSampler",
+    "inputs": {
+      "model": [
+        "1",
+        0
+      ],
+      "positive": [
+        "111",
+        0
+      ],
+      "negative": [
+        "113",
+        0
+      ],
+      "latent_image": [
+        "114",
+        0
+      ],
+      "seed": 2023,
+      "steps": 8,
+      "cfg": 1.0,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 1.0
+    }
+  },
+  "116": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "115",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ]
+    }
+  },
+  "117": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "images": [
+        "116",
+        0
+      ],
+      "filename_prefix": "unruly/banner"
+    }
+  },
+  "120": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "2",
+        0
+      ],
+      "text": "one striking hero subject for a video about Extreme true human stories from history, outlaws, revenge, last stands and people pushed too far, told as deadpan hand-inked comic storytelling, dramatic lighting, bold and clickable, high contrast, large empty space in the upper-left for a title. hand-inked storybook comic illustration, warm cream paper texture background, thick charcoal ink outlines, flat muted two-tone shading in dusty blue grey and umber, one dried-blood red accent object per scene, pale expressive round faces with simple dot eyes on slim dark limbs, soft painted watercolor backdrops, generous negative space, dry deadpan humor, clean uncluttered composition"
+    }
+  },
+  "121": {
+    "class_type": "ConditioningKrea2Rebalance",
+    "inputs": {
+      "conditioning": [
+        "120",
+        0
+      ],
+      "multiplier": 4.0,
+      "per_layer_weights": "1.0,1.0,1.0,1.0,1.0,1.0,1.0,2.5,5.0,1.1,4.0,1.0"
+    }
+  },
+  "122": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "2",
+        0
+      ],
+      "text": "photorealistic, 3d render, neon colors, oversaturated, realistic human faces, readable text, gibberish letters, watermark, cluttered, glossy plastic, modern clothing"
+    }
+  },
+  "123": {
+    "class_type": "ConditioningZeroOut",
+    "inputs": {
+      "conditioning": [
+        "120",
+        0
+      ]
+    }
+  },
+  "124": {
+    "class_type": "EmptyLatentImage",
+    "inputs": {
+      "width": 1280,
+      "height": 720,
+      "batch_size": 1
+    }
+  },
+  "125": {
+    "class_type": "KSampler",
+    "inputs": {
+      "model": [
+        "1",
+        0
+      ],
+      "positive": [
+        "121",
+        0
+      ],
+      "negative": [
+        "123",
+        0
+      ],
+      "latent_image": [
+        "124",
+        0
+      ],
+      "seed": 7780,
+      "steps": 8,
+      "cfg": 1.0,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 1.0
+    }
+  },
+  "126": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "125",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ]
+    }
+  },
+  "127": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "images": [
+        "126",
+        0
+      ],
+      "filename_prefix": "unruly/thumbnail"
+    }
+  },
+  "130": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "2",
+        0
+      ],
+      "text": "a full-body character reference of the channel's recurring on-screen host/narrator for a show about Extreme true human stories from history, outlaws, revenge, last stands and people pushed too far, told as deadpan hand-inked comic storytelling, a distinctive memorable protagonist with a strong silhouette and signature costume, confident signature pose, single spotlight, plain backdrop, character sheet. hand-inked storybook comic illustration, warm cream paper texture background, thick charcoal ink outlines, flat muted two-tone shading in dusty blue grey and umber, one dried-blood red accent object per scene, pale expressive round faces with simple dot eyes on slim dark limbs, soft painted watercolor backdrops, generous negative space, dry deadpan humor, clean uncluttered composition"
+    }
+  },
+  "131": {
+    "class_type": "ConditioningKrea2Rebalance",
+    "inputs": {
+      "conditioning": [
+        "130",
+        0
+      ],
+      "multiplier": 4.0,
+      "per_layer_weights": "1.0,1.0,1.0,1.0,1.0,1.0,1.0,2.5,5.0,1.1,4.0,1.0"
+    }
+  },
+  "132": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "2",
+        0
+      ],
+      "text": "photorealistic, 3d render, neon colors, oversaturated, realistic human faces, readable text, gibberish letters, watermark, cluttered, glossy plastic, modern clothing"
+    }
+  },
+  "133": {
+    "class_type": "ConditioningZeroOut",
+    "inputs": {
+      "conditioning": [
+        "130",
+        0
+      ]
+    }
+  },
+  "134": {
+    "class_type": "EmptyLatentImage",
+    "inputs": {
+      "width": 1024,
+      "height": 1280,
+      "batch_size": 1
+    }
+  },
+  "135": {
+    "class_type": "KSampler",
+    "inputs": {
+      "model": [
+        "1",
+        0
+      ],
+      "positive": [
+        "131",
+        0
+      ],
+      "negative": [
+        "133",
+        0
+      ],
+      "latent_image": [
+        "134",
+        0
+      ],
+      "seed": 5153,
+      "steps": 8,
+      "cfg": 1.0,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 1.0
+    }
+  },
+  "136": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "135",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ]
+    }
+  },
+  "137": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "images": [
+        "136",
+        0
+      ],
+      "filename_prefix": "unruly/host"
+    }
+  },
+  "140": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "2",
+        0
+      ],
+      "text": "a haunting character portrait of a recurring figure from the world of Extreme true human stories from history, outlaws, revenge, last stands and people pushed too far, told as deadpan hand-inked comic storytelling, expressive face, in-world costume, dramatic key light, emotive, character sheet. hand-inked storybook comic illustration, warm cream paper texture background, thick charcoal ink outlines, flat muted two-tone shading in dusty blue grey and umber, one dried-blood red accent object per scene, pale expressive round faces with simple dot eyes on slim dark limbs, soft painted watercolor backdrops, generous negative space, dry deadpan humor, clean uncluttered composition"
+    }
+  },
+  "141": {
+    "class_type": "ConditioningKrea2Rebalance",
+    "inputs": {
+      "conditioning": [
+        "140",
+        0
+      ],
+      "multiplier": 4.0,
+      "per_layer_weights": "1.0,1.0,1.0,1.0,1.0,1.0,1.0,2.5,5.0,1.1,4.0,1.0"
+    }
+  },
+  "142": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "2",
+        0
+      ],
+      "text": "photorealistic, 3d render, neon colors, oversaturated, realistic human faces, readable text, gibberish letters, watermark, cluttered, glossy plastic, modern clothing"
+    }
+  },
+  "143": {
+    "class_type": "ConditioningZeroOut",
+    "inputs": {
+      "conditioning": [
+        "140",
+        0
+      ]
+    }
+  },
+  "144": {
+    "class_type": "EmptyLatentImage",
+    "inputs": {
+      "width": 1024,
+      "height": 1280,
+      "batch_size": 1
+    }
+  },
+  "145": {
+    "class_type": "KSampler",
+    "inputs": {
+      "model": [
+        "1",
+        0
+      ],
+      "positive": [
+        "141",
+        0
+      ],
+      "negative": [
+        "143",
+        0
+      ],
+      "latent_image": [
+        "144",
+        0
+      ],
+      "seed": 5154,
+      "steps": 8,
+      "cfg": 1.0,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 1.0
+    }
+  },
+  "146": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "145",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ]
+    }
+  },
+  "147": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "images": [
+        "146",
+        0
+      ],
+      "filename_prefix": "unruly/character"
+    }
+  },
+  "150": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "2",
+        0
+      ],
+      "text": "a bold YouTube thumbnail template for a video about Extreme true human stories from history, outlaws, revenge, last stands and people pushed too far, told as deadpan hand-inked comic storytelling: one intense reacting face in the dark, extreme close-up, dramatic rim light, huge clean negative space on one side for a big title, ultra high contrast, clickable. hand-inked storybook comic illustration, warm cream paper texture background, thick charcoal ink outlines, flat muted two-tone shading in dusty blue grey and umber, one dried-blood red accent object per scene, pale expressive round faces with simple dot eyes on slim dark limbs, soft painted watercolor backdrops, generous negative space, dry deadpan humor, clean uncluttered composition"
+    }
+  },
+  "151": {
+    "class_type": "ConditioningKrea2Rebalance",
+    "inputs": {
+      "conditioning": [
+        "150",
+        0
+      ],
+      "multiplier": 4.0,
+      "per_layer_weights": "1.0,1.0,1.0,1.0,1.0,1.0,1.0,2.5,5.0,1.1,4.0,1.0"
+    }
+  },
+  "152": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "2",
+        0
+      ],
+      "text": "photorealistic, 3d render, neon colors, oversaturated, realistic human faces, readable text, gibberish letters, watermark, cluttered, glossy plastic, modern clothing"
+    }
+  },
+  "153": {
+    "class_type": "ConditioningZeroOut",
+    "inputs": {
+      "conditioning": [
+        "150",
+        0
+      ]
+    }
+  },
+  "154": {
+    "class_type": "EmptyLatentImage",
+    "inputs": {
+      "width": 1280,
+      "height": 720,
+      "batch_size": 1
+    }
+  },
+  "155": {
+    "class_type": "KSampler",
+    "inputs": {
+      "model": [
+        "1",
+        0
+      ],
+      "positive": [
+        "151",
+        0
+      ],
+      "negative": [
+        "153",
+        0
+      ],
+      "latent_image": [
+        "154",
+        0
+      ],
+      "seed": 8804,
+      "steps": 8,
+      "cfg": 1.0,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 1.0
+    }
+  },
+  "156": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "155",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ]
+    }
+  },
+  "157": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "images": [
+        "156",
+        0
+      ],
+      "filename_prefix": "unruly/thumb_face"
+    }
+  },
+  "160": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "2",
+        0
+      ],
+      "text": "a bold YouTube thumbnail template for a video about Extreme true human stories from history, outlaws, revenge, last stands and people pushed too far, told as deadpan hand-inked comic storytelling: a single mysterious subject about to be revealed under a hard spotlight, deep shadow, empty upper space for a title, high contrast, clickable. hand-inked storybook comic illustration, warm cream paper texture background, thick charcoal ink outlines, flat muted two-tone shading in dusty blue grey and umber, one dried-blood red accent object per scene, pale expressive round faces with simple dot eyes on slim dark limbs, soft painted watercolor backdrops, generous negative space, dry deadpan humor, clean uncluttered composition"
+    }
+  },
+  "161": {
+    "class_type": "ConditioningKrea2Rebalance",
+    "inputs": {
+      "conditioning": [
+        "160",
+        0
+      ],
+      "multiplier": 4.0,
+      "per_layer_weights": "1.0,1.0,1.0,1.0,1.0,1.0,1.0,2.5,5.0,1.1,4.0,1.0"
+    }
+  },
+  "162": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "2",
+        0
+      ],
+      "text": "photorealistic, 3d render, neon colors, oversaturated, realistic human faces, readable text, gibberish letters, watermark, cluttered, glossy plastic, modern clothing"
+    }
+  },
+  "163": {
+    "class_type": "ConditioningZeroOut",
+    "inputs": {
+      "conditioning": [
+        "160",
+        0
+      ]
+    }
+  },
+  "164": {
+    "class_type": "EmptyLatentImage",
+    "inputs": {
+      "width": 1280,
+      "height": 720,
+      "batch_size": 1
+    }
+  },
+  "165": {
+    "class_type": "KSampler",
+    "inputs": {
+      "model": [
+        "1",
+        0
+      ],
+      "positive": [
+        "161",
+        0
+      ],
+      "negative": [
+        "163",
+        0
+      ],
+      "latent_image": [
+        "164",
+        0
+      ],
+      "seed": 8805,
+      "steps": 8,
+      "cfg": 1.0,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 1.0
+    }
+  },
+  "166": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "165",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ]
+    }
+  },
+  "167": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "images": [
+        "166",
+        0
+      ],
+      "filename_prefix": "unruly/thumb_reveal"
+    }
+  },
+  "170": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "2",
+        0
+      ],
+      "text": "a cinematic wide establishing shot that sets the mood of a story about Extreme true human stories from history, outlaws, revenge, last stands and people pushed too far, told as deadpan hand-inked comic storytelling, atmospheric depth, deserted, no people, no readable text. hand-inked storybook comic illustration, warm cream paper texture background, thick charcoal ink outlines, flat muted two-tone shading in dusty blue grey and umber, one dried-blood red accent object per scene, pale expressive round faces with simple dot eyes on slim dark limbs, soft painted watercolor backdrops, generous negative space, dry deadpan humor, clean uncluttered composition"
+    }
+  },
+  "171": {
+    "class_type": "ConditioningKrea2Rebalance",
+    "inputs": {
+      "conditioning": [
+        "170",
+        0
+      ],
+      "multiplier": 4.0,
+      "per_layer_weights": "1.0,1.0,1.0,1.0,1.0,1.0,1.0,2.5,5.0,1.1,4.0,1.0"
+    }
+  },
+  "172": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "2",
+        0
+      ],
+      "text": "photorealistic, 3d render, neon colors, oversaturated, realistic human faces, readable text, gibberish letters, watermark, cluttered, glossy plastic, modern clothing"
+    }
+  },
+  "173": {
+    "class_type": "ConditioningZeroOut",
+    "inputs": {
+      "conditioning": [
+        "170",
+        0
+      ]
+    }
+  },
+  "174": {
+    "class_type": "EmptyLatentImage",
+    "inputs": {
+      "width": 1280,
+      "height": 720,
+      "batch_size": 1
+    }
+  },
+  "175": {
+    "class_type": "KSampler",
+    "inputs": {
+      "model": [
+        "1",
+        0
+      ],
+      "positive": [
+        "171",
+        0
+      ],
+      "negative": [
+        "173",
+        0
+      ],
+      "latent_image": [
+        "174",
+        0
+      ],
+      "seed": 4004,
+      "steps": 8,
+      "cfg": 1.0,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 1.0
+    }
+  },
+  "176": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "175",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ]
+    }
+  },
+  "177": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "images": [
+        "176",
+        0
+      ],
+      "filename_prefix": "unruly/ambiance_wide"
+    }
+  },
+  "180": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "2",
+        0
+      ],
+      "text": "a dramatic extreme close-up of a single meaningful object from a story about Extreme true human stories from history, outlaws, revenge, last stands and people pushed too far, told as deadpan hand-inked comic storytelling, shallow focus, moody, no people. hand-inked storybook comic illustration, warm cream paper texture background, thick charcoal ink outlines, flat muted two-tone shading in dusty blue grey and umber, one dried-blood red accent object per scene, pale expressive round faces with simple dot eyes on slim dark limbs, soft painted watercolor backdrops, generous negative space, dry deadpan humor, clean uncluttered composition"
+    }
+  },
+  "181": {
+    "class_type": "ConditioningKrea2Rebalance",
+    "inputs": {
+      "conditioning": [
+        "180",
+        0
+      ],
+      "multiplier": 4.0,
+      "per_layer_weights": "1.0,1.0,1.0,1.0,1.0,1.0,1.0,2.5,5.0,1.1,4.0,1.0"
+    }
+  },
+  "182": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "2",
+        0
+      ],
+      "text": "photorealistic, 3d render, neon colors, oversaturated, realistic human faces, readable text, gibberish letters, watermark, cluttered, glossy plastic, modern clothing"
+    }
+  },
+  "183": {
+    "class_type": "ConditioningZeroOut",
+    "inputs": {
+      "conditioning": [
+        "180",
+        0
+      ]
+    }
+  },
+  "184": {
+    "class_type": "EmptyLatentImage",
+    "inputs": {
+      "width": 1280,
+      "height": 720,
+      "batch_size": 1
+    }
+  },
+  "185": {
+    "class_type": "KSampler",
+    "inputs": {
+      "model": [
+        "1",
+        0
+      ],
+      "positive": [
+        "181",
+        0
+      ],
+      "negative": [
+        "183",
+        0
+      ],
+      "latent_image": [
+        "184",
+        0
+      ],
+      "seed": 4005,
+      "steps": 8,
+      "cfg": 1.0,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 1.0
+    }
+  },
+  "186": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "185",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ]
+    }
+  },
+  "187": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "images": [
+        "186",
+        0
+      ],
+      "filename_prefix": "unruly/ambiance_detail"
+    }
+  },
+  "190": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "2",
+        0
+      ],
+      "text": "a moody mid-shot capturing the emotional feeling of a story about Extreme true human stories from history, outlaws, revenge, last stands and people pushed too far, told as deadpan hand-inked comic storytelling, cinematic light and color, no readable text. hand-inked storybook comic illustration, warm cream paper texture background, thick charcoal ink outlines, flat muted two-tone shading in dusty blue grey and umber, one dried-blood red accent object per scene, pale expressive round faces with simple dot eyes on slim dark limbs, soft painted watercolor backdrops, generous negative space, dry deadpan humor, clean uncluttered composition"
+    }
+  },
+  "191": {
+    "class_type": "ConditioningKrea2Rebalance",
+    "inputs": {
+      "conditioning": [
+        "190",
+        0
+      ],
+      "multiplier": 4.0,
+      "per_layer_weights": "1.0,1.0,1.0,1.0,1.0,1.0,1.0,2.5,5.0,1.1,4.0,1.0"
+    }
+  },
+  "192": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "2",
+        0
+      ],
+      "text": "photorealistic, 3d render, neon colors, oversaturated, realistic human faces, readable text, gibberish letters, watermark, cluttered, glossy plastic, modern clothing"
+    }
+  },
+  "193": {
+    "class_type": "ConditioningZeroOut",
+    "inputs": {
+      "conditioning": [
+        "190",
+        0
+      ]
+    }
+  },
+  "194": {
+    "class_type": "EmptyLatentImage",
+    "inputs": {
+      "width": 1280,
+      "height": 720,
+      "batch_size": 1
+    }
+  },
+  "195": {
+    "class_type": "KSampler",
+    "inputs": {
+      "model": [
+        "1",
+        0
+      ],
+      "positive": [
+        "191",
+        0
+      ],
+      "negative": [
+        "193",
+        0
+      ],
+      "latent_image": [
+        "194",
+        0
+      ],
+      "seed": 4006,
+      "steps": 8,
+      "cfg": 1.0,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 1.0
+    }
+  },
+  "196": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "195",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ]
+    }
+  },
+  "197": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "images": [
+        "196",
+        0
+      ],
+      "filename_prefix": "unruly/ambiance_moment"
+    }
+  }
+}

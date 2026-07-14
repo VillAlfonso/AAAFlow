@@ -1,0 +1,593 @@
+{
+  "video": {
+    "title": "The Most Polite Outlaws in History",
+    "global_style_suffix": ""
+  },
+  "character_bible": [
+    {
+      "name": "Host",
+      "description": "small deadpan stick figure host with a plain round pale face, tiny black dot eyes, thin black mustache, black bowler hat, slim black stick limbs, minimal and dry",
+      "palette": "black ink on warm cream"
+    },
+    {
+      "name": "Claude Duval",
+      "description": "lean elegant French highwayman in a plum velvet coat with white lace cuffs, long dark curled hair under a tricorn hat, small black half-mask, graceful posture",
+      "palette": "plum, black, cream lace"
+    },
+    {
+      "name": "Black Bart",
+      "description": "older gentleman bandit with a thick white walrus mustache and bushy brows, long grey duster coat, dark derby hat, carries an old shotgun he never raises, unhurried",
+      "palette": "grey, umber, faded white"
+    },
+    {
+      "name": "Bill Miner",
+      "description": "aging outlaw with swept-back grey hair and a heavy grey mustache, worn dark suit, dried-blood red bandana knotted at his neck, tired kind eyes",
+      "palette": "charcoal, dusty blue, dried-blood red"
+    }
+  ],
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "The most feared robbers of three centuries shared one rule. *Manners*.",
+      "image_prompt": "close shot of a small bowler-hat stick figure host tipping his hat politely, plain warm cream background",
+      "characters": [
+        "Host"
+      ]
+    },
+    {
+      "id": 2,
+      "narration": "A highwayman who danced with his victims.",
+      "image_prompt": "wide shot, a masked highwayman in a plum coat bowing to an elegant lady beside a stopped stagecoach on a moonlit road",
+      "characters": [
+        "Claude Duval"
+      ]
+    },
+    {
+      "id": 3,
+      "narration": "A stagecoach bandit who left *poems* behind.",
+      "image_prompt": "detail shot of a folded paper note weighted by a stone inside an open empty strongbox on a dusty road, deserted, nobody around"
+    },
+    {
+      "id": 4,
+      "narration": "A train robber famous for saying please.",
+      "image_prompt": "medium shot, an aging grey-mustached outlaw with a red bandana raising one polite gloved hand beside a halted steam locomotive at night",
+      "characters": [
+        "Bill Miner"
+      ]
+    },
+    {
+      "id": 5,
+      "narration": "All three were loved. All three were hunted.",
+      "image_prompt": "wide shot, a smiling crowd of pale faces on one side and grim lawmen holding rifles on the other, the small bowler-hat host standing in the gap between them",
+      "characters": [
+        "Host"
+      ]
+    },
+    {
+      "id": 6,
+      "narration": "So did courtesy ever save an outlaw's neck?",
+      "image_prompt": "detail shot of a hangman's noose hanging beside a white lace glove with a dried-blood red ribbon, on a wooden beam, nobody around"
+    },
+    {
+      "id": 7,
+      "narration": "Story one. The gentleman of the London roads.",
+      "image_prompt": "medium shot of the bowler-hat host holding up one finger, plain warm cream background",
+      "characters": [
+        "Host"
+      ]
+    },
+    {
+      "id": 8,
+      "narration": "Claude Duval, a footman from Normandy, arrives in England in 1660.",
+      "image_prompt": "wide shot, a young man in plain servant livery stepping off a ship gangplank carrying a small trunk, busy grey harbor behind",
+      "characters": [
+        "Claude Duval"
+      ]
+    },
+    {
+      "id": 9,
+      "narration": "He serves a duke by day and studies wealthy travelers by night.",
+      "image_prompt": "medium shot, the young footman holding a candlestick at a tall window of a grand hallway, watching a gilded coach pass below in the dark",
+      "characters": [
+        "Claude Duval"
+      ]
+    },
+    {
+      "id": 10,
+      "narration": "Then he buys a horse, a mask, and a velvet coat.",
+      "image_prompt": "detail shot of a plum velvet coat laid on a wooden table beside a black half-mask, riding gloves and a single dried-blood red rose, nobody around"
+    },
+    {
+      "id": 11,
+      "narration": "By 1668, Claude Duval is the most wanted highwayman in England.",
+      "image_prompt": "very wide shot, a caped rider on horseback on a moonlit hilltop overlooking a winding coaching road",
+      "characters": [
+        "Claude Duval"
+      ]
+    },
+    {
+      "id": 12,
+      "narration": "His hunting ground is the road from Highgate into London.",
+      "image_prompt": "wide shot of an empty tree-lined coaching road at dusk, deep wheel ruts, low mist, deserted, nobody around"
+    },
+    {
+      "id": 13,
+      "narration": "But Duval robs like no one else on that road.",
+      "image_prompt": "medium shot, the masked highwayman sweeping his tricorn hat into a deep theatrical bow beside a stopped coach",
+      "characters": [
+        "Claude Duval"
+      ]
+    },
+    {
+      "id": 14,
+      "narration": "He reputedly never uses violence. Not once.",
+      "image_prompt": "close shot on hands, the highwayman gently placing a small locket back into a lady's open gloved palm",
+      "characters": [
+        "Claude Duval"
+      ]
+    },
+    {
+      "id": 15,
+      "narration": "One night, the legend says, he stops a knight's coach.",
+      "image_prompt": "wide shot, coach lanterns glowing in dark woods, horses steaming, a masked figure holding the bridle",
+      "characters": [
+        "Claude Duval"
+      ]
+    },
+    {
+      "id": 16,
+      "narration": "Inside sit a wealthy knight, a locked strongbox, and his young wife.",
+      "image_prompt": "medium interior shot of a coach, a nervous gentleman clutching a strongbox on his lap, an elegant calm lady seated beside him"
+    },
+    {
+      "id": 17,
+      "narration": "Duval opens the door. And asks the lady to dance.",
+      "image_prompt": "medium shot, the masked highwayman holding the coach door open and extending a gloved hand toward the lady inside",
+      "characters": [
+        "Claude Duval"
+      ]
+    },
+    {
+      "id": 18,
+      "narration": "They dance a courante on the roadside, by lamplight.",
+      "image_prompt": "wide shot, the highwayman and the lady mid-dance on moonlit roadside grass, coach lamps glowing, her dried-blood red sash swirling, coachmen staring",
+      "characters": [
+        "Claude Duval"
+      ]
+    },
+    {
+      "id": 19,
+      "narration": "Her husband watches from the coach. Politely.",
+      "image_prompt": "close shot of the husband's strained smiling face framed in the coach window, knuckles white on the sill"
+    },
+    {
+      "id": 20,
+      "narration": "For the dance, Duval takes only *part* of the money.",
+      "image_prompt": "detail shot of gloved hands returning a share of coins into the open strongbox, lamplight, close on the coins",
+      "characters": [
+        "Claude Duval"
+      ]
+    },
+    {
+      "id": 21,
+      "narration": "The story spreads through every tavern in London.",
+      "image_prompt": "wide shot of a warm crowded tavern, drinkers leaning over tankards toward one animated storyteller, lamplight and smoke"
+    },
+    {
+      "id": 22,
+      "narration": "It is said some ladies hoped their coach would be next.",
+      "image_prompt": "medium shot, two elegant ladies peering eagerly out of a coach window into a dark wooded road"
+    },
+    {
+      "id": 23,
+      "narration": "The king's men do not find it charming.",
+      "image_prompt": "medium shot, stern officers in long coats nailing a rough charcoal portrait sketch to a wooden post, no readable text"
+    },
+    {
+      "id": 24,
+      "narration": "A price lands on Claude Duval's head.",
+      "image_prompt": "detail shot of a heavy leather purse of coins set on a magistrate's desk beside a charcoal portrait sketch, candlelight, nobody around"
+    },
+    {
+      "id": 25,
+      "narration": "January 1670. Soldiers surround the Hole in the Wall tavern.",
+      "image_prompt": "wide night shot, soldiers with lanterns and muskets converging on a narrow glowing tavern doorway in Covent Garden"
+    },
+    {
+      "id": 26,
+      "narration": "Duval is taken at the table, without a single shot.",
+      "image_prompt": "medium shot, soldiers seizing the elegant highwayman mid-toast, his tankard spilling dark red wine across the table",
+      "characters": [
+        "Claude Duval"
+      ]
+    },
+    {
+      "id": 27,
+      "narration": "A judge convicts him of *six* robberies.",
+      "image_prompt": "medium shot from below, a stern wigged judge peering down from a high bench at the masked man in the dock",
+      "characters": [
+        "Claude Duval"
+      ]
+    },
+    {
+      "id": 28,
+      "narration": "The story goes that noble ladies begged the king for mercy.",
+      "image_prompt": "wide shot, three elegant ladies kneeling with clasped hands before a distant throne in a vast palace hall"
+    },
+    {
+      "id": 29,
+      "narration": "King Charles the Second says no.",
+      "image_prompt": "close shot of a king in dark curls turning his face away, one ringed hand raised flat in refusal"
+    },
+    {
+      "id": 30,
+      "narration": "On January 21st, 1670, Duval hangs at Tyburn. He is 27.",
+      "image_prompt": "very wide shot, a distant gallows silhouette against a grey dawn sky, a large silent crowd below, muted"
+    },
+    {
+      "id": 31,
+      "narration": "London buries him under a stone in Covent Garden.",
+      "image_prompt": "wide shot of a candlelit church interior, a coffin covered in pale flowers, well-dressed mourners with bowed heads"
+    },
+    {
+      "id": 32,
+      "narration": "His epitaph warns men to guard their purses. And women, their hearts.",
+      "image_prompt": "detail shot of a worn stone memorial slab in a church floor with a single dried-blood red rose laid on it, nobody around"
+    },
+    {
+      "id": 33,
+      "narration": "Story two. The poet of the stagecoach lines.",
+      "image_prompt": "medium shot of the bowler-hat host holding up two fingers, plain warm cream background",
+      "characters": [
+        "Host"
+      ]
+    },
+    {
+      "id": 34,
+      "narration": "Two centuries later. Northern California, 1875.",
+      "image_prompt": "very wide shot of golden dry hills under a big sky, a dusty stage road winding through, deserted, nobody around"
+    },
+    {
+      "id": 35,
+      "narration": "Wells Fargo coaches carry gold through these hills every week.",
+      "image_prompt": "wide shot, a six-horse stagecoach with a strongbox on the roof cresting a golden hill, dust trailing"
+    },
+    {
+      "id": 36,
+      "narration": "Charles Boles, an English-born drifter, has other plans for that gold.",
+      "image_prompt": "medium shot, an older man with a white walrus mustache watching a distant coach from a ridgeline, coat flapping",
+      "characters": [
+        "Black Bart"
+      ]
+    },
+    {
+      "id": 37,
+      "narration": "In July 1875, near Copperopolis, a figure steps onto the road.",
+      "image_prompt": "wide shot, a man in a long grey duster standing calmly in the center of a dirt road, shotgun held low and pointed at nothing",
+      "characters": [
+        "Black Bart"
+      ]
+    },
+    {
+      "id": 38,
+      "narration": "He says please. The driver, reasonably, hands over the box.",
+      "image_prompt": "medium shot, a stagecoach driver tossing a wooden strongbox down to the courteous grey bandit waiting with open arms",
+      "characters": [
+        "Black Bart"
+      ]
+    },
+    {
+      "id": 39,
+      "narration": "The take is *one hundred sixty* dollars. A career is born.",
+      "image_prompt": "detail shot of an opened strongbox holding a modest pile of coins and a few banknotes, dust motes in the light, nobody around"
+    },
+    {
+      "id": 40,
+      "narration": "Two years later, he starts leaving something behind at the scenes.",
+      "image_prompt": "wide shot of an emptied express box abandoned on a roadside at dusk, a small pale paper square resting on it, deserted"
+    },
+    {
+      "id": 41,
+      "narration": "He leaves poems.",
+      "image_prompt": "detail shot of a folded paper note weighted by a small stone on the wooden box, one dried-blood red wax dot on the fold, nobody around"
+    },
+    {
+      "id": 42,
+      "narration": "Signed, Black Bart, the P O 8.",
+      "image_prompt": "close shot of a folded note with a small confident ink flourish at its corner, blurred and unreadable, on dark wood"
+    },
+    {
+      "id": 43,
+      "narration": "One reads, I've labored long and hard for bread, for honor and for riches.",
+      "image_prompt": "medium shot, a weary man swinging a pick on a barren hillside claim, bent back, sweat, harsh light",
+      "characters": [
+        "Black Bart"
+      ]
+    },
+    {
+      "id": 44,
+      "narration": "But on my corns too long you've tread, you fine-haired sons of bitches.",
+      "image_prompt": "medium caricature shot, fat financiers in tall top hats and fur collars stepping carelessly over tiny bowed workers"
+    },
+    {
+      "id": 45,
+      "narration": "The newspapers love him. Wells Fargo does not.",
+      "image_prompt": "medium shot of a detective's office wall covered in maps and pinned notes, a hard-worn desk below, nobody around"
+    },
+    {
+      "id": 46,
+      "narration": "Over eight years, Black Bart robs at least *28* coaches.",
+      "image_prompt": "very wide shot of a winding golden road with several distant stagecoaches at different bends, tiny in the landscape"
+    },
+    {
+      "id": 47,
+      "narration": "He works on foot. Because Black Bart is afraid of horses.",
+      "image_prompt": "medium shot, the grey bandit eyeing a saddled horse warily from several steps away, the horse eyeing him back",
+      "characters": [
+        "Black Bart"
+      ]
+    },
+    {
+      "id": 48,
+      "narration": "He simply walks away from every robbery. Every single one.",
+      "image_prompt": "very wide shot, a lone figure in a duster walking unhurried into vast golden hills, tiny in the frame",
+      "characters": [
+        "Black Bart"
+      ]
+    },
+    {
+      "id": 49,
+      "narration": "In eight years, he reportedly never fires his shotgun once.",
+      "image_prompt": "detail shot of an old shotgun propped untouched against a tree stump, wildflowers growing around the stock, nobody around"
+    },
+    {
+      "id": 50,
+      "narration": "Drivers describe grey hair, a polite voice, and no violence.",
+      "image_prompt": "medium shot, a stagecoach driver gesturing calmly while a lawman listens, both unbothered, dusty depot"
+    },
+    {
+      "id": 51,
+      "narration": "November 1883. Back at Copperopolis, where it all began.",
+      "image_prompt": "wide shot of the same dirt hill road in colder autumn light, bare trees, long shadows, deserted, nobody around"
+    },
+    {
+      "id": 52,
+      "narration": "The same road. The same man. One dropped *handkerchief*.",
+      "image_prompt": "detail shot of a white handkerchief lying crumpled on the dirt road, wind lifting one corner, nobody around"
+    },
+    {
+      "id": 53,
+      "narration": "In its corner, a tiny laundry mark. F X O 7.",
+      "image_prompt": "extreme close shot of the handkerchief corner showing a tiny smudged ink stamp, threads visible, blurred and unreadable"
+    },
+    {
+      "id": 54,
+      "narration": "Detectives carry that mark through San Francisco's laundries, one by one.",
+      "image_prompt": "medium shot, a detective holding the cloth up at a steamy laundry counter while a laundryman squints at it"
+    },
+    {
+      "id": 55,
+      "narration": "It leads to a boarding house. And a quiet gentleman named Bolton.",
+      "image_prompt": "medium shot, a neat older gentleman in a grey suit and derby descending boarding-house steps with a cane, serene",
+      "characters": [
+        "Black Bart"
+      ]
+    },
+    {
+      "id": 56,
+      "narration": "Charles Bolton, respectable mining man, is Black Bart the poet.",
+      "image_prompt": "close shot of the gentleman's calm face, tired eyes, the faintest amused line under the white mustache",
+      "characters": [
+        "Black Bart"
+      ]
+    },
+    {
+      "id": 57,
+      "narration": "He is polite in court. Naturally. He goes to prison.",
+      "image_prompt": "medium shot, the old bandit standing straight before a judge, derby hat held to his chest, chin level",
+      "characters": [
+        "Black Bart"
+      ]
+    },
+    {
+      "id": 58,
+      "narration": "Released in 1888, reporters ask if he will rob coaches again.",
+      "image_prompt": "medium shot, a scrum of reporters in bowler hats crowding prison steps around one calm grey figure",
+      "characters": [
+        "Black Bart"
+      ]
+    },
+    {
+      "id": 59,
+      "narration": "No, gentlemen. I am through with crime. That is a *quote*.",
+      "image_prompt": "close shot, the old bandit tipping his derby with a small dry smile",
+      "characters": [
+        "Black Bart"
+      ]
+    },
+    {
+      "id": 60,
+      "narration": "Weeks later, Charles Boles walks out of his hotel and vanishes.",
+      "image_prompt": "wide shot of a foggy San Francisco street at dawn, one dark figure walking away with his back turned, dissolving into the fog",
+      "characters": [
+        "Black Bart"
+      ]
+    },
+    {
+      "id": 61,
+      "narration": "No grave. No body. Just twenty-eight robberies and two poems.",
+      "image_prompt": "detail shot of two folded paper notes and a brass strongbox key arranged on dark cloth, museum-quiet, nobody around"
+    },
+    {
+      "id": 62,
+      "narration": "Story three. The Grey Fox.",
+      "image_prompt": "medium shot of the bowler-hat host holding up three fingers, plain warm cream background",
+      "characters": [
+        "Host"
+      ]
+    },
+    {
+      "id": 63,
+      "narration": "Bill Miner starts robbing stagecoaches in California as a teenager.",
+      "image_prompt": "wide shot, a young rider reining up beside a stagecoach at dusk, hand extended almost apologetically",
+      "characters": [
+        "Bill Miner"
+      ]
+    },
+    {
+      "id": 64,
+      "narration": "He is known on the roads for one strange habit. Courtesy.",
+      "image_prompt": "medium shot, the young outlaw collecting valuables in his upturned hat with a small courteous bow to seated passengers",
+      "characters": [
+        "Bill Miner"
+      ]
+    },
+    {
+      "id": 65,
+      "narration": "Some say he is the first man to ever say, hands up.",
+      "image_prompt": "close shot inside a coach, passengers' gloved hands all raised against the window light"
+    },
+    {
+      "id": 66,
+      "narration": "The habit keeps buying him decades inside San Quentin prison.",
+      "image_prompt": "wide shot of a vast stone prison yard, one man sweeping alone in a long diagonal of light",
+      "characters": [
+        "Bill Miner"
+      ]
+    },
+    {
+      "id": 67,
+      "narration": "He walks out in 1901, fifty-four years old and out of date.",
+      "image_prompt": "medium shot, an aged grey-mustached man stepping through a heavy iron gate into blinding daylight, holding a small bundle",
+      "characters": [
+        "Bill Miner"
+      ]
+    },
+    {
+      "id": 68,
+      "narration": "Stagecoaches are gone. The world has moved on to trains.",
+      "image_prompt": "wide shot of a rusting stagecoach sunk in weeds beside gleaming new rail tracks, deserted, nobody around"
+    },
+    {
+      "id": 69,
+      "narration": "So Bill Miner moves on to trains too.",
+      "image_prompt": "medium shot, the old outlaw on a hillside watching a locomotive thunder past below, coat and red bandana snapping in its wind",
+      "characters": [
+        "Bill Miner"
+      ]
+    },
+    {
+      "id": 70,
+      "narration": "He crosses into Canada under a new name. George Edwards.",
+      "image_prompt": "wide shot, a quiet rancher walking a fence line with a bucket, huge dusty blue mountains behind",
+      "characters": [
+        "Bill Miner"
+      ]
+    },
+    {
+      "id": 71,
+      "narration": "In British Columbia, neighbors know him as a gentle old rancher.",
+      "image_prompt": "medium shot, the old rancher feeding an apple to a farm horse over a rail fence, soft morning light",
+      "characters": [
+        "Bill Miner"
+      ]
+    },
+    {
+      "id": 72,
+      "narration": "In 1904, masked men stop a train at Silverdale.",
+      "image_prompt": "wide night shot, a lantern-lit locomotive halted on the track, three masked silhouettes standing in the steam"
+    },
+    {
+      "id": 73,
+      "narration": "It is widely called the first train robbery in Canadian history.",
+      "image_prompt": "detail shot of white steam curling around the locomotive's dark driving wheels, night, nobody visible"
+    },
+    {
+      "id": 74,
+      "narration": "No one is ever conclusively tied to it. Officially.",
+      "image_prompt": "detail shot of an empty wooden interrogation chair under a single hanging lamp in a dark room, nobody around"
+    },
+    {
+      "id": 75,
+      "narration": "Two years later, near Monte Creek, Miner stops another train.",
+      "image_prompt": "medium night shot, the old masked outlaw climbing into a mail car, lantern light catching his red bandana",
+      "characters": [
+        "Bill Miner"
+      ]
+    },
+    {
+      "id": 76,
+      "narration": "This time the take is *fifteen dollars*. And someone's kidney pills.",
+      "image_prompt": "detail shot of a small open safe holding a few coins and one medicine bottle with a dried-blood red label, nobody around"
+    },
+    {
+      "id": 77,
+      "narration": "The Mounties catch the Grey Fox within days.",
+      "image_prompt": "wide shot, red-coated Mounties on horseback circling one weary old man standing calm in dry grass",
+      "characters": [
+        "Bill Miner"
+      ]
+    },
+    {
+      "id": 78,
+      "narration": "He goes to the British Columbia Penitentiary. Briefly.",
+      "image_prompt": "wide shot of grey penitentiary walls under low cloud, a tiny barred window catching one square of light, nobody around"
+    },
+    {
+      "id": 79,
+      "narration": "In 1907, Bill Miner escapes. Canada never catches him again.",
+      "image_prompt": "detail shot of a fresh hole dug under a wooden stockade wall at dawn, scattered earth, empty guard tower above"
+    },
+    {
+      "id": 80,
+      "narration": "He is past sixty. He is not finished.",
+      "image_prompt": "wide shot, an old man's silhouette walking south along rail tracks into a pale dawn, small bundle over his shoulder",
+      "characters": [
+        "Bill Miner"
+      ]
+    },
+    {
+      "id": 81,
+      "narration": "He is caught in Georgia. He escapes. Twice.",
+      "image_prompt": "low angle detail shot of worn boots splashing through dark swamp water, reeds blurring past"
+    },
+    {
+      "id": 82,
+      "narration": "The last escape leads through a swamp. He drinks the water.",
+      "image_prompt": "wide shot of still black swamp water under hanging moss, one line of ripples crossing it, deserted, nobody around"
+    },
+    {
+      "id": 83,
+      "narration": "It kills him slowly. He dies in a prison bed in 1913.",
+      "image_prompt": "detail shot of barred window light falling on an empty made cot, a folded dried-blood red bandana on the pillow, nobody around"
+    },
+    {
+      "id": 84,
+      "narration": "Three outlaws. Three centuries. One shared weapon. Please and thank you.",
+      "image_prompt": "detail shot of three objects in a row on warm cream cloth, a black half-mask, a folded paper poem, a red bandana, nobody around"
+    },
+    {
+      "id": 85,
+      "narration": "The crowds loved every one of them.",
+      "image_prompt": "wide soft shot of a faded cheering crowd in period clothes, hats raised, warm sepia light"
+    },
+    {
+      "id": 86,
+      "narration": "The law hanged one, jailed one, and outlasted the third.",
+      "image_prompt": "detail shot of a wooden gavel at rest on its block, dust motes in a courtroom shaft of light, nobody around"
+    },
+    {
+      "id": 87,
+      "narration": "Their manners bought them fame. Fame paid for nothing.",
+      "image_prompt": "medium shot, the bowler-hat host removing his hat and holding it to his chest, head slightly bowed, plain warm cream background",
+      "characters": [
+        "Host"
+      ]
+    },
+    {
+      "id": 88,
+      "narration": "Being loved was never the same as being spared.",
+      "image_prompt": "detail shot of the hangman's noose and white lace glove from before, now with a single dried-blood red rose lying beneath them, nobody around"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+# musubi-tuner dataset — generated 2026-07-14 04:32
+[general]
+resolution = [384, 216]
+caption_extension = ".txt"
+batch_size = 1
+enable_bucket = true
+bucket_no_upscale = false
+
+[[datasets]]
+video_directory = "C:/AAAFlow/data/lora_datasets/fern/clips"
+cache_directory = "C:/AAAFlow/data/lora_datasets/fern/cache"
+target_frames = [1, 33]
+frame_extraction = "head"
+num_repeats = 1

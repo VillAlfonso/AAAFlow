@@ -1,0 +1,250 @@
+{
+  "video": {
+    "title": "The Kid Who Took Over Twitter",
+    "global_style_suffix": "3d mannequin documentary, faceless matte humanoid mannequin figures with no facial features, stylized 3d reconstruction environment, dark low-key lighting, deep shadows, one red rim-light accent, desaturated cinematic documentary grade, filmic grain",
+    "global_negative_prompt": "cartoon, anime, illustration, detailed human faces, facial features, oversaturated, neon colors, bright cheerful lighting, watermark, readable text, gibberish letters, low quality, deformed"
+  },
+  "character_bible": [
+    {
+      "name": "The Hacker",
+      "description": "faceless matte grey humanoid mannequin, no facial features, slim, teenage build, plain form, lit by monitor glow with a red rim light",
+      "palette": "matte grey, monitor blue, blood red accent"
+    }
+  ],
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "It's the 15th of July, 2020. Just after four in the afternoon in Tampa, Florida.",
+      "image_prompt": "3d mannequin documentary, faceless matte mannequin figure sitting alone at a desk in a dim suburban bedroom, glow of a single monitor, blinds drawn, red rim light",
+      "camera": "slow push-in on, shallow focus, deliberate zoom"
+    },
+    {
+      "id": 2,
+      "narration": "A seventeen year old is about to take over the most powerful accounts on the internet.",
+      "image_prompt": "3d mannequin documentary, close on the mannequin's hands resting on a keyboard, monitor glow, dark room, red accent light",
+      "camera": "slow push-in on, deliberate zoom"
+    },
+    {
+      "id": 3,
+      "narration": "At 20:17 UTC, Elon Musk's Twitter account posts a message.",
+      "image_prompt": "3d mannequin documentary, a smartphone lying on a dark desk, bright screen showing an abstract social media post, no readable text, dark surround",
+      "camera": "locked-off static shot"
+    },
+    {
+      "id": 4,
+      "narration": "It promises to double any bitcoin sent to an address below.",
+      "image_prompt": "3d mannequin documentary, dark map visualization, glowing red transaction lines spreading across a black world map, top-down",
+      "camera": "slow lateral pan across, steady tracking"
+    },
+    {
+      "id": 5,
+      "narration": "Then Barack Obama's account posts it. Then Joe Biden's. Then Jeff Bezos and Bill Gates.",
+      "image_prompt": "3d mannequin documentary, grid of glowing screens in a dark room, each showing an abstract blue social feed, no readable text",
+      "camera": "slow pull-back revealing, widening"
+    },
+    {
+      "id": 6,
+      "narration": "Apple posts it. Uber posts it.",
+      "image_prompt": "3d mannequin documentary, faceless mannequin figures in an office lit only by monitors, all looking at their screens, dark, red accent",
+      "camera": "slow push-in on"
+    },
+    {
+      "id": 7,
+      "narration": "Within minutes, the scam collects more than one hundred thousand dollars.",
+      "image_prompt": "3d mannequin documentary, close on a cluster of stacked coins on a dark surface, single red rim light, deep shadow",
+      "camera": "slow push-in on, shallow focus"
+    },
+    {
+      "id": 8,
+      "narration": "Twitter's answer is drastic. It silences almost every verified account on the platform.",
+      "image_prompt": "3d mannequin documentary, dark server room corridor, rows of blinking racks, red emergency lighting, empty, nobody around",
+      "camera": "slow aerial push-in toward, cinematic drone shot"
+    },
+    {
+      "id": 9,
+      "narration": "For a few hours, the loudest voices on Earth cannot speak.",
+      "image_prompt": "3d mannequin documentary, wide shot of a dark empty press podium with microphones, single spotlight, nobody around",
+      "camera": "locked-off static shot"
+    },
+    {
+      "id": 10,
+      "narration": "Here is how a teenager did it.",
+      "image_prompt": "3d mannequin documentary, faceless mannequin figure standing alone in a doorway of a dark room, backlit, red rim light",
+      "camera": "slow pull-back revealing"
+    },
+    {
+      "id": 11,
+      "narration": "His name is Graham Ivan Clark. He is a high school student in Hillsborough County.",
+      "image_prompt": "3d mannequin documentary, faceless matte mannequin figure standing in a suburban american street at dusk, ordinary houses, dark low-key lighting",
+      "camera": "subtle handheld drift, documentary feel"
+    },
+    {
+      "id": 12,
+      "narration": "He is not a prodigy in the movie sense. He is patient, and he is good on the phone.",
+      "image_prompt": "3d mannequin documentary, close on a mannequin hand holding a phone to where an ear would be, dark room, red accent",
+      "camera": "slow push-in on"
+    },
+    {
+      "id": 13,
+      "narration": "A year earlier, at sixteen, he had already stolen a hundred and sixty four bitcoin from a Seattle investor.",
+      "image_prompt": "3d mannequin documentary, dark desk with a laptop and scattered paperwork, single lamp, nobody around, deep shadows",
+      "camera": "subtle handheld drift"
+    },
+    {
+      "id": 14,
+      "narration": "He did it with a SIM swap. He convinced a phone carrier that he was someone else.",
+      "image_prompt": "3d mannequin documentary, close on a small sim card held in mannequin fingers, extreme shallow focus, red rim light, black background",
+      "camera": "slow push-in on, shallow focus"
+    },
+    {
+      "id": 15,
+      "narration": "That is the whole trick, in every story that follows. He does not break the machine. He talks to the people who run it.",
+      "image_prompt": "3d mannequin documentary, faceless mannequin figure facing away, standing before a wall of dim monitors, dark, red accent",
+      "camera": "slow pull-back revealing, widening"
+    },
+    {
+      "id": 16,
+      "narration": "The Twitter attack begins on the 15th of July with phone calls.",
+      "image_prompt": "3d mannequin documentary, vintage desk phone on a dark surface, single hard light, deep shadow, nobody around",
+      "camera": "locked-off static shot"
+    },
+    {
+      "id": 17,
+      "narration": "Clark and two others scrape LinkedIn for Twitter employees who might hold administrative access.",
+      "image_prompt": "3d mannequin documentary, abstract network of glowing hexagonal nodes on black, red connections forming between them",
+      "camera": "slow lateral pan across"
+    },
+    {
+      "id": 18,
+      "narration": "Then they call them, one at a time, pretending to be Twitter's own IT help desk.",
+      "image_prompt": "3d mannequin documentary, split composition: faceless mannequin on a phone in a dark bedroom, second mannequin at an office desk, both lit by screens",
+      "camera": "slow push-in on"
+    },
+    {
+      "id": 19,
+      "narration": "There is a problem with the internal VPN, the caller says. He sounds bored. He sounds like a colleague.",
+      "image_prompt": "3d mannequin documentary, close on a mannequin figure at an office desk holding a phone, monitor glow on featureless face, dark",
+      "camera": "subtle handheld drift"
+    },
+    {
+      "id": 20,
+      "narration": "The employee is walked to a login page that looks exactly like Twitter's own.",
+      "image_prompt": "3d mannequin documentary, dark monitor screen showing an abstract blue login form, no readable text, reflection on glass",
+      "camera": "slow push-in on, shallow focus, deliberate zoom"
+    },
+    {
+      "id": 21,
+      "narration": "They type in their credentials. They read out the two factor code.",
+      "image_prompt": "3d mannequin documentary, close on faceless mannequin fingers typing on a keyboard in the dark, red rim light",
+      "camera": "locked-off static shot"
+    },
+    {
+      "id": 22,
+      "narration": "On the other end of the line, in Tampa, the code is used within seconds.",
+      "image_prompt": "3d mannequin documentary, faceless mannequin figure leaning toward a monitor in a dark bedroom, red glow, tense posture",
+      "camera": "slow push-in on, deliberate zoom"
+    },
+    {
+      "id": 23,
+      "narration": "That gives them the one thing that matters. The internal tool that Twitter's own staff use to control any account.",
+      "image_prompt": "3d mannequin documentary, abstract dark interface panel glowing on a screen in a black room, geometric shapes, no readable text",
+      "camera": "slow pull-back revealing"
+    },
+    {
+      "id": 24,
+      "narration": "They start with short usernames. The kind collectors pay for. Then they aim higher.",
+      "image_prompt": "3d mannequin documentary, row of faceless mannequin figures standing in darkness, only the first one lit by a red light",
+      "camera": "slow lateral pan across, steady tracking"
+    },
+    {
+      "id": 25,
+      "narration": "By 21:45 UTC, Twitter admits it has lost control of its own platform.",
+      "image_prompt": "3d mannequin documentary, empty modern glass office at night, chairs pushed back, monitors glowing, nobody around",
+      "camera": "slow aerial push-in toward, cinematic drone shot"
+    },
+    {
+      "id": 26,
+      "narration": "Coinbase blocks over a thousand transactions, about two hundred and eighty thousand dollars that never reaches the scam.",
+      "image_prompt": "3d mannequin documentary, dark map visualization, glowing red money-flow lines being cut and stopping, top-down",
+      "camera": "slow pull-back revealing, widening"
+    },
+    {
+      "id": 27,
+      "narration": "The scam itself is almost small. About a hundred and ten thousand dollars in bitcoin.",
+      "image_prompt": "3d mannequin documentary, a single small stack of coins on a vast dark empty table, one red light, deep shadow",
+      "camera": "locked-off static shot"
+    },
+    {
+      "id": 28,
+      "narration": "The damage is not the money. It is the proof that three people with a telephone could seize the megaphone of the planet.",
+      "image_prompt": "3d mannequin documentary, wide shot of a dark empty stadium of monitors, all showing the same abstract blue glow, nobody around",
+      "camera": "slow pull-back revealing, widening"
+    },
+    {
+      "id": 29,
+      "narration": "And Clark leaves a trail. He always did.",
+      "image_prompt": "3d mannequin documentary, close on faceless mannequin figure's shoulder turning away in darkness, red rim light",
+      "camera": "subtle handheld drift"
+    },
+    {
+      "id": 30,
+      "narration": "Investigators follow the bitcoin, and they follow the usernames he used on hacking forums.",
+      "image_prompt": "3d mannequin documentary, abstract chain of glowing red links on black, forming a path across the frame",
+      "camera": "slow lateral pan across, steady tracking"
+    },
+    {
+      "id": 31,
+      "narration": "Some of those accounts were tied to an email address. The email was tied to a driver's license he had once uploaded to verify himself on a crypto exchange.",
+      "image_prompt": "3d mannequin documentary, close on an anonymous identification card lying face down on a dark desk, no readable text, single lamp",
+      "camera": "slow push-in on, shallow focus"
+    },
+    {
+      "id": 32,
+      "narration": "The most careful social engineer in the story had verified his own identity, in writing, to a company that keeps records.",
+      "image_prompt": "3d mannequin documentary, faceless mannequin figure sitting motionless in a dark interview room, single overhead light, empty chair opposite",
+      "camera": "locked-off static shot"
+    },
+    {
+      "id": 33,
+      "narration": "On the 31st of July, sixteen days after the attack, police arrest him in Tampa.",
+      "image_prompt": "3d mannequin documentary, police car parked outside a suburban house at night, red and blue light on the wall, nobody visible",
+      "camera": "subtle handheld drift, documentary feel"
+    },
+    {
+      "id": 34,
+      "narration": "He is seventeen. Florida charges him as an adult, with thirty felony counts.",
+      "image_prompt": "3d mannequin documentary, empty courtroom at night, dark wood, single light over the bench, nobody around",
+      "camera": "slow push-in on, deliberate zoom"
+    },
+    {
+      "id": 35,
+      "narration": "In March 2021, he takes a plea deal. Three years in prison, three years of probation, under Florida's youthful offender law.",
+      "image_prompt": "3d mannequin documentary, faceless mannequin figure standing alone in a narrow corridor, harsh overhead light, long shadow",
+      "camera": "locked-off static shot"
+    },
+    {
+      "id": 36,
+      "narration": "Two others were charged in the United States. We are not going to pretend the full picture is settled. Parts of it are still disputed.",
+      "image_prompt": "3d mannequin documentary, two faceless mannequin figures standing far apart in a dark empty space, dim light",
+      "camera": "slow pull-back revealing, widening"
+    },
+    {
+      "id": 37,
+      "narration": "Twitter changed its internal tools afterwards. It says access is tighter now.",
+      "image_prompt": "3d mannequin documentary, modern glass office lobby at night, empty, cold light, security barriers, nobody around",
+      "camera": "slow lateral pan across"
+    },
+    {
+      "id": 38,
+      "narration": "But the method he used is not a software flaw. It is a person, picking up a phone, wanting to be helpful.",
+      "image_prompt": "3d mannequin documentary, close on a desk phone under a single hard light, dark room, red accent, nobody around",
+      "camera": "slow push-in on, shallow focus"
+    },
+    {
+      "id": 39,
+      "narration": "There is no patch for that.",
+      "image_prompt": "3d mannequin documentary, wide empty dark room with a single lit monitor, no one in the chair, red rim light",
+      "camera": "locked-off static shot"
+    }
+  ]
+}

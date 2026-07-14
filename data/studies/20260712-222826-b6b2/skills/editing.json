@@ -1,0 +1,88 @@
+{
+  "_status": "FINAL on 5/5 packs (compilation band; immersive format noted in _evidence_notes.md)",
+  "targets": {
+    "cuts_per_min": [
+      16,
+      18
+    ],
+    "median_shot_s": [
+      2.2,
+      3.0
+    ],
+    "avg_shot_s": [
+      3.3,
+      3.7
+    ],
+    "fast_cut_share_pct": [
+      5,
+      12
+    ],
+    "speech_share_pct": [
+      92,
+      97
+    ],
+    "wpm_speaking": [
+      190,
+      215
+    ],
+    "words_per_shot": [
+      10,
+      12
+    ],
+    "pauses_per_min": [
+      1.5,
+      2.2
+    ],
+    "avg_pause_s": [
+      0.7,
+      1.1
+    ],
+    "cuts_on_sentence_pct": [
+      15,
+      35
+    ],
+    "fades_per_video": [
+      2,
+      4
+    ],
+    "first15s": {
+      "cuts": [
+        1,
+        5
+      ],
+      "words": [
+        40,
+        50
+      ]
+    }
+  },
+  "motion_mix": {
+    "static_share": "~0.45-0.55 of shots",
+    "zooms": "zoom-in + zoom-out ~0.25, either direction",
+    "pans": "~0.1, slow drift",
+    "hand_float": "up to 0.2 in recent videos (subtle handheld wobble)"
+  },
+  "grammar": {
+    "cut_logic": "cut on the VISUAL SUBJECT change mid-sentence, not on sentence ends",
+    "emphasis": "runs of 2-3 micro-shots (0.8-1.2s) zooming a named object",
+    "holds": "20-45s single-scene holds during story peaks, camera drifts inside",
+    "transitions": "hard cuts; fade only 2-4 times per video at act boundaries",
+    "sfx_density": "sparse; music bed carries; stingers on segment starts and kills",
+    "remotion_text": {
+      "usage": "light",
+      "styles": [
+        "segment title card at each story start (chapters exist)",
+        "occasional label on a named object"
+      ]
+    },
+    "segment_cards": "typeset NUMBER card + name card at each story start; optional real historical art insert (ref-card)",
+    "mascot_open": "mascot hosts the cold open on a flat void with presenter gestures"
+  },
+  "aaaflow_mapping": {
+    "scene_grain": "one scene per ~11 words keeps their cut rate at our default flow",
+    "animate_engine": "none; parallax + Ken Burns carries static+zoom+drift mix",
+    "preset": "cinematic (parallax) with end_fade default",
+    "kenburns_energy": "medium; zooms over pans 2:1",
+    "grade": "warm or cinematic, NOT ember (that is Menagerie's)"
+  }
+}

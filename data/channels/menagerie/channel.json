@@ -49,5 +49,10 @@
     "last_project": "285510242ead"
   },
   "created": 1783674599.749949,
-  "updated": 1783734266.900631
+  "updated": 1783959962.316562,
+  "auto_upload": {
+    "enabled": true,
+    "hour": 18,
+    "every_days": 1
+  }
 }

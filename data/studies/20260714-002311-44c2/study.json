@@ -1,0 +1,281 @@
+{
+ "id": "20260714-002311-44c2",
+ "created": 1783959791.2899268,
+ "status": "ready",
+ "error": null,
+ "input": "https://www.youtube.com/@fern-tv",
+ "options": {
+  "count": 5,
+  "sampling": "1s",
+  "model": "large-v3",
+  "auto_gather": true,
+  "keep_video": true
+ },
+ "channel": {
+  "name": "fern",
+  "channel_id": "UCODHrzPMGbNv67e84WDZhQQ",
+  "handle": "@fern-tv",
+  "url": "https://www.youtube.com/channel/UCODHrzPMGbNv67e84WDZhQQ",
+  "subs": 5080000,
+  "description": "Armchair documentaries, almost weekly\n\nMade by @Simplicissimus\nOccasional voice-overs by @hoog-youtube",
+  "keywords": [],
+  "scanned": 130,
+  "avatar": "avatar.jpg",
+  "banner": "banner.jpg"
+ },
+ "videos": [
+  {
+   "id": "aVA7aXOH1pk",
+   "url": "https://www.youtube.com/watch?v=aVA7aXOH1pk",
+   "title": "Mapping the Trump Shooting",
+   "views": 21000000,
+   "duration": 372.0,
+   "gid": "20260714-002313-bc3b"
+  },
+  {
+   "id": "PmtFtWVrxFE",
+   "url": "https://www.youtube.com/watch?v=PmtFtWVrxFE",
+   "title": "The Kids Who Hacked The CIA",
+   "views": 19000000,
+   "duration": 1385.0,
+   "gid": "20260714-002313-8e1b"
+  },
+  {
+   "id": "gq01C2kjMiM",
+   "url": "https://www.youtube.com/watch?v=gq01C2kjMiM",
+   "title": "The Hunt for the King of the Dark Web",
+   "views": 16000000,
+   "duration": 1130.0,
+   "gid": "20260714-002313-7c7c"
+  },
+  {
+   "id": "wLFY_Zu_O08",
+   "url": "https://www.youtube.com/watch?v=wLFY_Zu_O08",
+   "title": "How an FBI Agent Infiltrated the KKK",
+   "views": 13000000,
+   "duration": 2465.0,
+   "gid": "20260714-002313-815f"
+  },
+  {
+   "id": "wkVygetgeRY",
+   "url": "https://www.youtube.com/watch?v=wkVygetgeRY",
+   "title": "The Hunt for America's Smartest Killer",
+   "views": 10000000,
+   "duration": 1690.0,
+   "gid": "20260714-002313-b79f"
+  }
+ ],
+ "candidates": [
+  {
+   "id": "aVA7aXOH1pk",
+   "url": "https://www.youtube.com/watch?v=aVA7aXOH1pk",
+   "title": "Mapping the Trump Shooting",
+   "views": 21000000,
+   "duration": 372.0
+  },
+  {
+   "id": "PmtFtWVrxFE",
+   "url": "https://www.youtube.com/watch?v=PmtFtWVrxFE",
+   "title": "The Kids Who Hacked The CIA",
+   "views": 19000000,
+   "duration": 1385.0
+  },
+  {
+   "id": "gq01C2kjMiM",
+   "url": "https://www.youtube.com/watch?v=gq01C2kjMiM",
+   "title": "The Hunt for the King of the Dark Web",
+   "views": 16000000,
+   "duration": 1130.0
+  },
+  {
+   "id": "wLFY_Zu_O08",
+   "url": "https://www.youtube.com/watch?v=wLFY_Zu_O08",
+   "title": "How an FBI Agent Infiltrated the KKK",
+   "views": 13000000,
+   "duration": 2465.0
+  },
+  {
+   "id": "wkVygetgeRY",
+   "url": "https://www.youtube.com/watch?v=wkVygetgeRY",
+   "title": "The Hunt for America's Smartest Killer",
+   "views": 10000000,
+   "duration": 1690.0
+  },
+  {
+   "id": "LZkl0_9xFOU",
+   "url": "https://www.youtube.com/watch?v=LZkl0_9xFOU",
+   "title": "The Kids Who Hacked Xbox",
+   "views": 10000000,
+   "duration": 1658.0
+  },
+  {
+   "id": "ZrN4bKKMlLU",
+   "url": "https://www.youtube.com/watch?v=ZrN4bKKMlLU",
+   "title": "The Hunt for America's Deadliest Hitman",
+   "views": 9200000,
+   "duration": 1294.0
+  },
+  {
+   "id": "NSIJPVlVaP8",
+   "url": "https://www.youtube.com/watch?v=NSIJPVlVaP8",
+   "title": "How a Pilot Hijacked a Plane",
+   "views": 8100000,
+   "duration": 716.0
+  },
+  {
+   "id": "lZmmGg51TfU",
+   "url": "https://www.youtube.com/watch?v=lZmmGg51TfU",
+   "title": "The Genius Design of Narco Submarines",
+   "views": 8000000,
+   "duration": 861.0
+  },
+  {
+   "id": "hHG1wva1B0w",
+   "url": "https://www.youtube.com/watch?v=hHG1wva1B0w",
+   "title": "The Hunt for Ted Bundy",
+   "views": 7900000,
+   "duration": 1332.0
+  },
+  {
+   "id": "f6FRIDG8TPY",
+   "url": "https://www.youtube.com/watch?v=f6FRIDG8TPY",
+   "title": "ANØM: The Most Genius FBI Operation",
+   "views": 7500000,
+   "duration": 1073.0
+  },
+  {
+   "id": "_SH-lINJoZQ",
+   "url": "https://www.youtube.com/watch?v=_SH-lINJoZQ",
+   "title": "How Iran’s Leader Was Killed",
+   "views": 7300000,
+   "duration": 837.0
+  },
+  {
+   "id": "Uz-lKdeazaU",
+   "url": "https://www.youtube.com/watch?v=Uz-lKdeazaU",
+   "title": "The Hunt for El Chapo",
+   "views": 7200000,
+   "duration": 1235.0
+  },
+  {
+   "id": "pc8V5wxAXGk",
+   "url": "https://www.youtube.com/watch?v=pc8V5wxAXGk",
+   "title": "The Biggest Nuke in History",
+   "views": 7000000,
+   "duration": 1255.0
+  },
+  {
+   "id": "23yVLxPvRfY",
+   "url": "https://www.youtube.com/watch?v=23yVLxPvRfY",
+   "title": "What Was on Bin Laden's Hard Drive?",
+   "views": 6700000,
+   "duration": 1134.0
+  },
+  {
+   "id": "RZs5Hz1klno",
+   "url": "https://www.youtube.com/watch?v=RZs5Hz1klno",
+   "title": "How a CIA Base Works",
+   "views": 6600000,
+   "duration": 848.0
+  },
+  {
+   "id": "WyQ7z8BMwwk",
+   "url": "https://www.youtube.com/watch?v=WyQ7z8BMwwk",
+   "title": "How Hackers Stole $1,000,000,000 From Banks",
+   "views": 6500000,
+   "duration": 851.0
+  },
+  {
+   "id": "iRgp8oBiAmw",
+   "url": "https://www.youtube.com/watch?v=iRgp8oBiAmw",
+   "title": "South Korea Is a Dystopia",
+   "views": 6500000,
+   "duration": 1154.0
+  },
+  {
+   "id": "oAlP8IzWghs",
+   "url": "https://www.youtube.com/watch?v=oAlP8IzWghs",
+   "title": "The World's Craziest Prison Escape",
+   "views": 6400000,
+   "duration": 1496.0
+  },
+  {
+   "id": "GVr8pZmSa-c",
+   "url": "https://www.youtube.com/watch?v=GVr8pZmSa-c",
+   "title": "The ancient computer that simply shouldn't exist",
+   "views": 6400000,
+   "duration": 883.0
+  },
+  {
+   "id": "4uGfFYzxWEg",
+   "url": "https://www.youtube.com/watch?v=4uGfFYzxWEg",
+   "title": "The Biggest Fraud on TV",
+   "views": 6300000,
+   "duration": 1138.0
+  },
+  {
+   "id": "I1rzcZWTIjo",
+   "url": "https://www.youtube.com/watch?v=I1rzcZWTIjo",
+   "title": "The Kid Who Hacked the Pentagon (and paid with his life)",
+   "views": 6100000,
+   "duration": 1084.0
+  },
+  {
+   "id": "LtXUoaZcp70",
+   "url": "https://www.youtube.com/watch?v=LtXUoaZcp70",
+   "title": "The Plans to Assassinate Hitler",
+   "views": 6100000,
+   "duration": 746.0
+  },
+  {
+   "id": "yXdzKqhEA9M",
+   "url": "https://www.youtube.com/watch?v=yXdzKqhEA9M",
+   "title": "Why Otto Warmbier Didn't Survive North Korea",
+   "views": 6000000,
+   "duration": 2240.0
+  },
+  {
+   "id": "eTe4El6zOPI",
+   "url": "https://www.youtube.com/watch?v=eTe4El6zOPI",
+   "title": "How Kim Jong Un Travels",
+   "views": 5700000,
+   "duration": 590.0
+  },
+  {
+   "id": "REIlo713ulU",
+   "url": "https://www.youtube.com/watch?v=REIlo713ulU",
+   "title": "The World's Most Dangerous Woman",
+   "views": 5600000,
+   "duration": 959.0
+  },
+  {
+   "id": "DOuebgxPrXE",
+   "url": "https://www.youtube.com/watch?v=DOuebgxPrXE",
+   "title": "A New Ocean Is Forming in Africa",
+   "views": 5400000,
+   "duration": 1382.0
+  },
+  {
+   "id": "F7iLfuci75Y",
+   "url": "https://www.youtube.com/watch?v=F7iLfuci75Y",
+   "title": "How a Hacker Saved the Internet",
+   "views": 5400000,
+   "duration": 957.0
+  },
+  {
+   "id": "qqJSXoa5ZtQ",
+   "url": "https://www.youtube.com/watch?v=qqJSXoa5ZtQ",
+   "title": "The Most Secret Building in Manhattan",
+   "views": 5300000,
+   "duration": 1051.0
+  },
+  {
+   "id": "yGsVo0uIJVs",
+   "url": "https://www.youtube.com/watch?v=yGsVo0uIJVs",
+   "title": "How the CIA Stole a Russian Submarine",
+   "views": 5200000,
+   "duration": 947.0
+  }
+ ],
+ "job_id": "7c2a0fd9659f"
+}

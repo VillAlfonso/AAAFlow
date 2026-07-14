@@ -1,98 +1,1206 @@
 [
-  {
-    "id": "whoosh_air",
-    "file": "whoosh_air.wav",
-    "tags": [
-      "whoosh",
-      "swish",
-      "swoosh",
-      "transition",
-      "air"
-    ],
-    "dur": 0.55,
-    "source": "builtin-procedural",
-    "pre": false
-  },
-  {
-    "id": "impact_boom",
-    "file": "impact_boom.wav",
-    "tags": [
-      "impact",
-      "boom",
-      "hit",
-      "thud",
-      "slam",
-      "clank",
-      "drop",
-      "punch"
-    ],
-    "dur": 0.85,
-    "source": "builtin-procedural",
-    "pre": false
-  },
-  {
-    "id": "riser_build",
-    "file": "riser_build.wav",
-    "tags": [
-      "riser",
-      "rise",
-      "build",
-      "shimmer",
-      "sweep"
-    ],
-    "dur": 1.1,
-    "source": "builtin-procedural",
-    "pre": true
-  },
-  {
-    "id": "ding_bell",
-    "file": "ding_bell.wav",
-    "tags": [
-      "ding",
-      "bell",
-      "chime"
-    ],
-    "dur": 0.9,
-    "source": "builtin-procedural",
-    "pre": false
-  },
-  {
-    "id": "kaching_register",
-    "file": "kaching_register.wav",
-    "tags": [
-      "kaching",
-      "ka-ching",
-      "cash",
-      "register",
-      "coin",
-      "money"
-    ],
-    "dur": 0.9,
-    "source": "builtin-procedural",
-    "pre": false
-  },
-  {
-    "id": "pop_cartoon",
-    "file": "pop_cartoon.wav",
-    "tags": [
-      "pop",
-      "bubble",
-      "blip"
-    ],
-    "dur": 0.22,
-    "source": "builtin-procedural",
-    "pre": false
-  },
-  {
-    "id": "ui_click",
-    "file": "ui_click.wav",
-    "tags": [
-      "click",
-      "tick",
-      "ui"
-    ],
-    "dur": 0.09,
-    "source": "builtin-procedural",
-    "pre": false
-  }
+ {
+  "id": "whoosh_air",
+  "file": "whoosh_air.wav",
+  "tags": [
+   "whoosh",
+   "swish",
+   "swoosh",
+   "transition",
+   "air"
+  ],
+  "dur": 0.55,
+  "source": "builtin-procedural",
+  "pre": false
+ },
+ {
+  "id": "impact_boom",
+  "file": "impact_boom.wav",
+  "tags": [
+   "impact",
+   "boom",
+   "hit",
+   "thud",
+   "slam",
+   "clank",
+   "drop",
+   "punch"
+  ],
+  "dur": 0.85,
+  "source": "builtin-procedural",
+  "pre": false
+ },
+ {
+  "id": "riser_build",
+  "file": "riser_build.wav",
+  "tags": [
+   "riser",
+   "rise",
+   "build",
+   "shimmer",
+   "sweep"
+  ],
+  "dur": 1.1,
+  "source": "builtin-procedural",
+  "pre": true
+ },
+ {
+  "id": "ding_bell",
+  "file": "ding_bell.wav",
+  "tags": [
+   "ding",
+   "bell",
+   "chime"
+  ],
+  "dur": 0.9,
+  "source": "builtin-procedural",
+  "pre": false
+ },
+ {
+  "id": "kaching_register",
+  "file": "kaching_register.wav",
+  "tags": [
+   "kaching",
+   "ka-ching",
+   "cash",
+   "register",
+   "coin",
+   "money"
+  ],
+  "dur": 0.9,
+  "source": "builtin-procedural",
+  "pre": false
+ },
+ {
+  "id": "pop_cartoon",
+  "file": "pop_cartoon.wav",
+  "tags": [
+   "pop",
+   "bubble",
+   "blip"
+  ],
+  "dur": 0.22,
+  "source": "builtin-procedural",
+  "pre": false
+ },
+ {
+  "id": "ui_click",
+  "file": "ui_click.wav",
+  "tags": [
+   "click",
+   "tick",
+   "ui"
+  ],
+  "dur": 0.09,
+  "source": "builtin-procedural",
+  "pre": false
+ },
+ {
+  "id": "kn_impactPunch_heavy_000",
+  "file": "kn_impactPunch_heavy_000.wav",
+  "tags": [
+   "impact",
+   "punch",
+   "hit",
+   "boom",
+   "thud",
+   "slam"
+  ],
+  "dur": 0.65,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "non-diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_impactPunch_heavy_001",
+  "file": "kn_impactPunch_heavy_001.wav",
+  "tags": [
+   "impact",
+   "punch",
+   "hit",
+   "boom",
+   "thud",
+   "slam"
+  ],
+  "dur": 0.54,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "non-diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_impactPunch_medium_000",
+  "file": "kn_impactPunch_medium_000.wav",
+  "tags": [
+   "impact",
+   "punch",
+   "hit",
+   "thud"
+  ],
+  "dur": 0.43,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "non-diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_impactWood_heavy_000",
+  "file": "kn_impactWood_heavy_000.wav",
+  "tags": [
+   "impact",
+   "thud",
+   "wood",
+   "slam",
+   "boom",
+   "drop",
+   "hit"
+  ],
+  "dur": 0.31,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_impactWood_heavy_001",
+  "file": "kn_impactWood_heavy_001.wav",
+  "tags": [
+   "impact",
+   "thud",
+   "wood",
+   "slam",
+   "boom",
+   "drop",
+   "hit"
+  ],
+  "dur": 0.31,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_impactMetal_heavy_000",
+  "file": "kn_impactMetal_heavy_000.wav",
+  "tags": [
+   "impact",
+   "clank",
+   "metal",
+   "slam",
+   "hit"
+  ],
+  "dur": 0.16,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_impactMetal_heavy_001",
+  "file": "kn_impactMetal_heavy_001.wav",
+  "tags": [
+   "impact",
+   "clank",
+   "metal",
+   "slam",
+   "hit"
+  ],
+  "dur": 0.36,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_impactPlate_heavy_000",
+  "file": "kn_impactPlate_heavy_000.wav",
+  "tags": [
+   "impact",
+   "crash",
+   "plate",
+   "metal",
+   "clank"
+  ],
+  "dur": 0.49,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_impactSoft_heavy_000",
+  "file": "kn_impactSoft_heavy_000.wav",
+  "tags": [
+   "impact",
+   "soft",
+   "thud",
+   "body",
+   "drop"
+  ],
+  "dur": 0.53,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "non-diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_impactMining_000",
+  "file": "kn_impactMining_000.wav",
+  "tags": [
+   "impact",
+   "pick",
+   "clink",
+   "strike",
+   "hit"
+  ],
+  "dur": 0.94,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_impactBell_heavy_000",
+  "file": "kn_impactBell_heavy_000.wav",
+  "tags": [
+   "bell",
+   "ding",
+   "chime",
+   "toll",
+   "impact"
+  ],
+  "dur": 1.48,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "non-diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_impactBell_heavy_001",
+  "file": "kn_impactBell_heavy_001.wav",
+  "tags": [
+   "bell",
+   "ding",
+   "chime",
+   "toll",
+   "impact"
+  ],
+  "dur": 1.74,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "non-diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_impactGlass_medium_000",
+  "file": "kn_impactGlass_medium_000.wav",
+  "tags": [
+   "glass",
+   "shatter",
+   "break",
+   "crash",
+   "impact"
+  ],
+  "dur": 0.54,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_impactGeneric_light_000",
+  "file": "kn_impactGeneric_light_000.wav",
+  "tags": [
+   "impact",
+   "light",
+   "tap",
+   "hit",
+   "knock"
+  ],
+  "dur": 0.16,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_chop",
+  "file": "kn_chop.wav",
+  "tags": [
+   "chop",
+   "hit",
+   "thock",
+   "impact"
+  ],
+  "dur": 0.24,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_handleCoins",
+  "file": "kn_handleCoins.wav",
+  "tags": [
+   "coin",
+   "coins",
+   "money",
+   "cash",
+   "kaching",
+   "jingle",
+   "register"
+  ],
+  "dur": 0.85,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_handleCoins2",
+  "file": "kn_handleCoins2.wav",
+  "tags": [
+   "coin",
+   "coins",
+   "money",
+   "cash",
+   "kaching",
+   "jingle",
+   "register"
+  ],
+  "dur": 0.34,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_chips_stack_1",
+  "file": "kn_chips_stack_1.wav",
+  "tags": [
+   "chips",
+   "stack",
+   "money",
+   "casino",
+   "bet",
+   "count"
+  ],
+  "dur": 0.28,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_chips_stack_2",
+  "file": "kn_chips_stack_2.wav",
+  "tags": [
+   "chips",
+   "stack",
+   "money",
+   "casino",
+   "bet",
+   "count"
+  ],
+  "dur": 0.17,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_chip_lay_1",
+  "file": "kn_chip_lay_1.wav",
+  "tags": [
+   "chip",
+   "lay",
+   "money",
+   "casino",
+   "tap"
+  ],
+  "dur": 0.17,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_bookFlip1",
+  "file": "kn_bookFlip1.wav",
+  "tags": [
+   "page",
+   "paper",
+   "book",
+   "flip",
+   "turn",
+   "rustle"
+  ],
+  "dur": 0.77,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_bookFlip2",
+  "file": "kn_bookFlip2.wav",
+  "tags": [
+   "page",
+   "paper",
+   "book",
+   "flip",
+   "turn",
+   "rustle"
+  ],
+  "dur": 0.43,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_bookOpen",
+  "file": "kn_bookOpen.wav",
+  "tags": [
+   "book",
+   "open",
+   "paper",
+   "cover"
+  ],
+  "dur": 0.15,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_bookClose",
+  "file": "kn_bookClose.wav",
+  "tags": [
+   "book",
+   "close",
+   "paper",
+   "thump"
+  ],
+  "dur": 0.23,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_bookPlace1",
+  "file": "kn_bookPlace1.wav",
+  "tags": [
+   "book",
+   "place",
+   "thud",
+   "paper",
+   "set"
+  ],
+  "dur": 0.28,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_scroll_001",
+  "file": "kn_scroll_001.wav",
+  "tags": [
+   "scroll",
+   "paper",
+   "slide",
+   "unroll"
+  ],
+  "dur": 1.0,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_card_slide_1",
+  "file": "kn_card_slide_1.wav",
+  "tags": [
+   "card",
+   "slide",
+   "paper",
+   "deal",
+   "swish"
+  ],
+  "dur": 0.6,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_card_slide_2",
+  "file": "kn_card_slide_2.wav",
+  "tags": [
+   "card",
+   "slide",
+   "paper",
+   "deal",
+   "swish"
+  ],
+  "dur": 0.58,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_card_place_1",
+  "file": "kn_card_place_1.wav",
+  "tags": [
+   "card",
+   "place",
+   "tap",
+   "paper",
+   "lay"
+  ],
+  "dur": 0.69,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_card_place_2",
+  "file": "kn_card_place_2.wav",
+  "tags": [
+   "card",
+   "place",
+   "tap",
+   "paper",
+   "lay"
+  ],
+  "dur": 0.46,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_card_fan_1",
+  "file": "kn_card_fan_1.wav",
+  "tags": [
+   "card",
+   "fan",
+   "shuffle",
+   "paper",
+   "flutter"
+  ],
+  "dur": 0.72,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_card_shuffle",
+  "file": "kn_card_shuffle.wav",
+  "tags": [
+   "card",
+   "shuffle",
+   "riffle",
+   "paper"
+  ],
+  "dur": 3.06,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_knifeSlice",
+  "file": "kn_knifeSlice.wav",
+  "tags": [
+   "swish",
+   "slice",
+   "whoosh",
+   "blade",
+   "swipe",
+   "cut"
+  ],
+  "dur": 0.6,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "non-diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_knifeSlice2",
+  "file": "kn_knifeSlice2.wav",
+  "tags": [
+   "swish",
+   "slice",
+   "whoosh",
+   "blade",
+   "swipe",
+   "cut"
+  ],
+  "dur": 0.57,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "non-diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_drawKnife1",
+  "file": "kn_drawKnife1.wav",
+  "tags": [
+   "metal",
+   "draw",
+   "blade",
+   "shing",
+   "swish",
+   "unsheathe"
+  ],
+  "dur": 0.4,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_cloth1",
+  "file": "kn_cloth1.wav",
+  "tags": [
+   "cloth",
+   "swish",
+   "fabric",
+   "rustle",
+   "whoosh",
+   "movement"
+  ],
+  "dur": 0.66,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "non-diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_cloth3",
+  "file": "kn_cloth3.wav",
+  "tags": [
+   "cloth",
+   "swish",
+   "fabric",
+   "flutter",
+   "whoosh"
+  ],
+  "dur": 0.48,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "non-diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_doorOpen_1",
+  "file": "kn_doorOpen_1.wav",
+  "tags": [
+   "door",
+   "open",
+   "creak",
+   "wood",
+   "hinge"
+  ],
+  "dur": 0.92,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_doorClose_1",
+  "file": "kn_doorClose_1.wav",
+  "tags": [
+   "door",
+   "close",
+   "shut",
+   "wood",
+   "slam"
+  ],
+  "dur": 0.68,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_creak1",
+  "file": "kn_creak1.wav",
+  "tags": [
+   "creak",
+   "wood",
+   "tension",
+   "strain",
+   "groan"
+  ],
+  "dur": 0.66,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_creak2",
+  "file": "kn_creak2.wav",
+  "tags": [
+   "creak",
+   "wood",
+   "tension",
+   "strain",
+   "groan"
+  ],
+  "dur": 0.83,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_metalLatch",
+  "file": "kn_metalLatch.wav",
+  "tags": [
+   "latch",
+   "metal",
+   "lock",
+   "click",
+   "clink"
+  ],
+  "dur": 0.26,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_metalClick",
+  "file": "kn_metalClick.wav",
+  "tags": [
+   "metal",
+   "click",
+   "mechanism",
+   "cock",
+   "gun"
+  ],
+  "dur": 0.45,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_metalPot1",
+  "file": "kn_metalPot1.wav",
+  "tags": [
+   "pot",
+   "metal",
+   "clang",
+   "clank",
+   "kitchen"
+  ],
+  "dur": 1.46,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_footstep_wood_000",
+  "file": "kn_footstep_wood_000.wav",
+  "tags": [
+   "footstep",
+   "step",
+   "walk",
+   "wood",
+   "floor"
+  ],
+  "dur": 0.27,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_footstep_concrete_000",
+  "file": "kn_footstep_concrete_000.wav",
+  "tags": [
+   "footstep",
+   "step",
+   "walk",
+   "stone",
+   "street"
+  ],
+  "dur": 0.1,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_footstep_grass_000",
+  "file": "kn_footstep_grass_000.wav",
+  "tags": [
+   "footstep",
+   "step",
+   "walk",
+   "grass",
+   "outdoor"
+  ],
+  "dur": 0.77,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_footstep00",
+  "file": "kn_footstep00.wav",
+  "tags": [
+   "footstep",
+   "step",
+   "walk",
+   "boot"
+  ],
+  "dur": 0.25,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_dropLeather",
+  "file": "kn_dropLeather.wav",
+  "tags": [
+   "leather",
+   "drop",
+   "thud",
+   "soft",
+   "bag"
+  ],
+  "dur": 0.42,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_handleSmallLeather",
+  "file": "kn_handleSmallLeather.wav",
+  "tags": [
+   "leather",
+   "pouch",
+   "handle",
+   "rustle",
+   "bag"
+  ],
+  "dur": 0.34,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_beltHandle1",
+  "file": "kn_beltHandle1.wav",
+  "tags": [
+   "leather",
+   "belt",
+   "handle",
+   "rustle",
+   "strap"
+  ],
+  "dur": 0.28,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_dice_throw_1",
+  "file": "kn_dice_throw_1.wav",
+  "tags": [
+   "dice",
+   "roll",
+   "throw",
+   "tumble",
+   "gamble"
+  ],
+  "dur": 0.63,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_dice_shake_1",
+  "file": "kn_dice_shake_1.wav",
+  "tags": [
+   "dice",
+   "shake",
+   "rattle",
+   "gamble"
+  ],
+  "dur": 1.48,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_scratch_001",
+  "file": "kn_scratch_001.wav",
+  "tags": [
+   "scratch",
+   "scrape",
+   "rough",
+   "write"
+  ],
+  "dur": 0.14,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_glass_001",
+  "file": "kn_glass_001.wav",
+  "tags": [
+   "glass",
+   "clink",
+   "ding",
+   "toast"
+  ],
+  "dur": 0.28,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_click_001",
+  "file": "kn_click_001.wav",
+  "tags": [
+   "click",
+   "tick",
+   "ui",
+   "select"
+  ],
+  "dur": 0.1,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "non-diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_tick_001",
+  "file": "kn_tick_001.wav",
+  "tags": [
+   "tick",
+   "click",
+   "ui",
+   "small"
+  ],
+  "dur": 0.04,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "non-diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_switch_001",
+  "file": "kn_switch_001.wav",
+  "tags": [
+   "switch",
+   "toggle",
+   "click",
+   "flick"
+  ],
+  "dur": 0.61,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "non-diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_pluck_001",
+  "file": "kn_pluck_001.wav",
+  "tags": [
+   "pop",
+   "pluck",
+   "blip",
+   "soft"
+  ],
+  "dur": 0.1,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "non-diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_bong_001",
+  "file": "kn_bong_001.wav",
+  "tags": [
+   "bong",
+   "chime",
+   "ding",
+   "soft",
+   "note"
+  ],
+  "dur": 0.12,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "non-diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_confirmation_001",
+  "file": "kn_confirmation_001.wav",
+  "tags": [
+   "confirm",
+   "chime",
+   "ding",
+   "success",
+   "positive"
+  ],
+  "dur": 0.29,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "non-diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_question_001",
+  "file": "kn_question_001.wav",
+  "tags": [
+   "question",
+   "blip",
+   "prompt",
+   "curious"
+  ],
+  "dur": 0.49,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "non-diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_glitch_001",
+  "file": "kn_glitch_001.wav",
+  "tags": [
+   "glitch",
+   "static",
+   "error",
+   "tear",
+   "digital"
+  ],
+  "dur": 0.02,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "non-diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_maximize_001",
+  "file": "kn_maximize_001.wav",
+  "tags": [
+   "pop",
+   "ui",
+   "rise",
+   "up",
+   "open"
+  ],
+  "dur": 0.26,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "non-diegetic",
+  "license": "CC0",
+  "attribution": null
+ },
+ {
+  "id": "kn_minimize_001",
+  "file": "kn_minimize_001.wav",
+  "tags": [
+   "ui",
+   "down",
+   "close",
+   "shrink",
+   "blip"
+  ],
+  "dur": 0.26,
+  "source": "kenney-cc0",
+  "pre": false,
+  "class": "non-diegetic",
+  "license": "CC0",
+  "attribution": null
+ }
 ]

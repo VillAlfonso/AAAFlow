@@ -1,0 +1,110 @@
+{
+ "id": "20260714-002313-7c7c",
+ "url": "https://www.youtube.com/watch?v=gq01C2kjMiM",
+ "status": "done",
+ "stage": "report",
+ "pct": 100.0,
+ "msg": "complete",
+ "created": 1783959793.8058043,
+ "options": {
+  "model": "large-v3",
+  "quality": 720,
+  "sampling": "1s",
+  "keep_video": true,
+  "include_words": true
+ },
+ "meta": {
+  "title": "The Hunt for the King of the Dark Web",
+  "channel": "fern",
+  "upload_date": "20230820",
+  "duration": 1130.0,
+  "views": 16412842,
+  "url": "https://www.youtube.com/watch?v=gq01C2kjMiM",
+  "video_id": "gq01C2kjMiM",
+  "description": "Check out https://nordvpn.com/ferntv/ for an Exclusive Deal on a 2-Year-Plan. Code: \"FERNTV\" (AD)\n\nThe operator of a dark web market becomes one of the most wanted men in the world. In a spectacular operation, the authorities try to bring him down.\n\nWired Story on the King of the Dark Web: https://www.wired.com/story/alphabay-series-part-1-the-shadow/\nDarknet Diaries Episode on Operation Bayonet: https://darknetdiaries.com/episode/24/\n\nOriginal video: https://youtu.be/KlgjEGd-Gmk\n\nThis video originally appeared on our German channel Simplicissimus. We will occasionally translate some of our best videos, as many of them are relevant for a wider international audience as well. Those translations will help us drop more videos and at the same time help us finance more original content on this channel. Enjoy the story.\n\nSources: \nhttps://docs.google.com/document/d/11Cklk96i_SnpxsiTuMDSvTzkkMraoJ4qoSUnxiBhHQc/edit?usp=sharing\n\n\nfern is a joint venture by: \n@romulushoog  \n@simplicissimus   \n\n_____\n\nArmchair documentaries, almost weekly",
+  "tags": [],
+  "categories": [
+   "Entertainment"
+  ],
+  "likes": 336049,
+  "comments": 6800,
+  "subs": 5080000,
+  "chapters": [
+   {
+    "t": 0.0,
+    "title": "Intro"
+   },
+   {
+    "t": 84.0,
+    "title": "The Dark Web"
+   },
+   {
+    "t": 400.0,
+    "title": "The Hunt"
+   },
+   {
+    "t": 740.0,
+    "title": "Alpha Bay"
+   }
+  ],
+  "thumbnail_url": "https://i.ytimg.com/vi/gq01C2kjMiM/maxresdefault.jpg"
+ },
+ "summary": {
+  "duration": 1130.0,
+  "shots": 228,
+  "cuts_per_min": 12.1,
+  "wpm_speaking": 195,
+  "words": 2949,
+  "sheets": 39,
+  "report_kb": 26.8,
+  "pack_mb": 8.84
+ },
+ "outputs": [
+  "pack.pdf",
+  "report.md",
+  "report.json",
+  "sheet_01.jpg",
+  "sheet_02.jpg",
+  "sheet_03.jpg",
+  "sheet_04.jpg",
+  "sheet_05.jpg",
+  "sheet_06.jpg",
+  "sheet_07.jpg",
+  "sheet_08.jpg",
+  "sheet_09.jpg",
+  "sheet_10.jpg",
+  "sheet_11.jpg",
+  "sheet_12.jpg",
+  "sheet_13.jpg",
+  "sheet_14.jpg",
+  "sheet_15.jpg",
+  "sheet_16.jpg",
+  "sheet_17.jpg",
+  "sheet_18.jpg",
+  "sheet_19.jpg",
+  "sheet_20.jpg",
+  "sheet_21.jpg",
+  "sheet_22.jpg",
+  "sheet_23.jpg",
+  "sheet_24.jpg",
+  "sheet_25.jpg",
+  "sheet_26.jpg",
+  "sheet_27.jpg",
+  "sheet_28.jpg",
+  "sheet_29.jpg",
+  "sheet_30.jpg",
+  "sheet_31.jpg",
+  "sheet_32.jpg",
+  "sheet_33.jpg",
+  "sheet_34.jpg",
+  "sheet_35.jpg",
+  "sheet_36.jpg",
+  "sheet_37.jpg",
+  "sheet_38.jpg",
+  "sheet_39.jpg",
+  "thumbnail.jpg",
+  "video.mp4"
+ ],
+ "error": null,
+ "job_id": "5638c1cbaaae"
+}

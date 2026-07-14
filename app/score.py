@@ -105,11 +105,13 @@ def _pick_bed(project: Dict, label: str, query: str, seconds: float,
 
 # --- stingers ----------------------------------------------------------------
 def _real_sfx_for_cue(cue: str) -> bool:
-    """True when the library already holds a fetched (non-procedural) sound
-    covering this cue — so we don't re-download it every produce."""
+    """True when the library already holds a real (non-procedural) sound
+    covering this cue — so we don't re-download it every produce. Any real
+    source counts: freesound fetches, imported wavs, CC0 pack imports."""
     want = set(sfx._words(cue))
     for e in sfx.library():
-        if e.get("source") == "freesound" and want <= set(e.get("tags") or []):
+        if (e.get("source") != "builtin-procedural"
+                and want <= set(e.get("tags") or [])):
             return True
     return False
 
@@ -185,7 +187,10 @@ def score(pid: str, progress: ProgressFn) -> Dict:
             seen.add(key)
             cues.append(c)
     sfx_rows: List[Dict] = []
-    if audio_cfg.get("sfx_from_freesound", True) and audiolib.freesound_token():
+    if not audio_cfg.get("sfx_enabled", True):
+        # global stinger kill switch (user, 2026-07-14) — bed still plays
+        sfx_rows = [{"cue": c, "source": "disabled"} for c in cues]
+    elif audio_cfg.get("sfx_from_freesound", True) and audiolib.freesound_token():
         sfx_rows = _fetch_sfx(cues[:10], progress)
     else:
         sfx_rows = [{"cue": c, "source": "procedural"} for c in cues]

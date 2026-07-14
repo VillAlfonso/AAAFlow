@@ -7,6 +7,7 @@ YouTube-ready file with consistent loudness.
 from __future__ import annotations
 
 import subprocess
+import tempfile
 from pathlib import Path
 from typing import Dict, List
 
@@ -69,6 +70,36 @@ def stitch(segments: List[Dict], sr: int, gap_ms: int, paragraph_gap_ms: int,
     if not out:
         return np.zeros(0, dtype=np.float32)
     return np.concatenate(out)
+
+
+def retime(wav: np.ndarray, sr: int, speed: float) -> np.ndarray:
+    """Pitch-preserving tempo change for a whole take (ffmpeg atempo).
+
+    ``speed`` > 1.0 speeds the read up, words and pauses together. Returns
+    the input unchanged at ~1.0 or if ffmpeg fails: a slow take is always
+    better than no take.
+    """
+    speed = max(0.5, min(2.0, float(speed or 1.0)))
+    if abs(speed - 1.0) < 1e-3 or wav.size == 0:
+        return wav
+    src = Path(tempfile.mktemp(suffix="_retime_src.wav"))
+    dst = Path(tempfile.mktemp(suffix="_retime_out.wav"))
+    try:
+        sf.write(str(src), np.asarray(wav, dtype=np.float32).reshape(-1), sr,
+                 subtype="FLOAT")
+        _run([config.FFMPEG, "-y", "-i", str(src),
+              "-af", f"atempo={speed:.4f}", "-ar", str(sr), str(dst)])
+        out, _ = sf.read(str(dst), dtype="float32")
+        out = np.asarray(out, dtype=np.float32)
+        return out[:, 0] if out.ndim > 1 else out.reshape(-1)
+    except Exception:
+        return wav
+    finally:
+        for p in (src, dst):
+            try:
+                p.unlink(missing_ok=True)
+            except OSError:
+                pass
 
 
 def export(stitched: np.ndarray, sr: int, basename: str, *, loudnorm: bool,

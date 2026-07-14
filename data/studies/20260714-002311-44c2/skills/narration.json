@@ -1,0 +1,9 @@
+{
+  "wpm": [195, 210],
+  "pauses": {"per_min": [4, 7], "long_before": "chapter turns and reveals"},
+  "speech_share_pct": [70, 83],
+  "instruct": "Calm, precise male documentary narrator, mid-low register, measured newsreader trust. Present tense storytelling with real pauses: a beat after each reveal, a longer beat before chapter turns. Slightly tighter pace during escalation, settling quiet and thoughtful at the end with falling cadence. Dry humor read completely straight. Quoted dialogue gets a subtle cadence shift, never a character voice.",
+  "humanize": "natural",
+  "outro": "on",
+  "aaaflow_mapping": {"voice_speed": 1.28, "voice_gap_ms": 200, "voice_paragraph_gap_ms": 550, "note": "speed assumes ~160 wpm raw TTS output; verify against first take and retune"}
+}

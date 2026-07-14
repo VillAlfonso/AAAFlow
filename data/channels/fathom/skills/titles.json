@@ -1,0 +1,18 @@
+{
+  "formulas": [
+    {"pattern": "The Hunt for {superlative-person}", "share": 0.25, "example": "The Hunt for America's Smartest Killer"},
+    {"pattern": "How {a person/institution} {did the improbable thing}", "share": 0.25, "example": "How an FBI Agent Infiltrated the KKK"},
+    {"pattern": "The {unlikely people} Who {did the audacious thing}", "share": 0.15, "example": "The Kids Who Hacked The CIA"},
+    {"pattern": "{Superlative} {category} (in History / of X)", "share": 0.2, "example": "The Biggest Nuke in History"},
+    {"pattern": "flat declarative judgment or genuine question", "share": 0.15, "example": "What Was on Bin Laden's Hard Drive?"}
+  ],
+  "length": {"words_min": 4, "words_max": 9, "chars_max": 55},
+  "rules": [
+    "name the subject, never withhold it; scale words carry curiosity",
+    "one superlative OR one institution per title, never stacked",
+    "Title Case, no listicle numbers, question marks only for real mysteries",
+    "write magnitudes out in full ($1,000,000,000)",
+    "the video must pay off the scale word"
+  ],
+  "examples": ["The Hunt for the King of the Dark Web", "The Kids Who Hacked The CIA", "How a Pilot Hijacked a Plane", "The Genius Design of Narco Submarines", "South Korea Is a Dystopia"]
+}

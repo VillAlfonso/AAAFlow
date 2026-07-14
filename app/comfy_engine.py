@@ -218,7 +218,16 @@ class ComfyEngine:
             t0 = time.time()
             lo, hi = prange
             while time.time() - t0 < timeout:
-                hist = self._get(f"/history/{pid}", timeout=15)
+                # ComfyUI blocks its own HTTP thread while a big checkpoint
+                # loads (Wan 14B takes minutes), so a poll timeout means
+                # "busy", never "dead" — retry instead of failing the render.
+                try:
+                    hist = self._get(f"/history/{pid}", timeout=30)
+                except Exception:  # noqa: BLE001 — transient: loading/busy
+                    if progress:
+                        progress(f"{stage} (loading model…)", lo)
+                    time.sleep(5)
+                    continue
                 if pid in hist:
                     entry = hist[pid]
                     st = entry.get("status", {})

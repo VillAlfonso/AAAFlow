@@ -1,0 +1,126 @@
+{
+ "id": "20260714-212207-2815",
+ "url": "https://www.youtube.com/watch?v=LZkl0_9xFOU",
+ "status": "done",
+ "stage": "report",
+ "pct": 100.0,
+ "msg": "complete",
+ "created": 1784035327.9962656,
+ "options": {
+  "model": "large-v3",
+  "quality": 720,
+  "sampling": "1s",
+  "keep_video": true,
+  "include_words": true
+ },
+ "meta": {
+  "title": "The Kids Who Hacked Xbox",
+  "channel": "fern",
+  "upload_date": "20240923",
+  "duration": 1658.0,
+  "views": 10948816,
+  "url": "https://www.youtube.com/watch?v=LZkl0_9xFOU",
+  "video_id": "LZkl0_9xFOU",
+  "description": "Support our channel and check out https://fern.deals/odoo94 to create your website for free! (ad)\n\n\nA group of teenagers hacked the world’s biggest game developers over the course of several years. This is their story.\n\nWired article: https://www.wired.com/story/xbox-underground-videogame-hackers/\nDarknet Diaries episodes: \nhttps://darknetdiaries.com/episode/45/ \nhttps://darknetdiaries.com/episode/46/ \n\nOriginal: https://youtu.be/kNnqMq9zA84\n\n0:00 Intro \n2:30 The Beginning of the Underground \n7:50 admin060606\n13:58 Durango\n19:58 Person A\n\n________\n\nQuellen:\nhttps://docs.google.com/document/d/1NbKptdH1HLNl8uHPm-wq5mgHO4ZTQmKtzCzSnS2gUBk/edit?usp=sharing\n\n\nMusic:\n\nArtlist:\nOut Of Flux - Surrendered\nRoniit - Martyr - Instrumental Version\nTheatre Of Delays - Swim\nTheatre Of Delays - Horizon\nTamuz Dekel - My Right Foot\nBrianna Tam - Intrepid\nMatthias Förster - With Odins Help - No Backing Vocals\nNight Rider 87 - K\nOr Chausha - Laserbeam\nGruber - The Uprising\nPeter Matri - Invasion\nSid Acharya - Solitude\nJosh McCausland - A Town Called Dismal\n\nLens Distortion:\nCulmination\nGravity\nElevation\nAll On The Line - Undertones\nThe Competitors - Undertones\nRematch - Underscore \nShadows - Underscore\nManifesto - No Melody, Strings, Pad\nNo Limits\nPulse Rate\nAccede\nBorn For This\nThe Industry\n\nEpidemic Sounds:\nMy Sleeping Giant - DEX 1200\nUncharted Territories - DEX 1200\nReynard Seidel - Vellication\nGreat Eagles Lair - Eden Avery\nDark Premonitions - Jon Summer\nZodia - Craft Case\nSecrets in the Dark - Alan Carlson-Green\nMax Anson - Too Late to Wait\nMax Anson - Potential Redemption\nInto Hiding - Marten Moses\n\nSinjen Studios:\nCyberhack\nNexus\nMetabrain\n\nThe Music Room:\nThomas Fox - September Drum Rhythm C (Tonal)\n\n_____\n\nArmchair documentaries, almost weekly",
+  "tags": [],
+  "categories": [
+   "Entertainment"
+  ],
+  "likes": 163909,
+  "comments": 8300,
+  "subs": 5090000,
+  "chapters": [
+   {
+    "t": 0.0,
+    "title": "Intro"
+   },
+   {
+    "t": 150.0,
+    "title": "The Beginning of the Underground"
+   },
+   {
+    "t": 470.0,
+    "title": "admin060606"
+   },
+   {
+    "t": 838.0,
+    "title": "Durango"
+   },
+   {
+    "t": 1198.0,
+    "title": "Person A"
+   }
+  ],
+  "thumbnail_url": "https://i.ytimg.com/vi/LZkl0_9xFOU/maxresdefault.jpg"
+ },
+ "summary": {
+  "duration": 1658.0,
+  "shots": 433,
+  "cuts_per_min": 15.6,
+  "wpm_speaking": 224,
+  "words": 4894,
+  "sheets": 51,
+  "report_kb": 42.9,
+  "pack_mb": 10.98
+ },
+ "outputs": [
+  "pack.pdf",
+  "report.md",
+  "report.json",
+  "sheet_01.jpg",
+  "sheet_02.jpg",
+  "sheet_03.jpg",
+  "sheet_04.jpg",
+  "sheet_05.jpg",
+  "sheet_06.jpg",
+  "sheet_07.jpg",
+  "sheet_08.jpg",
+  "sheet_09.jpg",
+  "sheet_10.jpg",
+  "sheet_11.jpg",
+  "sheet_12.jpg",
+  "sheet_13.jpg",
+  "sheet_14.jpg",
+  "sheet_15.jpg",
+  "sheet_16.jpg",
+  "sheet_17.jpg",
+  "sheet_18.jpg",
+  "sheet_19.jpg",
+  "sheet_20.jpg",
+  "sheet_21.jpg",
+  "sheet_22.jpg",
+  "sheet_23.jpg",
+  "sheet_24.jpg",
+  "sheet_25.jpg",
+  "sheet_26.jpg",
+  "sheet_27.jpg",
+  "sheet_28.jpg",
+  "sheet_29.jpg",
+  "sheet_30.jpg",
+  "sheet_31.jpg",
+  "sheet_32.jpg",
+  "sheet_33.jpg",
+  "sheet_34.jpg",
+  "sheet_35.jpg",
+  "sheet_36.jpg",
+  "sheet_37.jpg",
+  "sheet_38.jpg",
+  "sheet_39.jpg",
+  "sheet_40.jpg",
+  "sheet_41.jpg",
+  "sheet_42.jpg",
+  "sheet_43.jpg",
+  "sheet_44.jpg",
+  "sheet_45.jpg",
+  "sheet_46.jpg",
+  "sheet_47.jpg",
+  "sheet_48.jpg",
+  "sheet_49.jpg",
+  "sheet_50.jpg",
+  "sheet_51.jpg",
+  "thumbnail.jpg",
+  "video.mp4"
+ ],
+ "error": null,
+ "job_id": "cceb54dc1ff9"
+}

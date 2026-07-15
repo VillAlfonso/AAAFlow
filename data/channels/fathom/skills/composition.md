@@ -1,61 +1,90 @@
-# composition — fern study (what fills the screen)
+# composition — fern study (MEASURED, not guessed)
 
-## THE STYLE DNA (trigger: `3d mannequin documentary`)
+Evidence: 584 shots across 5 videos, each read against the exact narration
+spoken over it (`app/composer_analysis.py`), plus the whole-film arc.
+This REPLACES the earlier hand-guessed version, which was wrong in the way
+that matters most.
 
-The signature look, measured across 762 3D-render frames ("mannequin" is
-the single most common subject word): **faceless matte humanoid MANNEQUIN
-figures** — no faces, no clothing detail, smooth grey/white body forms —
-acting out reconstructions inside stylized 3D environments. Dark low-key
-lighting, deep shadows, and ONE red rim-light or accent per frame.
-Surveillance framings recur (REC overlays, thermal/night-vision, CCTV
-angles), as do miniature diorama city models and red-on-black data maps.
-Real archival footage, documents and screenshots are cut in between.
+## THE HEADLINE: fern is an EVIDENCE channel, not a reconstruction channel
 
-This is why the channel can reconstruct ANY event without deepfaking a real
-person: mannequins are deliberately anonymous. Use them for every human
-reenactment. Real people appear only as archival photos/footage.
+What is actually on screen, across 584 shots:
 
-Every image and clip prompt on this channel leads with the trigger phrase
-`3d mannequin documentary` (it is also the channel's style_suffix and the
-LoRA's trained trigger).
-
-
-Measured media mix across 5,002 VLM-tagged frames:
-
-| media | share (range across videos) |
+| device | share |
 |---|---|
-| live-footage (real/archival/reenactment) | 20-45% |
-| screenshot (documents, chats, articles, terminals) | 10-40% |
-| 3d-render (maps, reconstructions, device models) | 12-22% |
-| typeset-card (name tags, date stamps, labels) | 5-15% |
-| talking-head (interviews, hearings) | 0-25% (815f-heavy) |
-| real-photo (portraits, case photos) | 3-10% |
-| map | 1-5% (but signature: bc3b is built ON one) |
+| archival video | 23% |
+| screenshots (chats, forums, posts, articles) | 22% |
+| documents (records, filings, letters) | 18% |
+| **3D mannequin reconstruction** | **16%** |
+| archival photos | 7% |
+| talking heads | 5% |
 
-On-screen text share: **75-91% of frames** — near-constant utilitarian
-typesetting: name+role tags on people, location+date stamps on scene
-changes, evidence labels on documents, map annotations.
+**The mannequins are a garnish, not the meal.** A channel built as 100%
+reconstruction copies the most visually distinctive sixth of fern and throws
+away the five sixths that carry the documentary weight. That mistake is what
+made our first Fathom board feel hollow: pretty dioramas of nothing, proving
+nothing.
 
-## The five moves (with executors)
+## THE SECOND HEADLINE: they rarely draw what the line says
 
-1. **The reconstruction**: a 3D map/space the camera moves through while
-   labels pin actors and distances (bc3b's whole spine). Ours: Wan t2v
-   clip of the space + Remotion ArrowCallout/typeset labels.
-2. **The document dive**: real screenshot/paper, camera pushes slowly, a
-   highlight or label lands on the key line as narration reads it. Ours:
-   receipts machinery + archival fetcher.
-3. **The identity card**: first mention of any person = their real photo
-   (or silhouette when unknown) + typeset name/role tag. Ours: ref cards
-   with real archival photos, label mandatory.
-4. **The atmosphere shot**: a held location/mood clip with NO text, under
-   music, buying breathing room between chapters. Ours: Wan t2v, no
-   overlays, part of the 17-30% no-speech air.
-5. **The stamp**: chapter/date/location typeset card on a dark or plain
-   frame at every time jump (fade + stamp together). Ours: Remotion
-   SegmentCard.
+How the picture answers the words:
 
-Rule: NEVER two consecutive scenes from the same media class unless inside
-a document dive or reconstruction sequence. The mix IS the look.
-Everything visual is evidence-flavored: if a generated shot could not
-plausibly be footage, a document, or a reconstruction, reframe it so it
-could.
+| relation | share | meaning |
+|---|---|---|
+| **evidence** | **35%** | the picture PROVES the claim (a document, a screenshot, a record) |
+| **context** | **33%** | the wider place, time or scale around the line |
+| literal | 19% | the picture shows the thing the line names |
+| metaphor | 13% | it stands in for an abstract idea |
+| reaction | 1% | aftermath |
+
+Only **19%** of shots are literal. Our board was almost entirely literal —
+"the line says a coin, draw a coin". Fern answers a claim with a RECEIPT.
+
+## THE COMPOSER LOOKUP (what each KIND of line gets shown)
+
+| the line is… | fern shows |
+|---|---|
+| an event / action | **evidence/document** or **evidence/screenshot** (by far the most common pairing) |
+| a person | **evidence/screenshot** (their post, profile, record), then context/archival |
+| a number or claim | **context/archival-video** or **evidence/screenshot** |
+| an explanation | **context/talking-head** or context/document |
+| a quote / speech | **context/talking-head** or the document it came from |
+| a date or time | evidence/screenshot, or a literal b-roll beat |
+| an abstraction | evidence/screenshot, or context/archival |
+
+Rule: **when in doubt, show the proof, not the picture.**
+
+## THE ARC (the whole film, not the scene)
+
+Measured on both long videos:
+
+1. **Opening — fastest cutting (16-21 cuts/min).** Screenshots and archival,
+   relations skew metaphor + evidence. A montage barrage: hook first, orient
+   second.
+2. **Middle — SLOWS to 12-14 cuts/min, and turns to CONTEXT (up to 57%).**
+   This is where reconstruction (the mannequins) actually appears — they are
+   building a world, not proving a point. Documents run alongside.
+3. **Long holds of 20-41 seconds**, placed deep in the middle. Uncut evidence:
+   a recorded call, a document, footage allowed to play. The pace has room
+   because the cutting slowed.
+4. **Close — picks back up (14-15 cuts/min), returns to context + evidence.**
+   Almost never literal. One video lifts metaphor to 32% at the end, as the
+   argument generalises past the story.
+
+## WHAT THIS MEANS FOR OUR PIPELINE
+
+Target media budget for a Fathom video (mirroring fern, within what we can
+lawfully source):
+
+| device | target | how WE make it |
+|---|---|---|
+| evidence: documents + screenshots | **~40%** | `playwright` screenshots of public records, court filings, government pages; `receipts.py` float-in + highlight sweep on the spoken word |
+| context: archival photos / footage | **~20%** | `archival.py` (Wikimedia PD/CC, US government works — public domain) |
+| reconstruction (mannequins) | **~25%** | Wan t2v + the fern LoRA — reserved for the MIDDLE, for what cannot be filmed |
+| typeset cards / maps | **~15%** | Remotion (SegmentCard, DateChip, ArrowCallout) + the overlay director |
+
+**Copyright reality (be honest about this):** fern uses copyrighted news
+footage and photos under fair-use commentary. We should NOT auto-scrape that.
+Our safe evidence lanes are: US government works (court records, DOJ/FBI
+filings — public domain), Wikimedia PD/CC, and our own screenshots of public
+web pages for commentary. That is enough to build an evidence-led video; it
+is not enough to clone their archival cut, and we should not try.

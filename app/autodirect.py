@@ -517,6 +517,15 @@ def direct(raw: Dict, *, default_style: str | None = None,
     except Exception as exc:  # noqa: BLE001 — never block an import
         warnings.append(f"overlay director skipped ({type(exc).__name__})")
 
+    # COMPOSITION LINT (2026-07-14): catch a board composed scene-by-scene —
+    # the global failures (no recurring cast/world, nobody on screen, no
+    # callbacks) that every individual prompt hides.
+    try:
+        from . import compose_lint as _cl
+        warnings.extend(_cl.check(sb))
+    except Exception as exc:  # noqa: BLE001
+        warnings.append(f"composition lint skipped ({type(exc).__name__})")
+
     stats["emphasized"] = sum(1 for s in scenes if s.get("emphasis"))
     stats["scene_fx"] = sum(1 for s in scenes if s.get("fx"))
     report = {"fixes": fixes, "warnings": warnings, "stats": stats,

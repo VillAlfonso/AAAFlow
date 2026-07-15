@@ -204,8 +204,19 @@ def submit_t2v_visuals(pid: str, opts: Optional[Dict] = None,
                     else random.randint(0, 2**31 - 1))
             mp = scenes.build_motion_prompt(sc, video, fallback="")
             subject = (sc.get("image_prompt") or "").strip().strip(".")
+            # CHARACTER BIBLE (2026-07-14): restate each recurring character's
+            # fixed look in every scene they appear in. t2v has no reference
+            # conditioning, so a character only stays on-model if the prompt
+            # says so — the krea2 path already did this; this one did not.
+            blurb = scenes.character_blurb(sc, project.get("character_bible"))
+            if blurb:
+                subject = f"{subject}. {blurb}"
+            # SUBJECT LEADS, style follows and is CLAUSE-DEDUPED (same rule as
+            # the krea2 path). Naive concatenation repeated the trigger phrase
+            # and let the style's own nouns compete with the scene's subject.
+            body = scenes.merge_style(subject, gstyle)
             full_prompt = ". ".join(p.strip().strip(".") for p in
-                                    (gstyle, subject, mp, style_tail) if p.strip())
+                                    (body, mp, style_tail) if p.strip())
             sec = seconds
             if sec in (None, "", 0):
                 sdur = float(sc.get("planned_dur") or 0) or None

@@ -76,16 +76,32 @@ def search(query: str, limit: int = 12, min_width: int = 800) -> List[Dict]:
     return rows[:limit]
 
 
-def fetch(row: Dict, dest: Path) -> Optional[Path]:
-    """Download one search row (the 1600px render, plenty for 1080p)."""
+def fetch(row: Dict, dest: Path, *, retries: int = 4) -> Optional[Path]:
+    """Download one search row (the 1600px render, plenty for 1080p).
+
+    Wikimedia rate-limits bursts (HTTP 429), so back off and retry rather than
+    dropping the asset — an evidence-led video needs these.
+    """
     url = row.get("thumb") or row.get("url")
     if not url:
         return None
     dest.parent.mkdir(parents=True, exist_ok=True)
-    req = urllib.request.Request(url, headers=UA)
-    with urllib.request.urlopen(req, timeout=60) as r:
-        dest.write_bytes(r.read())
-    return dest if dest.exists() else None
+    for attempt in range(retries):
+        try:
+            req = urllib.request.Request(url, headers=UA)
+            with urllib.request.urlopen(req, timeout=60) as r:
+                dest.write_bytes(r.read())
+            return dest if dest.exists() else None
+        except urllib.error.HTTPError as exc:
+            if exc.code in (429, 503) and attempt < retries - 1:
+                time.sleep(3 * (attempt + 1))     # 3s, 6s, 9s
+                continue
+            print(f"[archival] {url}: HTTP {exc.code}")
+            return None
+        except Exception as exc:  # noqa: BLE001
+            print(f"[archival] {url}: {type(exc).__name__}")
+            return None
+    return None
 
 
 def apply_to_scene(pid: str, sid, query: str, pick: int = 0) -> Dict:

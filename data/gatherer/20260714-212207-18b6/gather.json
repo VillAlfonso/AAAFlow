@@ -1,0 +1,120 @@
+{
+ "id": "20260714-212207-18b6",
+ "url": "https://www.youtube.com/watch?v=ZrN4bKKMlLU",
+ "status": "done",
+ "stage": "report",
+ "pct": 100.0,
+ "msg": "complete",
+ "created": 1784035327.9972637,
+ "options": {
+  "model": "large-v3",
+  "quality": 720,
+  "sampling": "1s",
+  "keep_video": true,
+  "include_words": true
+ },
+ "meta": {
+  "title": "The Hunt for America's Deadliest Hitman",
+  "channel": "fern",
+  "upload_date": "20231109",
+  "duration": 1294.0,
+  "views": 9250048,
+  "url": "https://www.youtube.com/watch?v=ZrN4bKKMlLU",
+  "video_id": "ZrN4bKKMlLU",
+  "description": "Visit https://brilliant.org/fern for 20% off of a premium subscription. Start learning new skills today! (ad) \n\nRead Jessica Garrison's fantastic article here: \nhttps://www.buzzfeednews.com/article/jessicagarrison/martinez-hitman-cartel-black-hand-mano-negra-contract-killer \n\nThis is the story of José Manuel Martinez. \n\n00:00 Intro\n3:00 Chapter 1: The Making of a Killer\n7:07 Chapter 2: Deception Is Indicated\n11:55 Chapter 3: Did Romero Talk?\n17:41 Chapter 4: A Long List of Bodies\n\nOther sources: https://docs.google.com/document/d/1c6o_b69QEkmo5uy-FbDAkVGLsyHzpN4WZ97RFmH0akk/edit?usp=sharing \n\nMusic: \n\nCharlie Ryan - Tangled Nerves; An Uncommon World\nYehezkal Raz - Ganymede\nQuinten Coblentz - Babylon\nNick Poss - Ace High\nOut of Flux - Descending Chamber\nRhythm Scott - War Drum; Exotic Rhythm\nKyle Preston - Dark Tension\nC.K. Martin - Underworld\nSam Lux - Wildfire\nidokay - Cicada Killer (No Lead Vocals)\nSPEARFISHER - Blood in the Bayou ft. River Lume \nOut of Flux - Descending Chamber\n\n_____\n\nArmchair documentaries, almost weekly",
+  "tags": [],
+  "categories": [
+   "Entertainment"
+  ],
+  "likes": 185213,
+  "comments": 4300,
+  "subs": 5090000,
+  "chapters": [
+   {
+    "t": 0.0,
+    "title": "Intro"
+   },
+   {
+    "t": 180.0,
+    "title": "Chapter 1: The Making of a Killer"
+   },
+   {
+    "t": 427.0,
+    "title": "Chapter 2: Deception Is Indicated"
+   },
+   {
+    "t": 715.0,
+    "title": "Chapter 3: Did Romero Talk?"
+   },
+   {
+    "t": 1061.0,
+    "title": "Chapter 4: A Long List of Bodies"
+   }
+  ],
+  "thumbnail_url": "https://i.ytimg.com/vi/ZrN4bKKMlLU/maxresdefault.jpg"
+ },
+ "summary": {
+  "duration": 1294.0,
+  "shots": 327,
+  "cuts_per_min": 15.1,
+  "wpm_speaking": 205,
+  "words": 3497,
+  "sheets": 45,
+  "report_kb": 31.7,
+  "pack_mb": 10.8
+ },
+ "outputs": [
+  "pack.pdf",
+  "report.md",
+  "report.json",
+  "sheet_01.jpg",
+  "sheet_02.jpg",
+  "sheet_03.jpg",
+  "sheet_04.jpg",
+  "sheet_05.jpg",
+  "sheet_06.jpg",
+  "sheet_07.jpg",
+  "sheet_08.jpg",
+  "sheet_09.jpg",
+  "sheet_10.jpg",
+  "sheet_11.jpg",
+  "sheet_12.jpg",
+  "sheet_13.jpg",
+  "sheet_14.jpg",
+  "sheet_15.jpg",
+  "sheet_16.jpg",
+  "sheet_17.jpg",
+  "sheet_18.jpg",
+  "sheet_19.jpg",
+  "sheet_20.jpg",
+  "sheet_21.jpg",
+  "sheet_22.jpg",
+  "sheet_23.jpg",
+  "sheet_24.jpg",
+  "sheet_25.jpg",
+  "sheet_26.jpg",
+  "sheet_27.jpg",
+  "sheet_28.jpg",
+  "sheet_29.jpg",
+  "sheet_30.jpg",
+  "sheet_31.jpg",
+  "sheet_32.jpg",
+  "sheet_33.jpg",
+  "sheet_34.jpg",
+  "sheet_35.jpg",
+  "sheet_36.jpg",
+  "sheet_37.jpg",
+  "sheet_38.jpg",
+  "sheet_39.jpg",
+  "sheet_40.jpg",
+  "sheet_41.jpg",
+  "sheet_42.jpg",
+  "sheet_43.jpg",
+  "sheet_44.jpg",
+  "sheet_45.jpg",
+  "thumbnail.jpg",
+  "video.mp4"
+ ],
+ "error": null,
+ "job_id": "cceeb7458e73"
+}

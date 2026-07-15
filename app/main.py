@@ -14,7 +14,8 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from . import (animate, archival, assemble, audiolib, brandkit, captions,
-               channels, characters, config, effects, gatherer, gpu, grade,
+               channels, characters, composer_analysis, config, effects,
+               gatherer, gpu, grade,
                grammar, humanize, images, janitor, jobs, music, packaging,
                pilot, produce, projects, recipe, roulette, scenes, score,
                overlays, service, sfx, shorts, storage, study, style_refs,
@@ -726,6 +727,39 @@ def gatherer_techniques(gid: str):
         return {"job": techniques.submit(gid)}
     except (ValueError, RuntimeError) as exc:
         raise HTTPException(status_code=400, detail=str(exc))
+
+
+@app.post("/api/gatherer/{gid}/composition")
+def gatherer_composition(gid: str, max_shots: int = 140):
+    """THE TRUE ANALYZER, pass 1: pair every shot with the narration spoken
+    over it and read both together (what was shown, and WHY it serves the
+    line). Writes composition.json + composition.md into the pack."""
+    try:
+        return {"job": composer_analysis.submit(gid, max_shots=max_shots)}
+    except (ValueError, RuntimeError) as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
+@app.get("/api/gatherer/{gid}/composition/synthesis")
+def gatherer_synthesis(gid: str):
+    """Pass 2 payload: the prompt + the ordered record, for ANY model to turn
+    into the video's architecture (acts, callbacks, rules_for_composer)."""
+    try:
+        return composer_analysis.synthesis_input(gid)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
+
+
+@app.post("/api/gatherer/{gid}/composition/synthesis")
+def gatherer_synthesize(gid: str):
+    """Run pass 2 through the local LLM (no-Claude fallback)."""
+    try:
+        arch = composer_analysis.synthesize_local(gid)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
+    if not arch:
+        raise HTTPException(status_code=502, detail="local LLM returned no JSON")
+    return arch
 
 
 @app.post("/api/projects/{pid}/overlays")

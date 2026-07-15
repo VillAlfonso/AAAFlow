@@ -25,13 +25,15 @@ from .comfy_engine import comfy_engine
 
 
 def _no_text(negative: Optional[str]) -> str:
-    """Every Wan render carries the no-text negative (user rule, 2026-07-14:
-    "wan should only do content never the texts"). Text is Remotion's job."""
+    """Every Wan render carries the standing negatives, whatever the caller
+    passed: NO TEXT (text is Remotion's job) and NO NSFW (never nudity, gore
+    or anything disturbing — user rules, 2026-07-14). Nothing can opt out."""
     w = config.WAN
     base = negative if negative is not None else w["negative"]
-    block = w.get("negative_text") or ""
-    if block and block.split(",")[0].strip() not in base:
-        base = ", ".join(p for p in (base, block) if p)
+    for key in ("negative_text", "negative_safety"):
+        block = w.get(key) or ""
+        if block and block.split(",")[0].strip() not in base:
+            base = ", ".join(p for p in (base, block) if p)
     return base
 
 

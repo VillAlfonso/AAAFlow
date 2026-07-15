@@ -1,19 +1,29 @@
 {
-  "media_mix_targets": {
-    "live-footage": [0.20, 0.45],
-    "screenshot": [0.10, 0.40],
-    "3d-render": [0.12, 0.22],
-    "typeset-card": [0.05, 0.15],
-    "real-photo": [0.03, 0.10],
-    "map": [0.01, 0.05]
+  "_source": "MEASURED from 584 shots x their narration (app/composer_analysis.py), 5 fern videos. Replaces the hand-guessed version.",
+  "device_mix_reference": {"archival-video": 0.23, "screenshot": 0.22, "document": 0.18, "reconstruction-3d": 0.16, "archival-photo": 0.07, "talking-head": 0.05},
+  "relation_mix_reference": {"evidence": 0.35, "context": 0.33, "literal": 0.19, "metaphor": 0.13, "reaction": 0.01},
+  "headline": "fern is an EVIDENCE channel, not a reconstruction channel: mannequins are 16% of shots, and only 19% of shots literally depict the line. Answer a claim with a receipt.",
+  "line_kind_to_picture": {
+    "event/action": ["evidence/document", "evidence/screenshot"],
+    "person": ["evidence/screenshot", "context/archival-video"],
+    "number/claim": ["context/archival-video", "evidence/screenshot"],
+    "explanation": ["context/talking-head", "context/document"],
+    "speech/quote": ["context/talking-head", "context/document"],
+    "date/time": ["evidence/screenshot", "literal/b-roll"],
+    "abstraction": ["evidence/screenshot", "context/archival-video"]
   },
-  "onscreen_text_frame_share": [0.75, 0.91],
-  "moves": [
-    {"name": "reconstruction", "executor": "wan-t2v space + ArrowCallout labels"},
-    {"name": "document-dive", "executor": "receipts + archival fetcher + highlight"},
-    {"name": "identity-card", "executor": "refcards with real photos, label mandatory"},
-    {"name": "atmosphere-shot", "executor": "wan-t2v held clip, no text, music only"},
-    {"name": "stamp", "executor": "Remotion SegmentCard on time jumps, with fade"}
-  ],
-  "rules": ["never two consecutive scenes of the same media class outside a sequence", "every visual must read as footage, document, or reconstruction", "name+role tag on every first-mention person", "location+date stamp on every scene change"]
+  "arc": {
+    "opening": {"cuts_per_min": [16, 21], "devices": ["screenshot", "archival-video"], "relations": ["metaphor", "evidence"], "note": "fastest cutting: montage barrage, hook before orientation"},
+    "middle": {"cuts_per_min": [12, 14], "devices": ["reconstruction-3d", "document"], "relations": ["context"], "note": "slows down; context up to 57%; the mannequins live HERE, building a world"},
+    "long_holds": {"count": [2, 4], "seconds": [20, 41], "note": "uncut evidence deep in the middle: a call, a document, footage allowed to play"},
+    "closing": {"cuts_per_min": [14, 15], "relations": ["context", "evidence", "metaphor"], "note": "picks back up; almost never literal; metaphor can rise as the argument generalises"}
+  },
+  "our_media_budget": {"document+screenshot": 0.40, "archival": 0.20, "reconstruction": 0.25, "typeset+map": 0.15},
+  "our_sources": {
+    "document+screenshot": "playwright screenshots of PUBLIC records (court filings, DOJ/FBI, government pages) + receipts.py float-in and highlight sweep on the spoken word",
+    "archival": "app/archival.py — Wikimedia PD/CC and US government works (public domain)",
+    "reconstruction": "Wan t2v + fern LoRA, reserved for the middle and for what cannot be filmed",
+    "typeset+map": "Remotion via the overlay director"
+  },
+  "copyright_note": "fern uses copyrighted news footage under fair-use commentary. We do NOT auto-scrape that. Safe lanes: US government works (public domain), Wikimedia PD/CC, our own screenshots of public pages for commentary."
 }

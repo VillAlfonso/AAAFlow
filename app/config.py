@@ -221,7 +221,19 @@ WAN = {
         "smeared, melting, melted face, distorted face, deformed, mutated, "
         "warping, morphing, boiling lines, shimmering, wobbling outlines, jitter, "
         "flickering, blurry, uncanny, extra limbs, messy, low quality, jpeg "
-        "artifacts, watermark, text"
+        "artifacts, watermark, text, "
+        # phantom cast (2026-07-14): extra figures loitering behind the subject
+        "duplicate figures, cloned figures, unwanted background people, "
+        "phantom figures, extra mannequins, "
+        # anatomy (user, 2026-07-15: extra hand on a figure): a hands close-up
+        # is the classic extra-limb trap
+        "extra hand, extra hands, extra fingers, too many fingers, extra arm, "
+        "extra arms, third arm, third hand, duplicate hands, fused fingers, "
+        "malformed hands, disconnected limbs, "
+        # mirrors (user, 2026-07-15: reflections render the mannequins wrong):
+        # NEVER a mirror or a reflected figure
+        "mirror, mirrors, reflection, reflected figure, reflected person, "
+        "reflective surface, mirror image"
     ),
     # HARD RULE (user, 2026-07-14): Wan renders CONTENT ONLY, never text. Every
     # generation appends this block — no channel, preset or storyboard can
@@ -233,6 +245,18 @@ WAN = {
         "subtitles, title card, lower third, on-screen text, overlay text, "
         "watermark, logo, signage, labels, numbers, gibberish text, "
         "garbled letters, handwriting, credits"
+    ),
+    # HARD SAFETY RULE (user, 2026-07-14): NEVER nudity, gore or NSFW. Forced
+    # onto every render by the engine — no channel or storyboard can opt out.
+    # Doubly needed here: real mannequins are nude store dummies, so "mannequin"
+    # pulls the model toward a bare, sculpted, uncanny half-human body.
+    "negative_safety": (
+        "nude, nudity, naked, undressed, topless, shirtless, bare chest, "
+        "bare skin, exposed torso, nipples, underwear, lingerie, sexual, "
+        "suggestive, erotic, gore, blood, bloody, wound, injury, corpse, "
+        "mutilation, violence, weapon aimed at camera, disturbing, "
+        "uncanny valley, creepy realistic face, sculpted human face on a "
+        "mannequin, eyebrows, eyelashes, lips"
     ),
     # generic style-hold tail appended to every clip prompt (the project's own
     # global style leads; see animate.py)

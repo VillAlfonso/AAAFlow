@@ -2,12 +2,12 @@
   "id": "89a7cc9961a9",
   "name": "The Kid Who Took Over Twitter",
   "created": 1784017500.880727,
-  "updated": 1784030813.706939,
+  "updated": 1784089211.2707112,
   "channel": "fathom",
   "video": {
     "title": "The Kid Who Took Over Twitter",
-    "global_style_suffix": "3d mannequin documentary, faceless matte humanoid mannequin figures with no facial features, stylized 3d reconstruction environment, dark low-key lighting, deep shadows, one red rim-light accent, desaturated cinematic documentary grade, filmic grain",
-    "global_negative_prompt": "cartoon, anime, illustration, detailed human faces, facial features, oversaturated, neon colors, bright cheerful lighting, watermark, readable text, gibberish letters, low quality, deformed",
+    "global_style_suffix": "3d mannequin documentary, stylized 3d reconstruction environment, dark low-key lighting, deep shadows, one red rim-light accent, desaturated cinematic documentary grade, filmic grain",
+    "global_negative_prompt": "real human face, facial features, eyes, nose, mouth, hair, human skin, photorealistic person, portrait, cartoon, anime, illustration, oversaturated, neon colors, bright cheerful lighting, low quality, deformed",
     "direction_card": {
       "id": "in-medias-res",
       "hook_style": "open mid-moment — someone is already doing something at a specific time of night",
@@ -15,6 +15,152 @@
       "transition_offset": 2,
       "emphasis_offset": 1,
       "kb_strength": 1.1
+    },
+    "visual_plan": {
+      "spine": "A hooded figure in a blue bedroom talks the world's most powerful accounts out of their own hands with a telephone. The story is told through the RECORD it left: the charging release, the platform's own confession, the archived post, the licence he once uploaded to prove he was himself. Reconstruction fills only what no document can show. The room is the argument; the paperwork is the proof.",
+      "acts": [
+        {
+          "name": "The takeover",
+          "scenes": [
+            1,
+            10
+          ],
+          "function": "show the impossible thing, then prove it happened",
+          "visual_shift": "evidence + real faces of the hijacked, fastest cutting"
+        },
+        {
+          "name": "The method",
+          "scenes": [
+            11,
+            24
+          ],
+          "function": "the weapon was a phone call",
+          "visual_shift": "reconstruction lives HERE; documents alongside; the pace slows"
+        },
+        {
+          "name": "The trail",
+          "scenes": [
+            25,
+            33
+          ],
+          "function": "his carefulness became the evidence",
+          "visual_shift": "documents dominate; the hunt is paperwork"
+        },
+        {
+          "name": "The close",
+          "scenes": [
+            34,
+            40
+          ],
+          "function": "consequence, then the unpatched flaw",
+          "visual_shift": "context + evidence, never literal; ends on the empty chair"
+        }
+      ],
+      "cast": [
+        {
+          "name": "Clark",
+          "look": "a faceless matte grey mannequin figure in a grey hoodie with the hood up and dark jeans, smooth blank head, no face, no facial features",
+          "appears_in": [
+            1,
+            10,
+            12,
+            14,
+            16,
+            22,
+            24,
+            28,
+            29,
+            33,
+            40
+          ]
+        },
+        {
+          "name": "The employee",
+          "look": "a faceless matte grey mannequin figure in a light blue shirt and dark trousers with a lanyard badge, smooth blank head, no face",
+          "appears_in": [
+            15,
+            18,
+            19,
+            39
+          ]
+        }
+      ],
+      "world": [
+        {
+          "space": "the bedroom",
+          "description": "the dim blue bedroom, closed blinds, three monitors with red rim lights, energy drink cans and tangled cables",
+          "scenes": [
+            1,
+            10,
+            12,
+            16,
+            22,
+            40
+          ]
+        },
+        {
+          "space": "the open-plan office",
+          "description": "night, glass walls, cold blue monitors",
+          "scenes": [
+            15,
+            18,
+            19,
+            39
+          ]
+        }
+      ],
+      "motifs": [
+        {
+          "object": "the desk phone",
+          "meaning": "the actual weapon: a person picking up, wanting to help",
+          "scenes": [
+            16,
+            39
+          ]
+        },
+        {
+          "object": "the DOJ charging release",
+          "meaning": "the record that outlives him",
+          "scenes": [
+            17,
+            20,
+            30,
+            34,
+            37
+          ]
+        },
+        {
+          "object": "the empty chair",
+          "meaning": "his absence, and the flaw that remains",
+          "scenes": [
+            40
+          ]
+        }
+      ],
+      "callbacks": [
+        {
+          "setup": 16,
+          "payoff": 39,
+          "what": "a hand lifts a ringing desk phone to begin the attack; at the end another hand reaches for a ringing phone, wanting to be helpful"
+        },
+        {
+          "setup": 1,
+          "payoff": 40,
+          "what": "he is hunched in the chair; the video ends on that chair empty, the monitor still glowing"
+        },
+        {
+          "setup": 3,
+          "payoff": 9,
+          "what": "the real faces of the hijacked, then the silenced platform itself"
+        }
+      ],
+      "media_budget": {
+        "document": 0.4,
+        "archival": 0.2,
+        "reconstruction": 0.25,
+        "typeset": 0.15
+      },
+      "scale_plan": "Act 1 cuts fastest and leans on documents and real photographs. Act 2 slows and is where every reconstruction lives, alternating medium reenactment with macro detail. Act 3 is almost entirely documents, held longer. Act 4 returns to archival context and closes on the bedroom, empty."
     }
   },
   "settings": {
@@ -72,7 +218,14 @@
       "enhance": true,
       "coverage": "all"
     },
-    "music": null,
+    "music": {
+      "file": "score_20260715_110005_b405ed.wav",
+      "volume": 0.16,
+      "duck": true,
+      "fade": 1.5,
+      "prompt": "somber investigative ambient, quiet pulse, restrained tension, minimal piano and low strings cinematic corporate suspense understated",
+      "source": "ace-step"
+    },
     "authoring": "assisted",
     "music_vibe": "somber investigative ambient, quiet pulse, restrained tension, minimal piano and low strings"
   },
@@ -83,7 +236,7 @@
       "timecode": "",
       "narration": "It's the 15th of July, 2020.",
       "visual": "",
-      "image_prompt": "3d mannequin documentary, a faceless matte mannequin teenager in a hoodie hunched at a cluttered bedroom desk, three monitors glowing, energy drink cans and tangled cables, blinds shut, medium reenactment shot, dark low-key light, red monitor rim glow",
+      "image_prompt": "3d mannequin documentary, a faceless matte grey mannequin figure in a grey hoodie with the hood up and dark jeans, smooth blank head, no face, no facial features hunched forward typing fast in the dim blue bedroom, closed blinds, three monitors with red rim lights, energy drink cans and tangled cables, alone, nobody else present, medium reenactment",
       "on_screen_text": "",
       "text_anim": "",
       "character_action": "",
@@ -96,7 +249,7 @@
       "audio_file": null,
       "audio_dur": 2.17,
       "audio_voice": "Aiden",
-      "image_file": null,
+      "image_file": "images/scene_0001.png",
       "image_seed": 43,
       "image_meta": null,
       "type": "scene",
@@ -113,19 +266,19 @@
       "fx": [],
       "date_chip": "2020",
       "end_image_file": null,
-      "video_file": null,
+      "video_file": "video/scene_0001.mp4",
       "transcript": null,
       "status": {
         "audio": "ready",
         "image": "ready",
-        "video": "pending",
+        "video": "ready",
         "transcript": "none",
         "images": "pending"
       },
       "video_meta": {
         "engine": "wan-t2v",
         "quality": "balanced",
-        "prompt": "3d mannequin documentary, faceless matte humanoid mannequin figures with no facial features, stylized 3d reconstruction environment, dark low-key lighting, deep shadows, one red rim-light accent, desaturated cinematic documentary grade, filmic grain. 3d mannequin documentary, faceless matte mannequin figure sitting alone at a desk in a dim suburban bedroom, glow of a single monitor, blinds drawn, red rim light — clearly showing It's th July. 3d mannequin documentary, faceless matte mannequin figure sitting alone at a desk in a dim suburban bedroom, glow of a single monitor, blinds drawn, red rim light — clearly showing It's th July. subtle ambient motion, gentle idle movement and breathing, slow drifting camera, the scene stays composed and on-model. Consistent art style throughout, on-model, no style change, no repainting. Subtle deliberate motion",
+        "prompt": "3d mannequin documentary, a faceless matte grey mannequin figure in a grey hoodie with the hood up and dark jeans, smooth blank head, no face, no facial features hunched forward typing fast in the dim blue bedroom, closed blinds, three monitors with red rim lights, energy drink cans and tangled cables, alone, nobody else present, medium reenactment, stylized 3d reconstruction environment, dark low-key lighting, deep shadows, one red rim-light accent, desaturated cinematic documentary grade, filmic grain. 3d mannequin documentary, a faceless matte grey mannequin figure in a grey hoodie with the hood up and dark jeans, smooth blank head, no face, no facial features hunched forward typing fast in the dim blue bedroom, closed blinds, three monitors with red rim lights, energy drink cans and tangled cables, alone, nobody else present, medium reenactment. subtle ambient motion, gentle idle movement and breathing, slow drifting camera, the scene stays composed and on-model. Consistent art style throughout, on-model, no style change, no repainting. Subtle deliberate motion",
         "seconds": 2.5,
         "fps": 16,
         "seed": 43,
@@ -151,7 +304,7 @@
       "timecode": "",
       "narration": "A seventeen year old is about to take over the most powerful accounts on the internet.",
       "visual": "",
-      "image_prompt": "3d mannequin documentary, miniature diorama model of a single suburban Florida house at night glowing from one upstairs window, tiny palm trees, tabletop scale model on black, wide diorama shot, one red spotlight",
+      "image_prompt": "[EVIDENCE] The 2020 Twitter account hijacking",
       "on_screen_text": "",
       "text_anim": "",
       "character_action": "",
@@ -164,7 +317,7 @@
       "audio_file": null,
       "audio_dur": 3.67,
       "audio_voice": "Aiden",
-      "image_file": null,
+      "image_file": "research/evidence/wiki_hijacking.png",
       "image_seed": 44,
       "image_meta": null,
       "type": "scene",
@@ -185,19 +338,31 @@
         "image": "ready",
         "video": "pending",
         "transcript": "none",
-        "images": "pending"
+        "images": "ready"
       },
       "video_meta": {
         "engine": "wan-t2v",
         "quality": "balanced",
-        "prompt": "3d mannequin documentary, faceless matte humanoid mannequin figures with no facial features, stylized 3d reconstruction environment, dark low-key lighting, deep shadows, one red rim-light accent, desaturated cinematic documentary grade, filmic grain. 3d mannequin documentary, close on the mannequin's hands resting on a keyboard, monitor glow, dark room, red accent light — clearly showing seventeen year old take most powerful accounts. 3d mannequin documentary, close on the mannequin's hands resting on a keyboard, monitor glow, dark room, red accent light — clearly showing seventeen year old take most powerful accounts. subtle ambient motion, gentle idle movement and breathing, slow drifting camera, the scene stays composed and on-model. Consistent art style throughout, on-model, no style change, no repainting. Subtle deliberate motion",
+        "prompt": "3d mannequin documentary, a faceless matte mannequin figure in a grey hoodie with the hood up, slim teenage build seen small from behind, dwarfed by a towering wall of glowing blue verified profile avatars, wide reverse shot, cold blue wash, red rim light on his shoulders, stylized 3d reconstruction environment, dark low-key lighting, deep shadows, one red rim-light accent, desaturated cinematic documentary grade, filmic grain. 3d mannequin documentary, a faceless matte mannequin figure in a grey hoodie with the hood up, slim teenage build seen small from behind, dwarfed by a towering wall of glowing blue verified profile avatars, wide reverse shot, cold blue wash, red rim light on his shoulders. subtle ambient motion, gentle idle movement and breathing, slow drifting camera, the scene stays composed and on-model. Consistent art style throughout, on-model, no style change, no repainting. Subtle deliberate motion",
         "seconds": 3.67,
         "fps": 16,
         "seed": 44,
         "enhanced": true
       },
-      "camera": "slow aerial push-in toward, cinematic drone shot",
-      "overlays": []
+      "camera": "slow pull-back revealing, widening",
+      "overlays": [],
+      "image_locked": true,
+      "no_video": true,
+      "receipt": {
+        "focus": {
+          "x": 0.5,
+          "y": 0.3,
+          "w": 0.7,
+          "h": 0.25
+        },
+        "highlight": true,
+        "sync": "seventeen"
+      }
     },
     {
       "act": "",
@@ -205,12 +370,12 @@
       "timecode": "",
       "narration": "At 20:17 UTC, Elon Musk's Twitter account posts a message.",
       "visual": "",
-      "image_prompt": "3d mannequin documentary, a faceless mannequin in a plain black t-shirt standing in a rocket hangar beside a tall white rocket fuselage, holding a phone loosely at his side, wide reenactment shot, cold industrial light, red hazard lamp",
+      "image_prompt": "[ARCHIVAL] ELON MUSK",
       "on_screen_text": "",
       "text_anim": "",
       "character_action": "",
       "transition": "crash zoom",
-      "audio_cue": "",
+      "audio_cue": "quick whoosh",
       "id": 3,
       "planned_start": 6.22,
       "planned_end": 9.95,
@@ -218,7 +383,7 @@
       "audio_file": null,
       "audio_dur": 3.73,
       "audio_voice": "Aiden",
-      "image_file": null,
+      "image_file": "research/archival/musk.jpg",
       "image_seed": 45,
       "image_meta": null,
       "type": "scene",
@@ -239,18 +404,18 @@
         "image": "ready",
         "video": "pending",
         "transcript": "none",
-        "images": "pending"
+        "images": "ready"
       },
       "video_meta": {
         "engine": "wan-t2v",
         "quality": "balanced",
-        "prompt": "3d mannequin documentary, faceless matte humanoid mannequin figures with no facial features, stylized 3d reconstruction environment, dark low-key lighting, deep shadows, one red rim-light accent, desaturated cinematic documentary grade, filmic grain. 3d mannequin documentary, a smartphone lying on a dark desk, bright screen showing an abstract social media post, no readable text, dark surround. 3d mannequin documentary, a smartphone lying on a dark desk, bright screen showing an abstract social media post, no readable text, dark surround. subtle ambient motion, gentle idle movement and breathing, slow drifting camera, the scene stays composed and on-model. Consistent art style throughout, on-model, no style change, no repainting. Subtle deliberate motion",
+        "prompt": "3d mannequin documentary, a faceless matte mannequin figure in a plain black t-shirt standing in a rocket hangar beside a tall white rocket fuselage, looking down at a phone glowing in his hand, medium reenactment, cold industrial light, red hazard lamp, stylized 3d reconstruction environment, dark low-key lighting, deep shadows, one red rim-light accent, desaturated cinematic documentary grade, filmic grain. 3d mannequin documentary, a faceless matte mannequin figure in a plain black t-shirt standing in a rocket hangar beside a tall white rocket fuselage, looking down at a phone glowing in his hand, medium reenactment, cold industrial light, red hazard lamp. subtle ambient motion, gentle idle movement and breathing, slow drifting camera, the scene stays composed and on-model. Consistent art style throughout, on-model, no style change, no repainting. Subtle deliberate motion",
         "seconds": 3.73,
         "fps": 16,
         "seed": 45,
         "enhanced": true
       },
-      "camera": "slow pull-back revealing, widening",
+      "camera": "slow push-in on",
       "overlays": [
         {
           "detector": "datestamp",
@@ -262,7 +427,9 @@
           "sync": "20",
           "seconds": 2.6
         }
-      ]
+      ],
+      "image_locked": true,
+      "no_video": true
     },
     {
       "act": "",
@@ -270,7 +437,7 @@
       "timecode": "",
       "narration": "It promises to double any bitcoin sent to an address below.",
       "visual": "",
-      "image_prompt": "3d mannequin documentary, macro shot of a single physical bitcoin coin resting on a cracked phone screen in the dark, extreme close-up, shallow focus, red rim light",
+      "image_prompt": "[EVIDENCE] The scam tweet, archived",
       "on_screen_text": "",
       "text_anim": "",
       "character_action": "",
@@ -283,7 +450,7 @@
       "audio_file": null,
       "audio_dur": 3.11,
       "audio_voice": "Aiden",
-      "image_file": null,
+      "image_file": "research/evidence/scam_tweet_archive.png",
       "image_seed": 46,
       "image_meta": null,
       "type": "scene",
@@ -302,19 +469,31 @@
         "image": "ready",
         "video": "pending",
         "transcript": "none",
-        "images": "pending"
+        "images": "ready"
       },
       "video_meta": {
         "engine": "wan-t2v",
         "quality": "balanced",
-        "prompt": "3d mannequin documentary, faceless matte humanoid mannequin figures with no facial features, stylized 3d reconstruction environment, dark low-key lighting, deep shadows, one red rim-light accent, desaturated cinematic documentary grade, filmic grain. 3d mannequin documentary, dark map visualization, glowing red transaction lines spreading across a black world map, top-down — clearly showing promises double any bitcoin sent address below. 3d mannequin documentary, dark map visualization, glowing red transaction lines spreading across a black world map, top-down — clearly showing promises double any bitcoin sent address below. subtle ambient motion, gentle idle movement and breathing, slow drifting camera, the scene stays composed and on-model. Consistent art style throughout, on-model, no style change, no repainting. Subtle deliberate motion",
+        "prompt": "3d mannequin documentary, macro of a single physical bitcoin coin spinning on the desk beside a keyboard in the dim blue bedroom, closed blinds, three monitors with red rim lights, energy drink cans and tangled cables, extreme close-up, shallow focus, red rim light, stylized 3d reconstruction environment, dark low-key lighting, deep shadows, one red rim-light accent, desaturated cinematic documentary grade, filmic grain. 3d mannequin documentary, macro of a single physical bitcoin coin spinning on the desk beside a keyboard in the dim blue bedroom, closed blinds, three monitors with red rim lights, energy drink cans and tangled cables, extreme close-up, shallow focus, red rim light. subtle ambient motion, gentle idle movement and breathing, slow drifting camera, the scene stays composed and on-model. Consistent art style throughout, on-model, no style change, no repainting. Subtle deliberate motion",
         "seconds": 3.11,
         "fps": 16,
         "seed": 46,
         "enhanced": true
       },
       "camera": "slow push-in on, shallow focus",
-      "overlays": []
+      "overlays": [],
+      "image_locked": true,
+      "no_video": true,
+      "receipt": {
+        "focus": {
+          "x": 0.5,
+          "y": 0.35,
+          "w": 0.7,
+          "h": 0.3
+        },
+        "highlight": true,
+        "sync": "bitcoin"
+      }
     },
     {
       "act": "",
@@ -322,12 +501,12 @@
       "timecode": "",
       "narration": "Then Barack Obama's account posts it. Then Joe Biden's. Then Jeff Bezos and Bill Gates.",
       "visual": "",
-      "image_prompt": "3d mannequin documentary, four faceless mannequins standing at separate lecterns in a dark hall: one tall in a navy suit, one in aviator sunglasses, one bald in a quilted puffer vest, one in a v-neck sweater with round glasses, wide group reenactment, single hard key light, red back glow",
+      "image_prompt": "[ARCHIVAL] BARACK OBAMA",
       "on_screen_text": "",
       "text_anim": "",
       "character_action": "",
       "transition": "punch-in",
-      "audio_cue": "",
+      "audio_cue": "cash register ding",
       "id": 5,
       "planned_start": 13.54,
       "planned_end": 19.23,
@@ -335,7 +514,7 @@
       "audio_file": null,
       "audio_dur": 5.69,
       "audio_voice": "Aiden",
-      "image_file": null,
+      "image_file": "research/archival/obama.jpg",
       "image_seed": 47,
       "image_meta": null,
       "type": "scene",
@@ -354,7 +533,7 @@
         "image": "ready",
         "video": "pending",
         "transcript": "none",
-        "images": "pending"
+        "images": "ready"
       },
       "video_meta": {
         "engine": "wan-t2v",
@@ -366,7 +545,9 @@
         "enhanced": true
       },
       "camera": "slow lateral pan across, steady tracking",
-      "overlays": []
+      "overlays": [],
+      "image_locked": true,
+      "no_video": true
     },
     {
       "act": "",
@@ -374,7 +555,7 @@
       "timecode": "",
       "narration": "Apple posts it. Uber posts it.",
       "visual": "",
-      "image_prompt": "3d mannequin documentary, split scene: a minimalist glass storefront with a brushed aluminium laptop on a pale wood table, and a black sedan with a lit windshield rideshare sign idling on a wet night street, wide two-part composition, dark, red tail-light accent",
+      "image_prompt": "[ARCHIVAL] JOE BIDEN",
       "on_screen_text": "",
       "text_anim": "",
       "character_action": "",
@@ -387,7 +568,7 @@
       "audio_file": null,
       "audio_dur": 2.11,
       "audio_voice": "Aiden",
-      "image_file": null,
+      "image_file": "research/archival/biden.jpg",
       "image_seed": 209605065,
       "image_meta": null,
       "type": "scene",
@@ -406,7 +587,7 @@
         "image": "ready",
         "video": "pending",
         "transcript": "none",
-        "images": "pending"
+        "images": "ready"
       },
       "video_meta": {
         "engine": "wan-t2v",
@@ -418,7 +599,9 @@
         "enhanced": true
       },
       "camera": "slow lateral pan across",
-      "overlays": []
+      "overlays": [],
+      "image_locked": true,
+      "no_video": true
     },
     {
       "act": "",
@@ -426,7 +609,7 @@
       "timecode": "",
       "narration": "Within minutes, the scam collects more than one hundred thousand dollars.",
       "visual": "",
-      "image_prompt": "3d mannequin documentary, a heap of physical bitcoin coins tumbling into a dark pile on a steel table, mid-motion, close reenactment shot, single overhead lamp, deep shadow, red rim",
+      "image_prompt": "[EVIDENCE] The 2020 Twitter account hijacking",
       "on_screen_text": "",
       "text_anim": "",
       "character_action": "",
@@ -439,7 +622,7 @@
       "audio_file": null,
       "audio_dur": 3.93,
       "audio_voice": "Aiden",
-      "image_file": null,
+      "image_file": "research/evidence/wiki_hijacking.png",
       "image_seed": null,
       "image_meta": null,
       "type": "scene",
@@ -462,10 +645,22 @@
         "image": "none",
         "video": "pending",
         "transcript": "none",
-        "images": "pending"
+        "images": "ready"
       },
       "camera": "slow push-in on, deliberate zoom",
-      "overlays": []
+      "overlays": [],
+      "image_locked": true,
+      "no_video": true,
+      "receipt": {
+        "focus": {
+          "x": 0.5,
+          "y": 0.55,
+          "w": 0.7,
+          "h": 0.25
+        },
+        "highlight": true,
+        "sync": "collects"
+      }
     },
     {
       "act": "",
@@ -473,7 +668,7 @@
       "timecode": "",
       "narration": "Twitter's answer is drastic. It silences almost every verified account on the platform.",
       "visual": "",
-      "image_prompt": "3d mannequin documentary, wide shot of an empty open-plan tech office at night, rows of dark monitors all switched to a flat blue glow, chairs pushed back, nobody around, cold blue light, one red exit sign glow",
+      "image_prompt": "[EVIDENCE] Twitter: An update on our security incident",
       "on_screen_text": "",
       "text_anim": "",
       "character_action": "",
@@ -486,7 +681,7 @@
       "audio_file": null,
       "audio_dur": 3.91,
       "audio_voice": "Aiden",
-      "image_file": null,
+      "image_file": "research/evidence/twitter_incident.png",
       "image_seed": null,
       "image_meta": null,
       "type": "scene",
@@ -507,10 +702,22 @@
         "image": "none",
         "video": "pending",
         "transcript": "none",
-        "images": "pending"
+        "images": "ready"
       },
-      "camera": "slow aerial push-in toward, cinematic drone shot",
-      "overlays": []
+      "camera": "slow lateral pan across, steady tracking",
+      "overlays": [],
+      "image_locked": true,
+      "no_video": true,
+      "receipt": {
+        "focus": {
+          "x": 0.5,
+          "y": 0.35,
+          "w": 0.7,
+          "h": 0.3
+        },
+        "highlight": true,
+        "sync": "silences"
+      }
     },
     {
       "act": "",
@@ -518,12 +725,12 @@
       "timecode": "",
       "narration": "For a few hours, the loudest voices on Earth cannot speak.",
       "visual": "",
-      "image_prompt": "3d mannequin documentary, a dark empty press briefing room, rows of microphones on an abandoned podium, single spotlight, nobody around, wide establisher, deep shadows",
+      "image_prompt": "[ARCHIVAL] TWITTER HQ, SAN FRANCISCO",
       "on_screen_text": "",
       "text_anim": "",
       "character_action": "",
       "transition": "push-in",
-      "audio_cue": "",
+      "audio_cue": "quick whoosh",
       "id": 9,
       "planned_start": 29.34,
       "planned_end": 32.19,
@@ -531,7 +738,7 @@
       "audio_file": null,
       "audio_dur": 2.85,
       "audio_voice": "Aiden",
-      "image_file": null,
+      "image_file": "research/archival/twitter_hq.jpg",
       "image_seed": null,
       "image_meta": null,
       "type": "scene",
@@ -552,10 +759,12 @@
         "image": "none",
         "video": "pending",
         "transcript": "none",
-        "images": "pending"
+        "images": "ready"
       },
       "camera": "locked-off static shot",
-      "overlays": []
+      "overlays": [],
+      "image_locked": true,
+      "no_video": true
     },
     {
       "act": "",
@@ -563,7 +772,7 @@
       "timecode": "",
       "narration": "Here is how a teenager did it.",
       "visual": "",
-      "image_prompt": "3d mannequin documentary, security-camera framing of a faceless mannequin teenager silhouetted in a bedroom doorway, grainy CCTV look, timestamp-free, high angle surveillance shot, green-grey night vision tint, red recording glow",
+      "image_prompt": "3d mannequin documentary, security-camera framing of a faceless matte grey mannequin figure in a grey hoodie with the hood up and dark jeans, smooth blank head, no face, no facial features silhouetted in the doorway of the dim blue bedroom, closed blinds, three monitors with red rim lights, energy drink cans and tangled cables, grainy CCTV look, high angle surveillance, night tint, red recording glow",
       "on_screen_text": "",
       "text_anim": "",
       "character_action": "",
@@ -576,8 +785,8 @@
       "audio_file": null,
       "audio_dur": 1.95,
       "audio_voice": "Aiden",
-      "image_file": null,
-      "image_seed": null,
+      "image_file": "images/scene_0010.png",
+      "image_seed": 52,
       "image_meta": null,
       "type": "scene",
       "motion_type": "ambient",
@@ -588,17 +797,26 @@
       "emphasis": [],
       "fx": [],
       "end_image_file": null,
-      "video_file": null,
+      "video_file": "video/scene_0010.mp4",
       "transcript": null,
       "status": {
         "audio": "ready",
-        "image": "none",
-        "video": "pending",
+        "image": "ready",
+        "video": "ready",
         "transcript": "none",
         "images": "pending"
       },
       "camera": "locked-off static shot",
-      "overlays": []
+      "overlays": [],
+      "video_meta": {
+        "engine": "wan-t2v",
+        "quality": "balanced",
+        "prompt": "3d mannequin documentary, security-camera framing of a faceless matte grey mannequin figure in a grey hoodie with the hood up and dark jeans, smooth blank head, no face, no facial features silhouetted in the doorway of the dim blue bedroom, closed blinds, three monitors with red rim lights, energy drink cans and tangled cables, grainy CCTV look, high angle surveillance, night tint, red recording glow, stylized 3d reconstruction environment, dark low-key lighting, deep shadows, one red rim-light accent, desaturated cinematic documentary grade, filmic grain. 3d mannequin documentary, security-camera framing of a faceless matte grey mannequin figure in a grey hoodie with the hood up and dark jeans, smooth blank head, no face, no facial features silhouetted in the doorway of the dim blue bedroom, closed blinds, three monitors with red rim lights, energy drink cans and tangled cables, grainy CCTV look, high angle surveillance, night tint, red recording glow. subtle ambient motion, gentle idle movement and breathing, slow drifting camera, the scene stays composed and on-model. Consistent art style throughout, on-model, no style change, no repainting. Subtle deliberate motion",
+        "seconds": 2.5,
+        "fps": 16,
+        "seed": 52,
+        "enhanced": true
+      }
     },
     {
       "act": "",
@@ -606,7 +824,7 @@
       "timecode": "",
       "narration": "His name is Graham Ivan Clark. He is a high school student in Hillsborough County.",
       "visual": "",
-      "image_prompt": "3d mannequin documentary, a faceless mannequin teenager in a school hallway wearing a backpack, lockers receding behind him, medium reenactment, flat fluorescent light, one red locker door",
+      "image_prompt": "[EVIDENCE] Graham Ivan Clark",
       "on_screen_text": "",
       "text_anim": "",
       "character_action": "",
@@ -619,7 +837,7 @@
       "audio_file": null,
       "audio_dur": 3.71,
       "audio_voice": "Aiden",
-      "image_file": null,
+      "image_file": "research/evidence/wiki_clark.png",
       "image_seed": null,
       "image_meta": null,
       "type": "scene",
@@ -638,7 +856,7 @@
         "image": "none",
         "video": "pending",
         "transcript": "none",
-        "images": "pending"
+        "images": "ready"
       },
       "camera": "subtle handheld drift, documentary feel",
       "overlays": [
@@ -654,7 +872,19 @@
           "sync": "Graham",
           "seconds": 3.2
         }
-      ]
+      ],
+      "image_locked": true,
+      "no_video": true,
+      "receipt": {
+        "focus": {
+          "x": 0.5,
+          "y": 0.28,
+          "w": 0.7,
+          "h": 0.25
+        },
+        "highlight": true,
+        "sync": "Graham"
+      }
     },
     {
       "act": "",
@@ -662,7 +892,7 @@
       "timecode": "",
       "narration": "He is not a prodigy in the movie sense. He is patient, and he is good on the phone.",
       "visual": "",
-      "image_prompt": "3d mannequin documentary, close reenactment of a faceless mannequin leaning forward mid-phone-call, phone pressed to where an ear would be, free hand raised mid-gesture, scattered notes on the desk, dark room, red rim light",
+      "image_prompt": "3d mannequin documentary, a faceless matte grey mannequin figure in a grey hoodie with the hood up and dark jeans, smooth blank head, no face, no facial features reclining in his chair mid-phone-call, one hand raised mid-gesture, phone at his head, in the dim blue bedroom, closed blinds, three monitors with red rim lights, energy drink cans and tangled cables, medium action reenactment, red rim light",
       "on_screen_text": "",
       "text_anim": "",
       "character_action": "",
@@ -675,8 +905,8 @@
       "audio_file": null,
       "audio_dur": 4.27,
       "audio_voice": "Aiden",
-      "image_file": null,
-      "image_seed": null,
+      "image_file": "images/scene_0012.png",
+      "image_seed": 54,
       "image_meta": null,
       "type": "scene",
       "motion_type": "ambient",
@@ -689,17 +919,26 @@
       "emphasis": [],
       "fx": [],
       "end_image_file": null,
-      "video_file": null,
+      "video_file": "video/scene_0012.mp4",
       "transcript": null,
       "status": {
         "audio": "ready",
-        "image": "none",
-        "video": "pending",
+        "image": "ready",
+        "video": "ready",
         "transcript": "none",
         "images": "pending"
       },
       "camera": "slow push-in on",
-      "overlays": []
+      "overlays": [],
+      "video_meta": {
+        "engine": "wan-t2v",
+        "quality": "balanced",
+        "prompt": "3d mannequin documentary, a faceless matte grey mannequin figure in a grey hoodie with the hood up and dark jeans, smooth blank head, no face, no facial features reclining in his chair mid-phone-call, one hand raised mid-gesture, phone at his head, in the dim blue bedroom, closed blinds, three monitors with red rim lights, energy drink cans and tangled cables, medium action reenactment, red rim light, stylized 3d reconstruction environment, dark low-key lighting, deep shadows, one red rim-light accent, desaturated cinematic documentary grade, filmic grain. 3d mannequin documentary, a faceless matte grey mannequin figure in a grey hoodie with the hood up and dark jeans, smooth blank head, no face, no facial features reclining in his chair mid-phone-call, one hand raised mid-gesture, phone at his head, in the dim blue bedroom, closed blinds, three monitors with red rim lights, energy drink cans and tangled cables, medium action reenactment, red rim light. subtle ambient motion, gentle idle movement and breathing, slow drifting camera, the scene stays composed and on-model. Consistent art style throughout, on-model, no style change, no repainting. Subtle deliberate motion",
+        "seconds": 4.27,
+        "fps": 16,
+        "seed": 54,
+        "enhanced": true
+      }
     },
     {
       "act": "",
@@ -707,7 +946,7 @@
       "timecode": "",
       "narration": "A year earlier, at sixteen, he had already stolen a hundred and sixty four bitcoin from a Seattle investor.",
       "visual": "",
-      "image_prompt": "3d mannequin documentary, macro shot of a SIM card being lifted from a phone tray by faceless mannequin fingers, extreme close-up, shallow focus, black background, single red highlight",
+      "image_prompt": "[EVIDENCE] Graham Ivan Clark",
       "on_screen_text": "",
       "text_anim": "",
       "character_action": "",
@@ -720,7 +959,7 @@
       "audio_file": null,
       "audio_dur": 5.51,
       "audio_voice": "Aiden",
-      "image_file": null,
+      "image_file": "research/evidence/wiki_clark.png",
       "image_seed": null,
       "image_meta": null,
       "type": "scene",
@@ -741,9 +980,9 @@
         "image": "none",
         "video": "pending",
         "transcript": "none",
-        "images": "pending"
+        "images": "ready"
       },
-      "camera": "slow push-in on, shallow focus, deliberate zoom",
+      "camera": "slow aerial push-in toward, cinematic drone shot",
       "overlays": [
         {
           "detector": "chapter",
@@ -759,7 +998,19 @@
           "sync": null,
           "seconds": 2.2
         }
-      ]
+      ],
+      "image_locked": true,
+      "no_video": true,
+      "receipt": {
+        "focus": {
+          "x": 0.5,
+          "y": 0.52,
+          "w": 0.7,
+          "h": 0.22
+        },
+        "highlight": true,
+        "sync": "stolen"
+      }
     },
     {
       "act": "",
@@ -767,7 +1018,7 @@
       "timecode": "",
       "narration": "He did it with a SIM swap. He convinced a phone carrier that he was someone else.",
       "visual": "",
-      "image_prompt": "3d mannequin documentary, a faceless mannequin in a call-centre headset seated at a carrier service desk, gesturing at a screen, a second mannequin customer waiting, medium two-shot reenactment, cold office light, red monitor glow",
+      "image_prompt": "3d mannequin documentary, macro of a SIM card being lifted out of a phone tray by faceless matte grey mannequin fingers, a blurred phone-carrier service counter behind, extreme close-up, shallow focus, red highlight",
       "on_screen_text": "",
       "text_anim": "",
       "character_action": "",
@@ -780,8 +1031,8 @@
       "audio_file": null,
       "audio_dur": 4.09,
       "audio_voice": "Aiden",
-      "image_file": null,
-      "image_seed": null,
+      "image_file": "images/scene_0014.png",
+      "image_seed": 341961791,
       "image_meta": null,
       "type": "scene",
       "motion_type": "ambient",
@@ -792,17 +1043,26 @@
       "emphasis": [],
       "fx": [],
       "end_image_file": null,
-      "video_file": null,
+      "video_file": "video/scene_0014.mp4",
       "transcript": null,
       "status": {
         "audio": "ready",
-        "image": "none",
-        "video": "pending",
+        "image": "ready",
+        "video": "ready",
         "transcript": "none",
         "images": "pending"
       },
-      "camera": "subtle handheld drift",
-      "overlays": []
+      "camera": "slow push-in on, shallow focus, deliberate zoom",
+      "overlays": [],
+      "video_meta": {
+        "engine": "wan-t2v",
+        "quality": "balanced",
+        "prompt": "3d mannequin documentary, macro of a SIM card being lifted out of a phone tray by faceless matte grey mannequin fingers, a blurred phone-carrier service counter behind, extreme close-up, shallow focus, red highlight, stylized 3d reconstruction environment, dark low-key lighting, deep shadows, one red rim-light accent, desaturated cinematic documentary grade, filmic grain. 3d mannequin documentary, macro of a SIM card being lifted out of a phone tray by faceless matte grey mannequin fingers, a blurred phone-carrier service counter behind, extreme close-up, shallow focus, red highlight. subtle ambient motion, gentle idle movement and breathing, slow drifting camera, the scene stays composed and on-model. Consistent art style throughout, on-model, no style change, no repainting. Subtle deliberate motion",
+        "seconds": 4.09,
+        "fps": 16,
+        "seed": 341961791,
+        "enhanced": true
+      }
     },
     {
       "act": "",
@@ -810,7 +1070,7 @@
       "timecode": "",
       "narration": "That is the whole trick, in every story that follows. He does not break the machine. He talks to the people who run it.",
       "visual": "",
-      "image_prompt": "3d mannequin documentary, miniature diorama of a telephone exchange building sliced open like a doll's house, tiny mannequins inside at switchboards, tabletop model on black, wide diorama, red wiring glow",
+      "image_prompt": "3d mannequin documentary, a faceless matte grey mannequin figure in a grey hoodie with the hood up and dark jeans, smooth blank head, no face, no facial features on the phone in the dim blue bedroom, closed blinds, three monitors with red rim lights, energy drink cans and tangled cables while, through the wall, a faceless matte grey mannequin figure in a light blue shirt and dark trousers with a lanyard badge, smooth blank head, no face picks up a desk phone in a bright cubicle, split composition reenactment",
       "on_screen_text": "",
       "text_anim": "",
       "character_action": "",
@@ -824,7 +1084,7 @@
       "audio_dur": 5.97,
       "audio_voice": "Aiden",
       "image_file": null,
-      "image_seed": null,
+      "image_seed": 57,
       "image_meta": null,
       "type": "scene",
       "motion_type": "ambient",
@@ -845,13 +1105,22 @@
       "transcript": null,
       "status": {
         "audio": "ready",
-        "image": "none",
+        "image": "ready",
         "video": "pending",
         "transcript": "none",
         "images": "pending"
       },
-      "camera": "smooth camera glide through, orbiting",
-      "overlays": []
+      "camera": "slow push-in on",
+      "overlays": [],
+      "video_meta": {
+        "engine": "wan-t2v",
+        "quality": "balanced",
+        "prompt": "3d mannequin documentary, a faceless matte grey mannequin figure in a grey hoodie with the hood up and dark jeans, smooth blank head, no face, no facial features on the phone in the dim blue bedroom, closed blinds, three monitors with red rim lights, energy drink cans and tangled cables while, through the wall, a faceless matte grey mannequin figure in a light blue shirt and dark trousers with a lanyard badge, smooth blank head, no face picks up a desk phone in a bright cubicle, split composition reenactment, stylized 3d reconstruction environment, dark low-key lighting, deep shadows, one red rim-light accent, desaturated cinematic documentary grade, filmic grain. 3d mannequin documentary, a faceless matte grey mannequin figure in a grey hoodie with the hood up and dark jeans, smooth blank head, no face, no facial features on the phone in the dim blue bedroom, closed blinds, three monitors with red rim lights, energy drink cans and tangled cables while, through the wall, a faceless matte grey mannequin figure in a light blue shirt and dark trousers with a lanyard badge, smooth blank head, no face picks up a desk phone in a bright cubicle, split composition reenactment. subtle ambient motion, gentle idle movement and breathing, slow drifting camera, the scene stays composed and on-model. Consistent art style throughout, on-model, no style change, no repainting. Subtle deliberate motion",
+        "seconds": 5.97,
+        "fps": 16,
+        "seed": 57,
+        "enhanced": true
+      }
     },
     {
       "act": "",
@@ -859,7 +1128,7 @@
       "timecode": "",
       "narration": "The Twitter attack begins on the 15th of July with phone calls.",
       "visual": "",
-      "image_prompt": "3d mannequin documentary, close on a black desk phone mid-ring, handset lifting off the cradle, dark office, hard single light, deep shadow, red accent",
+      "image_prompt": "3d mannequin documentary, close on a faceless matte grey mannequin figure in a grey hoodie with the hood up and dark jeans, smooth blank head, no face, no facial features's hand dialling an old desk phone in the dim blue bedroom, closed blinds, three monitors with red rim lights, energy drink cans and tangled cables, the handset lifting off the cradle, macro detail, hard single light",
       "on_screen_text": "",
       "text_anim": "",
       "character_action": "",
@@ -873,7 +1142,7 @@
       "audio_dur": 3.83,
       "audio_voice": "Aiden",
       "image_file": null,
-      "image_seed": null,
+      "image_seed": 58,
       "image_meta": null,
       "type": "scene",
       "motion_type": "ambient",
@@ -890,7 +1159,7 @@
       "transcript": null,
       "status": {
         "audio": "ready",
-        "image": "none",
+        "image": "ready",
         "video": "pending",
         "transcript": "none",
         "images": "pending"
@@ -907,7 +1176,16 @@
           "sync": "the",
           "seconds": 2.6
         }
-      ]
+      ],
+      "video_meta": {
+        "engine": "wan-t2v",
+        "quality": "balanced",
+        "prompt": "3d mannequin documentary, close on a faceless matte grey mannequin figure in a grey hoodie with the hood up and dark jeans, smooth blank head, no face, no facial features's hand dialling an old desk phone in the dim blue bedroom, closed blinds, three monitors with red rim lights, energy drink cans and tangled cables, the handset lifting off the cradle, macro detail, hard single light, stylized 3d reconstruction environment, dark low-key lighting, deep shadows, one red rim-light accent, desaturated cinematic documentary grade, filmic grain. 3d mannequin documentary, close on a faceless matte grey mannequin figure in a grey hoodie with the hood up and dark jeans, smooth blank head, no face, no facial features's hand dialling an old desk phone in the dim blue bedroom, closed blinds, three monitors with red rim lights, energy drink cans and tangled cables, the handset lifting off the cradle, macro detail, hard single light. subtle ambient motion, gentle idle movement and breathing, slow drifting camera, the scene stays composed and on-model. Consistent art style throughout, on-model, no style change, no repainting. Subtle deliberate motion",
+        "seconds": 3.83,
+        "fps": 16,
+        "seed": 58,
+        "enhanced": true
+      }
     },
     {
       "act": "",
@@ -915,7 +1193,7 @@
       "timecode": "",
       "narration": "Clark and two others scrape LinkedIn for Twitter employees who might hold administrative access.",
       "visual": "",
-      "image_prompt": "3d mannequin documentary, a wall of employee profile photographs pinned on dark corkboard, blank faceless portraits, red string connecting three of them, investigator's board, medium shot, low-key light",
+      "image_prompt": "[EVIDENCE] DOJ: Three Individuals Charged",
       "on_screen_text": "",
       "text_anim": "",
       "character_action": "",
@@ -928,7 +1206,7 @@
       "audio_file": null,
       "audio_dur": 4.47,
       "audio_voice": "Aiden",
-      "image_file": null,
+      "image_file": "research/evidence/doj_charges.png",
       "image_seed": null,
       "image_meta": null,
       "type": "scene",
@@ -947,10 +1225,22 @@
         "image": "none",
         "video": "pending",
         "transcript": "none",
-        "images": "pending"
+        "images": "ready"
       },
-      "camera": "slow lateral pan across, steady tracking",
-      "overlays": []
+      "camera": "slow push-in on, deliberate zoom",
+      "overlays": [],
+      "image_locked": true,
+      "no_video": true,
+      "receipt": {
+        "focus": {
+          "x": 0.5,
+          "y": 0.62,
+          "w": 0.72,
+          "h": 0.22
+        },
+        "highlight": true,
+        "sync": "scrape"
+      }
     },
     {
       "act": "",
@@ -958,7 +1248,7 @@
       "timecode": "",
       "narration": "Then they call them, one at a time, pretending to be Twitter's own IT help desk.",
       "visual": "",
-      "image_prompt": "3d mannequin documentary, split reenactment: a faceless mannequin teenager on a phone in a dim bedroom on the left, a faceless mannequin office worker picking up a desk phone in a bright cubicle on the right, wide split composition, cold office light versus red bedroom glow",
+      "image_prompt": "3d mannequin documentary, a faceless matte grey mannequin figure in a light blue shirt and dark trousers with a lanyard badge, smooth blank head, no face at his cubicle holding a phone to his head while typing, bored posture, open-plan office at night, cold light, medium reenactment",
       "on_screen_text": "",
       "text_anim": "",
       "character_action": "",
@@ -972,7 +1262,7 @@
       "audio_dur": 4.45,
       "audio_voice": "Aiden",
       "image_file": null,
-      "image_seed": null,
+      "image_seed": 60,
       "image_meta": null,
       "type": "scene",
       "motion_type": "ambient",
@@ -987,13 +1277,22 @@
       "transcript": null,
       "status": {
         "audio": "ready",
-        "image": "none",
+        "image": "ready",
         "video": "pending",
         "transcript": "none",
         "images": "pending"
       },
-      "camera": "slow push-in on",
-      "overlays": []
+      "camera": "subtle handheld drift",
+      "overlays": [],
+      "video_meta": {
+        "engine": "wan-t2v",
+        "quality": "balanced",
+        "prompt": "3d mannequin documentary, a faceless matte grey mannequin figure in a light blue shirt and dark trousers with a lanyard badge, smooth blank head, no face at his cubicle holding a phone to his head while typing, bored posture, open-plan office at night, cold light, medium reenactment, stylized 3d reconstruction environment, dark low-key lighting, deep shadows, one red rim-light accent, desaturated cinematic documentary grade, filmic grain. 3d mannequin documentary, a faceless matte grey mannequin figure in a light blue shirt and dark trousers with a lanyard badge, smooth blank head, no face at his cubicle holding a phone to his head while typing, bored posture, open-plan office at night, cold light, medium reenactment. subtle ambient motion, gentle idle movement and breathing, slow drifting camera, the scene stays composed and on-model. Consistent art style throughout, on-model, no style change, no repainting. Subtle deliberate motion",
+        "seconds": 4.45,
+        "fps": 16,
+        "seed": 60,
+        "enhanced": true
+      }
     },
     {
       "act": "",
@@ -1001,12 +1300,12 @@
       "timecode": "",
       "narration": "There is a problem with the internal VPN, the caller says. He sounds bored. He sounds like a colleague.",
       "visual": "",
-      "image_prompt": "3d mannequin documentary, close reenactment of the office mannequin holding a phone against its shoulder while typing, bored posture, cubicle walls, medium close-up, flat fluorescent light",
+      "image_prompt": "3d mannequin documentary, a faceless matte grey mannequin figure in a light blue shirt and dark trousers with a lanyard badge, smooth blank head, no face, leaning close over a monitor that shows a plain blue login form with two empty boxes and no letters, dark office, cold screen light on his blank head, medium shot",
       "on_screen_text": "",
       "text_anim": "",
       "character_action": "",
       "transition": "crossfade",
-      "audio_cue": "",
+      "audio_cue": "deep impact boom",
       "id": 19,
       "planned_start": 71.5,
       "planned_end": 76.51,
@@ -1015,7 +1314,7 @@
       "audio_dur": 5.01,
       "audio_voice": "Aiden",
       "image_file": null,
-      "image_seed": null,
+      "image_seed": 61,
       "image_meta": null,
       "type": "scene",
       "motion_type": "ambient",
@@ -1032,13 +1331,22 @@
       "transcript": null,
       "status": {
         "audio": "ready",
-        "image": "none",
+        "image": "ready",
         "video": "pending",
         "transcript": "none",
         "images": "pending"
       },
-      "camera": "subtle handheld drift",
-      "overlays": []
+      "camera": "slow push-in on, shallow focus, deliberate zoom",
+      "overlays": [],
+      "video_meta": {
+        "engine": "wan-t2v",
+        "quality": "balanced",
+        "prompt": "3d mannequin documentary, a faceless matte grey mannequin figure in a light blue shirt and dark trousers with a lanyard badge, smooth blank head, no face leaning toward a monitor showing a plain blue login form with two empty boxes and no letters, his blank head reflected in the glass, medium shot, stylized 3d reconstruction environment, dark low-key lighting, deep shadows, one red rim-light accent, desaturated cinematic documentary grade, filmic grain. 3d mannequin documentary, a faceless matte grey mannequin figure in a light blue shirt and dark trousers with a lanyard badge, smooth blank head, no face leaning toward a monitor showing a plain blue login form with two empty boxes and no letters, his blank head reflected in the glass, medium shot. subtle ambient motion, gentle idle movement and breathing, slow drifting camera, the scene stays composed and on-model. Consistent art style throughout, on-model, no style change, no repainting. Subtle deliberate motion",
+        "seconds": 5.01,
+        "fps": 16,
+        "seed": 61,
+        "enhanced": true
+      }
     },
     {
       "act": "",
@@ -1046,7 +1354,7 @@
       "timecode": "",
       "narration": "The employee is walked to a login page that looks exactly like Twitter's own.",
       "visual": "",
-      "image_prompt": "3d mannequin documentary, macro of a laptop screen showing a plain blue login form with two empty input boxes, no letters, reflection of a faceless mannequin face on the glass, extreme close-up, shallow focus, blue glow",
+      "image_prompt": "[EVIDENCE] DOJ: Three Individuals Charged",
       "on_screen_text": "",
       "text_anim": "",
       "character_action": "",
@@ -1059,7 +1367,7 @@
       "audio_file": null,
       "audio_dur": 3.71,
       "audio_voice": "Aiden",
-      "image_file": null,
+      "image_file": "research/evidence/doj_charges.png",
       "image_seed": null,
       "image_meta": null,
       "type": "scene",
@@ -1080,10 +1388,22 @@
         "image": "none",
         "video": "pending",
         "transcript": "none",
-        "images": "pending"
+        "images": "ready"
       },
       "camera": "slow push-in on, shallow focus, deliberate zoom",
-      "overlays": []
+      "overlays": [],
+      "image_locked": true,
+      "no_video": true,
+      "receipt": {
+        "focus": {
+          "x": 0.5,
+          "y": 0.72,
+          "w": 0.72,
+          "h": 0.2
+        },
+        "highlight": true,
+        "sync": "credentials"
+      }
     },
     {
       "act": "",
@@ -1091,7 +1411,7 @@
       "timecode": "",
       "narration": "They type in their credentials. They read out the two factor code.",
       "visual": "",
-      "image_prompt": "3d mannequin documentary, extreme close-up of faceless mannequin fingers typing on a mechanical keyboard, one hand holding a phone displaying a six-digit code panel, no readable characters, macro, dark, red rim light",
+      "image_prompt": "3d mannequin documentary, extreme close-up of one faceless matte grey mannequin hand typing on a mechanical keyboard, a phone lying flat on the desk beside it showing a blank panel, no readable characters, macro, cold light, dark surround",
       "on_screen_text": "",
       "text_anim": "",
       "character_action": "",
@@ -1105,7 +1425,7 @@
       "audio_dur": 3.51,
       "audio_voice": "Aiden",
       "image_file": null,
-      "image_seed": null,
+      "image_seed": 1482294769,
       "image_meta": null,
       "type": "scene",
       "motion_type": "ambient",
@@ -1122,13 +1442,22 @@
       "transcript": null,
       "status": {
         "audio": "ready",
-        "image": "none",
+        "image": "ready",
         "video": "pending",
         "transcript": "none",
         "images": "pending"
       },
       "camera": "locked-off static shot",
-      "overlays": []
+      "overlays": [],
+      "video_meta": {
+        "engine": "wan-t2v",
+        "quality": "balanced",
+        "prompt": "3d mannequin documentary, extreme close-up of faceless matte grey mannequin fingers typing on a keyboard while the other hand holds a phone showing a blank code panel, no readable characters, macro, cold light, stylized 3d reconstruction environment, dark low-key lighting, deep shadows, one red rim-light accent, desaturated cinematic documentary grade, filmic grain. 3d mannequin documentary, extreme close-up of faceless matte grey mannequin fingers typing on a keyboard while the other hand holds a phone showing a blank code panel, no readable characters, macro, cold light. subtle ambient motion, gentle idle movement and breathing, slow drifting camera, the scene stays composed and on-model. Consistent art style throughout, on-model, no style change, no repainting. Subtle deliberate motion",
+        "seconds": 3.51,
+        "fps": 16,
+        "seed": 1482294769,
+        "enhanced": true
+      }
     },
     {
       "act": "",
@@ -1136,12 +1465,12 @@
       "timecode": "",
       "narration": "On the other end of the line, in Tampa, the code is used within seconds.",
       "visual": "",
-      "image_prompt": "3d mannequin documentary, the teenage mannequin lunging toward his monitor in the dark bedroom, both hands on the keyboard, tense forward posture, medium action reenactment, red glow across his shoulders",
+      "image_prompt": "3d mannequin documentary, a faceless matte grey mannequin figure in a grey hoodie with the hood up and dark jeans, smooth blank head, no face, no facial features lunging forward at his keyboard, both hands slamming down, tense posture, in the dim blue bedroom, closed blinds, three monitors with red rim lights, energy drink cans and tangled cables, medium action reenactment, red glow",
       "on_screen_text": "",
       "text_anim": "",
       "character_action": "",
       "transition": "pull-back",
-      "audio_cue": "",
+      "audio_cue": "deep impact boom",
       "id": 22,
       "planned_start": 84.24,
       "planned_end": 87.63,
@@ -1150,7 +1479,7 @@
       "audio_dur": 3.39,
       "audio_voice": "Aiden",
       "image_file": null,
-      "image_seed": null,
+      "image_seed": 64,
       "image_meta": null,
       "type": "scene",
       "motion_type": "ambient",
@@ -1167,13 +1496,22 @@
       "transcript": null,
       "status": {
         "audio": "ready",
-        "image": "none",
+        "image": "ready",
         "video": "pending",
         "transcript": "none",
         "images": "pending"
       },
       "camera": "slow push-in on, deliberate zoom",
-      "overlays": []
+      "overlays": [],
+      "video_meta": {
+        "engine": "wan-t2v",
+        "quality": "balanced",
+        "prompt": "3d mannequin documentary, a faceless matte grey mannequin figure in a grey hoodie with the hood up and dark jeans, smooth blank head, no face, no facial features lunging forward at his keyboard, both hands slamming down, tense posture, in the dim blue bedroom, closed blinds, three monitors with red rim lights, energy drink cans and tangled cables, medium action reenactment, red glow, stylized 3d reconstruction environment, dark low-key lighting, deep shadows, one red rim-light accent, desaturated cinematic documentary grade, filmic grain. 3d mannequin documentary, a faceless matte grey mannequin figure in a grey hoodie with the hood up and dark jeans, smooth blank head, no face, no facial features lunging forward at his keyboard, both hands slamming down, tense posture, in the dim blue bedroom, closed blinds, three monitors with red rim lights, energy drink cans and tangled cables, medium action reenactment, red glow. subtle ambient motion, gentle idle movement and breathing, slow drifting camera, the scene stays composed and on-model. Consistent art style throughout, on-model, no style change, no repainting. Subtle deliberate motion",
+        "seconds": 3.39,
+        "fps": 16,
+        "seed": 64,
+        "enhanced": true
+      }
     },
     {
       "act": "",
@@ -1181,7 +1519,7 @@
       "timecode": "",
       "narration": "That gives them the one thing that matters. The internal tool that Twitter's own staff use to control any account.",
       "visual": "",
-      "image_prompt": "3d mannequin documentary, a plain administrative control panel glowing on a wide monitor, rows of blank toggle switches and empty fields, no letters, faceless mannequin reflected in the glass, medium shot, blue-white screen light",
+      "image_prompt": "[EVIDENCE] Twitter: An update on our security incident",
       "on_screen_text": "",
       "text_anim": "",
       "character_action": "",
@@ -1194,7 +1532,7 @@
       "audio_file": null,
       "audio_dur": 5.85,
       "audio_voice": "Aiden",
-      "image_file": null,
+      "image_file": "research/evidence/twitter_incident.png",
       "image_seed": null,
       "image_meta": null,
       "type": "scene",
@@ -1215,10 +1553,22 @@
         "image": "none",
         "video": "pending",
         "transcript": "none",
-        "images": "pending"
+        "images": "ready"
       },
       "camera": "slow pull-back revealing",
-      "overlays": []
+      "overlays": [],
+      "image_locked": true,
+      "no_video": true,
+      "receipt": {
+        "focus": {
+          "x": 0.5,
+          "y": 0.6,
+          "w": 0.7,
+          "h": 0.25
+        },
+        "highlight": true,
+        "sync": "tool"
+      }
     },
     {
       "act": "",
@@ -1226,12 +1576,12 @@
       "timecode": "",
       "narration": "They start with short usernames. The kind collectors pay for. Then they aim higher.",
       "visual": "",
-      "image_prompt": "3d mannequin documentary, a row of faceless mannequin heads on a dark shelf like collectible busts, price tags blank, the last one lit red, medium detail shot, gallery lighting, deep shadow",
+      "image_prompt": "3d mannequin documentary, a dark display case of small glowing blank name plates like collectibles, a faceless matte grey mannequin figure in a grey hoodie with the hood up and dark jeans, smooth blank head and no face, one hand reaching past the small plates toward a single large plate at the top, medium detail shot, red glow on the big plate",
       "on_screen_text": "",
       "text_anim": "",
       "character_action": "",
       "transition": "fade",
-      "audio_cue": "",
+      "audio_cue": "deep impact boom",
       "id": 24,
       "planned_start": 93.46,
       "planned_end": 97.49,
@@ -1240,7 +1590,7 @@
       "audio_dur": 4.03,
       "audio_voice": "Aiden",
       "image_file": null,
-      "image_seed": null,
+      "image_seed": 1635653225,
       "image_meta": null,
       "type": "scene",
       "motion_type": "ambient",
@@ -1257,13 +1607,22 @@
       "transcript": null,
       "status": {
         "audio": "ready",
-        "image": "none",
+        "image": "ready",
         "video": "pending",
         "transcript": "none",
         "images": "pending"
       },
-      "camera": "slow lateral pan across, steady tracking",
-      "overlays": []
+      "camera": "slow push-in on, deliberate zoom",
+      "overlays": [],
+      "video_meta": {
+        "engine": "wan-t2v",
+        "quality": "balanced",
+        "prompt": "3d mannequin documentary, a dark glass display case of small glowing blank name plates like collectibles, a faceless matte grey mannequin figure in a grey hoodie with the hood up and dark jeans, smooth blank head, no face, no facial features's hand reaching past the small ones toward one large plate at the top, medium detail shot, red glow on the big plate, stylized 3d reconstruction environment, dark low-key lighting, deep shadows, one red rim-light accent, desaturated cinematic documentary grade, filmic grain. 3d mannequin documentary, a dark glass display case of small glowing blank name plates like collectibles, a faceless matte grey mannequin figure in a grey hoodie with the hood up and dark jeans, smooth blank head, no face, no facial features's hand reaching past the small ones toward one large plate at the top, medium detail shot, red glow on the big plate. subtle ambient motion, gentle idle movement and breathing, slow drifting camera, the scene stays composed and on-model. Consistent art style throughout, on-model, no style change, no repainting. Subtle deliberate motion",
+        "seconds": 4.03,
+        "fps": 16,
+        "seed": 1635653225,
+        "enhanced": true
+      }
     },
     {
       "act": "",
@@ -1271,7 +1630,7 @@
       "timecode": "",
       "narration": "By 21:45 UTC, Twitter admits it has lost control of its own platform.",
       "visual": "",
-      "image_prompt": "3d mannequin documentary, wide shot of an empty glass-walled tech headquarters at night seen from outside, one floor still lit, city reflections, drone establisher, cold blue, red aircraft warning light",
+      "image_prompt": "[EVIDENCE] Twitter: An update on our security incident",
       "on_screen_text": "",
       "text_anim": "",
       "character_action": "",
@@ -1284,7 +1643,7 @@
       "audio_file": null,
       "audio_dur": 5.15,
       "audio_voice": "Aiden",
-      "image_file": null,
+      "image_file": "research/evidence/twitter_incident.png",
       "image_seed": null,
       "image_meta": null,
       "type": "scene",
@@ -1305,7 +1664,7 @@
         "image": "none",
         "video": "pending",
         "transcript": "none",
-        "images": "pending"
+        "images": "ready"
       },
       "camera": "slow aerial push-in toward, cinematic drone shot",
       "overlays": [
@@ -1319,7 +1678,19 @@
           "sync": "21",
           "seconds": 2.6
         }
-      ]
+      ],
+      "image_locked": true,
+      "no_video": true,
+      "receipt": {
+        "focus": {
+          "x": 0.5,
+          "y": 0.25,
+          "w": 0.7,
+          "h": 0.25
+        },
+        "highlight": true,
+        "sync": "admits"
+      }
     },
     {
       "act": "",
@@ -1327,7 +1698,7 @@
       "timecode": "",
       "narration": "Coinbase blocks over a thousand transactions, about two hundred and eighty thousand dollars that never reaches the scam.",
       "visual": "",
-      "image_prompt": "3d mannequin documentary, dark top-down map visualization, glowing red money-flow lines racing across a black continent then hitting a wall of blocking nodes and stopping, data map shot",
+      "image_prompt": "[ARCHIVAL] BITCOIN",
       "on_screen_text": "",
       "text_anim": "",
       "character_action": "",
@@ -1340,7 +1711,7 @@
       "audio_file": null,
       "audio_dur": 5.95,
       "audio_voice": "Aiden",
-      "image_file": null,
+      "image_file": "research/archival/bitcoin.jpg",
       "image_seed": null,
       "image_meta": null,
       "type": "scene",
@@ -1361,10 +1732,12 @@
         "image": "none",
         "video": "pending",
         "transcript": "none",
-        "images": "pending"
+        "images": "ready"
       },
       "camera": "slow pull-back revealing, widening",
-      "overlays": []
+      "overlays": [],
+      "image_locked": true,
+      "no_video": true
     },
     {
       "act": "",
@@ -1372,12 +1745,12 @@
       "timecode": "",
       "narration": "The scam itself is almost small. About a hundred and ten thousand dollars in bitcoin.",
       "visual": "",
-      "image_prompt": "3d mannequin documentary, a single small stack of bitcoin coins alone on a vast empty dark table, wide negative space, one hard overhead light, deep shadow",
+      "image_prompt": "[ARCHIVAL] THE TAKE: $110,000",
       "on_screen_text": "",
       "text_anim": "",
       "character_action": "",
       "transition": "push-in",
-      "audio_cue": "",
+      "audio_cue": "pop",
       "id": 27,
       "planned_start": 109.24,
       "planned_end": 115.33,
@@ -1385,7 +1758,7 @@
       "audio_file": null,
       "audio_dur": 6.09,
       "audio_voice": "Aiden",
-      "image_file": null,
+      "image_file": "research/archival/bitcoin.jpg",
       "image_seed": null,
       "image_meta": null,
       "type": "scene",
@@ -1408,10 +1781,12 @@
         "image": "none",
         "video": "pending",
         "transcript": "none",
-        "images": "pending"
+        "images": "ready"
       },
       "camera": "locked-off static shot",
-      "overlays": []
+      "overlays": [],
+      "image_locked": true,
+      "no_video": true
     },
     {
       "act": "",
@@ -1419,7 +1794,7 @@
       "timecode": "",
       "narration": "The damage is not the money. It is the proof that three people with a telephone could seize the megaphone of the planet.",
       "visual": "",
-      "image_prompt": "3d mannequin documentary, a faceless mannequin holding an old megaphone standing on a tiny stage before a vast dark empty auditorium of thousands of blank seats, wide dramatic reenactment, single beam, red haze",
+      "image_prompt": "3d mannequin documentary, a faceless matte grey mannequin figure in a grey hoodie with the hood up and dark jeans, smooth blank head, no face, no facial features holding an old megaphone on a tiny stage before a vast dark auditorium of empty seats, wide dramatic reenactment, single beam, red haze",
       "on_screen_text": "",
       "text_anim": "",
       "character_action": "",
@@ -1433,7 +1808,7 @@
       "audio_dur": 4.71,
       "audio_voice": "Aiden",
       "image_file": null,
-      "image_seed": null,
+      "image_seed": 70,
       "image_meta": null,
       "type": "scene",
       "motion_type": "ambient",
@@ -1450,13 +1825,22 @@
       "transcript": null,
       "status": {
         "audio": "ready",
-        "image": "none",
+        "image": "ready",
         "video": "pending",
         "transcript": "none",
         "images": "pending"
       },
       "camera": "slow pull-back revealing, widening",
-      "overlays": []
+      "overlays": [],
+      "video_meta": {
+        "engine": "wan-t2v",
+        "quality": "balanced",
+        "prompt": "3d mannequin documentary, a faceless matte grey mannequin figure in a grey hoodie with the hood up and dark jeans, smooth blank head, no face, no facial features holding an old megaphone on a tiny stage before a vast dark auditorium of empty seats, wide dramatic reenactment, single beam, red haze, stylized 3d reconstruction environment, dark low-key lighting, deep shadows, one red rim-light accent, desaturated cinematic documentary grade, filmic grain. 3d mannequin documentary, a faceless matte grey mannequin figure in a grey hoodie with the hood up and dark jeans, smooth blank head, no face, no facial features holding an old megaphone on a tiny stage before a vast dark auditorium of empty seats, wide dramatic reenactment, single beam, red haze. subtle ambient motion, gentle idle movement and breathing, slow drifting camera, the scene stays composed and on-model. Consistent art style throughout, on-model, no style change, no repainting. Subtle deliberate motion",
+        "seconds": 4.71,
+        "fps": 16,
+        "seed": 70,
+        "enhanced": true
+      }
     },
     {
       "act": "",
@@ -1464,7 +1848,7 @@
       "timecode": "",
       "narration": "And Clark leaves a trail. He always did.",
       "visual": "",
-      "image_prompt": "3d mannequin documentary, surveillance-camera framing of a faceless mannequin walking away down a suburban street at night, seen from a doorbell camera, grainy CCTV look, high angle, night vision tint",
+      "image_prompt": "3d mannequin documentary, doorbell-camera framing of a faceless matte grey mannequin figure in a grey hoodie with the hood up and dark jeans, smooth blank head, no face, no facial features walking away down a suburban street at night, grainy CCTV look, high angle, night tint",
       "on_screen_text": "",
       "text_anim": "",
       "character_action": "",
@@ -1478,7 +1862,7 @@
       "audio_dur": 2.39,
       "audio_voice": "Aiden",
       "image_file": null,
-      "image_seed": null,
+      "image_seed": 71,
       "image_meta": null,
       "type": "scene",
       "motion_type": "ambient",
@@ -1493,13 +1877,22 @@
       "transcript": null,
       "status": {
         "audio": "ready",
-        "image": "none",
+        "image": "ready",
         "video": "pending",
         "transcript": "none",
         "images": "pending"
       },
       "camera": "locked-off static shot",
-      "overlays": []
+      "overlays": [],
+      "video_meta": {
+        "engine": "wan-t2v",
+        "quality": "balanced",
+        "prompt": "3d mannequin documentary, doorbell-camera framing of a faceless matte grey mannequin figure in a grey hoodie with the hood up and dark jeans, smooth blank head, no face, no facial features walking away down a suburban street at night, grainy CCTV look, high angle, night tint, stylized 3d reconstruction environment, dark low-key lighting, deep shadows, one red rim-light accent, desaturated cinematic documentary grade, filmic grain. 3d mannequin documentary, doorbell-camera framing of a faceless matte grey mannequin figure in a grey hoodie with the hood up and dark jeans, smooth blank head, no face, no facial features walking away down a suburban street at night, grainy CCTV look, high angle, night tint. subtle ambient motion, gentle idle movement and breathing, slow drifting camera, the scene stays composed and on-model. Consistent art style throughout, on-model, no style change, no repainting. Subtle deliberate motion",
+        "seconds": 2.5,
+        "fps": 16,
+        "seed": 71,
+        "enhanced": true
+      }
     },
     {
       "act": "",
@@ -1507,7 +1900,7 @@
       "timecode": "",
       "narration": "Investigators follow the bitcoin, and they follow the usernames he used on hacking forums.",
       "visual": "",
-      "image_prompt": "3d mannequin documentary, a dark investigator's wall: printed transaction slips and forum screenshots pinned in a chain, red string linking them, blank paper with no letters, medium detail shot, desk lamp",
+      "image_prompt": "[EVIDENCE] DOJ: Three Individuals Charged",
       "on_screen_text": "",
       "text_anim": "",
       "character_action": "",
@@ -1520,7 +1913,7 @@
       "audio_file": null,
       "audio_dur": 4.23,
       "audio_voice": "Aiden",
-      "image_file": null,
+      "image_file": "research/evidence/doj_charges.png",
       "image_seed": null,
       "image_meta": null,
       "type": "scene",
@@ -1541,10 +1934,22 @@
         "image": "none",
         "video": "pending",
         "transcript": "none",
-        "images": "pending"
+        "images": "ready"
       },
       "camera": "slow lateral pan across, steady tracking",
-      "overlays": []
+      "overlays": [],
+      "image_locked": true,
+      "no_video": true,
+      "receipt": {
+        "focus": {
+          "x": 0.5,
+          "y": 0.5,
+          "w": 0.72,
+          "h": 0.24
+        },
+        "highlight": true,
+        "sync": "Investigators"
+      }
     },
     {
       "act": "",
@@ -1552,12 +1957,12 @@
       "timecode": "",
       "narration": "Some of those accounts were tied to an email address.",
       "visual": "",
-      "image_prompt": "3d mannequin documentary, macro of an old envelope and a blank email printout on a metal desk under a magnifier, extreme close-up, shallow focus, cold light, red pen mark",
+      "image_prompt": "[EVIDENCE] FBI San Francisco statement",
       "on_screen_text": "",
       "text_anim": "",
       "character_action": "",
       "transition": "pull-back",
-      "audio_cue": "",
+      "audio_cue": "quick whoosh",
       "id": 31,
       "planned_start": 126.98,
       "planned_end": 129.31,
@@ -1565,7 +1970,7 @@
       "audio_file": null,
       "audio_dur": 2.33,
       "audio_voice": "Aiden",
-      "image_file": null,
+      "image_file": "research/evidence/fbi_statement.png",
       "image_seed": null,
       "image_meta": null,
       "type": "scene",
@@ -1584,10 +1989,22 @@
         "image": "none",
         "video": "pending",
         "transcript": "none",
-        "images": "pending"
+        "images": "ready"
       },
       "camera": "slow push-in on, shallow focus",
-      "overlays": []
+      "overlays": [],
+      "image_locked": true,
+      "no_video": true,
+      "receipt": {
+        "focus": {
+          "x": 0.5,
+          "y": 0.4,
+          "w": 0.7,
+          "h": 0.3
+        },
+        "highlight": true,
+        "sync": "email"
+      }
     },
     {
       "act": "",
@@ -1595,7 +2012,7 @@
       "timecode": "",
       "narration": "The email was tied to a driver's license he had once uploaded to verify himself on a crypto exchange.",
       "visual": "",
-      "image_prompt": "3d mannequin documentary, macro of a blank plastic identification card lying face up on a dark scanner bed, glass glowing, no readable text, extreme close-up, single red scanner line crossing it",
+      "image_prompt": "[EVIDENCE] Graham Ivan Clark",
       "on_screen_text": "",
       "text_anim": "",
       "character_action": "",
@@ -1608,7 +2025,7 @@
       "audio_file": null,
       "audio_dur": 4.95,
       "audio_voice": "Aiden",
-      "image_file": null,
+      "image_file": "research/evidence/wiki_clark.png",
       "image_seed": null,
       "image_meta": null,
       "type": "scene",
@@ -1629,10 +2046,22 @@
         "image": "none",
         "video": "pending",
         "transcript": "none",
-        "images": "pending"
+        "images": "ready"
       },
       "camera": "slow push-in on, deliberate zoom",
-      "overlays": []
+      "overlays": [],
+      "image_locked": true,
+      "no_video": true,
+      "receipt": {
+        "focus": {
+          "x": 0.5,
+          "y": 0.66,
+          "w": 0.7,
+          "h": 0.22
+        },
+        "highlight": true,
+        "sync": "license"
+      }
     },
     {
       "act": "",
@@ -1640,7 +2069,7 @@
       "timecode": "",
       "narration": "The most careful social engineer in the story had verified his own identity, in writing, to a company that keeps records.",
       "visual": "",
-      "image_prompt": "3d mannequin documentary, a faceless mannequin sitting alone at a bare metal table in a dark interrogation room, hands folded, one empty chair opposite, wide reenactment, single overhead lamp, deep shadow",
+      "image_prompt": "3d mannequin documentary, a faceless matte grey mannequin figure in a grey hoodie with the hood up and dark jeans, smooth blank head, no face, no facial features sitting alone at a bare metal table in a dark interrogation room, hands folded, wide reenactment, single overhead lamp",
       "on_screen_text": "",
       "text_anim": "",
       "character_action": "",
@@ -1654,7 +2083,7 @@
       "audio_dur": 6.57,
       "audio_voice": "Aiden",
       "image_file": null,
-      "image_seed": null,
+      "image_seed": 75,
       "image_meta": null,
       "type": "scene",
       "motion_type": "ambient",
@@ -1671,13 +2100,22 @@
       "transcript": null,
       "status": {
         "audio": "ready",
-        "image": "none",
+        "image": "ready",
         "video": "pending",
         "transcript": "none",
         "images": "pending"
       },
       "camera": "locked-off static shot",
-      "overlays": []
+      "overlays": [],
+      "video_meta": {
+        "engine": "wan-t2v",
+        "quality": "balanced",
+        "prompt": "3d mannequin documentary, a faceless matte grey mannequin figure in a grey hoodie with the hood up and dark jeans, smooth blank head, no face, no facial features sitting alone at a bare metal table in a dark interrogation room, hands folded, wide reenactment, single overhead lamp, stylized 3d reconstruction environment, dark low-key lighting, deep shadows, one red rim-light accent, desaturated cinematic documentary grade, filmic grain. 3d mannequin documentary, a faceless matte grey mannequin figure in a grey hoodie with the hood up and dark jeans, smooth blank head, no face, no facial features sitting alone at a bare metal table in a dark interrogation room, hands folded, wide reenactment, single overhead lamp. subtle ambient motion, gentle idle movement and breathing, slow drifting camera, the scene stays composed and on-model. Consistent art style throughout, on-model, no style change, no repainting. Subtle deliberate motion",
+        "seconds": 6.0,
+        "fps": 16,
+        "seed": 75,
+        "enhanced": true
+      }
     },
     {
       "act": "",
@@ -1685,7 +2123,7 @@
       "timecode": "",
       "narration": "On the 31st of July, sixteen days after the attack, police arrest him in Tampa.",
       "visual": "",
-      "image_prompt": "3d mannequin documentary, police cruisers with strobing light bars parked across a suburban driveway at night, faceless mannequin officers in duty vests moving toward the door, wide action reenactment, red and blue light washing the house",
+      "image_prompt": "[EVIDENCE] DOJ: Three Individuals Charged",
       "on_screen_text": "",
       "text_anim": "",
       "character_action": "",
@@ -1698,7 +2136,7 @@
       "audio_file": null,
       "audio_dur": 4.11,
       "audio_voice": "Aiden",
-      "image_file": null,
+      "image_file": "research/evidence/doj_charges.png",
       "image_seed": null,
       "image_meta": null,
       "type": "scene",
@@ -1721,7 +2159,7 @@
         "image": "none",
         "video": "pending",
         "transcript": "none",
-        "images": "pending"
+        "images": "ready"
       },
       "camera": "subtle handheld drift, documentary feel",
       "overlays": [
@@ -1739,7 +2177,19 @@
           "sync": null,
           "seconds": 2.2
         }
-      ]
+      ],
+      "image_locked": true,
+      "no_video": true,
+      "receipt": {
+        "focus": {
+          "x": 0.5,
+          "y": 0.24,
+          "w": 0.72,
+          "h": 0.2
+        },
+        "highlight": true,
+        "sync": "arrest"
+      }
     },
     {
       "act": "",
@@ -1747,7 +2197,7 @@
       "timecode": "",
       "narration": "He is seventeen. Florida charges him as an adult, with thirty felony counts.",
       "visual": "",
-      "image_prompt": "3d mannequin documentary, an empty courtroom at night, dark wood benches, a single lamp over the judge's bench, one faceless mannequin standing small in the dock, wide establisher, deep shadows",
+      "image_prompt": "[ARCHIVAL] HILLSBOROUGH COUNTY COURTHOUSE",
       "on_screen_text": "",
       "text_anim": "",
       "character_action": "",
@@ -1760,7 +2210,7 @@
       "audio_file": null,
       "audio_dur": 3.81,
       "audio_voice": "Aiden",
-      "image_file": null,
+      "image_file": "research/archival/courthouse.jpg",
       "image_seed": null,
       "image_meta": null,
       "type": "scene",
@@ -1783,10 +2233,12 @@
         "image": "none",
         "video": "pending",
         "transcript": "none",
-        "images": "pending"
+        "images": "ready"
       },
       "camera": "slow push-in on, deliberate zoom",
-      "overlays": []
+      "overlays": [],
+      "image_locked": true,
+      "no_video": true
     },
     {
       "act": "",
@@ -1794,7 +2246,7 @@
       "timecode": "",
       "narration": "In March 2021, he takes a plea deal. Three years in prison, three years of probation, under Florida's youthful offender law.",
       "visual": "",
-      "image_prompt": "3d mannequin documentary, miniature diorama of a prison block sliced open like a model, tiny corridors and cells, one cell lit red, tabletop scale model on black, wide diorama shot",
+      "image_prompt": "[EVIDENCE] Hillsborough State Attorney",
       "on_screen_text": "",
       "text_anim": "",
       "character_action": "",
@@ -1807,7 +2259,7 @@
       "audio_file": null,
       "audio_dur": 7.57,
       "audio_voice": "Aiden",
-      "image_file": null,
+      "image_file": "research/evidence/hillsborough_sa.png",
       "image_seed": null,
       "image_meta": null,
       "type": "scene",
@@ -1827,7 +2279,7 @@
         "image": "none",
         "video": "pending",
         "transcript": "none",
-        "images": "pending"
+        "images": "ready"
       },
       "camera": "slow aerial push-in toward, cinematic drone shot",
       "overlays": [
@@ -1841,7 +2293,19 @@
           "sync": "March",
           "seconds": 2.6
         }
-      ]
+      ],
+      "image_locked": true,
+      "no_video": true,
+      "receipt": {
+        "focus": {
+          "x": 0.5,
+          "y": 0.4,
+          "w": 0.7,
+          "h": 0.28
+        },
+        "highlight": true,
+        "sync": "plea"
+      }
     },
     {
       "act": "",
@@ -1849,7 +2313,7 @@
       "timecode": "",
       "narration": "Two others were charged in the United States. We are not going to pretend the full picture is settled. Parts of it are still disputed.",
       "visual": "",
-      "image_prompt": "3d mannequin documentary, two faceless mannequins standing far apart in a vast dark empty space, a third silhouette half-dissolving into shadow, wide composition, dim rim light",
+      "image_prompt": "[EVIDENCE] DOJ: Three Individuals Charged",
       "on_screen_text": "",
       "text_anim": "",
       "character_action": "",
@@ -1862,7 +2326,7 @@
       "audio_file": null,
       "audio_dur": 6.65,
       "audio_voice": "Aiden",
-      "image_file": null,
+      "image_file": "research/evidence/doj_charges.png",
       "image_seed": null,
       "image_meta": null,
       "type": "scene",
@@ -1883,10 +2347,22 @@
         "image": "none",
         "video": "pending",
         "transcript": "none",
-        "images": "pending"
+        "images": "ready"
       },
       "camera": "slow pull-back revealing, widening",
-      "overlays": []
+      "overlays": [],
+      "image_locked": true,
+      "no_video": true,
+      "receipt": {
+        "focus": {
+          "x": 0.5,
+          "y": 0.85,
+          "w": 0.72,
+          "h": 0.14
+        },
+        "highlight": true,
+        "sync": "others"
+      }
     },
     {
       "act": "",
@@ -1894,7 +2370,7 @@
       "timecode": "",
       "narration": "Twitter changed its internal tools afterwards. It says access is tighter now.",
       "visual": "",
-      "image_prompt": "3d mannequin documentary, an empty glass office lobby at night behind security barriers, badge readers glowing, nobody around, wide establisher, cold blue light, red reader glow",
+      "image_prompt": "[EVIDENCE] Twitter: An update on our security incident",
       "on_screen_text": "",
       "text_anim": "",
       "character_action": "",
@@ -1907,7 +2383,7 @@
       "audio_file": null,
       "audio_dur": 4.15,
       "audio_voice": "Aiden",
-      "image_file": null,
+      "image_file": "research/evidence/twitter_incident.png",
       "image_seed": null,
       "image_meta": null,
       "type": "scene",
@@ -1926,10 +2402,22 @@
         "image": "none",
         "video": "pending",
         "transcript": "none",
-        "images": "pending"
+        "images": "ready"
       },
       "camera": "slow lateral pan across",
-      "overlays": []
+      "overlays": [],
+      "image_locked": true,
+      "no_video": true,
+      "receipt": {
+        "focus": {
+          "x": 0.5,
+          "y": 0.8,
+          "w": 0.7,
+          "h": 0.18
+        },
+        "highlight": true,
+        "sync": "tighter"
+      }
     },
     {
       "act": "",
@@ -1937,7 +2425,7 @@
       "timecode": "",
       "narration": "But the method he used is not a software flaw. It is a person, picking up a phone, wanting to be helpful.",
       "visual": "",
-      "image_prompt": "3d mannequin documentary, close on a plain desk phone under a single hard light in an empty dark room, the handset lifted slightly off its cradle, nobody around, macro detail, red accent",
+      "image_prompt": "3d mannequin documentary, a faceless matte grey mannequin figure in a light blue shirt and dark trousers with a lanyard badge, smooth blank head, no face reaching out to pick up a ringing desk phone at his cubicle, helpful posture, hand mid-air over the handset, open-plan office, single hard light",
       "on_screen_text": "",
       "text_anim": "",
       "character_action": "",
@@ -1951,7 +2439,7 @@
       "audio_dur": 5.81,
       "audio_voice": "Aiden",
       "image_file": null,
-      "image_seed": null,
+      "image_seed": 81,
       "image_meta": null,
       "type": "scene",
       "motion_type": "ambient",
@@ -1968,13 +2456,22 @@
       "transcript": null,
       "status": {
         "audio": "ready",
-        "image": "none",
+        "image": "ready",
         "video": "pending",
         "transcript": "none",
         "images": "pending"
       },
       "camera": "slow push-in on, shallow focus",
-      "overlays": []
+      "overlays": [],
+      "video_meta": {
+        "engine": "wan-t2v",
+        "quality": "balanced",
+        "prompt": "3d mannequin documentary, a faceless matte grey mannequin figure in a light blue shirt and dark trousers with a lanyard badge, smooth blank head, no face reaching out to pick up a ringing desk phone at his cubicle, helpful posture, hand mid-air over the handset, open-plan office, single hard light, stylized 3d reconstruction environment, dark low-key lighting, deep shadows, one red rim-light accent, desaturated cinematic documentary grade, filmic grain. 3d mannequin documentary, a faceless matte grey mannequin figure in a light blue shirt and dark trousers with a lanyard badge, smooth blank head, no face reaching out to pick up a ringing desk phone at his cubicle, helpful posture, hand mid-air over the handset, open-plan office, single hard light. subtle ambient motion, gentle idle movement and breathing, slow drifting camera, the scene stays composed and on-model. Consistent art style throughout, on-model, no style change, no repainting. Subtle deliberate motion",
+        "seconds": 5.81,
+        "fps": 16,
+        "seed": 81,
+        "enhanced": true
+      }
     },
     {
       "act": "",
@@ -1982,12 +2479,12 @@
       "timecode": "",
       "narration": "There is no patch for that.",
       "visual": "",
-      "image_prompt": "3d mannequin documentary, wide shot of an empty dark room with one monitor still glowing and an empty chair pushed back from the desk, nobody around, deep shadow, red rim light",
+      "image_prompt": "3d mannequin documentary, the empty chair pushed back from the desk in the dim blue bedroom, closed blinds, three monitors with red rim lights, energy drink cans and tangled cables, one monitor still glowing, nobody in the room, wide shot, deep shadow, red rim light",
       "on_screen_text": "",
       "text_anim": "",
       "character_action": "",
       "transition": "pull-back",
-      "audio_cue": "",
+      "audio_cue": "deep impact boom",
       "id": 40,
       "planned_start": 174.1,
       "planned_end": 175.415,
@@ -1996,7 +2493,7 @@
       "audio_dur": 1.315,
       "audio_voice": "Aiden",
       "image_file": null,
-      "image_seed": null,
+      "image_seed": 82,
       "image_meta": null,
       "type": "scene",
       "motion_type": "ambient",
@@ -2013,13 +2510,22 @@
       "transcript": null,
       "status": {
         "audio": "ready",
-        "image": "none",
+        "image": "ready",
         "video": "pending",
         "transcript": "none",
         "images": "pending"
       },
       "camera": "locked-off static shot",
-      "overlays": []
+      "overlays": [],
+      "video_meta": {
+        "engine": "wan-t2v",
+        "quality": "balanced",
+        "prompt": "3d mannequin documentary, the empty chair pushed back from the desk in the dim blue bedroom, closed blinds, three monitors with red rim lights, energy drink cans and tangled cables, one monitor still glowing, nobody in the room, wide shot, deep shadow, red rim light, stylized 3d reconstruction environment, dark low-key lighting, deep shadows, one red rim-light accent, desaturated cinematic documentary grade, filmic grain. 3d mannequin documentary, the empty chair pushed back from the desk in the dim blue bedroom, closed blinds, three monitors with red rim lights, energy drink cans and tangled cables, one monitor still glowing, nobody in the room, wide shot, deep shadow, red rim light. subtle ambient motion, gentle idle movement and breathing, slow drifting camera, the scene stays composed and on-model. Consistent art style throughout, on-model, no style change, no repainting. Subtle deliberate motion",
+        "seconds": 2.5,
+        "fps": 16,
+        "seed": 82,
+        "enhanced": true
+      }
     }
   ],
   "characters": [
@@ -2525,7 +3031,36 @@
     "planned_dur": null,
     "narration": "audio/narration.wav"
   },
-  "renders": [],
+  "renders": [
+    {
+      "id": "25be4ee6cc91",
+      "created": 1784085796.9267998,
+      "file": "video/final_20260715_112020_graded.mp4",
+      "duration": 176.41,
+      "width": 1920,
+      "height": 1080,
+      "fps": 30,
+      "scenes": 40,
+      "with_audio": 40,
+      "with_images": 24,
+      "with_videos": 16,
+      "graded": "cinematic",
+      "grade_encoder": "h264_nvenc"
+    },
+    {
+      "id": "2893cbc5475a",
+      "created": 1784085628.0658305,
+      "file": "video/final_20260715_112020.mp4",
+      "duration": 176.41,
+      "width": 1920,
+      "height": 1080,
+      "fps": 30,
+      "scenes": 40,
+      "with_audio": 40,
+      "with_images": 24,
+      "with_videos": 16
+    }
+  ],
   "research": {
     "summary": "On 15 July 2020, 17-year-old Graham Ivan Clark and two others phone-phished Twitter employees, seized the internal admin tool, and hijacked about 130 high-profile accounts to run a bitcoin doubling scam. Twitter silenced verified accounts for hours. Clark was arrested 31 July 2020 and pleaded guilty in March 2021.",
     "facts": [
@@ -2543,7 +3078,14 @@
     "sources": [
       "Wikipedia: 2020 Twitter account hijacking - https://en.wikipedia.org/wiki/2020_Twitter_account_hijacking",
       "Wikipedia: Graham Ivan Clark - https://en.wikipedia.org/wiki/Graham_Ivan_Clark",
-      "U.S. Department of Justice charging announcement, 31 July 2020"
+      "U.S. Department of Justice charging announcement, 31 July 2020",
+      "Evidence: DOJ: Three Individuals Charged — https://www.justice.gov/usao-ndca/pr/three-individuals-charged-alleged-roles-twitter-hack (public domain (US government work))",
+      "Evidence: The 2020 Twitter account hijacking — https://en.wikipedia.org/wiki/2020_Twitter_account_hijacking (screenshot of a public page, used as documentary evidence)",
+      "Evidence: Graham Ivan Clark — https://en.wikipedia.org/wiki/Graham_Ivan_Clark (screenshot of a public page, used as documentary evidence)",
+      "Evidence: Twitter: An update on our security incident — https://blog.x.com/en_us/topics/company/2020/an-update-on-our-security-incident (screenshot of a public page, used as documentary evidence)",
+      "Evidence: The scam tweet, archived — https://web.archive.org/web/20200715203000*/twitter.com/elonmusk (screenshot of a public page, used as documentary evidence)",
+      "Evidence: FBI San Francisco statement — https://www.fbi.gov/contact-us/field-offices/sanfrancisco/news/press-releases (public domain (US government work))",
+      "Evidence: Hillsborough State Attorney — https://www.sao13th.com/ (screenshot of a public page, used as documentary evidence)"
     ],
     "keywords": [
       "Twitter hack",
@@ -2569,5 +3111,123 @@
     "humanize": "natural",
     "speed": 1.28,
     "outro_scenes": 3
+  },
+  "character_bible": [
+    {
+      "name": "Clark",
+      "description": "a faceless matte mannequin figure in a grey hoodie with the hood up, slim teenage build, always in the dim blue bedroom unless the scene says otherwise",
+      "palette": "grey hoodie, blue screen light, red rim"
+    },
+    {
+      "name": "The employee",
+      "description": "a faceless matte mannequin figure in a light blue shirt with a lanyard badge",
+      "palette": "light blue shirt, cold office light"
+    },
+    {
+      "name": "The investigator",
+      "description": "a faceless matte mannequin figure in a dark jacket with a lanyard",
+      "palette": "dark jacket, warm lamp light"
+    }
+  ],
+  "evidence": [
+    {
+      "name": "doj_charges",
+      "file": "research/evidence/doj_charges.png",
+      "url": "https://www.justice.gov/usao-ndca/pr/three-individuals-charged-alleged-roles-twitter-hack",
+      "label": "DOJ: Three Individuals Charged",
+      "why": "the federal charging announcement — the core public record",
+      "license": "public domain (US government work)",
+      "captured": "2026-07-15"
+    },
+    {
+      "name": "wiki_hijacking",
+      "file": "research/evidence/wiki_hijacking.png",
+      "url": "https://en.wikipedia.org/wiki/2020_Twitter_account_hijacking",
+      "label": "The 2020 Twitter account hijacking",
+      "why": "the timeline of record",
+      "license": "screenshot of a public page, used as documentary evidence",
+      "captured": "2026-07-15"
+    },
+    {
+      "name": "wiki_clark",
+      "file": "research/evidence/wiki_clark.png",
+      "url": "https://en.wikipedia.org/wiki/Graham_Ivan_Clark",
+      "label": "Graham Ivan Clark",
+      "why": "the person, and the sentence he received",
+      "license": "screenshot of a public page, used as documentary evidence",
+      "captured": "2026-07-15"
+    },
+    {
+      "name": "twitter_incident",
+      "file": "research/evidence/twitter_incident.png",
+      "url": "https://blog.x.com/en_us/topics/company/2020/an-update-on-our-security-incident",
+      "label": "Twitter: An update on our security incident",
+      "why": "the platform's own account of losing control",
+      "license": "screenshot of a public page, used as documentary evidence",
+      "captured": "2026-07-15"
+    },
+    {
+      "name": "scam_tweet_archive",
+      "file": "research/evidence/scam_tweet_archive.png",
+      "url": "https://web.archive.org/web/20200715203000*/twitter.com/elonmusk",
+      "label": "The scam tweet, archived",
+      "why": "the post itself, as archived",
+      "license": "screenshot of a public page, used as documentary evidence",
+      "captured": "2026-07-15"
+    },
+    {
+      "name": "fbi_statement",
+      "file": "research/evidence/fbi_statement.png",
+      "url": "https://www.fbi.gov/contact-us/field-offices/sanfrancisco/news/press-releases",
+      "label": "FBI San Francisco statement",
+      "why": "the bureau's involvement",
+      "license": "public domain (US government work)",
+      "captured": "2026-07-15"
+    },
+    {
+      "name": "hillsborough_sa",
+      "file": "research/evidence/hillsborough_sa.png",
+      "url": "https://www.sao13th.com/",
+      "label": "Hillsborough State Attorney",
+      "why": "the office that charged him as an adult",
+      "license": "screenshot of a public page, used as documentary evidence",
+      "captured": "2026-07-15"
+    }
+  ],
+  "audio_plan": {
+    "mood": "money",
+    "query": "somber investigative ambient, quiet pulse, restrained tension, minimal piano and low strings cinematic corporate suspense understated",
+    "seconds": 175.4,
+    "bed": {
+      "source": "ace-step",
+      "title": null,
+      "license": "generated",
+      "cc0": true
+    },
+    "sfx": [
+      {
+        "cue": "quick whoosh",
+        "source": "disabled"
+      },
+      {
+        "cue": "cash register ding",
+        "source": "disabled"
+      },
+      {
+        "cue": "shimmering riser",
+        "source": "disabled"
+      },
+      {
+        "cue": "deep impact boom",
+        "source": "disabled"
+      },
+      {
+        "cue": "pop",
+        "source": "disabled"
+      }
+    ],
+    "cues_placed": 9,
+    "attribution": [],
+    "scored": 1784084405.6388693
   }
 }

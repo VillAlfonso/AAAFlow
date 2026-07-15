@@ -65,11 +65,67 @@ def _video_of(gid: str) -> Optional[Path]:
     return hits[0] if hits else None
 
 
+def _media_by_shot(gid: str) -> Dict[int, str]:
+    """{shot index -> media class}, from BOTH classifiers.
+
+    The techniques pass reads frame SHEETS, whose tile sampler only covers
+    ~34% of shots — selecting a dataset from that alone silently throws away
+    two thirds of the usable footage. The true analyzer
+    (`composer_analysis`) reads shots directly and records a `device` per
+    shot, so it gives full coverage. Prefer it; fall back to the tiles.
+    """
+    from collections import Counter
+    d = GATHER_DIR / gid
+    by_shot: Dict[int, str] = {}
+
+    # 1) the true analyzer's per-shot device (full coverage, one row per shot)
+    comp_f = d / "composition.json"
+    if comp_f.exists():
+        comp = json.loads(comp_f.read_text(encoding="utf-8"))
+        shots = _shots_of(gid)
+        for r in comp.get("shots") or []:
+            dev = r.get("device")
+            if not dev:
+                continue
+            t0 = float(r.get("t0", -1))
+            idx = next((i for i, s in enumerate(shots)
+                        if abs(s["t0"] - t0) < 0.05), None)
+            if idx is None:
+                continue
+            # the analyzer says "reconstruction-3d"; the tiles say "3d-render"
+            by_shot[idx] = "3d-render" if dev == "reconstruction-3d" else dev
+
+    # 2) the techniques tiles fill any gap
+    rep = d / "report.json"
+    if rep.exists():
+        data = json.loads(rep.read_text(encoding="utf-8"))
+        tiles = (data.get("techniques") or {}).get("tiles") or []
+        counts: Dict[int, Counter] = {}
+        for t in tiles:
+            sh, md = t.get("shot"), t.get("media")
+            if sh is None or not md:
+                continue
+            counts.setdefault(int(sh), Counter())[md] += 1
+        for k, v in counts.items():
+            by_shot.setdefault(k, v.most_common(1)[0][0])
+    return by_shot
+
+
 def build(name: str, gids: List[str], *, clips_per_video: int = 40,
           clip_len: float = 3.0, width: int = 384, height: int = 216,
-          fps: int = 16, caption: bool = True, progress=None) -> Dict:
-    """Cut + caption a training set from kept gather videos. Idempotent-ish:
-    re-running overwrites clips of the same index."""
+          fps: int = 16, caption: bool = True, progress=None,
+          media_filter: Optional[List[str]] = None,
+          style_clause: Optional[str] = None) -> Dict:
+    """Cut + caption a training set from kept gather videos.
+
+    ``media_filter`` keeps ONLY shots whose techniques media class is in the
+    list (e.g. ["3d-render"]). This is the difference between teaching a style
+    and teaching an average: our first fern LoRA sampled clips evenly, so just
+    21 of 225 were actual mannequin reconstructions and the mannequin concept
+    barely bound — the base model's "nude store dummy" prior won instead.
+    ``style_clause`` replaces the per-clip style words with one exact phrase,
+    so every caption teaches the SAME look.
+    """
     def note(msg, frac):
         if progress:
             progress(msg, frac)
@@ -89,6 +145,14 @@ def build(name: str, gids: List[str], *, clips_per_video: int = 40,
         # thinned evenly so the set spans the whole runtime
         usable = [s for s in shots
                   if (s["t1"] - s["t0"]) >= max(1.6, clip_len * 0.6)]
+        if media_filter:
+            classes = _media_by_shot(gid)
+            keep = set(media_filter)
+            usable = [s for i, s in enumerate(shots)
+                      if (s["t1"] - s["t0"]) >= max(1.6, clip_len * 0.6)
+                      and classes.get(i) in keep]
+            note(f"{gid[-4:]}: {len(usable)} shots match {media_filter}",
+                 vi / len(gids))
         usable.sort(key=lambda s: s["t0"])
         if len(usable) > clips_per_video:
             step = len(usable) / clips_per_video
@@ -133,6 +197,11 @@ def build(name: str, gids: List[str], *, clips_per_video: int = 40,
             cv2.imwrite(str(tmp), fr)
             try:
                 line = vlm.describe(tmp, CAPTION_PROMPT).strip().replace("\n", " ")
+                if style_clause:
+                    # one exact style phrase on every caption: the trigger and
+                    # the look must be IDENTICAL across the set or the concept
+                    # never binds (see the /lora-train skill)
+                    line = f"{style_clause}, {line}"
                 # motion word from the gatherer keeps the caption honest
                 if m["motion"] not in ("static", "hand"):
                     line += f" Camera {m['motion'].replace('-', ' ')}."

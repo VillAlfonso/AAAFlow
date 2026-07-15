@@ -113,7 +113,16 @@ def render_receipt_clip(img_path, dur: float, *, W: int, H: int,
     CH_, CW_ = canvas.shape[0], canvas.shape[1]
 
     def rect_on_canvas(nr) -> Tuple[float, float, float, float]:
-        x, y, w, h = [float(v) for v in nr]
+        # accept [left, top, w, h] OR {"x","y","w","h"} where x,y are CENTER
+        # (the overlay director / evidence board writes the dict form)
+        if isinstance(nr, dict):
+            w, h = float(nr["w"]), float(nr["h"])
+            x = float(nr["x"]) - w / 2.0
+            y = float(nr["y"]) - h / 2.0
+        elif isinstance(nr, bool):             # highlight:true -> whole focus band
+            x, y, w, h = 0.1, 0.45, 0.8, 0.1
+        else:
+            x, y, w, h = [float(v) for v in nr]
         return (cx + x * cw, cy + y * ch, max(w * cw, 1.0), max(h * ch, 1.0))
 
     # view rectangles: full frame → focus region (16:9-corrected, in-bounds)

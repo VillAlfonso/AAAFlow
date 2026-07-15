@@ -31,12 +31,12 @@
     "voice_humanize": "natural",
     "voice_outro": "on",
     "music_vibe": "somber investigative ambient, quiet pulse, restrained tension, minimal piano and low strings",
-    "style_suffix": "3d mannequin documentary, faceless matte humanoid mannequin figures with no facial features, stylized 3d reconstruction environment, dark low-key lighting, deep shadows, one red rim-light accent, desaturated cinematic documentary grade, filmic grain",
-    "negative_style": "cartoon, anime, illustration, flat drawing, detailed human faces, facial features, oversaturated, neon colors, bright cheerful lighting, watermark, readable text, gibberish letters, low quality, deformed",
+    "style_suffix": "3d mannequin documentary, stylized 3d reconstruction environment, dark low-key lighting, deep shadows, one red rim-light accent, desaturated cinematic documentary grade, filmic grain",
+    "negative_style": "real human face, facial features, eyes, nose, mouth, hair, human skin, photorealistic person, portrait, cartoon, anime, illustration, oversaturated, neon colors, bright cheerful lighting, low quality, deformed, extra hand, extra hands, extra fingers, third arm, duplicate hands, malformed hands, mirror, reflection, reflected figure, reflective surface",
     "wan_loras": [
       {
-        "file": "fern_style_low_v2.safetensors",
-        "strength": 0.85,
+        "file": "fern_pure.safetensors",
+        "strength": 1.2,
         "experts": "low"
       }
     ]
@@ -47,7 +47,7 @@
     "last_project": "89a7cc9961a9"
   },
   "created": 1783986202.7200952,
-  "updated": 1784017500.8927844,
+  "updated": 1784087107.842744,
   "auto_upload": {
     "enabled": true,
     "hour": 18,

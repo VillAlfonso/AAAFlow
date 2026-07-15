@@ -150,6 +150,34 @@ instruct: "", humanize: "natural|off|preset", outro: ""}`.
 Plugs into: channel voice defaults (`voice_instruct`, humanize, outro),
 TTS `speed`, score.py mood hints.
 
+### 6b. THE COMPOSER IS TRAINED ON THE ANALYSIS (user, 2026-07-14)
+
+`composition.md` must NOT be hand-guessed from frame sheets. It is distilled
+from **`app/composer_analysis.py`**, the true analyzer, which answers the
+only question a composer cares about: *the narrator said THIS — why did the
+editor show THAT?*
+
+- **Pass 1 (per shot)** — `POST /api/gatherer/{gid}/composition`. Every shot
+  is paired with the EXACT narration spoken over it (segment times x shot
+  boundaries), a mid-shot frame is pulled, and the VLM reads both together.
+  Records per shot: `depicts`, `device` (reconstruction / archival /
+  document / map / typeset-card…), **`relation`** (literal / evidence /
+  metaphor / context / reaction / transition), `framing`, `subject`, `why`.
+  Aggregates into `line_kind_to_picture` — the LOOKUP TABLE the composer
+  follows: what a number-claim gets shown, what a date gets, what an
+  abstraction gets. Writes `composition.json` + `composition.md`.
+- **Pass 2 (whole video)** — `GET/POST /api/gatherer/{gid}/composition/
+  synthesis`. The ordered record goes to a model (Claude, or the local LLM
+  via POST) which returns the ARCHITECTURE: acts + their function, opening
+  and closing strategy, recurring spaces and characters, **callbacks**
+  (setup -> payoff), the rhythm of literal vs metaphor, what the editor is
+  doing that is never said out loud, and `rules_for_composer` — the direct
+  instructions for writing image prompts in that style.
+- The study folds every pack's `rules_for_composer` + `line_kind_to_picture`
+  into the channel's `composition.md`/`.json`. THAT is what the composer
+  consults (with the `/compose-scenes` skill) when writing a storyboard.
+  Requires `keep_video` on the study so the source clips survive.
+
 ### 8. camera (`camera.md` / `camera.json`) — added 2026-07-14
 Replaces the RETIRED parallax mode (user: "that mode looks so ugly"): real
 camera grammar learned from the reference, not fake 2.5D depth.

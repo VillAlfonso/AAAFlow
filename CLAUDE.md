@@ -147,6 +147,28 @@ transcript), with use_when rules + prompt_words feeding Wan motion prompts.
 sections/memory): critiques become SYSTEM changes; stingers off globally,
 deliberate per-scene use only.
 
+## NO MIRRORS, ANATOMY BACKSTOP (user, 2026-07-15)
+Two AI tells the user flagged on the first full render: an **extra hand** on
+a figure, and **mirrors reflecting the mannequins wrong**. Fixes:
+`config.WAN["negative_motion"]` + the channel `negative_style` now carry
+extra-hand/finger/arm and mirror/reflection terms on every render. The
+`/compose-scenes` skill LAW 1b makes it a composing rule: never write a
+mirror or a reflection (the reflected figure renders broken; avoid "glass"
+that could mirror), and a hand close-up names ONE hand doing ONE thing (two
+hands in a tight shot is the extra-limb trap). NEVER use mirrors, period.
+
+## NEVER NSFW (user, 2026-07-14 — absolute)
+**No nudity, no gore, nothing sexual, nothing disturbing, ever**, in any
+channel, any style, any prompt. Enforced in code, not trust:
+`config.WAN["negative_safety"]` is force-appended to EVERY render by
+`wan_engine._no_text()` alongside the no-text block.
+Why it bit us: a real mannequin is a NUDE store dummy with a sculpted face,
+so the word "mannequin" pulls Wan toward a bare, uncanny half-human body —
+Fathom's scene 4 came back as a nude sculpted-face figure. So: **every
+figure in every prompt must be explicitly CLOTHED** (name the garment), and
+the negative bans bare skin, sculpted faces, eyebrows/lips and uncanny
+realism. If a figure's clothing is not written, the prompt is not finished.
+
 ## WAN RENDERS CONTENT, REMOTION RENDERS TEXT (user, 2026-07-14)
 A Wan clip came back with gibberish glyphs burned across the mannequin
 ("It'ss.s: st or V:idally"). The rule is now absolute and enforced in code:
@@ -165,6 +187,43 @@ A Wan clip came back with gibberish glyphs burned across the mannequin
   (DateChip), chapter cards (SegmentCard), annotations (ArrowCallout),
   emphasis lines (KineticTitle). Real fonts only; AI glyphs stay banned.
   Enable per render with assemble opts `{"overlay_engine": "remotion"}`.
+- **THE ANALYZER'S FIRST VERDICT (2026-07-15): fern is an EVIDENCE channel,
+  not a reconstruction channel.** Measured over 584 shots read against their
+  narration: archival-video 23%, screenshots 22%, documents 18%,
+  **3D mannequin reconstruction only 16%**, archival photos 7%, talking
+  heads 5%. And the pictures rarely depict the line: evidence 35%, context
+  33%, **literal only 19%**, metaphor 13%. Their arc: fastest cutting in the
+  OPENING (16-21 cuts/min, screenshots + archival, metaphor/evidence), a
+  SLOWER middle (12-14, context up to 57% — where the mannequins actually
+  live, building a world), 2-4 LONG HOLDS of 20-41 s on uncut evidence, then
+  a close that returns to context + evidence and is almost never literal.
+  **We had built a 100% mannequin channel — copying the most distinctive 16%
+  and discarding the 84% that carries the documentary weight.** That is why
+  it read as hollow. Every channel's `composition.md` must now be DISTILLED
+  FROM THIS ANALYSIS (see `data/studies/*/skills/composition.md`), never
+  guessed from frame sheets. Our media budget mirrors it within what we can
+  lawfully source: documents+screenshots ~40% (playwright on PUBLIC records +
+  `receipts.py`), archival ~20% (`archival.py`: Wikimedia PD/CC + US
+  government works), reconstruction ~25% (Wan + LoRA, reserved for the middle
+  and the unfilmable), typeset/maps ~15% (Remotion). We do NOT auto-scrape
+  the copyrighted news footage fern uses under fair-use commentary.
+- **THE TRUE VIDEO ANALYZER** (`app/composer_analysis.py`, user 2026-07-14:
+  "study the scene, see how the youtuber draws and presents the information
+  whilst taking into account what the narrator says… and analyze the video
+  as a whole, how they all connect, reading between the lines"). The
+  gatherer measures WHAT is on screen; this asks **why**. PASS 1 pairs every
+  shot with the EXACT narration spoken over it (segment times x shot
+  boundaries) and reads frame + line together in the VLM, recording
+  `depicts / device / relation (literal|evidence|metaphor|context|reaction|
+  transition) / framing / why`, and aggregating the **`line_kind_to_picture`
+  lookup** (what a number-claim gets shown, what a date gets, what an
+  abstraction gets). PASS 2 hands the ordered record to any model
+  (AI-agnostic prompt + record) which returns the ARCHITECTURE: acts,
+  opening/closing strategy, recurring spaces + characters, callbacks
+  (setup->payoff), literal-vs-metaphor rhythm, and **`rules_for_composer`**.
+  The composition SKILL is distilled from this, never hand-guessed from
+  frame sheets. Routes: `POST /api/gatherer/{gid}/composition`,
+  `GET/POST .../composition/synthesis`. Needs the study's `keep_video`.
 - **THE OVERLAY DIRECTOR decides WHERE text belongs** (`app/overlays.py`,
   user 2026-07-14: "a system should be able to read the source.json and
   determine where remotion comes in"). It runs inside `autodirect.direct()`
@@ -594,6 +653,19 @@ preset p5 (cq19 unchanged).
   Google's OAuth audit); user chose private → publish manually.
 - One art direction per video, sourced from the project's
   `video.global_style_suffix` — never hardcode a look into a pipeline stage.
+- **The style suffix is a LOOK, never a CAST (user, 2026-07-14: "why are
+  there other mannequins standing behind the teenager").** It is appended to
+  EVERY scene, so a subject noun inside it is silently requested in every
+  shot — Fathom's suffix said "mannequin FIGURES" (plural) and Wan drew
+  extras behind the one character. Style suffix = trigger + render style +
+  environment + lighting + grade + texture ONLY. The cast belongs in the
+  scene prompt, single-subject scenes say "alone, nobody else present", and
+  prompts compose via `scenes.merge_style(subject, style)` so the SUBJECT
+  LEADS and clauses dedupe (the t2v path used a naive join and repeated the
+  trigger). Phantom-cast negatives live in `WAN["negative_motion"]`. The
+  `/compose-scenes` skill is the full rulebook (also: name the real people
+  and brands, mannequins DO the verb, rotate scale — a bland prompt is why a
+  video reads as generic).
 - Scenes with no people get the style minus its character clause
   (`scenes.scene_has_people`) or the model draws phantom figures.
 - Animated clips run AS LONG AS THE SCENE IS ON SCREEN (user rule 2026-07-05:

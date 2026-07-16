@@ -1,0 +1,67 @@
+{
+  "_about": "The re-download recipe for AAAFlow. A git clone restores ~a few MB of code; this file + restore.py fetch back the ~178 GB of models/deps that are gitignored. What is NOT here (irreplaceable) must be restored from your own backup — see 'irreplaceable'. Verify a rebuild is byte-exact with the capsule (see 'verify').",
+  "generated": "2026-07-16",
+
+  "python": [
+    {"name": "PyTorch (CUDA cu128 for RTX 50-series)", "cwd": ".",
+     "cmd": "python -m pip install torch==2.11.0 torchaudio==2.11.0 --index-url https://download.pytorch.org/whl/cu128"},
+    {"name": "AAAFlow core", "cwd": ".",
+     "cmd": "python -m pip install -r requirements.txt"},
+    {"name": "Qwen3-TTS engine (editable, vendored)", "cwd": ".",
+     "cmd": "python -m pip install -e ./third_party/Qwen3-TTS"},
+    {"name": "ComfyUI", "cwd": "ComfyUI_windows_portable/ComfyUI",
+     "cmd": "python -m pip install -r requirements.txt"},
+    {"name": "ACE-Step (music, own venv normally)", "cwd": "ACE-Step-1.5",
+     "cmd": "python -m pip install -r requirements.txt"}
+  ],
+
+  "huggingface": [
+    {"repo": "Comfy-Org/Wan_2.2_ComfyUI_Repackaged", "file": "split_files/diffusion_models/wan2.2_i2v_high_noise_14B_fp8_scaled.safetensors",
+     "dest": "ComfyUI_windows_portable/ComfyUI/models/diffusion_models/wan2.2_i2v_high_noise_14B_fp8_scaled.safetensors", "gib": 14.0, "why": "Wan 2.2 i2v high-noise expert (motion)"},
+    {"repo": "Comfy-Org/Wan_2.2_ComfyUI_Repackaged", "file": "split_files/diffusion_models/wan2.2_i2v_low_noise_14B_fp8_scaled.safetensors",
+     "dest": "ComfyUI_windows_portable/ComfyUI/models/diffusion_models/wan2.2_i2v_low_noise_14B_fp8_scaled.safetensors", "gib": 14.0, "why": "Wan 2.2 i2v low-noise expert (detail)"},
+    {"repo": "Comfy-Org/Wan_2.2_ComfyUI_Repackaged", "file": "split_files/loras/wan2.2_i2v_lightx2v_4steps_lora_v1_high_noise.safetensors",
+     "dest": "ComfyUI_windows_portable/ComfyUI/models/loras/wan2.2_i2v_lightx2v_4steps_lora_v1_high_noise.safetensors", "gib": 0.6, "why": "4-step speed LoRA (balanced profile)"},
+    {"repo": "Comfy-Org/Wan_2.2_ComfyUI_Repackaged", "file": "split_files/loras/wan2.2_i2v_lightx2v_4steps_lora_v1_low_noise.safetensors",
+     "dest": "ComfyUI_windows_portable/ComfyUI/models/loras/wan2.2_i2v_lightx2v_4steps_lora_v1_low_noise.safetensors", "gib": 0.6, "why": "4-step speed LoRA (balanced profile)"},
+    {"repo": "Comfy-Org/Wan_2.1_ComfyUI_repackaged", "file": "split_files/text_encoders/umt5_xxl_fp8_e4m3fn_scaled.safetensors",
+     "dest": "ComfyUI_windows_portable/ComfyUI/models/text_encoders/umt5_xxl_fp8_e4m3fn_scaled.safetensors", "gib": 6.7, "why": "umt5 text encoder for Wan"},
+    {"repo": "Comfy-Org/Wan_2.1_ComfyUI_repackaged", "file": "split_files/vae/wan_2.1_vae.safetensors",
+     "dest": "ComfyUI_windows_portable/ComfyUI/models/vae/wan_2.1_vae.safetensors", "gib": 0.25, "why": "Wan VAE"}
+  ],
+
+  "auto_on_first_run": [
+    {"name": "Whisper (alignment/QA)", "gib": 2.9, "how": "faster-whisper downloads large-v3 into models/whisper on first voiceover/gatherer run", "prefetch": "python -c \"from faster_whisper import WhisperModel; WhisperModel('large-v3', download_root='models/whisper')\""},
+    {"name": "Writer LLM fallback", "gib": 8.0, "how": "Qwen/Qwen3-4B-Instruct-2507 auto-downloads via transformers on first local write (or use Ollama qwen3:8b instead)", "prefetch": "python -c \"from huggingface_hub import snapshot_download; snapshot_download('Qwen/Qwen3-4B-Instruct-2507')\""},
+    {"name": "ACE-Step music model", "gib": 9.0, "how": "downloads on first score/music-sidecar run (ACE-Step-1.5 handles its own fetch)"}
+  ],
+
+  "verify_source": [
+    {"files": ["ComfyUI_windows_portable/ComfyUI/models/diffusion_models/krea2_turbo_fp8_scaled.safetensors",
+               "ComfyUI_windows_portable/ComfyUI/models/text_encoders/qwen3vl_4b_fp8_scaled.safetensors",
+               "ComfyUI_windows_portable/ComfyUI/models/vae/qwen_image_vae.safetensors"],
+     "gib": 20.0,
+     "why": "krea2 render stack — THE image model. Filenames are pinned in config.py but the download source is NOT in code (installed via ComfyUI Manager's model browser). Re-fetch through ComfyUI Manager, or Comfy-Org's Krea/Qwen-Image repackaged repos. VERIFY before trusting auto-fetch.",
+     "auto": false}
+  ],
+
+  "optional_training": [
+    {"repo": "krea/krea-2-turbo", "dest": "trainers/weights/krea2_raw.safetensors", "gib": 25.0, "why": "RAW bf16 base — only needed to TRAIN a krea2 LoRA (rendering uses the fp8 stack). Not fetched by default."},
+    {"repo": "Qwen/Qwen3-VL-4B-Instruct", "dest": "trainers/weights/qwen3vl_4b_bf16.safetensors", "gib": 8.0, "why": "text encoder bf16 for LoRA training. Not fetched by default."}
+  ],
+
+  "irreplaceable": {
+    "why": "None of this can be re-downloaded. It is the only reason to keep a backup at all. ~12 GB, fits free Google Drive.",
+    "paths": [
+      "data/secrets/                                (OAuth tokens, app client — KB, but nothing works without them)",
+      "third_party/Qwen3-TTS local patch            (qwen_tts/inference/qwen3_tts_model.py — one edited file)",
+      "data/channels/*/projects/*/video/            (finished renders, ~10 GB / 386 mp4s)",
+      "data/channels/*/projects/*/audio/            (one-take narration wavs, ~68 MB)",
+      "data/lora_datasets/*/out/                    (trained LoRA weights: fern 1.8 GB + fern_pure 293 MB)"
+    ]
+  },
+
+  "landmine_qwen3tts": "third_party/Qwen3-TTS is a gitlink (mode 160000) with NO .gitmodules, so `git clone` does NOT restore it. Re-clone: `git clone https://github.com/QwenLM/Qwen3-TTS third_party/Qwen3-TTS`, then re-apply the local patch to qwen_tts/inference/qwen3_tts_model.py (from your backup).",
+
+  "verify": "After restoring, prove the tree is byte-exact to the day it was captured: `python C:/Users/USER/showcase-kit/capsule.py C:/AAAFlow --verify C:/Users/USER/AAAFlow-capsule/manifest.jsonl.gz`  ->  'N identical, 0 changed, 0 missing'."
+}
